@@ -4,24 +4,26 @@
 #include "../FAT12/hiinter.h"
 #include "commands.h"
 #include "util.h"
-//#include "../ASCII_IO/keyboard.h"
-#include "../COFF/COFF.H"
+#include "../ASCII_IO/keyboard.h"
+#include "../memory/memory.h"
 
-typedef int (*initMethodPtr)(void);
+extern long pkgoffset;
+extern char imagename;
+
 
 int main(void)
 {
-  ext_getch = &getch;
   char prompt[] = "P5-> ";
   char inbuf[50];      
-  unsigned int i, doffset, *ksize;
-  unsigned char *dcount, *module_name;
-  initMethodPtr initMethod;
+  unsigned int i, doffset, *ksize, *sizes;
+  unsigned char *dcount; 
 
   initScreen();
   setColor(0x1F);
   clear();
   prints("WELCOME TO P5\n");
+
+  init_memory();
 
   if(!enableA20())
   {
@@ -29,36 +31,37 @@ int main(void)
         while(1);
   }
 
+  if(!keyboard_init())
+        prints("[P5]: No input device availible.\n");
+
+  setupKeyTable();
+
   ksize = (unsigned int*)0x1705;
-  dcount = (unsigned char*)(ksize[0]+0x1700);
+  dcount = (unsigned char*)(0x1700+ksize[0]);
+  sizes = (unsigned int*)(0x1701+ksize[0]);
+  if(!ksize || (ksize && !dcount)){
+        prints("No modules found.\n");
+  }else{
 
-  doffset = 0;      
-  for(i = 0; i < dcount[0]; i++){
-        module_name = (char*)coff_resolveSymbol("_mname", (void*)(0x1700 + ksize[0] + (dcount[0]*4) + doffset + 1));
-        prints("Module #");
-        printHexByte((unsigned char)(i&0xFF));
-        if(module_name){
-                prints(" is '");
-                prints(module_name);
-                prints("'.\n");
-        }else{
-                prints(" has no name.\n");
+        doffset = 4 + (dcount[0]*4);      
+        for(i = 0; i < dcount[0]; i++){
+                prints("0x");
+                printHexDword(sizes[i]); 
+                prints(" byte module found at image+0x");
+                printHexDword(doffset); 
+                pchar('\n'); 
+                doffset += sizes[i];
         }
+  }  
 
-        coff_applyRelocations((void*)(0x1700 + ksize[0] + (dcount[0]*4) + doffset + 1));
-        initMethod = (initMethodPtr)coff_resolveSymbol("_modInit",  (void*)(0x1700 + ksize[0] + (dcount[0]*4) + doffset + 1));
-        prints("Module started with return code 0x");
-        printHexLong(initMethod());
-        prints("\n");
+  //Print kernel size and version
+  prints("Image: ");
+  prints(&imagename);
+  prints("\nSize: ");
+  printHexDword(pkgoffset);
+  prints("B\n"); 
 
-        if(strcmpci(module_name, "dellkey")){
-                ext_getch = (ext_getchPtr)coff_resolveSymbol("_getch",  (void*)(0x1700 + ksize[0] + (dcount[0]*4) + doffset + 1));
-        }
-
-        ext_getch();
-        doffset = ((unsigned int*)(0x1700 + ksize[0] + 1 + (4*i)))[0];
-  }
-
+  //Start usr prompt
   while(1)
   {
     pchar('\n');

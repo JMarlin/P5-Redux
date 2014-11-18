@@ -56,7 +56,6 @@
 
 //PS/2 commands
 #define PS2_RESET 0xFF //Reset the device
-#define PS2_SETCODESET 0xF0 //Set the scancode set
 
 //PS/2 command return codes
 #define PS2_OK 0xFA //ACK or Success
@@ -69,5 +68,3 @@ void keyboard_inputWait();
 void keyboard_outputWait();
 unsigned char keyboard_getData();
 int keyboard_init();
-int keyboard_setScancodeSet(unsigned char setNumber);
-void keyboard_debug();

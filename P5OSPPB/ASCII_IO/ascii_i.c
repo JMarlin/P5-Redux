@@ -4,10 +4,6 @@
 
 unsigned char keyTable[132];
 
-#ifdef P5_MODULE
-unsigned char mname[] = "ASCII INPUT MOD";
-#endif
-
 void setupKeyTable()
 {
         int i;
@@ -71,7 +67,7 @@ void scans(unsigned int length, char* outstr)
   int index = 0;
   for(index = 0 ; index < length-1 ; )
   {
-    temp_char = ext_getch();
+    temp_char = getch();
     if(temp_char != 0){
         outstr[index] = temp_char;
         pchar(outstr[index]);

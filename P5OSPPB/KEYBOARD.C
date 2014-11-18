@@ -1,4 +1,4 @@
-#include "../CORE/util.h"
+#include "../CORE/util.c"
 #include "ascii_o.h"
 #include "keyboard.h"
 
@@ -24,7 +24,7 @@ unsigned char keyboard_getData(){
         return inb(KBC_DREG);        
 }
 
-void keyboard_sendData(unsigned char data){
+keyboard_writeData(unsigned char data){
         keyboard_inputWait();
         outb(KBC_DREG, data);
 }
@@ -47,9 +47,9 @@ int keyboard_init(){
         prints("[keyboard_init()]: Disabling device interrupts and scancode translation.\n");
         keyboard_sendCommand(KBC_READ_CCB);
         ccbValue = keyboard_getData();
-        keyboard_sendCommand(KBC_WRITE_CCB);
+        keyboard_sendCommand(KBC_WRITE);
         keyboard_sendData(ccbValue & ~(CCB_PORT1_INT | CCB_PORT2_INT | 
-                                       CCB_PORT1_TRANS));
+                                       CCB_TRANS));
         
         //Test the KBC 
         prints("[keyboard_init()]: Testing the KBC.\n");
@@ -61,15 +61,16 @@ int keyboard_init(){
 
         //Test the device
         prints("[keyboard_init()]: Testing the PS/2 interface.\n");        
-        keyboard_sendCommand(KBC_TST_PORT1);
-        if(keyboard_getData() != PORT_TST_PASS) {
+        keyboard_sendCommand(KBC_PORT1_TST);
+        if(keyboard_getData() != PORT1_TST_PASS) {
                 prints("[keyboard_init()]: PS/2 device test failed. Keyboard will be disabled.\n");
         }
         
         //Enable and reset the device (when we start using the IRQs, we'll 
         //want to enable those in the CCB here as well
         prints("[keyboard_init()]: Enabling and resetting PS/2 device.\n");
-        keyboard_sendCommand(KBC_EN_PORT1);      
+        keyboard_sendCommand(KBC_EN_PORT1);        
+        keyboard_sendCommand(PORT1_WRITE);
         keyboard_sendData(PS2_RESET);
         if(keyboard_getData() != PS2_OK){
                 prints("[keyboard_init()]: PS/2 reset failed. Keyboard will be disabled.\n");
@@ -79,3 +80,7 @@ int keyboard_init(){
         return 1;
         
 }
+
+//When we enable interrupts, we should add a key array and have our driver 
+//reflect what keys are currently pressed. Further abstraction can be
+//then done one top of that model.

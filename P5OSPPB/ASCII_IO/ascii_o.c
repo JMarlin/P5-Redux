@@ -2,13 +2,29 @@
 #include "../CORE/commands.h"
 #include "../CORE/util.h"
 
+unsigned char digitToHex(unsigned char digit) {
+        return digit < 10 ? digit + '0' : digit - 10 + 'A';
+}
+
+void printHexByte(unsigned char byte) {
+        pchar(digitToHex((byte & 0xF0)>>4));
+        pchar(digitToHex(byte & 0xF));
+}
+
+void printHexWord(unsigned short wd) {
+        printHexByte((unsigned char)((wd & 0xFF00)>>8));
+        printHexByte((unsigned char)(wd & 0xFF));
+}
+
+void printHexDword(unsigned int dword) {
+        printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+        printHexWord((unsigned short)(dword & 0xFFFF));
+}
+
+
 char* screenBase;
 int cursor_x, cursor_y;
 char color_code;
-
-#ifdef P5_MODULE
-unsigned char mname[] = "ASCII OUTPUT MOD";
-#endif
 
 void initScreen(){
         color_code = 0x07;
@@ -96,35 +112,5 @@ void prints(char* _str)
   }
 }
 
-void printHexByte(unsigned char inbyte){
 
-        char tempbyte;
-
-        tempbyte = (inbyte >> 4) & 0xF;
-
-        if(tempbyte > 9){
-                pchar(tempbyte + 'A'-10);
-        }else{
-                pchar(tempbyte + '0');
-        }
-
-        tempbyte = inbyte & 0xF;
-
-        if(tempbyte > 9){
-                pchar(tempbyte + 'A' -10);
-        }else{
-                pchar(tempbyte + '0');
-        }
-
-}
-
-void printHexShort(unsigned short inshort){
-        printHexByte((unsigned char)(inshort >> 8));
-        printHexByte((unsigned char)(inshort & 0xFF));
-}
-
-void printHexLong(unsigned long inlong){
-       printHexShort((unsigned short)(inlong >> 16));
-       printHexShort((unsigned short)(inlong & 0xFFFF));
-}
 

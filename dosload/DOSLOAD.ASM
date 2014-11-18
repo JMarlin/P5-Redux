@@ -13,8 +13,6 @@ start_msg: DB "READING FILE...", 0xA, 0xD, "$"
 run_msg: DB "LAUNCHING KERNEL...", 0xA, 0xD, "$"
 file_msg: DB "COULDN'T OPEN FILE!", 0xA, 0xD, "$"
 read_msg: DB "ERROR READING FILE!", 0xA, 0xD, "$"
-load_msg: DB "LOADED KERNEL $"
-break_msg: DB 0xA, 0xD, "$"
 move_msg: DB "MOVING IMAGE TO LOW MEMORY...", 0xA, 0xD, "$"
 kernel_handle: DB 0x00, 0x00
 byte_buf: DB 0x00
@@ -36,7 +34,7 @@ mov AL, 0xC0            ;Permissions, read-only exclusive
 xor CL, CL              ;Just in case
 INT 0x21
 
-;JC WORD file_err
+JC file_err
 
 mov [kernel_handle], AX ;We're assuming this worked and
                         ;stashing the handle for now
@@ -51,7 +49,7 @@ mov CX, 0x1             ;We're going to do this a byte at a time
 mov DX, byte_buf        ;Pointer to the 'buffer'
 INT 0x21
 
-;JC WORD read_err
+JC read_err
 
 CMP AX, 0x0             ;If we read no bytes, leap to the boot code
 JE boot
@@ -65,18 +63,6 @@ MOV [byte_counter], SI  ;And store it
 JMP readbyte            ;Keep doing it until we've read the whole file
 
 boot:
-mov ah, 0x9
-mov dx, load_msg
-int 0x21
-
-mov ah, 0x9
-mov dx, 0x1705
-int 0x21
-
-mov ah, 0x9
-mov dx, break_msg
-int 0x21
-
 mov ah, 0x9
 mov dx, move_msg
 int 0x21

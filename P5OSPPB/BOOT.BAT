@@ -1,10 +1,8 @@
-echo off
-cls
 copy p5kern.bin ..\kpkg\
 cd ..\kpkg\
-kpkg p5kern.bin dellkey.mod
+kpkg p5kern.bin blank2.drv blank.drv
 copy p5kern.bin ..\dosload\
-cd ..\dosload
-echo About to boot into P5
-pause
-dosload
+cd ..\dosload\
+dosload.com
+
+
