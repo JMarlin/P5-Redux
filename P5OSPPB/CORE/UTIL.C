@@ -6,11 +6,15 @@
 int testA20()
 {
 
-      unsigned char* A20TestLow = (unsigned char*)0xC01;  //Choosing this randomly just because it should be in low free RAM just past the IDT loaded by PBOOT
-      unsigned char* A20TestHi = (unsigned char*)0x100C01;
+      
+      unsigned char* A20TestLow = (unsigned char*)0x1600;  //Choosing this randomly just because it should be in low free RAM just past the IDT loaded by PBOOT
+      unsigned char* A20TestHi = (unsigned char*)0x101600;
 
+      prints("Setting low byte to 0\n");
       A20TestHi[0] = 0x00;
+      prints("Setting hi byte to FF\n");
       A20TestLow[0] = 0xFF;
+      prints("Testing the difference\n");
       if(A20TestHi[0] != 0xFF)
       {
         //Setting the lower value didn't affect the higher
@@ -36,16 +40,21 @@ int enableA20()
                 prints("[enableA20()]: A20 is already enabled.\n");
                 return 1;
         }        
+        //DON'T TRY THE BIOS METHOD, WE'RE IN 32-BIT!!!
+        /*
+           prints("Trying BIOS method\n");
+           //Try the BIOS method
+           asm volatile ("movw $0x2401, %ax\n\t"
+                         "int $0x15");
+        */        
 
-        //Try the BIOS method
-        asm volatile ("movw $0x2401, %ax\n\t"
-                      "int $0x15");
         if(testA20())
         {
                 prints("[enableA20()]: A20 enabled via BIOS call.\n");
                 return 1;                   
         }
 
+        prints("Trying KBC method\n");
         //Try the keyboard controller
         while(inb(0x64)&0x2);   //Wait for the KBC status reg bit 1  to clear (ready for input)
         outb(0x64, 0xAD);       //Disable keyboard
@@ -68,6 +77,7 @@ int enableA20()
                 }
         }
 
+        prints("Trying fast A20 method\n");
         //Try fast A20 method
         asm volatile ( "inb $0x92, %al\n\t"
                        "or $0x2, %al\n\t"

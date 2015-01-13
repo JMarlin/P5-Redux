@@ -58,7 +58,7 @@ void init_memory() {
         void* ram_a;
         void* ram_b;
 
-        rootBlock.base = 0x7C00; //Start of kernel
+        rootBlock.base = (void*)0x7C00; //Start of kernel
         rootBlock.size = pkgoffset;
         rootBlock.next = (memblock*)0;
 
@@ -197,26 +197,26 @@ void* kmalloc(unsigned long size) {
 }
 
 void* kfree(void* base) {
-//        prints("Free base: "); printHexDword((unsigned long)base);
+        prints("Free base: "); printHexDword((unsigned long)base);
         
                 
         memblock* nextBlock = &rootBlock;
         memblock* prevBlock = &rootBlock;
         void* realBase = base - sizeof(memblock);
 
-//        prints("\nReal base: "); printHexDword((unsigned long)realBase);
-//        prints("\n");
+        prints("\nReal base: "); printHexDword((unsigned long)realBase);
+        prints("\n");
 
         while(1) {
-//                prints("   Matches ");
-//                printHexDword((unsigned long)nextBlock->base);
-//                prints("?...");
+                prints("   Matches ");
+                printHexDword((unsigned long)nextBlock->base);
+                prints("?...");
                 if(nextBlock->base == realBase) {
-//                        prints("yes\n");
+                        prints("yes\n");
                         prevBlock->next = nextBlock->next;                                
                         return (void*)0;
                 }else{
-//                        prints("no\n");
+                        prints("no\n");
                 }
         
                 if(nextBlock->next) {

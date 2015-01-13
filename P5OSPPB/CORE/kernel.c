@@ -23,13 +23,13 @@ int main(void)
   clear();
   prints("WELCOME TO P5\n");
 
-  init_memory();
-
   if(!enableA20())
   {
         prints("FATAL ERROR: Could not enable the A20 line.\nP5 will now halt.");
         while(1);
   }
+
+  init_memory();
 
   if(!keyboard_init())
         prints("[P5]: No input device availible.\n");
@@ -37,7 +37,7 @@ int main(void)
   setupKeyTable();
 
   ksize = (unsigned int*)0x1705;
-  dcount = (unsigned char*)(0x1700+ksize[0]);
+/*  dcount = (unsigned char*)(0x1700+ksize[0]);
   sizes = (unsigned int*)(0x1701+ksize[0]);
   if(!ksize || (ksize && !dcount)){
         prints("No modules found.\n");
@@ -53,13 +53,13 @@ int main(void)
                 doffset += sizes[i];
         }
   }  
-
+*/
   //Print kernel size and version
   prints("Image: ");
   prints(&imagename);
   prints("\nSize: ");
   printHexDword(pkgoffset);
-  prints("B\n"); 
+  prints("b\n"); 
 
   //Start usr prompt
   while(1)
