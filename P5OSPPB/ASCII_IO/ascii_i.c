@@ -106,6 +106,15 @@ unsigned char getch(void)
         return 0; //This should make realines cycle forever waiting for input
 }
 
+int strcmp(char* in1, char* in2) {
+    int index = 0;
+    while(in1[index] != 0 && in2[index] != 0) {
+        if(in1[index] != in2[index])
+            return 0;
+        index++;
+    }
+    return 1;
+}
 
 int strcmpci(char* in1, char* in2)
 {

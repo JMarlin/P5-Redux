@@ -1,5 +1,49 @@
 #include "commands.h"
 #include "../ASCII_IO/ascii_o.h"
+#include "../obj/lists.h"
+#include "../obj/variant.h"
+
+void testvars() {
+
+    varList* vars;
+    variant* tmpVar;
+    listItem* tmpItem;
+
+    prints("Testing variant system:\n");
+        
+    vars = newVarList();
+    allocVar(vars, "X");
+    allocVar(vars, "two");
+    allocVar(vars, "var");
+    
+    //Set up x var
+    tmpVar = getVar(vars, "X");
+    tmpVar->mode = VAR_MODE_STRING;
+    variantAssignString(tmpVar, "Hello, world!");
+
+    //Set up two var
+    tmpVar = getVar(vars, "two");
+    tmpVar->mode = VAR_MODE_STRING;
+    variantAssignNum(tmpVar, 123456.78910);
+    variantInternalCast(tmpVar);
+
+    //Set up var var
+    tmpVar = getVar(vars, "var");
+    tmpVar->mode = VAR_MODE_NUMBER;
+    variantAssignString(tmpVar, "123456.78910");
+    variantInternalCast(tmpVar);            
+
+    listRewind((list*)vars);
+    while(tmpItem = (listItem*)listNext((list*)vars)) {
+        tmpVar = (variant*)tmpItem->data;
+        prints(tmpVar->name);
+        prints(": ");
+        variantInternalCast(tmpVar);
+        prints(tmpVar->strVal);
+        prints("\n");
+    }
+
+}
 
 void clear(void)
 {

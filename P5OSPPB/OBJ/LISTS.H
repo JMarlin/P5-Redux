@@ -4,7 +4,7 @@
 typedef struct listItem {
         struct listItem* next;
         void* data; 
-}
+} listItem;
 
 typedef struct list {
         int count;
@@ -14,7 +14,7 @@ typedef struct list {
 
 list* newList();
 void listRewind(list* listObj);
-void listNext(list* listObj);
+listItem* listNext(list* listObj);
 void listAdd(list* thisList, void* newItem);
 void listRemoveObj(list* thisList, void* targetItem);
 void listRemove(list* thisList, int itemIndex);

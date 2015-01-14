@@ -8,8 +8,8 @@ list* newList() {
         
         returnList = (list*)kmalloc(sizeof(list));
         returnList->count = 0;
-        returnList->rootItem = (listItem)0;
-        returnList->itrPtr = (listItem)0;
+        returnList->rootItem = (listItem*)0;
+        returnList->itrPtr = (listItem*)0;
 
         return returnList;
 
@@ -35,22 +35,22 @@ void listRewind(list* listObj) {
 listItem* listNext(list* listObj) {
 
         listItem* retItem = listObj->itrPtr;
-        if(retItem->nextItem)
-                listObj->itrPtr = retItem->nextItem;
+        if(retItem->next)
+                listObj->itrPtr = retItem->next;
         return retItem;        
 
 }
 
-void listAdd(list* thisList, void* newItem) {
+void listAdd(list* thisList, void* newObj) {
         
         listItem* newItem;
         listItem* tailItem = getTailItem(thisList->rootItem);
 
         newItem = (listItem*)kmalloc(sizeof(listItem));
         newItem->next = (listItem*)0;
-        newItem->data = newItem;
+        newItem->data = newObj;
         
-        tailItem->next = newItem;
+        tailItem->next = newObj;
         thisList->count++;
 
 }
@@ -121,7 +121,7 @@ void* getListItem(list* thisList, int itemIndex) {
         int itemCounter = 0;
 
         if(thisList->count <= itemIndex)
-                return (void)0;
+                return (void*)0;
 
         while(1) {            
 

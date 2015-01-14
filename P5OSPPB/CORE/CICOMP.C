@@ -1,4 +1,5 @@
 #include "cicomp.h"
+#include "commands.h"
 #include "../ASCII_IO/ascii_o.h"
 
 void parse(char* instr)
@@ -25,7 +26,12 @@ void parse(char* instr)
            {
               help();           
            }else{
-              prints("PiCI Error: PEBKAC\n");        
+              if(strcmpci(instr,"TSTVAR"))
+              {
+                  testvars();
+              }else{
+                  prints("PiCI Error: PEBKAC\n");        
+              }
            }
         }
      }

@@ -14,6 +14,10 @@ echo ...CORE finished
 CD ..\MEMORY
 echo Starting MEMORY build...
 gcc -c -o memory.o memory.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+CD ..\OBJ
+echo Starting OBJ build...
+gcc -c -o lists.o lists.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o variant.o variant.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 CD ..\ASCII_IO
 echo Starting ASCII_IO build...
 gcc -c -o ascii_i.o ASCII_I.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
