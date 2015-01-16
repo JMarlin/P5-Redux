@@ -18,11 +18,14 @@ list* newList() {
 listItem* getTailItem(listItem* rootItem) {
         
         listItem* nextItem = rootItem;
+        listItem* prevItem = rootItem;    
 
-        while(nextItem->next)
+        while(nextItem) {
+                prevItem = nextItem;
                 nextItem = nextItem->next;
+        }
 
-        return nextItem;
+        return prevItem;
 
 }
 
@@ -50,7 +53,11 @@ void listAdd(list* thisList, void* newObj) {
         newItem->next = (listItem*)0;
         newItem->data = newObj;
         
-        tailItem->next = newObj;
+        if(tailItem)
+            tailItem->next = newObj;
+        else
+            thisList->rootItem = newItem;   
+
         thisList->count++;
 
 }

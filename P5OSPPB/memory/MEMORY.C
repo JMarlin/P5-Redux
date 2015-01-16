@@ -81,7 +81,7 @@ void init_memory() {
                 prints("Allocation failed.\n");
                 return;
         }
-        printChain();
+//        printChain();
         
         prints("Freeing ram_a.\n");
         ram_a = kfree(ram_a);
@@ -89,7 +89,7 @@ void init_memory() {
                 prints("Free failed.\n");
                 return;
         }
-        printChain();
+//        printChain();
 
         prints("Freeing ram_b.\n");
         ram_b = kfree(ram_b);
@@ -97,7 +97,7 @@ void init_memory() {
                 prints("Free failed.\n");
                 return;
         }
-        printChain();                
+//        printChain();                
 
 }
 
@@ -197,26 +197,26 @@ void* kmalloc(unsigned long size) {
 }
 
 void* kfree(void* base) {
-        prints("Free base: "); printHexDword((unsigned long)base);
+//        prints("Free base: "); printHexDword((unsigned long)base);
         
                 
         memblock* nextBlock = &rootBlock;
         memblock* prevBlock = &rootBlock;
         void* realBase = base - sizeof(memblock);
 
-        prints("\nReal base: "); printHexDword((unsigned long)realBase);
-        prints("\n");
+//        prints("\nReal base: "); printHexDword((unsigned long)realBase);
+//        prints("\n");
 
         while(1) {
-                prints("   Matches ");
-                printHexDword((unsigned long)nextBlock->base);
-                prints("?...");
+//                prints("   Matches ");
+//                printHexDword((unsigned long)nextBlock->base);
+//                prints("?...");
                 if(nextBlock->base == realBase) {
-                        prints("yes\n");
+//                        prints("yes\n");
                         prevBlock->next = nextBlock->next;                                
                         return (void*)0;
                 }else{
-                        prints("no\n");
+//                        prints("no\n");
                 }
         
                 if(nextBlock->next) {

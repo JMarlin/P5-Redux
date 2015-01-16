@@ -11,35 +11,60 @@ void testvars() {
 
     prints("Testing variant system:\n");
         
+    prints("Allocating a new variant list.\n");
     vars = newVarList();
+    prints("Allocating variable X, ");
     allocVar(vars, "X");
+    prints("two, ");
     allocVar(vars, "two");
+    prints("and var. ");
     allocVar(vars, "var");
+    prints("Done.\n");
     
     //Set up x var
+    prints("Setting up X var:\n   -Retrieving by name...");
     tmpVar = getVar(vars, "X");
+    prints("Done.\n   -Setting variant mode to 'string'...");
     tmpVar->mode = VAR_MODE_STRING;
+    prints("Done.\n   -Assigning value to variant...");
     variantAssignString(tmpVar, "Hello, world!");
+    prints("Done.\n");
 
     //Set up two var
+    prints("Setting up two var:\n   -Retrieving by name...");    
     tmpVar = getVar(vars, "two");
-    tmpVar->mode = VAR_MODE_STRING;
+    prints("Done.\n   -Setting variant mode to 'number'...");
+    tmpVar->mode = VAR_MODE_NUMBER;
+    prints("Done.\n   -Assigning double value to variant...");
     variantAssignNum(tmpVar, 123456.78910);
+    prints("Done.\n   -Casting assigned value...");
     variantInternalCast(tmpVar);
+    tmpVar->mode = VAR_MODE_STRING;
+    prints("Done.\n");
 
     //Set up var var
+    prints("Setting up var var:\n   -Retrieving by name...");
     tmpVar = getVar(vars, "var");
-    tmpVar->mode = VAR_MODE_NUMBER;
+    prints("Done.\n   -Setting variant mode to 'string'...");
+    tmpVar->mode = VAR_MODE_STRING;
+    prints("Done.\n   -Assigning string value to variant...");
     variantAssignString(tmpVar, "123456.78910");
+    prints("Done.\n   -Casting assigned value...");
     variantInternalCast(tmpVar);            
+    tmpVar->mode = VAR_MODE_NUMBER;
+    prints("Done.\n");
 
+    prints("Rewinding list...");
     listRewind((list*)vars);
-    while(tmpItem = (listItem*)listNext((list*)vars)) {
+    prints("Done.\nList root:");
+    printHexDword((int)((list*)vars)->rootItem);
+    prints("\nPrinting current vars:\n");
+    while(tmpItem = listNext((list*)vars)) {
         tmpVar = (variant*)tmpItem->data;
         prints(tmpVar->name);
         prints(": ");
         variantInternalCast(tmpVar);
-        prints(tmpVar->strVal);
+        printHexDword((int)tmpVar->strVal);
         prints("\n");
     }
 
