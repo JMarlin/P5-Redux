@@ -17,6 +17,7 @@ move_msg: DB "MOVING IMAGE TO LOW MEMORY...", 0xA, 0xD, "$"
 kernel_handle: DB 0x00, 0x00
 byte_buf: DB 0x00
 byte_counter: DW 0x00
+ksize: DW 0x0000
 
 main:
 mov DX, 0xF000
@@ -78,7 +79,7 @@ code_trans:
 mov al, [enter_kernel+SI]
 mov [ES:0x700+SI], al
 inc si
-cmp si, 0x100 ;Rough guess, I don't know the actual size of the code.
+cmp si, 0x200 ;Rough guess, I don't know the actual size of the code.
 jne code_trans
 
 ;Move the kernel from segment memory to linear memory
@@ -159,11 +160,84 @@ mov es, eax
 mov ss, eax
 mov esp, 0x90000
 
+;Enable A20
+call wait_kbc
+mov dx, 0x64
+mov al, 0xAD
+out dx, al
+call wait_kbc
+mov al, 0xD0
+out dx, al
+call wait_kbc2
+mov dx, 0x60
+in al, dx
+mov bl, al
+call wait_kbc
+mov dx, 0x64
+mov al, 0xD1
+out dx, al
+call wait_kbc
+mov dx, 0x60
+mov al, bl
+or al, 0x2
+out dx, al
+call wait_kbc
+mov al, 0xAE
+mov dx, 0x64
+out dx, al
+
+testa20:
+xor eax, eax
+mov [0x101600], eax
+mov eax, 0xFFFFFFFF
+mov [0x1600], eax
+mov ebx, [0x101600]
+cmp ebx, eax
+jne testdone
+jmp testa20
+testdone:
+
+;one more round of kernel move
+;now that we have high memory enabled, let's move the kernel there
+xor esi, esi
+trans2:
+mov al, [0x1700+esi]
+mov [0x100000+esi], al
+inc si
+xor eax, eax
+mov ax, [byte_counter]
+cmp eax, esi
+jne trans2
 
 ;Dive into the kernel code that was loaded from the drive
 ;fuckit: jmp fuckit
-jmp 0x08:0x1700
+jmp 0x08:0x100000
 
+wait_kbc:
+push dx
+push ax
+mov dx, 0x64
+waitloop:
+in al, dx
+and al, 0x2
+cmp al, 0
+jne waitloop
+pop ax
+pop dx
+ret
+
+wait_kbc2:
+push dx
+push ax
+mov dx, 0x64
+waitloop2:
+in al, dx
+and al, 0x1
+cmp al, 0x1
+jne waitloop2
+pop ax
+pop dx
+ret
 [BITS 16]
 
 idtr:

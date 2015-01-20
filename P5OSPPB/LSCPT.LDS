@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("binary")
 ENTRY(_start)
-phys = 0x1700;
+phys = 0x100000;
 
 __DYNAMIC = 0;
 

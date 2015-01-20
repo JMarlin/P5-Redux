@@ -6,6 +6,7 @@
 #include "util.h"
 #include "../ASCII_IO/keyboard.h"
 #include "../memory/memory.h"
+#include "../memory/paging.h"
 
 extern long pkgoffset;
 extern char imagename;
@@ -28,7 +29,10 @@ int main(void)
         prints("FATAL ERROR: Could not enable the A20 line.\nP5 will now halt.");
         while(1);
   }
-
+  
+  prints("Turning on paging...");
+  initMMU();
+  prints("Paging on.\n");
   init_memory();
 
   if(!keyboard_init())
@@ -36,9 +40,9 @@ int main(void)
 
   setupKeyTable();
 
-  ksize = (unsigned int*)0x1705;
+  ksize = (unsigned int*)0x100005;
 /*  dcount = (unsigned char*)(0x1700+ksize[0]);
-  sizes = (unsigned int*)(0x1701+ksize[0]);
+  sizes = (unsigned int*)(0x100001+ksize[0]);
   if(!ksize || (ksize && !dcount)){
         prints("No modules found.\n");
   }else{

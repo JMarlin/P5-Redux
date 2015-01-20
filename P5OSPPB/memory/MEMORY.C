@@ -58,7 +58,7 @@ void init_memory() {
         void* ram_a;
         void* ram_b;
 
-        rootBlock.base = (void*)0x7C00; //Start of kernel
+        rootBlock.base = (void*)0x100000; //Start of kernel
         rootBlock.size = pkgoffset;
         rootBlock.next = (memblock*)0;
 
@@ -73,7 +73,7 @@ void init_memory() {
                 prints("Allocation failed.\n");
                 return;
         }
-        printChain();
+//        printChain();
 
         prints("Allocating 1k of RAM to ram_b.\n");
         ram_b = kmalloc(1024);
@@ -172,7 +172,9 @@ void* kmalloc(unsigned long size) {
         memblock* tailBlock = getMBTail();
         memblock* nextBlock;
         memblock* newBlock;
-        void* rambase = (void*)0x100000; //User RAM starts at 1MB
+        //This needs to be fixed when we start playing with
+        //actual packages as allocations will clobber the packages
+        void* rambase = (void*)(0x100000 + pkgoffset); //User RAM starts at 1MB
 
         while(1) {
                 

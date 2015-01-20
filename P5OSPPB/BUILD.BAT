@@ -14,6 +14,8 @@ echo ...CORE finished
 CD ..\MEMORY
 echo Starting MEMORY build...
 gcc -c -o memory.o memory.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o paging.o paging.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+as -o pagings.o paging.s
 CD ..\OBJ
 echo Starting OBJ build...
 gcc -c -o lists.o lists.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
