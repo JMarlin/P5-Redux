@@ -1,3 +1,5 @@
+#include "../ascii_io/ascii_o.h"
+
 unsigned int *pageDirectory = (unsigned int*)0x200000;
 unsigned int *pageTable = (unsigned int*)0x201000;
 
@@ -44,20 +46,31 @@ void mapRegion(unsigned int physBase, unsigned int virtBase, unsigned int size, 
 
         int curVirt, curPhys, i;
 
-        for(curVirt = virtBase, curPhys = physBase; i < size; virtBase += 0x4000000, physBase += 0x400000, i++) {
-                setPageBlock(curPhys, virtBase, flags);
+        for(curVirt = virtBase, curPhys = physBase, i = 0; i < size; virtBase += 0x4000000, physBase += 0x400000, i++) {
+                prints("\nMapping block ");
+                printHexDword(curPhys);
+                prints(" -> ");
+                printHexDword(curVirt);
+                prints("\n");
+                setPageBlock(curPhys, curVirt, flags);
         } 
 }
 
 void initMMU() {
 
+        prints("\nInit page directory...");
         initPageDirectory();
         
         //map one 1:1 4mb region at the start of memory for reserved kernel
         //space
+        prints("Done\nMap first 4Mb...");
         mapRegion(0x00000000, 0x00000000, 1, 3); //Flags: supervisor ram, R/W enable, page present 
 
+        prints("Done\nLoading the page directory...");
         loadPageDirectory(pageDirectory);
+        
+        prints("Done\nEnabling paging...");
         enablePaging();        
+        prints("Done\n");
 
 }
