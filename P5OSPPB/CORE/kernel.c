@@ -4,6 +4,7 @@
 #include "../FAT12/hiinter.h"
 #include "commands.h"
 #include "util.h"
+#include "int.h"
 #include "../ASCII_IO/keyboard.h"
 #include "../memory/memory.h"
 #include "../memory/paging.h"
@@ -11,6 +12,13 @@
 extern long pkgoffset;
 extern char imagename;
 
+void zeroHandler(void) {
+
+        __asm__ ("cli");        
+        prints("!!!PANIC: DIVISION BY ZERO!!!");
+        while(1){}
+ 
+}
 
 int main(void)
 {
@@ -22,23 +30,30 @@ int main(void)
   initScreen();
   setColor(0x1F);
   clear();
-  prints("WELCOME TO P5\n");
 
   if(!enableA20())
   {
         prints("FATAL ERROR: Could not enable the A20 line.\nP5 will now halt.");
         while(1);
   }
-  
+
+  prints("Setting up interrupt table...");
+  initIDT();
+  prints("done.\n");
+  installInterrupt(0, &zeroHandler);
+  __asm__ ("int $0x80");
+
   prints("Turning on paging...");
   initMMU();
   prints("Paging on.\n");
-  init_memory();
-
+  //init_memory(); Need to overhaul the kmalloc system based on paging
+  
   if(!keyboard_init())
         prints("[P5]: No input device availible.\n");
 
   setupKeyTable();
+
+  prints("WELCOME TO P5\n");
 
   ksize = (unsigned int*)0x100005;
 /*  dcount = (unsigned char*)(0x1700+ksize[0]);

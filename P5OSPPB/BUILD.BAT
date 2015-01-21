@@ -10,6 +10,7 @@ gcc -c -o kernel.o kernel.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ff
 gcc -c -o cicomp.o CICOMP.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o commands.o COMMANDS.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o util.o util.c -nostdlib
+gcc -c -o int.o int.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 echo ...CORE finished
 CD ..\MEMORY
 echo Starting MEMORY build...

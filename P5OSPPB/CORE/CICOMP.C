@@ -4,6 +4,8 @@
 
 void parse(char* instr)
 {     
+
+  int i;
      
   if(findfatfile(instr) && ( slen(instr) <= 8 ))
   {        
@@ -30,7 +32,11 @@ void parse(char* instr)
               {
                   testvars();
               }else{
+                if(strcmpci(instr, "DIV")) {
+                  i = 1 / 0;
+                } else {
                   prints("PiCI Error: PEBKAC\n");        
+                }
               }
            }
         }

@@ -1,4 +1,4 @@
-INPUT(CORE\init.o CORE\kernel.o CORE\commands.o CORE\cicomp.o CORE\util.o)
+INPUT(CORE\init.o CORE\kernel.o CORE\commands.o CORE\cicomp.o CORE\util.o CORE\int.o)
 INPUT(ASCII_IO\ascii_i.o ASCII_IO\ascii_o.o ASCII_IO\keyboard.o)
 INPUT(MEMORY\memory.o MEMORY\paging.o MEMORY\pagings.o)
 INPUT(FAT12\hiinter.o)

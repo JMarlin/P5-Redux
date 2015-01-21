@@ -32,9 +32,16 @@ void keyboard_sendData(unsigned char data){
 int keyboard_init(){
 
         unsigned char ccbValue;
+        int i;
 
         prints("[keyboard_init()]: Beginning keyboard initialization sequence.\n");
         prints("[keyboard_init()]: Disabling devices and flushing KBC buffer.\n");        
+
+        //wait a sec
+        i = 0;
+        while(i < 0xFFF) {
+                i++;
+        }        
 
         //Diable the ports 
         keyboard_sendCommand(KBC_DIS_PORT1);
