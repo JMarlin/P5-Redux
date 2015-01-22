@@ -22,6 +22,7 @@ void zeroHandler(void) {
 
 int main(void)
 {
+
   char prompt[] = "P5-> ";
   char inbuf[50];      
   unsigned int i, doffset, *ksize, *sizes;
@@ -31,21 +32,23 @@ int main(void)
   setColor(0x1F);
   clear();
 
+/*
   if(!enableA20())
   {
         prints("FATAL ERROR: Could not enable the A20 line.\nP5 will now halt.");
         while(1);
   }
+*/
 
   prints("Setting up interrupt table...");
   initIDT();
   prints("done.\n");
-  installInterrupt(0, &zeroHandler);
-  __asm__ ("int $0x80");
+//  installInterrupt(0, &zeroHandler);
+//  __asm__ ("int $0x80");
 
-  prints("Turning on paging...");
-  initMMU();
-  prints("Paging on.\n");
+//  prints("Turning on paging...");
+//  initMMU();
+//  prints("Paging on.\n");
   //init_memory(); Need to overhaul the kmalloc system based on paging
   
   if(!keyboard_init())

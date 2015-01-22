@@ -3,7 +3,11 @@
 #include "../CORE/util.h"
 
 unsigned char digitToHex(unsigned char digit) {
-        return digit < 10 ? digit + '0' : digit - 10 + 'A';
+        if(digit < 0xA) {
+            return (digit + '0');
+        } else {
+            return ((digit - 0xA) + 'A');
+        }
 }
 
 void printHexByte(unsigned char byte) {

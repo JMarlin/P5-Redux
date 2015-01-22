@@ -10,6 +10,8 @@ int testA20()
       unsigned char* A20TestLow = (unsigned char*)0x1600;  //Choosing this randomly just because it should be in low free RAM just past the IDT loaded by PBOOT
       unsigned char* A20TestHi = (unsigned char*)0x101600;
 
+      unsigned char oldHi = A20TestHi[0];
+
       //prints("Setting low byte to 0\n");
       A20TestHi[0] = 0x00;
       //prints("Setting hi byte to FF\n");
@@ -20,10 +22,11 @@ int testA20()
         //Setting the lower value didn't affect the higher
         //value. A20 is already enabled, so quit true.
         return 1;
+        A20TestHi[0] = oldHi;
       }
 
       return 0;
-
+      A20TestHi[0] = oldHi;
 }
 
 int enableA20()

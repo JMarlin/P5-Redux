@@ -8,7 +8,7 @@ typedef void (*intHandler)(void);
 typedef struct idtPtr {
         unsigned short limit;
         unsigned int base;
-} idtPtr;
+} __attribute__ ((packed)) idtPtr;
 
 typedef struct idtEntry {
         unsigned short offset_1;
@@ -16,7 +16,7 @@ typedef struct idtEntry {
         unsigned char zero;
         unsigned char type_attr;
         unsigned short offset_2;
-} idtEntry;
+} __attribute__ ((packed)) idtEntry;
 
 void blankInterrupt(unsigned char number);
 void initIDT();

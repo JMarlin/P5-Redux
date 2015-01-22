@@ -33,7 +33,7 @@ void parse(char* instr)
                   testvars();
               }else{
                 if(strcmpci(instr, "DIV")) {
-                  i = 1 / 0;
+                  __asm__ ("int $0x50");
                 } else {
                   prints("PiCI Error: PEBKAC\n");        
                 }
