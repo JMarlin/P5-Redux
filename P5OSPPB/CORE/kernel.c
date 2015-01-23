@@ -1,3 +1,5 @@
+#include "../process/process.h"
+#include "kernel.h"
 #include "../ASCII_IO/ascii_i.h"
 #include "../ASCII_IO/ascii_o.h"
 #include "cicomp.h"
@@ -8,23 +10,16 @@
 #include "../ASCII_IO/keyboard.h"
 #include "../memory/memory.h"
 #include "../memory/paging.h"
+#include "../memory/gdt.h"
 
 extern long pkgoffset;
 extern char imagename;
 
-void zeroHandler(void) {
-
-        __asm__ ("cli");        
-        prints("!!!PANIC: DIVISION BY ZERO!!!");
-        while(1){}
- 
-}
+char prompt[] = "P5-> ";
+char inbuf[50];   
 
 int main(void)
-{
-
-  char prompt[] = "P5-> ";
-  char inbuf[50];      
+{   
   unsigned int i, doffset, *ksize, *sizes;
   unsigned char *dcount; 
 
@@ -40,15 +35,18 @@ int main(void)
   }
 */
 
+  prints("Setting up the GDT...");
+  initGdt();
+  prints("done.");
+
   prints("Setting up interrupt table...");
   initIDT();
   prints("done.\n");
-//  installInterrupt(0, &zeroHandler);
-//  __asm__ ("int $0x80");
+  installExceptionHandlers();
 
-//  prints("Turning on paging...");
-//  initMMU();
-//  prints("Paging on.\n");
+  prints("Turning on paging...");
+  initMMU();
+  prints("Paging on.\n");
   //init_memory(); Need to overhaul the kmalloc system based on paging
   
   if(!keyboard_init())
@@ -82,14 +80,25 @@ int main(void)
   prints("\nSize: ");
   printHexDword(pkgoffset);
   prints("b\n"); 
+  prints("ESP: ");
 
-  //Start usr prompt
-  while(1)
-  {
-    pchar('\n');
+  asm("\t movl %%esp, %0" : "=r"(i));
+
+  printHexDword(i);
+
+  sys_console();
+
+  return 0;
+}
+
+//Start usr prompt
+void sys_console() {
+    while(1)
+    {
+        pchar('\n');
         prints(prompt);
         scans(50, inbuf);
         parse(inbuf);
-  }
-  return 0;
+    }
 }
+

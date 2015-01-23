@@ -11,10 +11,12 @@ gcc -c -o cicomp.o CICOMP.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ff
 gcc -c -o commands.o COMMANDS.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o util.o util.c -nostdlib
 gcc -c -o int.o int.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o expt.o expt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 echo ...CORE finished
 CD ..\MEMORY
 echo Starting MEMORY build...
 gcc -c -o memory.o memory.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o gdt.o gdt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o paging.o paging.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 as -o pagings.o paging.s
 CD ..\OBJ
@@ -27,6 +29,10 @@ gcc -c -o ascii_i.o ASCII_I.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -
 gcc -c -o ascii_o.o ASCII_O.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o keyboard.o keyboard.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding 
 echo ...ASCII_IO finished
+CD ..\PROCESS
+echo Starting PROCESS build...
+gcc -c -o process.o process.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+echo ...PROCESS finished
 CD ..\FAT12
 echo Starting FAT12 build...
 gcc -c -o hiinter.o HIINTER.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding

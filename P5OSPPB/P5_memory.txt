@@ -1,0 +1,13 @@
+Memory:
+0x00000000 -> 0x000FFFFF : V86 mode/BIOS reserved memory
+    *0xA0000 -> FFFFF : BIOS Data area
+0x00100000 -> 0x001FFFFF : Kernel load area
+0x00200000 -> 0x002FFFFF : Kernel data area
+    *0x00200000 -> 0x00200FFF : Page directory
+    *0x00201000 -> 0x0020100F : IDT Base struct (actually only 6 bytes, but whatev)
+    *0x00201010 -> 0x0020180F : IDT Entries
+    *0x00201810 -> 0x0020181F : GDT Base struct (also only 6 in reality)
+    *0x00201820 -> 0x0020199F : GDT Entries (null, kcode, kdat, ucode, udat, tss)
+    *0x002019A0 -> 0x00201A1F : TSS (actually only 100 bytes)
+0x00400000 -> 0x007FFFFF : Page tables
+0x00800000 -> 0xFFFFFFFF : Unmapped (user) 

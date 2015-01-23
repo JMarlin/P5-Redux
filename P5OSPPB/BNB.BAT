@@ -1,2 +1,3 @@
-build.bat
-boot.bat
+BUILD
+BOOT
+

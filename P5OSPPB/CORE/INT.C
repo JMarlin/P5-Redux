@@ -1,14 +1,15 @@
 #include "int.h" 
+#include "expt.h"
 #include "../ascii_io/ascii_o.h"
 
 unsigned char* idtBase = (idtPtr*)0x201000;
-unsigned char* idtEntries = (idtEntry*)0x201030; //ends 0x201830  
+unsigned char* idtEntries = (idtEntry*)0x201010; //ends 0x201810  
 
 void genericInterrupt(void) {
         __asm__ ("cli");
         prints("UNHANDLED INTERRUPT");
-//        __asm__ ("iret");
-        for(;;);
+        __asm__ ("sti");
+        while(1);
 }
 
 void set_idt(char* ptr) {
@@ -77,11 +78,33 @@ void initIDT() {
                 blankInterrupt(i);
         }                                                 
 
-        printIdt(0);
-
         prints("Installing idt\n");
         set_idt(idtBase);
         //__asm__ ("lidt $0x201000");
 
 }
 
+void installExceptionHandlers() {
+
+    installInterrupt(0x0, &expt_zeroDivide);
+    installInterrupt(0x1, &expt_debugCall);
+    installInterrupt(0x2, &expt_NMI);
+    installInterrupt(0x3, &expt_breakpoint);
+    installInterrupt(0x4, &expt_overflow);
+    installInterrupt(0x5, &expt_outOfBound);
+    installInterrupt(0x6, &expt_illegalOpcode);
+    installInterrupt(0x7, &expt_noCoprocessor);
+    installInterrupt(0x8, &expt_doubleFault);
+    
+    installInterrupt(0xA, &expt_invalidTSS);
+    installInterrupt(0xB, &expt_segNotPresent);
+    installInterrupt(0xC, &expt_stackFault);
+    installInterrupt(0xD, &expt_generalProtection);
+    installInterrupt(0xE, &expt_pageFault);
+    
+    installInterrupt(0x10, &expt_mathFault);
+    installInterrupt(0x11, &expt_alignCheck);
+    installInterrupt(0x12, &expt_machineCheck);
+    installInterrupt(0x13, &expt_simdFailure);
+        
+}

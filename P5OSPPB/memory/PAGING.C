@@ -46,7 +46,7 @@ void mapRegion(unsigned int physBase, unsigned int virtBase, unsigned int size, 
 
         int curVirt, curPhys, i;
 
-        for(curVirt = virtBase, curPhys = physBase, i = 0; i < size; curVirt += 0x4000000, curPhys += 0x400000, i++) {
+        for(curVirt = virtBase, curPhys = physBase, i = 0; i < size; curVirt += 0x400000, curPhys += 0x400000, i++) {
                 prints("\nMapping block ");
                 printHexDword(curPhys);
                 prints(" -> ");
