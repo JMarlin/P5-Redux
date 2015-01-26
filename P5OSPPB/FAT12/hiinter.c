@@ -1,17 +1,17 @@
 #include "hiinter.h"
 
-int findfatfile(char* ins)
-{
+
+int findfatfile(char* ins) {
+   
    return 0;        
 }
 
 
-void fatexec(char* ins)
-{        
+void fatexec(char* ins) {        
 }
 
 
-char* ext(char* ins)
-{
-   return ins;           
+char* ext(char* ins) {
+
+    return ins;           
 }

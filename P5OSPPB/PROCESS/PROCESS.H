@@ -7,4 +7,4 @@ typedef struct proc {
 
 void terminateProcess(proc* p);
 
-#endif
+#endif //PROCESS_H

@@ -20,5 +20,4 @@ void expt_alignCheck(void);
 void expt_machineCheck(void);
 void expt_simdFailure(void);
 
-
-#endif #EXPT_C
+#endif //EXPT_C

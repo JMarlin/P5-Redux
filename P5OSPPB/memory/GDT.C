@@ -1,5 +1,6 @@
 #include "gdt.h"
 
+
 //'seg' is the actual segment number
 void setGdtEntry(unsigned char seg, unsigned int limit, unsigned int base, unsigned char access, unsigned char flags) {
     
@@ -10,25 +11,25 @@ void setGdtEntry(unsigned char seg, unsigned int limit, unsigned int base, unsig
     entry->base_mid = (unsigned char)((base & 0xFF0000) >> 16);
     entry->base_hi = (unsigned char)((base & 0xFF000000) >> 24);
     entry->access = access; 
-
 }
+
 
 void lgdt(char* gdtr_ptr) {
-        __asm__ (
-            "lgdt (%0)\n"
-            :  
-            : "p" (gdtr_ptr)
-        );
+
+    __asm__ (
+        "lgdt (%0)\n"
+        :  
+        : "p" (gdtr_ptr)
+    );
 }
+
 
 void installGdt(unsigned int table_ptr, unsigned short table_sz) {
     
     gdtr_val* gdtr = (gdtr_val*)GDTR_LOC;
     gdtr->limit = table_sz;
     gdtr->pointer = table_ptr;
-
-    lgdt((char*)GDTR_LOC);  
-        
+    lgdt((char*)GDTR_LOC);          
 }
 
 void initGdt(void) {
@@ -43,10 +44,7 @@ void initGdt(void) {
     //User code, user data
     setGdtEntry(0x18, 0xFFFFF, 0x0, 0xFA, 0xC);
     setGdtEntry(0x20, 0xFFFFF, 0x0, 0xF2, 0xC);  
-
     installGdt((unsigned int)GDT_START, (unsigned short)((5 * sizeof(gdt_entry)) - 1));
 
     //we'll shove the TSS in here in the future.
-
 }
-

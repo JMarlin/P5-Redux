@@ -1,6 +1,13 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+
+typedef struct memblock {
+    void* base;
+    unsigned long size;
+    struct memblock* next;
+} memblock;
+
 void init_memory();
 
 //Find the end memblk and update it to allocate size + sizeof(memblk) 

@@ -1,21 +1,22 @@
 #include "variant.h"
 #include "../memory/memory.h"
 #include "../ASCII_IO/ascii_i.h"
+#include "lists.h"
+
 
 variant* makeVariant(char* name) {
 
-        variant* retvar = (variant*)kmalloc(sizeof(variant));
-        retvar->name = name;
-        retvar->mode = VAR_MODE_UNDEF;
-        return retvar;
-        
+    variant* retvar = (variant*)kmalloc(sizeof(variant));
+
+    retvar->name = name;
+    retvar->mode = VAR_MODE_UNDEF;
+    return retvar;    
 }
 
 //Probably would be better as a macro
 void collectVariant(variant* thisVariant) {
         
-        kfree((void*)thisVariant);
-
+    kfree((void*)thisVariant);
 }
 
 double str2dbl(char* dblStr) {
@@ -37,6 +38,7 @@ double str2dbl(char* dblStr) {
     
     //Get whole part
     if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return;
+
     while(1) {
         w += dblStr[i] - '0';
         i++;
@@ -47,10 +49,12 @@ double str2dbl(char* dblStr) {
 
     if(dblStr[i] != '.')
         return 0.0;
+
     i++;
 
     //Get fractional part
     if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return;
+
     while(1) {
         w += dblStr[i] - '0';
         i++;
@@ -58,20 +62,19 @@ double str2dbl(char* dblStr) {
         if(!(dblStr[i] >= '0' && dblStr[i] <= '9')) return 0.0;
         p = p / 10.0;
     }           
-
 }
 
-#define STR_FRAC_LEN 10
 
 int pow(int x, int y) {
 
     int o = 1;
+
     for(; y > 0; y--)
         o *= x;
 
     return o;
-
 }
+
 
 char* dbl2str(double value) {
 
@@ -88,7 +91,6 @@ char* dbl2str(double value) {
     fi = (int)f;    
 
     while(wi % pow(10, i)) i++;
-
     retBuffer = (char*)kmalloc(STR_FRAC_LEN + i + 1);
 
     for(j = i; j >= 0; j--) {
@@ -104,47 +106,47 @@ char* dbl2str(double value) {
 
     retBuffer[k] = 0;
     return retBuffer;        
-
 } 
+
 
 //Updates the internal values of thisVariant based
 //on the value of its active type member
 void variantInternalCast(variant* thisVariant) {
 
-        char* tmpStr; 
+    char* tmpStr; 
 
-        switch(thisVariant->mode) {
-                
-                case VAR_MODE_STRING: 
-                        thisVariant->dblVal = str2dbl(thisVariant->strVal);
-                        //thisVariant->objPtrVal = (baseObject*)0;
-                        break;
+    switch(thisVariant->mode) {
+        
+        case VAR_MODE_STRING: 
+            thisVariant->dblVal = str2dbl(thisVariant->strVal);
+            //thisVariant->objPtrVal = (baseObject*)0;
+            break;
 
-                case VAR_MODE_NUMBER:
-                        tmpStr = dbl2str(thisVariant->dblVal);
-                        variantAssignString(thisVariant, dbl2str(thisVariant->dblVal));
-                        kfree(tmpStr);
-                        //thisVariant->objPtrVal = (baseObject*)0;
-                        break;        
+        case VAR_MODE_NUMBER:
+            tmpStr = dbl2str(thisVariant->dblVal);
+            variantAssignString(thisVariant, dbl2str(thisVariant->dblVal));
+            kfree(tmpStr);
+            //thisVariant->objPtrVal = (baseObject*)0;
+            break;        
 
-                case VAR_MODE_OBJ:
-                        thisVariant->strVal = ""; //thisVariant->objPtrVal->do(thisVariant->objPtrVal, "toStr");
-                        thisVariant->dblVal = 0; //Doesn't matter, because doing anything between a number and an object should be illegal, but whatever.   
-                        break;                
+        case VAR_MODE_OBJ:
+            thisVariant->strVal = ""; //thisVariant->objPtrVal->do(thisVariant->objPtrVal, "toStr");
+            //Doesn't matter, because doing anything between a number and an object should be illegal, but whatever.
+            thisVariant->dblVal = 0;     
+            break;                
 
-                case VAR_MODE_UNDEF:
-                default:
-                        break;
-
-        }
-
+        case VAR_MODE_UNDEF:
+        default:
+            break;
+    }
 }
+
 
 void variantAssignNum(variant* thisVariant, double value) {
   
     thisVariant->dblVal = value;                
-
 }
+
 
 char* cloneStr(char* origStr) {
 
@@ -152,22 +154,23 @@ char* cloneStr(char* origStr) {
         j = 0;
     char* retBuf;
 
-    while(origStr[i]) i++;
-    
+    while(origStr[i]) i++;   
     retBuf = (char*)kmalloc(i);
+    
     for(j = 0; j < i; j++)
         retBuf[j] = origStr[i];        
-
 }
+
 
 void variantAssignString(variant* thisVariant, char* value) {
 
     if(value) kfree((void*)thisVariant->strVal);
     thisVariant->strVal = cloneStr(value);
-
 }
 
+
 varList* newVarList(void) {       
+
     return (varList*)newList();        
 }
 
@@ -177,9 +180,12 @@ variant* getVar(varList* inList, char* searchName) {
     listItem* curItem;
 
     listRewind(inList);
+
     while(curItem = listNext(inList)) {
+
         if(curItem->data) {
             curVar = (variant*)curItem;
+    
             if(strcmp(curVar->name, searchName)) {
                 listRewind(inList);
                 return curVar;
@@ -189,25 +195,23 @@ variant* getVar(varList* inList, char* searchName) {
 
     listRewind(inList);
     return (variant*)0;
-
 }
+
 
 void delVar(varList* inList, char* searchName) {
         
     variant* curVar;
 
     curVar = getVar(inList, searchName);
+
     if(curVar) {
         listRemoveObj(inList, (void*)curVar);
         collectVariant(curVar);
     }
-
 }
+
 
 void allocVar(varList* inList, char* newName) {
         
-    listAdd(inList, (void*)makeVariant(newName)); 
-    
-}   
-
-       
+    listAdd(inList, (void*)makeVariant(newName));     
+}         

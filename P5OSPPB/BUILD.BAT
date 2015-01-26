@@ -1,48 +1,53 @@
 echo off
-echo Compilation started...
-rem echo Starting PBOOT build...
-rem nasm -fbin -o pboot.img PBOOT\pboot.asm
-rem echo ...PBOOT finished
-cd CORE
-echo Starting CORE build...
-as -o init.o init.s
-gcc -c -o kernel.o kernel.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o cicomp.o CICOMP.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o commands.o COMMANDS.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o util.o util.c -nostdlib
-gcc -c -o int.o int.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o expt.o expt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-echo ...CORE finished
-CD ..\MEMORY
-echo Starting MEMORY build...
-gcc -c -o memory.o memory.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o gdt.o gdt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o paging.o paging.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-as -o pagings.o paging.s
-CD ..\OBJ
-echo Starting OBJ build...
-gcc -c -o lists.o lists.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o variant.o variant.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-CD ..\ASCII_IO
-echo Starting ASCII_IO build...
-gcc -c -o ascii_i.o ASCII_I.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o ascii_o.o ASCII_O.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o keyboard.o keyboard.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding 
-echo ...ASCII_IO finished
-CD ..\PROCESS
-echo Starting PROCESS build...
-gcc -c -o process.o process.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-echo ...PROCESS finished
-CD ..\FAT12
-echo Starting FAT12 build...
-gcc -c -o hiinter.o HIINTER.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-echo ...FAT12 finished
-cd ..
-echo Linking binary:
-ld -o p5kern.bin -T lscpt.lds files
-rem ld -e _main -static -Ttext 0x1700 --oformat binary -o p5kern.bin linkscript
-echo ..P5KERN.BIN finished
 
+echo Compilation started...
+
+rem echo Starting PBOOT build...
+rem nasm -fbin -o bin\pboot.img pboot\pboot.asm
+rem echo ...PBOOT finished
+
+cd core
+echo Starting core build...
+as -o init.o init.s
+gcc -c -o build\kernel.o kernel.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\cicomp.o cicomp.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\commands.o commands.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\util.o util.c -nostdlib
+gcc -c -o build\int.o int.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\expt.o expt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..\memory
+echo Starting memory build...
+gcc -c -o build\memory.o memory.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\gdt.o gdt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\paging.o paging.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+as -o build\pagings.o paging.s
+
+cd ..\obj
+echo Starting obj build...
+gcc -c -o build\lists.o lists.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\variant.o variant.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..\ascii_io
+echo Starting ascii_io build...
+gcc -c -o build\ascii_i.o ascii_i.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\ascii_o.o ascii_o.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o build\keyboard.o keyboard.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding 
+
+cd ..\process
+echo Starting process build...
+gcc -c -o build\process.o process.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..\fat12
+echo Starting fat12 build...
+gcc -c -o build\hiinter.o hiinter.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..
+echo Linking binary
+cd bin
+ld -o ..\bin\p5kern.bin -T ..\lscpt.lds ..\files
+
+echo p5kern.bin finished
 
 echo --------------------------------------------------------------------------------
 
@@ -54,4 +59,3 @@ echo ---------------------------------------------------------------------------
 
 
 echo on
-

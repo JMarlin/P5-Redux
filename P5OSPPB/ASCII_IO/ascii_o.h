@@ -1,3 +1,6 @@
+#ifndef ASCII_O_H
+#define ASCII_O_H
+
 unsigned char digitToHex(unsigned char digit);
 void printHexByte(unsigned char byte);
 void printHexWord(unsigned short wd);
@@ -7,3 +10,5 @@ void prints(char* _str);
 void initScreen();
 void setCursor(int x, int y);
 void setColor(char newCode);
+
+#endif //ASCII_O_H

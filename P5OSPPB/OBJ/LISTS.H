@@ -2,14 +2,14 @@
 #define LISTS_H
 
 typedef struct listItem {
-        struct listItem* next;
-        void* data; 
+    struct listItem* next;
+    void* data; 
 } listItem;
 
 typedef struct list {
-        int count;
-        listItem* rootItem;
-        listItem* itrPtr;
+    int count;
+    listItem* rootItem;
+    listItem* itrPtr;
 } list;
 
 list* newList();
