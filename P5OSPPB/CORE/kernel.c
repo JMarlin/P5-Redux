@@ -81,6 +81,7 @@ int main(void) {
     prints("ESP: ");
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
+    pchar('\n\n');
     sys_console();
     return 0;
 }
@@ -90,7 +91,6 @@ int main(void) {
 void sys_console() {
     
     while(1){
-        pchar('\n');
         prints(prompt);
         scans(50, inbuf);
         parse(inbuf);

@@ -80,6 +80,8 @@ void scans(unsigned int length, char* outstr) {
 
             index++;
             
+            if(index == length-1)
+                phcar('\n');    
         }
     }
     

@@ -84,7 +84,7 @@ void initIDT() {
 
     DEBUG("\nSetting idtBase.limit\n");
     count[0] = 0x800;
-    prints("Setting idtBase.base\n");
+    DEBUG("Setting idtBase.base\n");
     ptr[0] = (unsigned int)idtEntries;
     DEBUG("Blanking interrupts\n");
     
