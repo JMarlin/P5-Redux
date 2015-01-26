@@ -4,10 +4,10 @@
 #include "../core/global.h"
 
 
-unsigned char* idtBase = (idtPtr*)0x201000;
+unsigned char* idtBase = (unsigned char*)0x201000;
 
 //ends 0x201810
-unsigned char* idtEntries = (idtEntry*)0x201010;  
+unsigned char* idtEntries = (unsigned char*)0x201010;  
 
 
 void genericInterrupt(void) {
@@ -61,7 +61,7 @@ void printIdt(unsigned char number) {
     unsigned char* type_attr = (unsigned char*)(entryBase+5); 
     unsigned short* offset_2 = (unsigned short*)(entryBase+6);
     
-    prints("\nHandler #"); printHexByte(number); prints(" @ "); printHexDword(entryBase);
+    prints("\nHandler #"); printHexByte(number); prints(" @ "); printHexDword((unsigned int)entryBase);
     prints("\n   offset_1: "); printHexWord(offset_1[0]);
     prints("\n   selector: "); printHexWord(selector[0]);
     prints("\n   zero: "); printHexByte(zero[0]);

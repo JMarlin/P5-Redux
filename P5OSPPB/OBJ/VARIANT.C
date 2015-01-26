@@ -179,21 +179,21 @@ variant* getVar(varList* inList, char* searchName) {
     variant* curVar;
     listItem* curItem;
 
-    listRewind(inList);
+    listRewind((list*)inList);
 
-    while(curItem = listNext(inList)) {
+    while(curItem = listNext((list*)inList)) {
 
         if(curItem->data) {
             curVar = (variant*)curItem;
     
             if(strcmp(curVar->name, searchName)) {
-                listRewind(inList);
+                listRewind((list*)inList);
                 return curVar;
             }            
         }
     }            
 
-    listRewind(inList);
+    listRewind((list*)inList);
     return (variant*)0;
 }
 
@@ -205,7 +205,7 @@ void delVar(varList* inList, char* searchName) {
     curVar = getVar(inList, searchName);
 
     if(curVar) {
-        listRemoveObj(inList, (void*)curVar);
+        listRemoveObj((list*)inList, (void*)curVar);
         collectVariant(curVar);
     }
 }
@@ -213,5 +213,5 @@ void delVar(varList* inList, char* searchName) {
 
 void allocVar(varList* inList, char* newName) {
         
-    listAdd(inList, (void*)makeVariant(newName));     
+    listAdd((list*)inList, (void*)makeVariant(newName));     
 }         

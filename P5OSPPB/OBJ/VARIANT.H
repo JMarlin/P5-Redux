@@ -1,6 +1,8 @@
 #ifndef VARIANT_H
 #define VARIANT_H
 
+#include "lists.h"
+
 #define VAR_MODE_UNDEF  0
 #define VAR_MODE_STRING 1
 #define VAR_MODE_NUMBER 2

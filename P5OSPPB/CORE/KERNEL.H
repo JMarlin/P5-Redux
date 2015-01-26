@@ -3,4 +3,4 @@
 
 void sys_console(void);
 
-#endif KERNEL_H
+#endif //KERNEL_H
