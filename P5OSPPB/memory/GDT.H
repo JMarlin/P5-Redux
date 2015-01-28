@@ -52,5 +52,6 @@ typedef struct tss_entry {
 void setGdtEntry(unsigned char num, unsigned int base, unsigned int limit, unsigned char access, unsigned char flags);
 void installGdt(unsigned int table_ptr, unsigned short table_sz);
 void initGdt(void);
+void jumpUser(unsigned int* entryPoint);
 
 #endif //GDT_H

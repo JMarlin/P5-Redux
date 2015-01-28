@@ -43,8 +43,8 @@ void parse(char* instr) {
                         testvars();
                     } else {
                         
-                        if(strcmpci(instr, "REC")) {
-                            foo();
+                        if(strcmpci(instr, "INT")) {
+                            __asm__ ("int $0x80 \n");
                         } else {
                             prints("PiCI Error: PEBKAC\n");        
                         }

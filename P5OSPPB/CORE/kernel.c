@@ -36,12 +36,12 @@ int main(void) {
   }
 */
 
-    prints("Setting up the GDT...");
-    initGdt();
-    prints("done.\nSetting up interrupt table...");
+    prints("Setting up interrupt table...");
     initIDT();
     installExceptionHandlers();
-    prints("done.\nTurning on paging...");
+    prints("Done.\nSetting up the GDT...");
+    initGdt();
+    prints("Done.\nTurning on paging...");
     initMMU();
     prints("Done.\nSetting up keyboard...");
   
@@ -82,7 +82,7 @@ int main(void) {
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
     prints("\n\n");
-    sys_console();
+    jumpUser((unsigned int*)&sys_console);
     return 0;
 }
 
@@ -92,7 +92,8 @@ void sys_console() {
     
     while(1){
         prints(prompt);
-        scans(50, inbuf);
-        parse(inbuf);
+        //scans(50, inbuf);
+        //parse(inbuf);
+        while(1);
     }
 }

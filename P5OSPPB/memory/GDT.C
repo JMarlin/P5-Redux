@@ -3,7 +3,7 @@
 
 tss_entry* sys_tss = (tss_entry*)TSS_LOC;
 
-void intTss(tss_entry* tgt_tss) {
+void initTss(tss_entry* tgt_tss) {
     
     int i;
     unsigned char* byte_tss = (unsigned char*) tgt_tss;
@@ -30,10 +30,13 @@ void setGdtEntry(unsigned char seg, unsigned int base, unsigned int limit, unsig
     entry->access = access; 
 }
 
+
 void installTss(void) {
     
     __asm__ volatile (" mov $0x2B, %ax \n ltr %ax \n");
 }
+
+
 void lgdt(char* gdtr_ptr) {
 
     __asm__ (
@@ -52,6 +55,7 @@ void installGdt(unsigned int table_ptr, unsigned short table_sz) {
     lgdt((char*)GDTR_LOC);          
 }
 
+
 void initGdt(void) {
     
     //Null
@@ -68,6 +72,30 @@ void initGdt(void) {
     //TSS (a limit of 0 in page granularity translates to 00000FFF)
     initTss(sys_tss);
     setGdtEntry(0x28, (unsigned int)sys_tss, 0x0, 0xE9, 0x8);
-    installGdt((unsigned int)GDT_START, (unsigned short)((5 * sizeof(gdt_entry)) - 1));
+    installGdt((unsigned int)GDT_START, (unsigned short)((6 * sizeof(gdt_entry)) - 1));
     installTss();
+}
+
+
+//Enter a function in user mode
+void jumpUser(unsigned int* entryPoint) {
+
+    __asm__ volatile (
+        "mov $0x23, %%ax \n"
+        "mov %%ax, %%ds \n"
+        "mov %%ax, %%es \n"
+        "mov %%ax, %%fs \n"
+        "mov %%ax, %%gs \n"
+        "mov %%esp, %%eax \n"
+        "push $0x23 \n"
+        "push %%eax \n"
+        "pushf \n"
+        "push $0x1B \n"
+        "mov %0, %%eax \n"
+        "push %%eax \n"
+        "iret \n"
+        : 
+        : "r" (entryPoint)
+        : "eax"
+    );
 }
