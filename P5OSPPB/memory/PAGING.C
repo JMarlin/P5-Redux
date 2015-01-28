@@ -71,8 +71,12 @@ void initMMU() {
     //space
     DEBUG("Done\nMap first 8Mb...");
     
-    //Flags: supervisor ram, R/W enable, page present 
+    //Flags: supervisor ram, R/W enable, page present (this is kernel space)
     mapRegion(0x00000000, 0x00000000, 2, 3); 
+    DEBUG("Done\nMap user's 4Mb...");
+    
+    //Flags: user ram, R/W enable, page present
+    mapRegion(0x00800000, 0x00800000, 1, 7);
     DEBUG("Done\nLoading the page directory...");
     loadPageDirectory(pageDirectory);
     DEBUG("Done\nEnabling paging...");
