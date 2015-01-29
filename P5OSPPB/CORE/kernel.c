@@ -17,7 +17,7 @@ extern long pkgoffset;
 extern char imagename;
 char prompt[] = "P5-> ";
 char inbuf[50];   
-
+char* usrBase = (char*)0x801000;
 
 int main(void) {   
 
@@ -63,7 +63,7 @@ int main(void) {
         prints("No modules found.\n");
     } else {
         
-        doffset = 4 + (dcount[0]*4);      
+        doffset = 5 + ((dcount[0]-1)*4);      
         for(i = 0; i < dcount[0]; i++) {
             prints("0x");
             printHexDword(sizes[i]); 
@@ -84,15 +84,21 @@ int main(void) {
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
     prints("\n");
-    //prints("Moving startup package to userland...");
-    //doffset = 4 + (dcount[0]*4) + pkgoffset;
-    //for(i = 0; i < sizes[0]; i++) {
-    //    ((char*)0x801000)[i] = ((char*)doffset)[i];
-    //}
-    //prints("Done.\n\n");
-    //jumpUser((unsigned int*)0x801000);
-    prints("\n\n");
-    jumpUser((unsigned int*)&sys_console);
+    
+    //NEED TO FIGURE OUT USERMODE STACK SITCH
+    //Should be at 0x800000
+    prints("Moving startup package to userland...");
+    doffset = 0x100005 + pkgoffset;
+    for(i = 0; i < sizes[0]; i++) {
+        usrBase[i] = ((char*)doffset)[i];
+    }
+    prints("Done.\n\n");
+    
+    //usermode package should be set up to load at 0x801000
+    jumpUser((unsigned int*)0x801000);
+    
+    //prints("\n\n");
+    //jumpUser((unsigned int*)&sys_console);
     return 0;
 }
 

@@ -1,4 +1,6 @@
 INPUT(
+    syscall.o
+    syscalls.o
     expt.o 
     init.o 
     kernel.o 

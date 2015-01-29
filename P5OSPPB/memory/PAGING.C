@@ -40,7 +40,7 @@ void setPageBlock(unsigned int physAddr, unsigned int virtAddr, unsigned char fl
         curPhysAddr += 0x1000;
     }
 
-    pageDirectory[blockNumber] = (((unsigned int)pageTable + (blockNumber * 1024)) & 0xFFFFF000) | flags;                
+    pageDirectory[blockNumber] = ((unsigned int)(pageTable + (blockNumber * 1024)) & 0xFFFFF000) | flags;                
 }
 
 

@@ -31,7 +31,7 @@ void scans(int c, char* b) {
     __asm__ volatile (
         "mov $0x02, %%eax \n"
         "mov %0, %%ebx \n"
-        "mov %1, %%ecs \n"
+        "mov %1, %%ecx \n"
         "int $0xFF \n"
         :
         : "r" (c), "r" (b)

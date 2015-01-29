@@ -14,7 +14,7 @@ void initTss(tss_entry* tgt_tss) {
     }
     
     //Need to hardcode the kernel stack location at some point
-    tgt_tss->esp0 = 0x300000;
+    tgt_tss->esp0 = 0x3FFFFF;
     tgt_tss->ss0 = 0x10;
 }
 
@@ -71,7 +71,7 @@ void initGdt(void) {
     
     //TSS (a limit of 0 in page granularity translates to 00000FFF)
     initTss(sys_tss);
-    setGdtEntry(0x28, (unsigned int)sys_tss, 0x0, 0xE9, 0x8);
+    setGdtEntry(0x28, (unsigned int)sys_tss, 0x68, 0xE9, 0x8);
     installGdt((unsigned int)GDT_START, (unsigned short)((6 * sizeof(gdt_entry)) - 1));
     installTss();
 }
@@ -81,6 +81,7 @@ void initGdt(void) {
 void jumpUser(unsigned int* entryPoint) {
 
     __asm__ volatile (
+        "mov $0x800FFF, %%esp \n"
         "mov $0x23, %%ax \n"
         "mov %%ax, %%ds \n"
         "mov %%ax, %%es \n"

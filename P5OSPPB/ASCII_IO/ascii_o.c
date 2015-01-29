@@ -94,7 +94,7 @@ void pchar(char _inin) {
     
     if(_inin != '\n'){
     
-        Insert the character
+        //Insert the character
         screenBase[((cursor_y*80)+cursor_x)*2] = _inin;
         screenBase[(((cursor_y*80)+cursor_x)*2)+1] = color_code;
             cursor_x++;

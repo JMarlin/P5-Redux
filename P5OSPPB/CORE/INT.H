@@ -20,6 +20,6 @@ typedef struct idtEntry {
 
 void blankInterrupt(unsigned char number);
 void initIDT();
-void installInterrupt(unsigned char number, intHandler handler);
+void installInterrupt(unsigned char number, intHandler handler, unsigned char dpl);
 
 #endif //INT_H

@@ -2,6 +2,7 @@
 #include "expt.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
+#include "syscall.h"
 
 
 unsigned char* idtBase = (unsigned char*)0x201000;
@@ -31,7 +32,7 @@ void set_idt(char* ptr) {
 }
 
 
-void installInterrupt(unsigned char number, intHandler handler) {
+void installInterrupt(unsigned char number, intHandler handler, unsigned char dpl) {
 
     unsigned char* entryBase = ((unsigned char*)idtEntries)+(8*number);
     unsigned short* offset_1 = (unsigned short*)entryBase;
@@ -47,7 +48,7 @@ void installInterrupt(unsigned char number, intHandler handler) {
     zero[0] = 0x0;
     
     //0x00 = not present, minimum priviledge ring 00b, storage segment 0
-    type_attr[0] = 0x8E;  
+    type_attr[0] = 0x8E | ((dpl & 0x3 ) << 5);  
     offset_2[0] = (unsigned short)(((unsigned int)handler) >> 16);
 }
 
@@ -72,7 +73,7 @@ void printIdt(unsigned char number) {
 
 void blankInterrupt(unsigned char number) {
 
-    installInterrupt(number, &genericInterrupt);
+    installInterrupt(number, &genericInterrupt, 0);
 }
 
 
@@ -100,25 +101,25 @@ void initIDT() {
 void installExceptionHandlers() {
 
     //All of the default exceptions
-    installInterrupt(0x0, &expt_zeroDivide);
-    installInterrupt(0x1, &expt_debugCall);
-    installInterrupt(0x2, &expt_NMI);
-    installInterrupt(0x3, &expt_breakpoint);
-    installInterrupt(0x4, &expt_overflow);
-    installInterrupt(0x5, &expt_outOfBound);
-    installInterrupt(0x6, &expt_illegalOpcode);
-    installInterrupt(0x7, &expt_noCoprocessor);
-    installInterrupt(0x8, &expt_doubleFault);
-    installInterrupt(0xA, &expt_invalidTSS);
-    installInterrupt(0xB, &expt_segNotPresent);
-    installInterrupt(0xC, &expt_stackFault);
-    installInterrupt(0xD, &expt_generalProtection);
-    installInterrupt(0xE, &expt_pageFault);
-    installInterrupt(0x10, &expt_mathFault);
-    installInterrupt(0x11, &expt_alignCheck);
-    installInterrupt(0x12, &expt_machineCheck);
-    installInterrupt(0x13, &expt_simdFailure);
+    installInterrupt(0x0, &expt_zeroDivide, 0);
+    installInterrupt(0x1, &expt_debugCall, 0);
+    installInterrupt(0x2, &expt_NMI, 0);
+    installInterrupt(0x3, &expt_breakpoint, 0);
+    installInterrupt(0x4, &expt_overflow, 0);
+    installInterrupt(0x5, &expt_outOfBound, 0);
+    installInterrupt(0x6, &expt_illegalOpcode, 0);
+    installInterrupt(0x7, &expt_noCoprocessor, 0);
+    installInterrupt(0x8, &expt_doubleFault, 0);
+    installInterrupt(0xA, &expt_invalidTSS, 0);
+    installInterrupt(0xB, &expt_segNotPresent, 0);
+    installInterrupt(0xC, &expt_stackFault, 0);
+    installInterrupt(0xD, &expt_generalProtection, 0);
+    installInterrupt(0xE, &expt_pageFault, 0);
+    installInterrupt(0x10, &expt_mathFault, 0);
+    installInterrupt(0x11, &expt_alignCheck, 0);
+    installInterrupt(0x12, &expt_machineCheck, 0);
+    installInterrupt(0x13, &expt_simdFailure, 0);
     
     //And the syscall interface
-    installInterrupt(0xFF, &syscall_handler);
+    installInterrupt(0xFF, &syscall_handler, 3);
 }

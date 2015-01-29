@@ -8,6 +8,8 @@ rem echo ...PBOOT finished
 
 cd core
 echo Starting core build...
+as -o ..\build\syscalls.o syscall.s
+gcc -c -o ..\build\syscall.o syscall.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 as -o ..\build\init.o init.s
 gcc -c -o ..\build\kernel.o kernel.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\cicomp.o cicomp.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding

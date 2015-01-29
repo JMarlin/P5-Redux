@@ -1,4 +1,4 @@
-#include "<../include/p5.h"
+#include "../include/p5.h"
 
 #define CMD_COUNT 4 
 
@@ -15,7 +15,7 @@ typedef void (*sys_command)(void);
 
 
 //Variable declarations
-char cmdWord[CMD_COUNT] = {
+char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
@@ -29,6 +29,31 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&causeError
 };
 
+char inbuf[50];
+
+
+void parse(char* cmdbuf) {
+
+    int i, found;
+    
+    found = 0;
+    for(i = 0; i < CMD_COUNT; i++) {
+        
+        if(strcmp(cmdWord[i], cmdbuf)) {
+        
+            found = 1;
+            cmdFunc[i]();
+            break;
+        }
+    }
+    
+    if(!found) {
+        
+        prints("Unknown command ");
+        prints(cmdbuf);
+        prints("\n");
+    }
+}
 
 void main(void) {
     
@@ -53,30 +78,6 @@ int strcmp(char* s1, char* s2) {
         return 0;
         
     return 1;
-}
-
-
-void parse(char* cmdbuf) {
-
-    int i, found;
-    
-    found = 0;
-    for(i = 0; i < CMD_COUNT; i++) {
-        
-        if(strcmp(cmdWord[i], cmdbuf)) {
-        
-            found = 1;
-            cmdFunc[i]();
-            break;
-        }
-    }
-    
-    if(!found) {
-        
-        prints("Unknown command ");
-        prints(cmdbuf);
-        prints("\n");
-    }
 }
 
 
