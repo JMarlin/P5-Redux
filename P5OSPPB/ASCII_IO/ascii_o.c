@@ -48,8 +48,6 @@ void initScreen() {
 }
 
 
-//This is probably fucking up our usermode console,
-//making it not do shit to make sure of that
 void setCursor(int x, int y) {
         
     int linear_location = (y*80)+x;
@@ -88,7 +86,7 @@ void scrollScreen() {
         screenBase[(24*160)+x] = color_code;
     }
 
-    //setCursor(0, 24);
+    setCursor(0, 24);
     return;
 }
 
@@ -96,7 +94,7 @@ void pchar(char _inin) {
     
     if(_inin != '\n'){
     
-         //Insert the character
+        Insert the character
         screenBase[((cursor_y*80)+cursor_x)*2] = _inin;
         screenBase[(((cursor_y*80)+cursor_x)*2)+1] = color_code;
             cursor_x++;
@@ -111,7 +109,7 @@ void pchar(char _inin) {
         }
     }
 
-    //setCursor(cursor_x, cursor_y);
+    setCursor(cursor_x, cursor_y);
     return;
 }
 

@@ -72,7 +72,7 @@ void initMMU() {
     DEBUG("Done\nMap first 8Mb...");
     
     //Flags: supervisor ram, R/W enable, page present (this is kernel space)
-    mapRegion(0x00000000, 0x00000000, 2, 7); //change flags back to 3 
+    mapRegion(0x00000000, 0x00000000, 2, 3);
     DEBUG("Done\nMap user's 4Mb...");
     
     //Flags: user ram, R/W enable, page present

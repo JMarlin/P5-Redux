@@ -99,6 +99,7 @@ void initIDT() {
 
 void installExceptionHandlers() {
 
+    //All of the default exceptions
     installInterrupt(0x0, &expt_zeroDivide);
     installInterrupt(0x1, &expt_debugCall);
     installInterrupt(0x2, &expt_NMI);
@@ -117,4 +118,7 @@ void installExceptionHandlers() {
     installInterrupt(0x11, &expt_alignCheck);
     installInterrupt(0x12, &expt_machineCheck);
     installInterrupt(0x13, &expt_simdFailure);
+    
+    //And the syscall interface
+    installInterrupt(0xFF, &syscall_handler);
 }

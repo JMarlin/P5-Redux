@@ -21,7 +21,7 @@ char inbuf[50];
 
 int main(void) {   
 
-    unsigned int i, doffset, *ksize, *sizes;
+    unsigned int i, doffset, *sizes;
     unsigned char *dcount; 
 
     initScreen();
@@ -52,26 +52,28 @@ int main(void) {
 
     setupKeyTable();
     prints("WELCOME TO P5\n");
-    ksize = (unsigned int*)0x100005;
-
-/*  dcount = (unsigned char*)(0x1700+ksize[0]);
-  sizes = (unsigned int*)(0x100001+ksize[0]);
-  if(!ksize || (ksize && !dcount)){
-        prints("No modules found.\n");
-  }else{
-
-        doffset = 4 + (dcount[0]*4);      
-        for(i = 0; i < dcount[0]; i++){
-                prints("0x");
-                printHexDword(sizes[i]); 
-                prints(" byte module found at image+0x");
-                printHexDword(doffset); 
-                pchar('\n'); 
-                doffset += sizes[i];
-        }
-  }  
-*/
   
+    //ksize = (unsigned int*)0x100005;
+
+    dcount = (unsigned char*)((char*)0x100000+pkgoffset);
+    sizes = (unsigned int*)((char*)0x100001+pkgoffset);
+  
+    if(!dcount) {
+
+        prints("No modules found.\n");
+    } else {
+        
+        doffset = 4 + (dcount[0]*4);      
+        for(i = 0; i < dcount[0]; i++) {
+            prints("0x");
+            printHexDword(sizes[i]); 
+            prints(" byte module found at image+0x");
+            printHexDword(doffset); 
+            pchar('\n'); 
+            doffset += sizes[i];
+        }
+    }
+    
     //Print kernel size and version
     prints("Image: ");
     prints(&imagename);
@@ -81,6 +83,14 @@ int main(void) {
     prints("ESP: ");
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
+    prints("\n");
+    //prints("Moving startup package to userland...");
+    //doffset = 4 + (dcount[0]*4) + pkgoffset;
+    //for(i = 0; i < sizes[0]; i++) {
+    //    ((char*)0x801000)[i] = ((char*)doffset)[i];
+    //}
+    //prints("Done.\n\n");
+    //jumpUser((unsigned int*)0x801000);
     prints("\n\n");
     jumpUser((unsigned int*)&sys_console);
     return 0;
