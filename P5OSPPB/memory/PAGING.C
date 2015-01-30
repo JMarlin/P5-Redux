@@ -29,6 +29,17 @@ void setPage(unsigned int blockNumber, unsigned int blockIndex, unsigned int phy
 }
 
 
+void setPagesInBlock(unsigned int physBase, unsigned int blockNumber, unsigned int firstPage, unsigned int pageCount, unsigned char flags) {
+
+    int i;
+    unsigned int curPhysAddr = physBase;
+    
+    for(i = firstPage; i < firstPage + pageCount; curPhysAddr += 0x1000, i++) {
+        setPage(blockNumber, i, curPhysAddr, flags);
+    }
+} 
+
+
 void setPageBlock(unsigned int physAddr, unsigned int virtAddr, unsigned char flags) {
         
     int i;
@@ -36,6 +47,7 @@ void setPageBlock(unsigned int physAddr, unsigned int virtAddr, unsigned char fl
     unsigned int curPhysAddr = physAddr;        
 
     for(i = 0; i < 1024; i++) {
+        
         setPage(blockNumber, i, curPhysAddr, flags);
         curPhysAddr += 0x1000;
     }
@@ -71,8 +83,15 @@ void initMMU() {
     //space
     DEBUG("Done\nMap first 8Mb...");
     
-    //Flags: supervisor ram, R/W enable, page present (this is kernel space)
-    mapRegion(0x00000000, 0x00000000, 2, 3);
+    //Start by making a block of user ram, then change all but the first meg of 
+    //that block's pages to kernel ram so that the kernel is protected but 
+    //0-1Mb is user accessible for V86 code
+    //Flags: user ram, R/W enable, page present
+    mapRegion(0x00000000, 0x00000000, 2, 7); 
+    
+    //Identity map the 12K pages in block 0 above the first MB
+    //Flags: kernel ram, R/W enable, page present (this is user kernel space)
+    setPagesInBlock(0x00100000, 0, 0x100, 0x300, 3);
     DEBUG("Done\nMap user's 4Mb...");
     
     //Flags: user ram, R/W enable, page present

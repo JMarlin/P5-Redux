@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 4 
+#define CMD_COUNT 6 
 
 
 //Function declarations
@@ -8,6 +8,8 @@ void usrClear(void);
 void consVer(void);
 void usrExit(void);
 void causeError(void);
+void peekV86(void);
+void peekKern(void);
 
 
 //Typedefs
@@ -19,14 +21,18 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
-    "ERR"
+    "ERR",
+    "V86",
+    "KERN"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&usrExit,
-    (sys_command)&causeError
+    (sys_command)&causeError,
+    (sys_command)&peekV86,
+    (sys_command)&peekKern
 };
 
 char inbuf[50];
@@ -103,4 +109,34 @@ void usrExit(void) {
 void causeError(void) {
 
     __asm__ volatile ("cli");
+}
+
+
+void peekV86(void) {
+
+    unsigned char* lowAddr = (unsigned char*)0x7C00;
+    unsigned char chkValue;
+    
+    chkValue = lowAddr[0];
+    
+    if(chkValue < 0x7F) {
+        prints("Value is low\n");
+    } else {
+        prints("Value is high\n");
+    }
+}
+
+
+void peekKern(void) {
+
+    unsigned char* hiAddr = (unsigned char*)0x200000;
+    unsigned char chkValue;
+    
+    chkValue = hiAddr[0];
+    
+    if(chkValue < 0x7F) {
+        prints("Value is low\n");
+    } else {
+        prints("Value is high\n");
+    }
 }

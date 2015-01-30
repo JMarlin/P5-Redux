@@ -18,6 +18,7 @@ extern char imagename;
 char prompt[] = "P5-> ";
 char inbuf[50];   
 char* usrBase = (char*)0x801000;
+char* usrCode = (char*)0x80000;
 
 int main(void) {   
 
@@ -84,6 +85,16 @@ int main(void) {
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
     prints("\n");
+    
+    //Test V86 mode
+    prints("Installing V86 code...");
+    usrCode[0] = 0xB8;
+    usrCode[1] = 0x34;
+    usrCode[2] = 0x12;
+    usrCode[3] = 0xCC;
+    prints("Done.\n");
+    prints("Entering V86 mode\n");
+    jumpV86((unsigned int*)usrCode);
     
     //NEED TO FIGURE OUT USERMODE STACK SITCH
     //Should be at 0x800000

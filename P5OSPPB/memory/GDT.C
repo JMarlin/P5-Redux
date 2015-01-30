@@ -1,5 +1,5 @@
 #include "gdt.h"
-
+#include "../ascii_io/ascii_o.h"
 
 tss_entry* sys_tss = (tss_entry*)TSS_LOC;
 
@@ -69,13 +69,49 @@ void initGdt(void) {
     setGdtEntry(0x18, 0x0, 0xFFFFF, 0xFA, 0xC);
     setGdtEntry(0x20, 0x0, 0xFFFFF, 0xF2, 0xC);  
     
-    //TSS (a limit of 0 in page granularity translates to 00000FFF)
+    //TSS 
     initTss(sys_tss);
     setGdtEntry(0x28, (unsigned int)sys_tss, 0x68, 0xE9, 0x8);
     installGdt((unsigned int)GDT_START, (unsigned short)((6 * sizeof(gdt_entry)) - 1));
     installTss();
 }
 
+
+//Enter V86 mode 
+void jumpV86(unsigned int* entryPoint) {
+    
+    unsigned short entSeg = (unsigned short)((unsigned int)entryPoint >> 4);
+    
+    prints("entSeg = 0x");
+    printHexWord(entSeg);
+    prints("\n");
+    __asm__ volatile (
+        "mov $0x91000, %%esp \n"
+        "mov $0x0, %%eax \n"
+        "mov %0, %%ax \n"
+        "push %%eax \n"
+        "push %%eax \n"
+        "push %%eax \n"
+        "push %%eax \n"
+        "mov $0x9000, %%ax \n"
+        "push %%eax \n"
+        "mov $0x1000, %%ax \n"
+        "push %%eax \n"
+        "pushf \n"
+        "pop %%eax \n"
+        "or $0x00020000, %%eax \n"
+        "push %%eax \n"
+        "mov $0x0, %%eax \n"
+        "mov %0, %%ax \n"
+        "push %%eax \n"
+        "mov $0x0, %%eax \n"
+        "push %%eax \n"
+        "iret \n"
+        : 
+        : "r" (entSeg)
+        : "eax"
+    );
+}
 
 //Enter a function in user mode
 void jumpUser(unsigned int* entryPoint) {

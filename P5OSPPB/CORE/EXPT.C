@@ -89,7 +89,13 @@ void expt_stackFault(void) {
 
 void expt_generalProtection(void) {
 
+    int i;
+
     prints("EXCEPTION: PROTECTION FAULT!\n");
+    prints("EAX: ");
+    asm("\t movl %%eax, %0" : "=r"(i));
+    printHexDword(i);
+    prints("\n");
     terminateProcess((proc*)0x0);
 }
 
