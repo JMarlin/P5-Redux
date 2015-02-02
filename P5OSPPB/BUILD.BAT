@@ -38,6 +38,7 @@ gcc -c -o ..\build\keyboard.o keyboard.c -nostdlib -nostartfiles -nodefaultlibs 
 
 cd ..\process
 echo Starting process build...
+as -o ..\build\processs.o process.s
 gcc -c -o ..\build\process.o process.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
 cd ..\fat12

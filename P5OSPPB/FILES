@@ -19,5 +19,6 @@ INPUT(
     lists.o
     variant.o
     process.o
+    processs.o
 )
 

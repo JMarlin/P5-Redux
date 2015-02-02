@@ -91,9 +91,12 @@ void expt_generalProtection(void) {
 
     int i;
 
+    __asm__ ("push %%eax \n mov $0x10, %%ax \n mov %%ax, %%ds \n" : : : "eax");
+
+
     prints("EXCEPTION: PROTECTION FAULT!\n");
     prints("EAX: ");
-    asm("\t movl %%eax, %0" : "=r"(i));
+    asm("pop %%eax \n movl %%eax, %0" : "=r"(i));
     printHexDword(i);
     prints("\n");
     terminateProcess((proc*)0x0);

@@ -3,6 +3,7 @@
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
 #include "syscall.h"
+#include "../process/process.h"
 
 
 unsigned char* idtBase = (unsigned char*)0x201000;
@@ -113,7 +114,9 @@ void installExceptionHandlers() {
     installInterrupt(0xA, &expt_invalidTSS, 0);
     installInterrupt(0xB, &expt_segNotPresent, 0);
     installInterrupt(0xC, &expt_stackFault, 0);
-    installInterrupt(0xD, &expt_generalProtection, 0);
+    
+    //installInterrupt(0xD, &expt_generalProtection, 0);
+    installInterrupt(0xD, &switchToKernel, 0);
     installInterrupt(0xE, &expt_pageFault, 0);
     installInterrupt(0x10, &expt_mathFault, 0);
     installInterrupt(0x11, &expt_alignCheck, 0);

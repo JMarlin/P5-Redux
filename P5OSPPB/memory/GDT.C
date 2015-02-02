@@ -85,6 +85,7 @@ void jumpV86(unsigned int* entryPoint) {
     prints("entSeg = 0x");
     printHexWord(entSeg);
     prints("\n");
+
     __asm__ volatile (
         "mov $0x91000, %%esp \n"
         "mov $0x0, %%eax \n"
