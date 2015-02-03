@@ -91,7 +91,6 @@ _returnToProc:
     mov $0x91000, %esp /* This will need to be updated to match the actual process's stack location */
     mov $0x0, %eax
         
-    /* We also need to restore the register states, but that's for another day */
     mov _old_gs, %ax
     push %eax
     mov _old_fs, %ax
@@ -111,6 +110,15 @@ _returnToProc:
     push %eax
     mov _old_eip, %eax
     push %eax
+    mov %eax, _old_cr3
+    mov %cr3, %eax
+    mov _old_eax, %eax
+    mov _old_ebx, %ebx
+    mov _old_ecx, %ecx
+    mov _old_edx, %edx
+    mov _old_ebp, %ebp
+    mov _old_esi, %esi
+    mov _old_edi, %edi
     
     iret
     

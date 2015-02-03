@@ -48,10 +48,13 @@ typedef struct context {
     unsigned short fs;
     unsigned short gs;
     unsigned int err;
+    unsigned char vif;
 } context;
 
 void terminateProcess(proc* p);
 void kernelEntry(void);
+void startV86Proc(unsigned int* entryPoint);
+void startUserProc(unsigned int* entryPoint);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);

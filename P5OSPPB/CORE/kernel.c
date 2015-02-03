@@ -103,7 +103,7 @@ int main(void) {
     usrCode[13] = 0xFF;
     prints("Done.\n");
     prints("Entering V86 mode\n");
-    jumpV86((unsigned int*)usrCode);
+    startV86Proc((unsigned int*)usrCode);
     
     //NEED TO FIGURE OUT USERMODE STACK SITCH
     //Should be at 0x800000
@@ -115,7 +115,7 @@ int main(void) {
     prints("Done.\n\n");
     
     //usermode package should be set up to load at 0x801000
-    jumpUser((unsigned int*)0x801000);
+    startUserProc((unsigned int*)0x801000);
     
     //prints("\n\n");
     //jumpUser((unsigned int*)&sys_console);

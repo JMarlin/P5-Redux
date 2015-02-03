@@ -7,7 +7,7 @@
 
 unsigned char fake[6];
 unsigned char* insPtr;
-context V86Context;
+context V86Context, usrContext;
 unsigned short V86RetCS;
 unsigned int V86RetIP;
 int intVect = 0; 
@@ -74,6 +74,7 @@ void kernelDebug(void) {
 void V86Entry(void) {
     
     unsigned short seg, off;
+    unsigned short* stack = (unsigned short*)((unsigned int)0 + (activeContext->ss << 4) + (activeContext->esp & 0xFFFF));
   
     switch(insPtr[0]) {
     
@@ -109,8 +110,22 @@ void V86Entry(void) {
         
         //IRET
         case 0xCF:
+            prints("Return from previous interrupt\n");
             activeContext->cs = V86RetCS;
             activeContext->eip = V86RetIP;
+            returnToProcess(activeContext);
+            break;
+        
+        case 0x9C:
+            stack--;
+            
+            if(activeContext->vif)
+                stack[0] = (unsigned short)activeContext->eflags;
+            else
+                stack[0] = (unsigned short)activeContext->eflags & 0xFFDF; 
+                
+            activeContext->esp -= 2;
+            activeContext->eip++;
             returnToProcess(activeContext);
             break;
         
@@ -170,4 +185,59 @@ void terminateProcess(proc* p) {
 
     //This is just some bullshit 'go back to console' placeholder
     sys_console();    
+}
+
+
+void clearContext(context* ctx) {
+
+    int i;
+    unsigned char* buf = (unsigned char*)ctx;
+    
+    for(i = 0; i < sizeof(context); i++)
+        buf[i] = 0;
+}
+
+
+void startV86Proc(unsigned int* entryPoint) {
+    
+    clearContext(&V86Context);
+    
+    //Set stack to 0x91000, aka 9000:1000
+    V86Context.esp = 0x1000;
+    V86Context.ss = 0x9000;
+    V86Context.ds = 0x9000;
+    
+    //Convert entry address to seg:offset
+    V86Context.eip = (unsigned int)entryPoint & 0xFFFF;
+    V86Context.cs = ((unsigned int)entryPoint - V86Context.eip) >> 4;
+    
+    //Set the flags to V86 mode enable
+    V86Context.eflags = 0x20000;
+
+    //Interrupts enabled by default
+    usrContext.vif = 1;
+    usrContext.eflags |= 0x20; 
+    
+    //Enter the new context
+    activeContext = &V86Context;
+    returnToProcess(activeContext);
+}
+
+
+void startUserProc(unsigned int* entryPoint) {
+    
+    clearContext(&usrContext);
+    usrContext.esp = 0x800FFF;
+    usrContext.ss = 0x23;
+    usrContext.ds = 0x23;
+    usrContext.eip = (unsigned int)entryPoint;
+    usrContext.cs = 0x1B;
+    
+    //Interrupts enabled by default
+    usrContext.vif = 1;
+    usrContext.eflags = 0x20; 
+    
+    //Enter the new context
+    activeContext = &usrContext;
+    returnToProcess(activeContext);
 }
