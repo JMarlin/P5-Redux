@@ -1,8 +1,8 @@
 .extern _kernelEntry
 
-;.globl _stashCurrentState
+/* .globl _stashCurrentState */
 .globl _switchToKernel
-;.globl _returnToProc
+.globl _returnToProc
 
 .globl _old_esp
 .globl _old_cr3
@@ -21,6 +21,7 @@
 .globl _old_ds
 .globl _old_fs
 .globl _old_gs
+.globl _old_err
 
 _old_esp: .int 0x0
 _old_cr3: .int 0x0
@@ -39,15 +40,17 @@ _old_ss: .short 0x0
 _old_ds: .short 0x0
 _old_fs: .short 0x0
 _old_gs: .short 0x0
+_old_err: .int 0x0
 
 _switchToKernel:
-    mov %eax, 0x81818
+    push %eax
+    mov $0x10, %ax
+    mov %ax, %ds
+    pop %eax
     mov %eax, _old_eax
     mov %ebx, _old_ebx
     mov %ecx, _old_ecx
     mov %edx, _old_edx
-    mov %esp, %eax
-    mov %eax, _old_esp
     mov %cr3, %eax
     mov %eax, _old_cr3
     mov %ebp, _old_ebp
@@ -55,29 +58,59 @@ _switchToKernel:
     mov %eax, _old_esi
     mov %edi, %eax
     mov %eax, _old_edi
+    
     pop %eax
-    mov %ax, _old_gs
+    mov %eax, _old_err
     pop %eax
-    mov %ax, _old_fs
-    pop %eax
-    mov %ax, _old_ds
-    pop %eax
-    mov %ax, _old_es
-    pop %eax
-    mov %ax, _old_ss
-    pop %eax
-    mov %eax, _old_esp
-    pop %eax
-    mov %eax, _old_eflags
+    mov %eax, _old_eip
     pop %eax
     mov %ax, _old_cs
     pop %eax
-    mov %eax, _old_eip
+    mov %eax, _old_eflags
+    pop %eax
+    mov %eax, _old_esp
+    pop %eax
+    mov %ax, _old_ss
+    pop %eax
+    mov %ax, _old_es    
+    pop %eax
+    mov %ax, _old_ds
+    pop %eax
+    mov %ax, _old_fs
+    pop %eax
+    mov %ax, _old_gs
+    
     mov $0x10, %ax
     mov %ax, %gs
     mov %ax, %fs
     mov %ax, %ds
     mov %ax, %es
-    mov $0x08, %ax
-    mov %ax, %cs
     call _kernelEntry
+
+_returnToProc:
+    mov $0x91000, %esp /* This will need to be updated to match the actual process's stack location */
+    mov $0x0, %eax
+        
+    /* We also need to restore the register states, but that's for another day */
+    mov _old_gs, %ax
+    push %eax
+    mov _old_fs, %ax
+    push %eax
+    mov _old_ds, %ax
+    push %eax
+    mov _old_es, %ax
+    push %eax
+    mov _old_ss, %ax
+    push %eax
+    mov _old_esp, %eax
+    push %eax
+    mov _old_eflags, %eax
+    push %eax
+    mov $0x0, %eax
+    mov _old_cs, %eax
+    push %eax
+    mov _old_eip, %eax
+    push %eax
+    
+    iret
+    

@@ -9,25 +9,52 @@ extern int old_eax;
 extern int old_ecx;
 extern int old_edx;
 extern int old_ebx;
-extern int old_esp;
 extern int old_ebp;
 extern int old_esi;
 extern int old_edi;
-extern int old_es;
-extern int old_cs;
-extern int old_ss;
-extern int old_ds;
-extern int old_fs;
-extern int old_gs;
+extern short old_es;
+extern short old_cs;
+extern short old_ss;
+extern short old_ds;
+extern short old_fs;
+extern short old_gs;
+extern int old_err;
 
 typedef struct proc {
     int bs;
 } proc;
 
+typedef struct ivector {
+    unsigned short offset;
+    unsigned short segment;
+} __attribute__ ((packed)) ivector;
+
+typedef struct context {
+    unsigned int esp;
+    unsigned int cr3;
+    unsigned int eip;
+    unsigned int eflags;
+    unsigned int eax;
+    unsigned int ecx;
+    unsigned int edx;
+    unsigned int ebx;
+    unsigned int ebp;
+    unsigned int esi;
+    unsigned int edi;
+    unsigned short es;
+    unsigned short cs;
+    unsigned short ss;
+    unsigned short ds;
+    unsigned short fs;
+    unsigned short gs;
+    unsigned int err;
+} context;
+
 void terminateProcess(proc* p);
 void kernelEntry(void);
 
 extern void switchToKernel(void);
+extern void returnToProc(void);
 
 
 #endif //PROCESS_H

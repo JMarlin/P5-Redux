@@ -36,7 +36,6 @@ int main(void) {
         while(1);
   }
 */
-
     prints("Setting up interrupt table...");
     initIDT();
     installExceptionHandlers();
@@ -92,6 +91,16 @@ int main(void) {
     usrCode[1] = 0x34;
     usrCode[2] = 0x12;
     usrCode[3] = 0xCC;
+    usrCode[4] = 0xB8;
+    usrCode[5] = 0x13;
+    usrCode[6] = 0x00;
+    usrCode[7] = 0xCD;
+    usrCode[8] = 0x10;
+    usrCode[9] = 0xB8;
+    usrCode[10] = 0x00;
+    usrCode[11] = 0x00;
+    usrCode[12] = 0xCD;
+    usrCode[13] = 0xFF;
     prints("Done.\n");
     prints("Entering V86 mode\n");
     jumpV86((unsigned int*)usrCode);
