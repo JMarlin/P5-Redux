@@ -3,6 +3,7 @@
 #include "../ascii_io/ascii_o.h"
 #include "../ascii_io/ascii_i.h"
 #include "../core/syscall.h"
+#include "../core/util.h"
 
 
 unsigned char fake[6];
@@ -83,13 +84,28 @@ void V86Entry(void) {
             //If it was a service call, forward it to the syscall handler    
             if(insPtr[1] == 0xFF) {
             
+	    	prints("Syscall triggered\n");
                 syscall_number = activeContext->eax & 0xFFFF;
                 syscall_param1 = activeContext->ebx & 0xFFFF;
                 syscall_param2 = activeContext->ecx & 0xFFFF;
                 syscall_exec();
             } else {
 
-                ((unsigned char*)0x81818)[0] = 12;                
+		stack -= 3;
+		activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
+		stack[0] = (unsigned short)(activeContext->eip + 2);
+		stack[1] = activeContext->cs;
+		stack[2] = (unsigned short)activeContext->eflags;
+		prints("Stack:\n");
+	        prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+	        prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+	        prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+		
+		if(activeContext->vif)
+		    stack[2] |= 0x20;
+		else
+		    stack[2] &= 0xFFDF;
+		
                 intVect = 0x00000000 + (insPtr[1] & 0xFF);
                 intVect *= 4;
                 off = ((unsigned short*)intVect)[0];
@@ -98,10 +114,8 @@ void V86Entry(void) {
                 prints(" -> "); printHexWord(seg);
                 prints(":"); printHexWord(off);
                 prints("\n");
-                
-                //Hopefully we don't get nested INTs, and in that case we should really make a stack of these
-                V86RetCS = activeContext->cs;
-                V86RetIP = activeContext->eip + 2;
+                kernelDebug();
+		scans(5, fake);
                 activeContext->cs = seg;
                 activeContext->eip = (((unsigned int)off) & 0xFFFF);
             }
@@ -111,12 +125,24 @@ void V86Entry(void) {
         //IRET
         case 0xCF:
             prints("Return from previous interrupt\n");
-            activeContext->cs = V86RetCS;
-            activeContext->eip = V86RetIP;
+	    prints("Stack:\n");
+	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+	    kernelDebug();
+	    scans(5, fake);
+	    activeContext->cs = stack[1];
+            activeContext->eip = ((unsigned int)0) + stack[0];
+	    activeContext->eflags &= 0xFFFF0000;
+	    activeContext->eflags |= stack[2] | 0x20;
+	    stack += 3;
+	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
             returnToProcess(activeContext);
             break;
-        
+      
+	//PUSHF
         case 0x9C:
+	    prints("Flags pushed\n");
             stack--;
             
             if(activeContext->vif)
@@ -129,12 +155,71 @@ void V86Entry(void) {
             returnToProcess(activeContext);
             break;
         
+	//POPF
+	case 0x9D:
+	    prints("Flags popped\n");
+	    activeContext->eflags &= 0xFFFF0000;
+	    activeContext->eflags |= (stack[0] | 0x0020);
+	    stack++;
+	    activeContext->esp += 2;
+	    activeContext->eip++;
+	    returnToProcess(activeContext);	        
+	    break;  
+	    
+	//OUT DX AL
+	case 0xEE:
+	    prints("Out\n");
+	    outb((unsigned short)activeContext->edx, (unsigned char)activeContext->eax);
+	    activeContext->eip++;
+	    returnToProcess(activeContext);
+	    break;
+	    
+	//IN AL DX
+	case 0xEC:
+	    prints("In\n");
+	    activeContext->eax &= 0xFFFFFF00;
+	    activeContext->eax |= ((unsigned int)0 + (inb((unsigned short)activeContext->edx) & 0xFF));
+	    activeContext->eip++;
+	    returnToProcess(activeContext);
+	    break;
+	    
+	//OUT DX AX
+	case 0xEF:
+	    prints("OutW\n");
+	    outw((unsigned short)activeContext->edx, (unsigned short)activeContext->eax);
+	    activeContext->eip++;
+	    returnToProcess(activeContext);
+	    break;
+	
         //INT 3 (debug) or anything else
         case 0xCC:
         default:
             kernelDebug();
             scans(5, fake);
-            activeContext->eip++;
+            stack -= 3;
+	    activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
+	    stack[0] = (unsigned short)(activeContext->eip + 1);
+	    stack[1] = activeContext->cs;
+	    stack[2] = (unsigned short)activeContext->eflags;
+	    prints("Stack:\n");
+	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+		
+            if(activeContext->vif)
+	        stack[2] |= 0x20;
+	    else
+		stack[2] &= 0xFFDF;
+		
+            prints("V86 Debug Interrupt"); 
+            kernelDebug();
+            scans(5, fake);
+            activeContext->cs = stack[1];
+            activeContext->eip = ((unsigned int)0) + stack[0];
+	    activeContext->eflags &= 0xFFFF0000;
+	    activeContext->eflags |= stack[2] | 0x20;
+	    stack += 3;
+	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
             returnToProcess(activeContext);
             break;       
     }

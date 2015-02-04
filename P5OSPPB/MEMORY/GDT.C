@@ -16,6 +16,7 @@ void initTss(tss_entry* tgt_tss) {
     //Need to hardcode the kernel stack location at some point
     tgt_tss->esp0 = 0x3FFFFF;
     tgt_tss->ss0 = 0x10;
+    tgt_tss->iomap_base = 0xFFFF;
 }
 
 //'seg' is the actual segment number

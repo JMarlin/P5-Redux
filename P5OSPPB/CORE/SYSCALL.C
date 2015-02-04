@@ -5,10 +5,22 @@
 
 void syscall_exec(void) {
     
+    unsigned char* vram = (unsigned char*)0xA0000;
+    int i, j;
+    
     switch(syscall_number) {
         
         case 0:
             prints("Program terminated.\n");
+	    /*THIS IS TEMP*/
+	    for(i = 0; i < 320; i++) {
+	    
+	        for(j = 0; j < 200; j++) {
+		
+		    vram[j*320 + i] = 0xFF; 
+		}
+	    }
+	    prints("Done writing to screen.\n");
             while(1);
         break;
         

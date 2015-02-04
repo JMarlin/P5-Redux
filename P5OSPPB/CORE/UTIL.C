@@ -122,3 +122,19 @@ inline unsigned char inb(unsigned short _port) {
     asm volatile ( "inb %1, %0" : "=a"(data) : "Nd"(_port) );
     return data;       
 }
+
+
+inline void outw(unsigned short _port, unsigned short _data) {
+
+    asm volatile ( "outw %0, %1" : "=a"(_data) : "Nd"(_port) );
+}
+
+
+inline unsigned short inw(unsigned short _port) {
+
+
+    unsigned short data;
+    
+    asm volatile ("inw %1, %0" : "=a"(data) : "Nd"(_port) );
+    return data;
+}
