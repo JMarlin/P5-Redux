@@ -20,5 +20,6 @@ INPUT(
     variant.o
     process.o
     processs.o
+    serial.o
 )
 

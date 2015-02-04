@@ -35,6 +35,7 @@ echo Starting ascii_io build...
 gcc -c -o ..\build\ascii_i.o ascii_i.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\ascii_o.o ascii_o.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\keyboard.o keyboard.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding 
+gcc -c -o ..\build\serial.o serial.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
 cd ..\process
 echo Starting process build...
