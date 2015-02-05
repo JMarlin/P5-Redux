@@ -1,0 +1,12 @@
+FORGOT_ONE: (I forgot what the address was) (specific to int 0x10 ax = 0013)
+vgabios.c symbol: biosfn_set_video_mode (maybe)
+-------------------------------------------
+- skip a branch that would be triggered for a different ax value
+- Restore AX from stack (using bp, not sp) and set it to 00ah 
+  (eg. al = ah, ah = 0 or shr 8 ax)
+- Use 00ah to index a jump table (target entry at base + (ah*2))
+- Since ah = 00 we jump to the first entry, which is 0x3680
+- 0x3680: Restore AX from the stack again and set it to 00al this time
+- Push 00al onto the stack
+- Call subroutine SUB_0x3CA9
+[SUB_0x3CA9 executes]

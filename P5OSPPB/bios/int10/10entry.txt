@@ -1,0 +1,8 @@
+Int 0x10 entry at C000:0152 (0xC0152): (specific to ax = 0x0013)
+vgabios.c symbol: int10_func
+-----------------------------------------
+- Stack of jumps which would go to other subroutines for other values of ax,
+  but are bypassed for 0x0013
+- Regs are pushed and we call function FORGOT_ONE
+[FORGOT_ONE executes]
+-

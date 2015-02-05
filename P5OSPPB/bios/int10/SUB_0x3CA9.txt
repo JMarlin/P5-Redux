@@ -1,0 +1,24 @@
+SUB_0x3CA9 : (specific to AX = 0x0013)
+vgabios.c symbol: biosfn_set_video_mode
+---------------------------------------
+- Restore AL from the stack (bp style), then place it directly after the stack
+- Jump the stack pointer 16 bytes (8 places) forward
+- Call SUB_0x987E
+[SUB_0x987E executes]
+- Test the AX value passed back from SUB_0x987E to see if it's zero
+ - If (it's not zero):
+    - 0xC3CBF: clear AX and push it onto the stack
+    - Call SUB_0xC964B
+    [SUB_0xC964B executes]
+    - Rewind the stack pointer by a position
+- Restore AL from the stack (bp style, same data as step 1)
+- Move AL AND 0x7F back to the same spot in the stack
+- Restore AL from the same spot again
+- Clear AH
+- Push AX (now 00al & 0x007F) onto the end of the stack
+  NOTE: What with the rewinding of the pointer, this overwrites the
+  AX value we had pushed to the stack in step 1
+  ADDED NOTE: Which makes sense, because that stack location appears
+  to be the mode variable in vgabios.c
+- Call SUB_7D4E
+[SUB_7D4E runs]

@@ -1,0 +1,8 @@
+SUB_0xC964B (specific to AX = 0013)
+vgabios.c symbol: dispi_set_enable
+----------------------------------
+- push dx and ax
+- out(01CE, 0004) NOTE: This port is NOT listed in the bochs ports list
+- restore ax and out(01Cf, ax)
+- restore dx
+- return from subroutine
