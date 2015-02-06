@@ -11,14 +11,14 @@ unsigned char* insPtr;
 context V86Context, usrContext;
 unsigned short V86RetCS;
 unsigned int V86RetIP;
-int intVect = 0; 
+int intVect = 0;
 
 //We'll ACTUALLY use this in the future
 context* activeContext = &V86Context;
 
 
 void returnToProcess(context* newContext) {
-            
+
     //Restore the running context
     old_esp = newContext->esp;
     old_cr3 = newContext->cr3;
@@ -38,7 +38,7 @@ void returnToProcess(context* newContext) {
     old_fs = newContext->fs;
     old_gs = newContext->gs;
     old_err = newContext->err;
-    
+
     returnToProc();
 }
 
@@ -57,13 +57,13 @@ void kernelDebug(void) {
     prints("es: 0x"); printHexWord(old_es); prints("  cs: 0x"); printHexWord(old_cs); prints("\n");
     prints("ss: 0x"); printHexWord(old_ss); prints("  ds: 0x"); printHexWord(old_ds); prints("\n");
     prints("fs: 0x"); printHexWord(old_fs); prints("  gs: 0x"); printHexWord(old_gs); prints("\n");
-    
+
     //Get the error code
     prints("Error code: 0x"); printHexDword(old_err); prints("\n");
-    
+
     //Get the command byte that the processor failed on:
     prints("Failed instructions: 0x"); printHexByte(insPtr[0]);
-    prints(", 0x"); printHexByte(insPtr[1]); 
+    prints(", 0x"); printHexByte(insPtr[1]);
     prints(", 0x"); printHexByte(insPtr[2]);
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
@@ -73,99 +73,98 @@ void kernelDebug(void) {
 
 //This needs to be moved to its own module eventually
 void V86Entry(void) {
-    
+
     unsigned short seg, off;
     unsigned short* stack = (unsigned short*)((unsigned int)0 + (activeContext->ss << 4) + (activeContext->esp & 0xFFFF));
-  
+
     switch(insPtr[0]) {
-    
+
         //INT X
         case 0xCD:
-            //If it was a service call, forward it to the syscall handler    
+            //If it was a service call, forward it to the syscall handler
             if(insPtr[1] == 0xFF) {
-            
-	    	prints("Syscall triggered\n");
+
+	    	    prints("Syscall triggered\n");
                 syscall_number = activeContext->eax & 0xFFFF;
                 syscall_param1 = activeContext->ebx & 0xFFFF;
                 syscall_param2 = activeContext->ecx & 0xFFFF;
                 syscall_exec();
             } else {
 
-		stack -= 3;
-		activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
-		stack[0] = (unsigned short)(activeContext->eip + 2);
-		stack[1] = activeContext->cs;
-		stack[2] = (unsigned short)activeContext->eflags;
-		prints("Stack:\n");
-	        prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-	        prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-	        prints("2: 0x"); printHexWord(stack[2]); prints("\n");
-		
-		if(activeContext->vif)
-		    stack[2] |= 0x20;
-		else
-		    stack[2] &= 0xFFDF;
-		
+        		stack -= 3;
+        		activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
+        		stack[0] = (unsigned short)(activeContext->eip + 2);
+        		stack[1] = activeContext->cs;
+        		stack[2] = (unsigned short)activeContext->eflags;
+        		prints("Stack:\n");
+    	        prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+    	        prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+    	        prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+
+        		if(activeContext->vif)
+        		    stack[2] |= 0x20;
+        		else
+        		    stack[2] &= 0xFFDF;
+
                 intVect = 0x00000000 + (insPtr[1] & 0xFF);
                 intVect *= 4;
                 off = ((unsigned short*)intVect)[0];
-                seg = ((unsigned short*)intVect)[1];;
+                seg = ((unsigned short*)intVect)[1];
                 prints("V86 Interrupt #"); printHexByte(insPtr[1]);
                 prints(" -> "); printHexWord(seg);
                 prints(":"); printHexWord(off);
                 prints("\n");
                 kernelDebug();
-		scans(5, fake);
+		        scans(5, fake);
                 activeContext->cs = seg;
                 activeContext->eip = (((unsigned int)off) & 0xFFFF);
             }
             returnToProcess(activeContext);
             break;
-        
+
         //IRET
         case 0xCF:
             prints("Return from previous interrupt\n");
-	    prints("Stack:\n");
-	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
-	    kernelDebug();
-	    scans(5, fake);
-	    activeContext->cs = stack[1];
-            activeContext->eip = ((unsigned int)0) + stack[0];
-	    activeContext->eflags &= 0xFFFF0000;
-	    activeContext->eflags |= stack[2] | 0x20;
-	    stack += 3;
-	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
+    	    prints("Stack:\n");
+    	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+    	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+    	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+    	    kernelDebug();
+    	    scans(5, fake);
+            activeContext->eip = stack[0];
+    	    activeContext->cs = stack[1];
+    	    activeContext->eflags = stack[2] | 0x20020;
+    	    activeContext->vif = (stack[2] & 0x20) != 0;
+    	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
             returnToProcess(activeContext);
             break;
-      
+
 	//PUSHF
         case 0x9C:
-	    prints("Flags pushed\n");
+	        prints("Flags pushed\n");
+            activeContext->esp = ((activeContext->esp & 0xFFFF) - 2) & 0xFFFF;
             stack--;
-            
+            stack[0] = (unsigned short)activeContext->eflags;
+
             if(activeContext->vif)
-                stack[0] = (unsigned short)activeContext->eflags;
+                stack[0] |= 0x20;
             else
-                stack[0] = (unsigned short)activeContext->eflags & 0xFFDF; 
-                
-            activeContext->esp -= 2;
+                stack[0] &= 0xFFDF;
+
             activeContext->eip++;
             returnToProcess(activeContext);
             break;
-        
+
 	//POPF
 	case 0x9D:
 	    prints("Flags popped\n");
-	    activeContext->eflags &= 0xFFFF0000;
-	    activeContext->eflags |= (stack[0] | 0x0020);
-	    stack++;
-	    activeContext->esp += 2;
+        activeContext->eflags = 0x20020 | stack[0];
+        activeContext->vif = (stack[0] & 0x20) != 0;
+	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 2) & 0xFFFF;
 	    activeContext->eip++;
-	    returnToProcess(activeContext);	        
-	    break;  
-	    
+	    returnToProcess(activeContext);
+	    break;
+
 	//OUT DX AL
 	case 0xEE:
 	    prints("Out\n");
@@ -173,7 +172,7 @@ void V86Entry(void) {
 	    activeContext->eip++;
 	    returnToProcess(activeContext);
 	    break;
-	    
+
 	//IN AL DX
 	case 0xEC:
 	    prints("In\n");
@@ -182,7 +181,7 @@ void V86Entry(void) {
 	    activeContext->eip++;
 	    returnToProcess(activeContext);
 	    break;
-	    
+
 	//OUT DX AX
 	case 0xEF:
 	    prints("OutW\n");
@@ -190,38 +189,20 @@ void V86Entry(void) {
 	    activeContext->eip++;
 	    returnToProcess(activeContext);
 	    break;
-	
+
         //INT 3 (debug) or anything else
         case 0xCC:
-        default:
+            prints("V86 Debug Interrupt\n");
             kernelDebug();
             scans(5, fake);
-            stack -= 3;
-	    activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
-	    stack[0] = (unsigned short)(activeContext->eip + 1);
-	    stack[1] = activeContext->cs;
-	    stack[2] = (unsigned short)activeContext->eflags;
-	    prints("Stack:\n");
-	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
-		
-            if(activeContext->vif)
-	        stack[2] |= 0x20;
-	    else
-		stack[2] &= 0xFFDF;
-		
-            prints("V86 Debug Interrupt"); 
-            kernelDebug();
-            scans(5, fake);
-            activeContext->cs = stack[1];
-            activeContext->eip = ((unsigned int)0) + stack[0];
-	    activeContext->eflags &= 0xFFFF0000;
-	    activeContext->eflags |= stack[2] | 0x20;
-	    stack += 3;
-	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
+            activeContext->eip++;
             returnToProcess(activeContext);
-            break;       
+            break;
+
+        default:
+            prints("Unhandled opcode 0x"); printHexByte(insPtr[0]); prints("\n");
+            while(1);
+            break;
     }
 }
 
@@ -254,11 +235,12 @@ void kernelEntry(void) {
 
     //Switch to the V86 monitor if the thread was a V86 thread
     if(old_eflags & 0x20000) {
-    
+
         V86Entry();
     } else {
-    
+
         //Otherwise, for now we just dump the system state and move on
+        prints("(Non-V86)\n");
         kernelDebug();
         scans(5, fake);
         returnToProcess(activeContext);
@@ -269,7 +251,7 @@ void kernelEntry(void) {
 void terminateProcess(proc* p) {
 
     //This is just some bullshit 'go back to console' placeholder
-    sys_console();    
+    sys_console();
 }
 
 
@@ -277,32 +259,32 @@ void clearContext(context* ctx) {
 
     int i;
     unsigned char* buf = (unsigned char*)ctx;
-    
+
     for(i = 0; i < sizeof(context); i++)
         buf[i] = 0;
 }
 
 
 void startV86Proc(unsigned int* entryPoint) {
-    
+
     clearContext(&V86Context);
-    
+
     //Set stack to 0x91000, aka 9000:1000
     V86Context.esp = 0x1000;
     V86Context.ss = 0x9000;
     V86Context.ds = 0x9000;
-    
+
     //Convert entry address to seg:offset
     V86Context.eip = (unsigned int)entryPoint & 0xFFFF;
     V86Context.cs = ((unsigned int)entryPoint - V86Context.eip) >> 4;
-    
+
     //Set the flags to V86 mode enable
     V86Context.eflags = 0x20000;
 
     //Interrupts enabled by default
     usrContext.vif = 1;
-    usrContext.eflags |= 0x20; 
-    
+    usrContext.eflags |= 0x20;
+
     //Enter the new context
     activeContext = &V86Context;
     returnToProcess(activeContext);
@@ -310,18 +292,18 @@ void startV86Proc(unsigned int* entryPoint) {
 
 
 void startUserProc(unsigned int* entryPoint) {
-    
+
     clearContext(&usrContext);
     usrContext.esp = 0x800FFF;
     usrContext.ss = 0x23;
     usrContext.ds = 0x23;
     usrContext.eip = (unsigned int)entryPoint;
     usrContext.cs = 0x1B;
-    
+
     //Interrupts enabled by default
     usrContext.vif = 1;
-    usrContext.eflags = 0x20; 
-    
+    usrContext.eflags = 0x20;
+
     //Enter the new context
     activeContext = &usrContext;
     returnToProcess(activeContext);

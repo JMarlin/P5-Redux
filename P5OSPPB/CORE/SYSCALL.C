@@ -17,7 +17,7 @@ void syscall_exec(void) {
 	    
 	        for(j = 0; j < 200; j++) {
 		
-		    vram[j*320 + i] = 0xFF; 
+		    vram[j*320 + i] = 0x0F; 
 		}
 	    }
 	    prints("Done writing to screen.\n");
