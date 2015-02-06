@@ -88,8 +88,9 @@ _switchToKernel:
     call _kernelEntry
 
 _returnToProc:
-    mov _old_esp, %esp /* This will need to be updated to match the actual process's stack location */
-    add $0x90000, %esp
+    mov _old_ss, %esp /* This will need to be updated to match the actual process's stack location */
+    shl $4, %esp
+    add _old_esp, %esp
     mov $0x0, %eax
         
     mov _old_gs, %ax
