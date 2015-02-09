@@ -12,25 +12,16 @@ void syscall_exec(void) {
         
         case 0:
             prints("Program terminated.\n");
-			/*THIS IS TEMP*/
-			for(i = 0; i < 320; i++) {
-			
-			    for(j = 0; j < 200; j++) {
+	    /*THIS IS TEMP*/
+	    for(i = 0; i < 320; i++) {
+	    
+	        for(j = 0; j < 200; j++) {
 		
-				    vram[j*320 + i] = 0x03; 
-				}
-			}
-
-		    for(i = 30; i < 230; i++) {
-			
-			    for(j = 50; j < 150; j++) {
-		
-				    vram[j*320 + i] = 0x0f; 
-				}
-			}
-
-			prints("Done writing to screen.\n");
-		    while(1);
+		    vram[j*320 + i] = 0x0F; 
+		}
+	    }
+	    prints("Done writing to screen.\n");
+            while(1);
         break;
         
         case 1:

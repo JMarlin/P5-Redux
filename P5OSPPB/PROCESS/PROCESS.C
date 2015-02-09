@@ -12,10 +12,10 @@ context V86Context, usrContext;
 unsigned short V86RetCS;
 unsigned int V86RetIP;
 int intVect = 0;
-int op32 = 0;
 
 //We'll ACTUALLY use this in the future
 context* activeContext = &V86Context;
+
 
 
 void returnToProcess(context* newContext) {
@@ -77,7 +77,6 @@ void V86Entry(void) {
 
     unsigned short seg, off;
     unsigned short* stack = (unsigned short*)((unsigned int)0 + (activeContext->ss << 4) + (activeContext->esp & 0xFFFF));
-    unsigned int* stack32 = (unsigned int*)stack;
 
     switch(insPtr[0]) {
 
@@ -121,7 +120,6 @@ void V86Entry(void) {
                 activeContext->cs = seg;
                 activeContext->eip = (((unsigned int)off) & 0xFFFF);
             }
-            op32 = 0;
             returnToProcess(activeContext);
             break;
 
@@ -139,50 +137,20 @@ void V86Entry(void) {
     	    activeContext->eflags = stack[2] | 0x20020;
     	    activeContext->vif = (stack[2] & 0x20) != 0;
     	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
-            op32 = 0;
-            returnToProcess(activeContext);
-            break;
-
-        //O32
-        case 0x66:         
-            prints("o32 ");
-            op32 = 1;
-            activeContext->eip++;
-            returnToProcess(activeContext);
-            break;
-
-        //A32
-        case 0x67:     
-            prints("a32 ");
-            activeContext->eip++;
-            op32 = 0;
             returnToProcess(activeContext);
             break;
 
 	//PUSHF
         case 0x9C:
 	        prints("Flags pushed\n");
-            
-            if(op32) {
-                activeContext->esp = ((activeContext->esp & 0xFFFF) - 4) & 0xFFFF;
-                stack32--;
-		        stack32[0] = (unsigned short)activeContext->eflags & 0xDFF;
+            activeContext->esp = ((activeContext->esp & 0xFFFF) - 2) & 0xFFFF;
+            stack--;
+            stack[0] = (unsigned short)activeContext->eflags;
 
-		        if(activeContext->vif)
-		            stack32[0] |= 0x20;
-		        else
-		            stack32[0] &= 0xFFFFFFDF;
-                op32 = 0;
-            } else {
-                activeContext->esp = ((activeContext->esp & 0xFFFF) - 2) & 0xFFFF;
-		        stack--;
-		        stack[0] = (unsigned short)activeContext->eflags;
-
-		        if(activeContext->vif)
-		            stack[0] |= 0x20;
-		        else
-		            stack[0] &= 0xFFDF;
-            }
+            if(activeContext->vif)
+                stack[0] |= 0x20;
+            else
+                stack[0] &= 0xFFDF;
 
             activeContext->eip++;
             returnToProcess(activeContext);
@@ -191,18 +159,9 @@ void V86Entry(void) {
 	//POPF
 	case 0x9D:
 	    prints("Flags popped\n");
-        
-        if(op32) {
-            activeContext->eflags = 0x20020 | (stack32[0] & 0xDFF);
-		    activeContext->vif = (stack32[0] & 0x20) != 0;
-			activeContext->esp = ((activeContext->esp & 0xFFFF) + 4) & 0xFFFF;
-            op32 = 0;
-        } else {
-		    activeContext->eflags = 0x20020 | stack[0];
-		    activeContext->vif = (stack[0] & 0x20) != 0;
-			activeContext->esp = ((activeContext->esp & 0xFFFF) + 2) & 0xFFFF;
-        }
-
+        activeContext->eflags = 0x20020 | stack[0];
+        activeContext->vif = (stack[0] & 0x20) != 0;
+	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 2) & 0xFFFF;
 	    activeContext->eip++;
 	    returnToProcess(activeContext);
 	    break;
@@ -212,7 +171,6 @@ void V86Entry(void) {
 	    prints("Out\n");
 	    outb((unsigned short)activeContext->edx, (unsigned char)activeContext->eax);
 	    activeContext->eip++;
-        op32 = 0;
 	    returnToProcess(activeContext);
 	    break;
 
@@ -222,35 +180,14 @@ void V86Entry(void) {
 	    activeContext->eax &= 0xFFFFFF00;
 	    activeContext->eax |= ((unsigned int)0 + (inb((unsigned short)activeContext->edx) & 0xFF));
 	    activeContext->eip++;
-        op32 = 0;
 	    returnToProcess(activeContext);
 	    break;
 
 	//OUT DX AX
 	case 0xEF:
 	    prints("OutW\n");
-        if(op32) {
-            outd((unsigned short)activeContext->edx, activeContext->eax);
-        } else {
-	        outw((unsigned short)activeContext->edx, (unsigned short)activeContext->eax);
-	    }
-        activeContext->eip++;
-        op32 = 0;
-	    returnToProcess(activeContext);
-	    break;
-
-    //IN AX DX
-	case 0xED:
-	    prints("In\n");
-        
-        if(op32) {
-			activeContext->eax = ind(activeContext->edx);
-		} else {		
-			activeContext->eax &= 0xFFFF0000;
-			activeContext->eax |= ((unsigned int)0 + (inw((unsigned short)activeContext->edx) & 0xFFFF));
-		}
+	    outw((unsigned short)activeContext->edx, (unsigned short)activeContext->eax);
 	    activeContext->eip++;
-        op32 = 0;
 	    returnToProcess(activeContext);
 	    break;
 
@@ -260,25 +197,6 @@ void V86Entry(void) {
             kernelDebug();
             scans(5, fake);
             activeContext->eip++;
-            op32 = 0;
-            returnToProcess(activeContext);
-            break;
- 
-		//CLI
-		case 0xfa:            
-            prints("cli\n");
-            activeContext->vif = 0;
-            activeContext->eip++;
-            op32 = 0;
-            returnToProcess(activeContext);
-            break;
-
-		//STI
-        case 0xfb:
-            prints("sti\n");
-            activeContext->vif = 1;
-            activeContext->eip++;
-            op32 = 0;
             returnToProcess(activeContext);
             break;
 
@@ -348,46 +266,57 @@ void clearContext(context* ctx) {
 }
 
 
-void startV86Proc(unsigned int* entryPoint) {
+context* newUserProc() {
 
+    clearContext(&usrContext);
+    usrContext.esp = 0x800FFF;
+    usrContext.ss = 0x23;
+    usrContext.ds = 0x23;
+    usrContext.cs = 0x1B;
+
+    //Interrupts enabled by default
+    usrContext.vif = 1;
+    usrContext.eflags = 0x20;
+    return &usrContext;
+}
+
+
+context* newV86Proc() {
+    
     clearContext(&V86Context);
+    V86Context.type = PT_V86;
 
     //Set stack to 0x91000, aka 9000:1000
     V86Context.esp = 0x1000;
     V86Context.ss = 0x9000;
     V86Context.ds = 0x9000;
 
-    //Convert entry address to seg:offset
-    V86Context.eip = (unsigned int)entryPoint & 0xFFFF;
-    V86Context.cs = ((unsigned int)entryPoint - V86Context.eip) >> 4;
-
     //Set the flags to V86 mode enable
-    V86Context.eflags = 0x23000;
+    V86Context.eflags = 0x20000;
 
     //Interrupts enabled by default
-    usrContext.vif = 1;
-    usrContext.eflags |= 0x20;
-
-    //Enter the new context
-    activeContext = &V86Context;
-    returnToProcess(activeContext);
+    V86Context.vif = 1;
+    V86Context.eflags |= 0x20;
+    return &V86Context;   
 }
 
 
-void startUserProc(unsigned int* entryPoint) {
+void setProcEntry(context* ctx, void* entryPoint) {
 
-    clearContext(&usrContext);
-    usrContext.esp = 0x800FFF;
-    usrContext.ss = 0x23;
-    usrContext.ds = 0x23;
-    usrContext.eip = (unsigned int)entryPoint;
-    usrContext.cs = 0x1B;
+    if(ctx->type == PT_V86) {
+        
+	//Convert entry address to seg:offset
+        ctx->eip = (unsigned int)entryPoint & 0xFFFF;
+        ctx->cs = ((unsigned int)entryPoint - ctx->eip) >> 4;
+    } else {
+        ctx->cs = (unsigned int)entryPoint;
+    }
+}
 
-    //Interrupts enabled by default
-    usrContext.vif = 1;
-    usrContext.eflags = 0x20;
+
+void startProc(context* ctx) {
 
     //Enter the new context
-    activeContext = &usrContext;
+    activeContext = ctx;
     returnToProcess(activeContext);
 }

@@ -138,19 +138,3 @@ inline unsigned short inw(unsigned short _port) {
     asm volatile ("inw %1, %0" : "=a"(data) : "Nd"(_port) );
     return data;
 }
-
-
-inline void outd(unsigned short _port, unsigned int _data) {
-
-    asm volatile ( "outl %0, %1" : "=a"(_data) : "Nd"(_port) );
-}
-
-
-inline unsigned int ind(unsigned short _port) {
-
-
-    unsigned int data;
-    
-    asm volatile ("inl %1, %0" : "=a"(data) : "Nd"(_port) );
-    return data;
-}

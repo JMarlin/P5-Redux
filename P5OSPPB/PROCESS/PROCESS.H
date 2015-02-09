@@ -1,6 +1,11 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+
+#define PT_USER 0
+#define PT_V86  1
+
+
 extern int old_esp;
 extern int old_cr3;
 extern int old_eip;
@@ -49,12 +54,15 @@ typedef struct context {
     unsigned short gs;
     unsigned int err;
     unsigned char vif;
+    unsigned char type;
 } context;
 
 void terminateProcess(proc* p);
 void kernelEntry(void);
-void startV86Proc(unsigned int* entryPoint);
-void startUserProc(unsigned int* entryPoint);
+context* newUserProc();
+context* newV86Proc();
+void setProcEntry(context* ctx, void* entryPoint);
+void startProc(context* ctx);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);

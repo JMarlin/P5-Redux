@@ -24,6 +24,7 @@ int main(void) {
 
     unsigned int i, doffset, *sizes;
     unsigned char *dcount; 
+    context* ctx;
 
     initScreen();
     setColor(0x1F);
@@ -103,7 +104,9 @@ int main(void) {
     usrCode[13] = 0xFF;
     prints("Done.\n");
     prints("Entering V86 mode\n");
-    startV86Proc((unsigned int*)usrCode);
+    ctx = newV86Proc();
+    setProcEntry(ctx, (void*)usrCode); 
+    startProc(ctx);
     
     //NEED TO FIGURE OUT USERMODE STACK SITCH
     //Should be at 0x800000
@@ -115,7 +118,9 @@ int main(void) {
     prints("Done.\n\n");
     
     //usermode package should be set up to load at 0x801000
-    startUserProc((unsigned int*)0x801000);
+    ctx = newUserProc();
+    setProcEntry(ctx, (void*)0x801000);
+    startProc(ctx);
     
     //prints("\n\n");
     //jumpUser((unsigned int*)&sys_console);
