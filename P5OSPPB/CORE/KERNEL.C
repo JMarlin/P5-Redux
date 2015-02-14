@@ -16,14 +16,14 @@
 extern long pkgoffset;
 extern char imagename;
 char prompt[] = "P5-> ";
-char inbuf[50];   
+char inbuf[50];
 char* usrBase = (char*)0x801000;
 char* usrCode = (char*)0x80000;
 
-int main(void) {   
+int main(void) {
 
     unsigned int i, doffset, *sizes;
-    unsigned char *dcount; 
+    unsigned char *dcount;
     context* ctx;
 
     initScreen();
@@ -45,7 +45,7 @@ int main(void) {
     prints("Done.\nTurning on paging...");
     initMMU();
     prints("Done.\nSetting up keyboard...");
-  
+
     if(!keyboard_init())
         prints("Failed\n[P5]: No input device availible.\n");
     else
@@ -53,39 +53,39 @@ int main(void) {
 
     setupKeyTable();
     prints("WELCOME TO P5\n");
-  
+
     //ksize = (unsigned int*)0x100005;
 
     dcount = (unsigned char*)((char*)0x100000+pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+pkgoffset);
-  
+
     if(!dcount) {
 
         prints("No modules found.\n");
     } else {
-        
-        doffset = 5 + ((dcount[0]-1)*4);      
+
+        doffset = 5 + ((dcount[0]-1)*4);
         for(i = 0; i < dcount[0]; i++) {
             prints("0x");
-            printHexDword(sizes[i]); 
+            printHexDword(sizes[i]);
             prints(" byte module found at image+0x");
-            printHexDword(doffset); 
-            pchar('\n'); 
+            printHexDword(doffset);
+            pchar('\n');
             doffset += sizes[i];
         }
     }
-    
+
     //Print kernel size and version
     prints("Image: ");
     prints(&imagename);
     prints("\nSize: ");
     printHexDword(pkgoffset);
-    prints("b\n"); 
+    prints("b\n");
     prints("ESP: ");
     asm("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
     prints("\n");
-    
+
     //Test V86 mode
     prints("Installing V86 code...");
     usrCode[0] = 0xB8;
@@ -93,7 +93,7 @@ int main(void) {
     usrCode[2] = 0x12;
     usrCode[3] = 0xCC;
     usrCode[4] = 0xB8;
-    usrCode[5] = 0x13;
+    usrCode[5] = 0x12;
     usrCode[6] = 0x00;
     usrCode[7] = 0xCD;
     usrCode[8] = 0x10;
@@ -105,9 +105,9 @@ int main(void) {
     prints("Done.\n");
     prints("Entering V86 mode\n");
     ctx = newV86Proc();
-    setProcEntry(ctx, (void*)usrCode); 
+    setProcEntry(ctx, (void*)usrCode);
     startProc(ctx);
-    
+
     //NEED TO FIGURE OUT USERMODE STACK SITCH
     //Should be at 0x800000
     prints("Moving startup package to userland...");
@@ -116,12 +116,12 @@ int main(void) {
         usrBase[i] = ((char*)doffset)[i];
     }
     prints("Done.\n\n");
-    
+
     //usermode package should be set up to load at 0x801000
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
     startProc(ctx);
-    
+
     //prints("\n\n");
     //jumpUser((unsigned int*)&sys_console);
     return 0;
@@ -130,7 +130,7 @@ int main(void) {
 
 //Start usr prompt
 void sys_console() {
-    
+
     while(1){
         prints(prompt);
         //scans(50, inbuf);

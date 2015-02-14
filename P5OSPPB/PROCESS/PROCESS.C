@@ -117,7 +117,7 @@ void V86Entry(void) {
                 prints(":"); printHexWord(off);
                 prints("\n");
                 kernelDebug();
-		        scans(5, fake);
+		        //scans(5, fake);
                 activeContext->cs = seg;
                 activeContext->eip = (((unsigned int)off) & 0xFFFF);
             }
@@ -133,7 +133,7 @@ void V86Entry(void) {
     	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
     	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
     	    kernelDebug();
-    	    scans(5, fake);
+    	    //scans(5, fake);
             activeContext->eip = stack[0];
     	    activeContext->cs = stack[1];
     	    activeContext->eflags = stack[2] | 0x20020;
@@ -144,7 +144,7 @@ void V86Entry(void) {
             break;
 
         //O32
-        case 0x66:         
+        case 0x66:
             prints("o32 ");
             op32 = 1;
             activeContext->eip++;
@@ -152,7 +152,7 @@ void V86Entry(void) {
             break;
 
         //A32
-        case 0x67:     
+        case 0x67:
             prints("a32 ");
             activeContext->eip++;
             op32 = 0;
@@ -162,7 +162,7 @@ void V86Entry(void) {
 	//PUSHF
         case 0x9C:
 	        prints("Flags pushed\n");
-            
+
             if(op32) {
                 activeContext->esp = ((activeContext->esp & 0xFFFF) - 4) & 0xFFFF;
                 stack32--;
@@ -191,7 +191,7 @@ void V86Entry(void) {
 	//POPF
 	case 0x9D:
 	    prints("Flags popped\n");
-        
+
         if(op32) {
             activeContext->eflags = 0x20020 | (stack32[0] & 0xDFF);
 		    activeContext->vif = (stack32[0] & 0x20) != 0;
@@ -242,10 +242,10 @@ void V86Entry(void) {
     //IN AX DX
 	case 0xED:
 	    prints("In\n");
-        
+
         if(op32) {
 			activeContext->eax = ind(activeContext->edx);
-		} else {		
+		} else {
 			activeContext->eax &= 0xFFFF0000;
 			activeContext->eax |= ((unsigned int)0 + (inw((unsigned short)activeContext->edx) & 0xFFFF));
 		}
@@ -258,14 +258,14 @@ void V86Entry(void) {
         case 0xCC:
             prints("V86 Debug Interrupt\n");
             kernelDebug();
-            scans(5, fake);
+            //scans(5, fake);
             activeContext->eip++;
             op32 = 0;
             returnToProcess(activeContext);
             break;
- 
+
 		//CLI
-		case 0xfa:            
+		case 0xfa:
             prints("cli\n");
             activeContext->vif = 0;
             activeContext->eip++;
@@ -364,7 +364,7 @@ context* newUserProc() {
 
 
 context* newV86Proc() {
-    
+
     clearContext(&V86Context);
     V86Context.type = PT_V86;
 
@@ -379,14 +379,14 @@ context* newV86Proc() {
     //Interrupts enabled by default
     V86Context.vif = 1;
     V86Context.eflags |= 0x20;
-    return &V86Context;   
+    return &V86Context;
 }
 
 
 void setProcEntry(context* ctx, void* entryPoint) {
 
     if(ctx->type == PT_V86) {
-        
+
 	//Convert entry address to seg:offset
         ctx->eip = (unsigned int)entryPoint & 0xFFFF;
         ctx->cs = ((unsigned int)entryPoint - ctx->eip) >> 4;
