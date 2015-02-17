@@ -1,7 +1,6 @@
 #ifndef FS_H
 #define FS_H 
 
-#define FS_RAMFS 0
 #define NUL_DEV  (block_device*)0
 
 #define ACT_DIR_LIST    0

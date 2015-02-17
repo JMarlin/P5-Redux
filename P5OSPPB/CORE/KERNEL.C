@@ -129,7 +129,7 @@ int main(void) {
     //then install its fs driver and finally mount the ramdisk on root
     doffset = 0x100004 + pkgoffset;
     blk_ram_new(ram0, doffset, sizes[0]);
-    fs_install_driver(fs_ramfs);
+    fs_install_driver(&fs_ramfs);
     fs_attach(FS_RAMFS, ram0, ":");
     
     //This is the final culmination of all our FS and process work
