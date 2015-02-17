@@ -1,8 +1,19 @@
 #ifndef FS_H
 #define FS_H 
 
-#define FS_SYSFS 0
-#define NUL_DEV (block_device*)0
+#define FS_RAMFS 0
+#define NUL_DEV  (block_device*)0
+
+#define ACT_DIR_LIST    0
+#define ACT_FILE_LIST   1
+#define ACT_DIR_DEL     2
+#define ACT_DIR_ADD     3
+#define ACT_FILE_DEL    4
+#define ACT_FILE_ADD    5
+#define ACT_FILE_OPEN   6
+#define ACT_FILE_CLOSE  7
+#define ACT_FILE_WRITEB 8
+#define ACT_FILE_READB  9
 
 typedef void* (*fs_func)(block_dev*, void*);
 typedef void* (*fs_func2)(block_dev*, void*, void*);
@@ -15,22 +26,39 @@ typedef struct fsdriver {
 	fs_func dir_add;
 	fs_func file_del;
 	fs_func file_add;
-	fs_func2 file_open;
+	fs_func file_open;
 	fs_func file_close;
 	fs_func2 file_writeb;
-	fs_func2 file_readb;
+	fs_func file_readb;
 } fsdriver;
 
 typedef struct FILE {
     int fileId;
     int headPtr;    
+    char* path;
 } FILE;
 
-typedef struct attach_node {
+typedef struct attach_point {
 	unsigned char type;
 	block_dev* device;
+    fsdriver* driver;
+    char* path;
 } attach_node;
 
+typedef struct fs_driver_node {
+    struct fs_driver_node* next;
+    fsdriver* driver;
+} fs_driver_node;
+
+typedef struct fs_attachment_node {
+    struct fs_attachment_node* next;
+    attach_point* attach;
+}
+
+fs_driver_node fs_driver_root;
+fs_attachment_node fs_attachment_root;
+
+void fs_init();
 int fs_attach(unsigned char type, block_dev* device, unsigned char* point);
 int fs_detach(block_dev* device);
 int fs_install_driver(fsdriver* newDriver);
@@ -54,6 +82,7 @@ int file_add(unsigned char* file);
 FILE* file_open(unsigned char* file);
 int file_close(FILE* file);
 int file_writeb(FILE* file, unsigned char data);
-unsigned char file_readb(FILE* file);
+int file_readb(FILE* file);
+int dir_exists(unsigned char* path);
 
 #endif //FS_H

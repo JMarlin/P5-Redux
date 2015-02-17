@@ -4,7 +4,7 @@
 
 
 extern long pkgoffset;
-unsigned long maxRAM = 0x2000000;
+unsigned long maxRAM = 0x002FFFFF;
 memblock rootBlock;
 
 
@@ -181,7 +181,7 @@ void* kmalloc(unsigned long size) {
 
     //This needs to be fixed when we start playing with
     //actual packages as allocations will clobber the packages
-    void* rambase = (void*)(0x100000 + pkgoffset); //User RAM starts at 1MB
+    void* rambase = (void*)(0x002029A0); //User RAM starts at 1MB
 
     while(1) {
                 
