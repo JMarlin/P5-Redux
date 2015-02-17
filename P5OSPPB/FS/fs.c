@@ -90,7 +90,7 @@ int fs_detach(block_dev* device) {
     if(!(currentNode->attach))
         return 0;
         
-    while(currentNode->next) {
+    while(currentNode) {
                 
         if(currentNode->attach->device == device) {
             
@@ -155,7 +155,7 @@ attach_point* get_attach(char* path) {
     
     biggest = 0;
     
-    while(currentNode->next) {
+    while(currentNode) {
         
         for(strSz = 0; currentNode->attach->path[strSz]; strSz++);
         
@@ -172,6 +172,8 @@ attach_point* get_attach(char* path) {
                 retAttach = currentNode->attach;
             }
         }
+        
+        currentNode = currentNode->next;
     }
     
     kfree(testStr);

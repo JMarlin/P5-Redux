@@ -27,6 +27,7 @@ int main(void) {
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
     context* ctx;
+    block_dev* ram0;
 
     initScreen();
     setColor(0x1F);
@@ -58,8 +59,8 @@ int main(void) {
 
     //ksize = (unsigned int*)0x100005;
 
-    dcount = (unsigned char*)((char*)0x100000+pkgoffset);
-    sizes = (unsigned int*)((char*)0x100001+pkgoffset);
+    //dcount = (unsigned char*)((char*)0x100000+pkgoffset);
+    sizes = (unsigned int*)((char*)0x100000+pkgoffset);
 
     if(!dcount) {
 
@@ -122,12 +123,19 @@ int main(void) {
     startProc(ctx);
     */
 
-    fs_install_driver(fs_ramFs);
-    fs_attach(FS_RAMFS, dev_ram0, ".");
+    fs_init();
+    
+    //create a ramdisk device from the extents of the kernel payload
+    //then install its fs driver and finally mount the ramdisk on root
+    doffset = 0x100004 + pkgoffset;
+    blk_ram_new(ram0, doffset, sizes[0]);
+    fs_install_driver(fs_ramfs);
+    fs_attach(FS_RAMFS, ram0, ":");
+    
+    //This is the final culmination of all our FS and process work
+    start_executable(":startup.bin");
 
-    //prints("\n\n");
-    //jumpUser((unsigned int*)&sys_console);
-    return 0;
+    while(1);
 }
 
 
