@@ -3,6 +3,15 @@
 #include "../ascii_io/ascii_i.h"
 
 
+void fs_init() {
+    
+    fs_driver_root.next = (fs_driver_node*)0;
+    fs_driver_root.driver = (fsdriver*)0;
+    fs_attachment_root.next = (fs_attachment_node*)0;
+    fs_attachment_root.attach = (attach_point*)0;
+}
+
+
 fsdriver* fs_driver_by_type(unsigned char type) {
     
     fs_driver_node* currentNode = &fs_driver_root;
