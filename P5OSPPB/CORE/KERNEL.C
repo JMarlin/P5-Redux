@@ -11,6 +11,8 @@
 #include "../memory/memory.h"
 #include "../memory/paging.h"
 #include "../memory/gdt.h"
+#include "../fs/fs.h"
+#include "../fs/ramfs.h"
 
 
 extern long pkgoffset;
@@ -81,11 +83,8 @@ int main(void) {
     prints("\nSize: ");
     printHexDword(pkgoffset);
     prints("b\n");
-    prints("ESP: ");
-    asm("\t movl %%esp, %0" : "=r"(i));
-    printHexDword(i);
-    prints("\n");
 
+    /*
     //Test V86 mode
     prints("Installing V86 code...");
     usrCode[0] = 0xB8;
@@ -93,7 +92,7 @@ int main(void) {
     usrCode[2] = 0x12;
     usrCode[3] = 0xCC;
     usrCode[4] = 0xB8;
-    usrCode[5] = 0x12;
+    usrCode[5] = 0x13;
     usrCode[6] = 0x00;
     usrCode[7] = 0xCD;
     usrCode[8] = 0x10;
@@ -107,7 +106,7 @@ int main(void) {
     ctx = newV86Proc();
     setProcEntry(ctx, (void*)usrCode);
     startProc(ctx);
-
+    
     //NEED TO FIGURE OUT USERMODE STACK SITCH
     //Should be at 0x800000
     prints("Moving startup package to userland...");
@@ -121,6 +120,10 @@ int main(void) {
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
     startProc(ctx);
+    */
+
+    fs_install_driver(fs_ramFs);
+    fs_attach(FS_RAMFS, dev_ram0, ".");
 
     //prints("\n\n");
     //jumpUser((unsigned int*)&sys_console);
