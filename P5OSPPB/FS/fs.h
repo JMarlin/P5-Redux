@@ -1,6 +1,8 @@
 #ifndef FS_H
 #define FS_H 
 
+#include "../block/block.h"
+
 #define NUL_DEV  (block_device*)0
 
 #define ACT_DIR_LIST    0
@@ -13,6 +15,25 @@
 #define ACT_FILE_CLOSE  7
 #define ACT_FILE_WRITEB 8
 #define ACT_FILE_READB  9
+
+
+typedef struct FILE {
+    int fileId;
+    int headPtr;    
+    char* path;
+} FILE;
+
+typedef struct attach_point {
+	unsigned char type;
+	block_dev* device;
+    fsdriver* driver;
+    char* path;
+} attach_point;
+
+typedef struct fs_attachment_node {
+    struct fs_attachment_node* next;
+    attach_point* attach;
+} fs_attachment_node;
 
 typedef void (*fs_func)(block_dev*, void*, void*);
 typedef void (*fs_func2)(block_dev*, void*, void*, void*);
@@ -31,28 +52,10 @@ typedef struct fsdriver {
 	fs_func file_readb;
 } fsdriver;
 
-typedef struct FILE {
-    int fileId;
-    int headPtr;    
-    char* path;
-} FILE;
-
-typedef struct attach_point {
-	unsigned char type;
-	block_dev* device;
-    fsdriver* driver;
-    char* path;
-} attach_node;
-
 typedef struct fs_driver_node {
     struct fs_driver_node* next;
     fsdriver* driver;
 } fs_driver_node;
-
-typedef struct fs_attachment_node {
-    struct fs_attachment_node* next;
-    attach_point* attach;
-}
 
 fs_driver_node fs_driver_root;
 fs_attachment_node fs_attachment_root;
