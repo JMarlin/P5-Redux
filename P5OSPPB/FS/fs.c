@@ -228,7 +228,7 @@ attach_point* get_attach(char* path) {
 void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
 
     attach_point* pathAttach;
-    unsigned char* dir, subDir;
+    unsigned char *dir, *subDir;
     int i, strSzSrc, strSzAt, strSzSub;
     FILE* inFile;
     
