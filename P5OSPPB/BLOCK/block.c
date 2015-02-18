@@ -5,11 +5,11 @@
 unsigned int blk_dev_count = 0;
 
 
-void blk_device_new(block_device* newDev) {
+void blk_device_new(block_dev* newDev) {
     
-    if(!(newDev = (block_device*)kmalloc(sizeof(block_device)))) {
+    if(!(newDev = (block_dev*)kmalloc(sizeof(block_device)))) {
     
-        newDev = (block_device*)0;
+        newDev = (block_dev*)0;
         return;
     }
     

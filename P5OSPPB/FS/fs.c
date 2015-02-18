@@ -1,5 +1,5 @@
 #include "fs.h"
-#include "../memory.h"
+#include "../memory/memory.h"
 #include "../ascii_io/ascii_i.h"
 
 
