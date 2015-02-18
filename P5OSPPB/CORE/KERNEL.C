@@ -13,6 +13,8 @@
 #include "../memory/gdt.h"
 #include "../fs/fs.h"
 #include "../fs/ramfs.h"
+#include "../block/block.h"
+#include "../block/ramdisk.h"
 
 
 extern long pkgoffset;

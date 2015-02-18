@@ -21,5 +21,9 @@ INPUT(
     process.o
     processs.o
     serial.o
+    fs.o
+    block.o
+    ramfs.o
+    ramdisk.o
 )
 

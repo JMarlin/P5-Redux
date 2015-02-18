@@ -46,6 +46,14 @@ cd ..\fat12
 echo Starting fat12 build...
 gcc -c -o ..\build\hiinter.o hiinter.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
+cd ..\block
+gcc -c -o ..\build\block.o block.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o ..\build\ramdisk.o ramdisk.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..\fs
+gcc -c -o ..\build\fs.o fs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o ..\build\ramfs.o ramfs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
 cd ..\build
 echo Linking binary
 ld -o ..\bin\p5kern.bin -T ..\lscpt.lds ..\files
