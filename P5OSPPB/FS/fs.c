@@ -261,43 +261,43 @@ void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     switch(action) {
     
         case ACT_DIR_LIST:
-            pathAttach->driver->(*dir_list)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->dir_list(pathAttach->device, (void*)subDir, retval);
             break;
     
         case ACT_FILE_LIST:
-            pathAttach->driver->(*file_list)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->file_list(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_DIR_DEL:
-            pathAttach->driver->(*dir_del)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->dir_del(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_DIR_ADD:
-            pathAttach->driver->(*dir_add)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->dir_add(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_DEL:
-            pathAttach->driver->(*file_del)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->file_del(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_ADD:
-            pathAttach->driver->(*file_add)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->file_add(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_OPEN:
-            pathAttach->driver->(*file_open)(pathAttach->device, (void*)subDir, retval);
+            pathAttach->driver->file_open(pathAttach->device, (void*)subDir, retval);
             break;
         
         case ACT_FILE_CLOSE:
-            pathAttach->driver->(*file_close)(pathAttach->device, (void*)inFile, retval);
+            pathAttach->driver->file_close(pathAttach->device, (void*)inFile, retval);
             break;
         
         case ACT_FILE_WRITEB:
-            pathAttach->driver->(*file_writeb)(pathAttach->device, (void*)inFile, (void*)inb, retval);
+            pathAttach->driver->file_writeb(pathAttach->device, (void*)inFile, (void*)inb, retval);
             break;
             
         case ACT_FILE_READB:
-            pathAttach->driver->(*file_readb)(pathAttach->device, (void*)inFile, retval);
+            pathAttach->driver->file_readb(pathAttach->device, (void*)inFile, retval);
             break;
         
         default:

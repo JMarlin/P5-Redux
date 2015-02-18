@@ -16,7 +16,7 @@ unsigned char block_linear_read(block_dev* dev, int index) {
     if(calcBlock != loadedBlock) {
     
         loadedBlock = calcBlock;
-        dev->(*load)(dev->id, loadedBlock, blk_buf);
+        dev->load(dev->id, loadedBlock, blk_buf);
     }
     
     return blk_buf[calcIndex];
@@ -33,7 +33,7 @@ void ramfs_dir_list(block_dev* dev, void* dir, void* buf) {
     char* dirlist = buf;
     
     if(strcmp(dir, ":")) {
-        dirlist[0] = ":";
+        dirlist[0] = ':';
         dirlist[1] = 0;
     } else {
         dirlist[0] = 0;
