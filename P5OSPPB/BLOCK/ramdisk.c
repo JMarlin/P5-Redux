@@ -10,7 +10,7 @@ ramd_node ramd_node_root = {
 
 ram_disk* disk_by_id(int devId) {
 
-    ramd_node currentNode = &ramd_node_root;
+    ramd_node* currentNode = &ramd_node_root;
     
     if(!(currentNode->device))
         return (ram_disk*)0;
@@ -73,7 +73,7 @@ void ramd_store(int devId) {
 
 int blk_ram_new(block_dev* dev, int startAddr, int size) {
 
-    ramd_node currentNode = &ramd_node_root;
+    ramd_node* currentNode = &ramd_node_root;
     ramd_node* newNode;
     ram_disk* newDisk;
        

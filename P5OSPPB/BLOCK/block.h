@@ -1,7 +1,7 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#define BLOCKSZ 512;
+#define BLOCKSZ 512
 
 typedef void (*blk_load_func)(int devId, int blknum, char* buf);
 

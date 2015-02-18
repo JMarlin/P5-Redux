@@ -76,7 +76,7 @@ void ramfs_file_list(block_dev* dev, void* dir, void* buf) {
             strlen = block_linear_read(dev, offset++);
             
             for(i = 0; i < strlen; listsz++, i++)
-                dirlist[listsz] = block_linear_read(offset++);
+                dirlist[listsz] = block_linear_read(dev, offset++);
                             
             count--;
             if(count) dirlist[listsz++] = ':';

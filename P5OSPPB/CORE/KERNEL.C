@@ -30,7 +30,7 @@ int main(void) {
     unsigned char *dcount;
     context* ctx;
     block_dev* ram0;
-    unsigned char* listBuf[256];
+    unsigned char listBuf[256];
     
 
     initScreen();
