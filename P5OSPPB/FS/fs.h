@@ -23,6 +23,9 @@ typedef struct FILE {
     char* path;
 } FILE;
 
+typedef void (*fs_func)(block_dev*, void*, void*);
+typedef void (*fs_func2)(block_dev*, void*, void*, void*);
+
 typedef struct fsdriver {
 	unsigned char type;
 	fs_func dir_list;
@@ -53,9 +56,6 @@ typedef struct fs_attachment_node {
     struct fs_attachment_node* next;
     attach_point* attach;
 } fs_attachment_node;
-
-typedef void (*fs_func)(block_dev*, void*, void*);
-typedef void (*fs_func2)(block_dev*, void*, void*, void*);
 
 fs_driver_node fs_driver_root;
 fs_attachment_node fs_attachment_root;
