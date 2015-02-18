@@ -61,8 +61,8 @@ int main(void) {
 
     //ksize = (unsigned int*)0x100005;
 
-    //dcount = (unsigned char*)((char*)0x100000+pkgoffset);
-    sizes = (unsigned int*)((char*)0x100000+pkgoffset);
+    dcount = (unsigned char*)((char*)0x100000+pkgoffset);
+    sizes = (unsigned int*)((char*)0x100001+pkgoffset);
 
     if(!dcount) {
 
@@ -129,7 +129,7 @@ int main(void) {
     
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
-    doffset = 0x100004 + pkgoffset;
+    doffset = 0x100005 + pkgoffset;
     blk_ram_new(ram0, doffset, sizes[0]);
     fs_install_driver(&fs_ramfs);
     fs_attach(FS_RAMFS, ram0, ":");
