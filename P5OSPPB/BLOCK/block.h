@@ -10,11 +10,11 @@ typedef void (*blk_load_func)(int devId, int blknum, char* buf);
 //and automatically commits the stored buffer to the stored block
 typedef void (*blk_stor_func)(int devId);
 
-typedef struct block_device {
+typedef struct block_dev {
     int id;
     blk_load_func load;
     blk_stor_func store;
-} block_device;
+} block_dev;
 
 //Creates a block device structure and assigns the device a new ID
 //This ID is used for getting a reference to an OS block buffer for

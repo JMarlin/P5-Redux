@@ -71,7 +71,7 @@ void ramd_store(int devId) {
 }
 
 
-int blk_ram_new(block_device* dev, int startAddr, int size) {
+int blk_ram_new(block_dev* dev, int startAddr, int size) {
 
     ramd_node currentNode = &ramd_node_root;
     ramd_node* newNode;
