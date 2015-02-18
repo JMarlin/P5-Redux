@@ -154,7 +154,7 @@ void V86Entry(void) {
             //A32
             case 0x67:
                 prints("a32 ");
-                (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)(++activeContext->eip) &0xFFFF));
+                (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)(++activeContext->eip) &0xFFFF)));
                 op32 = 1;
                 break;
 

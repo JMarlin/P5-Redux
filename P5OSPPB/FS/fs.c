@@ -342,7 +342,7 @@ int file_del(unsigned char* file) {
 
     int retval;
     
-    fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_FILE_DEL);
+    fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_DEL);
     return retval;
 }
 
@@ -351,7 +351,7 @@ int file_add(unsigned char* file) {
 
     int retval;
 
-    return (int)fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_FILE_ADD);
+    return (int)fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_ADD);
 }
 
 
