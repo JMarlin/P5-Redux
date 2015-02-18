@@ -7,6 +7,8 @@ typedef struct ram_disk {
     unsigned int id;
     unsigned int base;
     unsigned int size;
+    unsigned int loadedBlk;
+    char* destBuf;
 } ram_disk;
 
 typedef struct ramd_node {

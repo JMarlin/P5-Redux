@@ -28,28 +28,46 @@ ram_disk* disk_by_id(int devId) {
 void ramd_load(int devId, int blknum, char* buf) {
     
     ram_disk* disk;
+    char* srcBuf;
+    int i;
     
     if(!(disk = disk_by_id(devId))) {
         
-        buf = (char*)0;
+        //We need a return code
         return;
     }
     
     if(blknum * BLOCKSZ > disk->size) {
         
-        buf = (char*)0;
+        //We need a return code
         return;
     }
     
-    buf = (char*)(disk->base + BLOCKSZ * blknum);
+    srcBuf = (char*)(disk->base + BLOCKSZ * blknum);
+    disk->loadedBlk = blknum;
+    disk->destBuf = buf;
+    
+    for(i = 0; i < BLOCKSZ; i++)
+        buf[i] = srcBuf[i];
 }
 
 
 void ramd_store(int devId) {
 
-    //Since we're writing directly to RAM, there's nothing we
-    //need to do to commit the buffer
-    return;
+    int i;
+    char* srcBuf;
+    ram_disk* disk;
+    
+    if(!(disk = disk_by_id(devId))) {
+        
+        //We need a return code
+        return;
+    }
+    
+    srcBuf = (char*)(disk->base + BLOCKSZ * disk->loadedBlk);
+    
+    for(i = 0; i < BLOCKSZ; i++)
+        srcBuf[i] = disk->destBuf[i];
 }
 
 
@@ -65,6 +83,8 @@ int blk_ram_new(block_device* dev, int startAddr, int size) {
     newDisk->base = startAddr;
     newDisk->size = size;
     newDisk->id = dev->id;
+    newDisk->loadedBlk = 0;
+    newDisk->destBuf = (char*)0;
     dev->load = &ramd_load;
     dev->store = &ramd_store;
     

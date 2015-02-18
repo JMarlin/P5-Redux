@@ -12,6 +12,50 @@ void fs_init() {
 }
 
 
+//The basic premise here is that we keep trying to list each
+//directory in the path. If one can't be listed, then that
+//directory doesn't exist. If they can all be listed, then
+//the path is valid
+char dir_exists(char* dir) {
+
+    int i, len;
+    char listBuf[256];
+
+    if(!dir[0])
+        return 0;
+    
+    //The root folder always exists
+    if(strcmp(dir, ":"))
+        return 1;
+    
+    lastColon = 0;
+    folderCount = 0;
+    
+    for(len = 0; dir[len]; len++);
+    
+    for(i = 1; i < len; i++)
+        if(dir[i] == ':') dir[i] = 0;
+    
+    i = 0;
+    
+    while(i < len) {
+    
+        //Get the directory listing for the ith folder
+        dir_list(dir, listBuf);
+        if(!listBuf[0])
+            return 0;
+            
+        while(i < len) {
+            
+            if(!dir[i]) dir[i] = ':';
+            i++;
+        }
+    }
+    
+    return 1;
+}
+
+
 fsdriver* fs_driver_by_type(unsigned char type) {
     
     fs_driver_node* currentNode = &fs_driver_root;
@@ -181,12 +225,11 @@ attach_point* get_attach(char* path) {
 }
 
 
-void* fs_path_op(void* ina, void* inb, unsigned char action) {
+void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
 
     attach_point* pathAttach;
     unsigned char* dir, subDir;
     int i, strSzSrc, strSzAt, strSzSub;
-    void* retval;
     FILE* inFile;
     
     if(action == ACT_FILE_CLOSE || action == ACT_FILE_WRITEB || action == ACT_FILE_READB) {
@@ -197,7 +240,7 @@ void* fs_path_op(void* ina, void* inb, unsigned char action) {
     }
     
     if(!(pathAttach = get_attach(dir)))
-        return (char**)0;
+        return (void*)0;
     
     for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
     
@@ -208,7 +251,7 @@ void* fs_path_op(void* ina, void* inb, unsigned char action) {
     strSzSub = strSzSrc - strSzAt;
     
     if(!(subDir = kmalloc(strSzSub)))
-        return (char**)0;
+        return (void*)0;
     
     for(i = 0; i < strSzSub; i++)
         subDir[i] = dir[i + strSzAt];
@@ -218,43 +261,43 @@ void* fs_path_op(void* ina, void* inb, unsigned char action) {
     switch(action) {
     
         case ACT_DIR_LIST:
-            retval = pathAttach->driver->(*dir_list)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*dir_list)(pathAttach->device, (void*)subDir, retval);
             break;
     
         case ACT_FILE_LIST:
-            retval = pathAttach->driver->(*file_list)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*file_list)(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_DIR_DEL:
-            retval = pathAttach->driver->(*dir_del)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*dir_del)(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_DIR_ADD:
-            retval = pathAttach->driver->(*dir_add)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*dir_add)(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_DEL:
-            retval = pathAttach->driver->(*file_del)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*file_del)(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_ADD:
-            retval = pathAttach->driver->(*file_add)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*file_add)(pathAttach->device, (void*)subDir, retval);
             break;
             
         case ACT_FILE_OPEN:
-            retval = pathAttach->driver->(*file_open)(pathAttach->device, (void*)subDir);
+            pathAttach->driver->(*file_open)(pathAttach->device, (void*)subDir, retval);
             break;
         
         case ACT_FILE_CLOSE:
-            retval = pathAttach->driver->(*file_close)(pathAttach->device, (void*)inFile);
+            pathAttach->driver->(*file_close)(pathAttach->device, (void*)inFile, retval);
             break;
         
         case ACT_FILE_WRITEB:
-            retval = pathAttach->driver->(*file_writeb)(pathAttach->device, (void*)inFile, (void*)inb);
+            pathAttach->driver->(*file_writeb)(pathAttach->device, (void*)inFile, (void*)inb, retval);
             break;
             
         case ACT_FILE_READB:
-            retval = pathAttach->driver->(*file_readb)(pathAttach->device, (void*)inFile);
+            pathAttach->driver->(*file_readb)(pathAttach->device, (void*)inFile, retval);
             break;
         
         default:
@@ -262,65 +305,84 @@ void* fs_path_op(void* ina, void* inb, unsigned char action) {
     }
     
     kfree(subDir);    
-    return retval;
 }
 
 
-unsigned char** dir_list(unsigned char* dir) {
+void dir_list(unsigned char* dir, unsigned char* list) {
     
-    return (char**)fs_path_op((void*)dir, (void*)0, ACT_DIR_LIST);
+    fs_path_op((void*)dir, (void*)0, (void*)list, ACT_DIR_LIST);
 }
 
 
-unsigned char** file_list(unsigned char* dir) {
+void file_list(unsigned char* dir, unsigned char* list) {
 
-    return (char**)fs_path_op((void*)dir, (void*)0, ACT_FILE_LIST);
+    fs_path_op((void*)dir, (void*)0, (void*)list ACT_FILE_LIST);
 }
 
 
 int dir_del(unsigned char* dir) {
 
-    return (int)fs_path_op((void*)dir, (void*)0, ACT_DIR_DEL);
+    int retval;
+
+    fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_DIR_DEL);
+    return retval;
 }
 
 
 int dir_add(unsigned char* dir) {
 
-    return (int)fs_path_op((void*)dir, (void*)0, ACT_DIR_ADD);
+    int retval;
+
+    fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_DIR_ADD);
+    return retval;
 }
 
 
 int file_del(unsigned char* file) {
 
-    return (int)fs_path_op((void*)dir, (void*)0, ACT_FILE_DEL);
+    int retval;
+    
+    fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_FILE_DEL);
+    return retval;
 }
 
 
 int file_add(unsigned char* file) {
 
-    return (int)fs_path_op((void*)dir, (void*)0, ACT_FILE_ADD);
+    int retval;
+
+    return (int)fs_path_op((void*)dir, (void*)0, (void*)&retval, ACT_FILE_ADD);
 }
 
 
-FILE* file_open(unsigned char* file) {
+void file_open(unsigned char* dir, FILE* file) {
 
-    return (FILE*)fs_path_op((void*)file, (void*)0,  ACT_FILE_OPEN);
+    fs_path_op((void*)file, (void*)0, (void*)file, ACT_FILE_OPEN);
 }
 
 
 int file_close(FILE* file) {
 
-    return (int)fs_path_op((void*)file, (void*)0,  ACT_FILE_CLOSE);
+    int retval;
+
+    fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_CLOSE);
+    return retval;
 }
 
 
 int file_writeb(FILE* file, unsigned char data)  {
 
-    return (int)fs_path_op((void*)file, (void*)((int)data),  ACT_FILE_WRITEB);
+    int retval;
+
+    fs_path_op((void*)file, (void*)((int)data), (void*)&retval, ACT_FILE_WRITEB);
+    return retval;
 }
 
 
 int file_readb(FILE* file)  {
 
-    return (int)fs_path_op((void*)file, (void*)0,  ACT_FILE_READB);
+    int retval;
+
+    fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_READB);
+    return retval;
 }

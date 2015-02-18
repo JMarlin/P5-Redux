@@ -14,8 +14,8 @@
 #define ACT_FILE_WRITEB 8
 #define ACT_FILE_READB  9
 
-typedef void* (*fs_func)(block_dev*, void*);
-typedef void* (*fs_func2)(block_dev*, void*, void*);
+typedef void (*fs_func)(block_dev*, void*, void*);
+typedef void (*fs_func2)(block_dev*, void*, void*, void*);
 
 typedef struct fsdriver {
 	unsigned char type;
@@ -72,13 +72,13 @@ int fs_install_driver(fsdriver* newDriver);
 //    find node:    hd0_node = get_node(".drives.hd0.stuff.file") 
 //    fs_index:     fs_index = fs_type_index(hd0_node->type);
 //    forwarded to: installed_fs[fs_index]->(*file_open)(hd0_node->device, ".stuff.file") 
-unsigned char** dir_list(unsigned char* dir);
-unsigned char** file_list(unsigned char* dir);
+void dir_list(unsigned char* dir, unsigned char* list);
+void file_list(unsigned char* dir, unsigned char* list);
 int dir_del(unsigned char* dir);
 int dir_add(unsigned char* dir);
 int file_del(unsigned char* file);
 int file_add(unsigned char* file);
-FILE* file_open(unsigned char* file);
+void file_open(unsigned char* dir, FILE* file);
 int file_close(FILE* file);
 int file_writeb(FILE* file, unsigned char data);
 int file_readb(FILE* file);
