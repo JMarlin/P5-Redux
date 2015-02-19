@@ -128,20 +128,26 @@ int main(void) {
     startProc(ctx);
     */
 
+    prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
     prints("Initializing filesystem\n");    
     fs_init();
     
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
+    prints("Calculating offset to ramdisk\n");
     doffset = 0x100005 + pkgoffset;
+    prints("Creating new ramdisk block device ram0...");
     ram0 = blk_ram_new(doffset, sizes[0]);
+    prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
+    prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, ram0, ":");
     
     //This is the final culmination of all our FS and process work
     //start_executable(":startup.bin");
+    prints("Done\nGetting root file listing...");
     file_list(":", listBuf);
-    prints("File listing of : is '"); prints(listBuf); prints("'");
+    prints("Done\nFile listing of : is '"); prints(listBuf); prints("' (from 0x"); printHexDword((unsigned int)listBuf); prints(").\n");
 
     while(1);
 }
