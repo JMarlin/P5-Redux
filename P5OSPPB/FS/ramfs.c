@@ -282,6 +282,12 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
         
     //Install the node
     currentNode->next = newNode;
+    
+    prints("\nRAM file opened, offset=0x"); 
+    printHexDword(newRamFile->offset);
+    prints(", size=0x");
+    printHexDword(newRamFile->length);
+    prints("\n");
 }
 
 
@@ -305,6 +311,8 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
     //Again, this kind of depends on how the file handle works
     int* data = (int*)vdata;
     FILE* file = (FILE*)vfile;
+    
+    prints("\nGetting ramfile by id\n");
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
     
     if(!ramFile) {
@@ -313,11 +321,13 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
         return;
     }
     
+    prints("Making sure it's not at EOF\n");
     if((ramFile->offset + ramFile->index) >= ramFile->length) {
         
         data[0] = EOF;
         return;
     }    
     
+    prints("Getting value from block device\n");
     data[0] = (int)block_linear_read(dev, ramFile->offset + ramFile->index);
 }
