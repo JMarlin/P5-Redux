@@ -250,6 +250,7 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     //This populates the offset and size values
     if(!ramfs_seekFile(dev, dir, newRamFile)) {
 
+        prints("\nSeek failed.\n");
         kfree((void*)newRamFile);
         return;
     }
