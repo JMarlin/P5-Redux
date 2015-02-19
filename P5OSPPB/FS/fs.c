@@ -281,6 +281,10 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             return;
         }
         
+        prints("    Attach: "); prints(pathAttach->path);
+        prints("\n   Request: "); prints(dir);
+        prints("\n");
+        
         for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
         
         strSzSrc++;
@@ -340,12 +344,7 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             if(!((FILE*)retval)->id)
                 break;
             
-            prints("\n");
-            printHexDword(((FILE*)retval)->id);
-            prints("\n");
             pathAttach->driver->file_open(pathAttach->device, (void*)subDir, retval);
-            printHexDword(((FILE*)retval)->id);
-            prints("\n");
             break;
         
         case ACT_FILE_CLOSE:
