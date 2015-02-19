@@ -222,7 +222,7 @@ attach_point* get_attach(char* path) {
 }
 
 
-void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
+void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
 
     attach_point* pathAttach;
     unsigned char *dir, *subDir;
@@ -236,8 +236,10 @@ void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
         dir = (unsigned char*)ina;
     }
     
-    if(!(pathAttach = get_attach(dir)))
-        return (void*)0;
+    if(!(pathAttach = get_attach(dir))) {
+        prints("   Couldn't find the attached filesystem\n"); 
+        return;
+    }
     
     for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
     
