@@ -149,7 +149,7 @@ int main(void) {
     //start_executable(":startup.bin");
     prints("Done\n");
     file_list(":", listBuf);
-    file_open(":hello.txt", &hellofile);
+    file_open(":two.txt", &hellofile);
     
     if(!hellofile.id) {
     
