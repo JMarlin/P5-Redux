@@ -1,5 +1,6 @@
 #include "ramdisk.h"
 #include "block.h"
+#include "../ascii_io/ascii_o.h"
 
 
 ramd_node ramd_node_root = {
@@ -76,9 +77,11 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     ramd_node* currentNode = &ramd_node_root;
     ramd_node* newNode;
     ram_disk* newDisk;
-       
+    
+    prints("\nAttempting to allocate space for a new ramdisk struct..."); 
     if(!(newDisk = (ram_disk*)kmalloc(sizeof(ram_disk)))) 
         return 0;
+    prints("Done\n");
     
     newDisk->base = startAddr;
     newDisk->size = size;

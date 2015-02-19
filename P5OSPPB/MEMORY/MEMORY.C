@@ -59,7 +59,7 @@ void init_memory() {
 
     //Start of kernel
     rootBlock.base = (void*)0x100000;
-    rootBlock.size = pkgoffset;
+    rootBlock.size = 0x1029A0;
     rootBlock.next = (memblock*)0;
 
     //testRAM();
@@ -73,7 +73,7 @@ void init_memory() {
         return;
     }
 
-    //printChain();
+    printChain();
     prints("Allocating 1k of RAM to ram_b.\n");
     ram_b = kmalloc(1024);
 
@@ -82,7 +82,7 @@ void init_memory() {
         return;
     }
 
-    //printChain();
+    printChain();
     prints("Freeing ram_a.\n");
     ram_a = kfree(ram_a);
     
@@ -91,7 +91,7 @@ void init_memory() {
         return;
     }
 
-    //printChain();
+    printChain();
     prints("Freeing ram_b.\n");
     ram_b = kfree(ram_b);
  
@@ -100,7 +100,7 @@ void init_memory() {
         return;
     }
 
-    //printChain();                
+    printChain();                
 }
 
 
