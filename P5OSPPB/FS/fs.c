@@ -106,7 +106,7 @@ int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
         return 0;
     }
         
-    prints("Done\n   Checking to see if attach dir exists...")
+    prints("Done\n   Checking to see if attach dir exists...");
         
     if(!dir_exists(point)) {
         
