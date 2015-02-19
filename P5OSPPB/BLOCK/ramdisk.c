@@ -3,10 +3,7 @@
 #include "../ascii_io/ascii_o.h"
 
 
-ramd_node ramd_node_root = {
-    (ramd_node*)0,
-    (ram_disk*)0
-};
+ramd_node ramd_node_root;
 
 
 ram_disk* disk_by_id(int devId) {
@@ -77,6 +74,14 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     ramd_node* currentNode = &ramd_node_root;
     ramd_node* newNode;
     ram_disk* newDisk;
+    static char rdd_inited = 0;
+    
+    if(!rdd_inited) {
+        
+        ramd_node_root.next = (ramd_node*)0;
+        ramd_node_root.device = (ram_disk*)0;
+        rdd_inited = 1;
+    }
     
     prints("\n   Attempting to allocate space for a new ramdisk struct..."); 
     
