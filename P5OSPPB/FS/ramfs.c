@@ -55,6 +55,8 @@ ramfs_file* get_ramfile_by_id(int id) {
     
         if(currentNode->file->id == id)
             return currentNode->file;
+        
+        currentNode = currentNode->next;
     }
     
     return (ramfs_file*)0;
@@ -211,22 +213,14 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
                 tmpName[i] = block_linear_read(dev, offset++);
             
             tmpName[i] = 0;
-                        
-            prints("Does '");
-            prints(tmpName);
-            prints("' match '");
-            prints(seekName);
-            prints("'?");
-                        
+                                                
             if(strcmp(tmpName, seekName)) {
                 
-                prints(" Yes\n");
                 newRamFile->offset = fileOffset;
                 newRamFile->length = fileSize;
                 kfree((void*)tmpName);
                 return 1;
-            }
-            prints(" No\n");    
+            } 
             
             count--;
     }
@@ -270,6 +264,12 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     //Reset the new ramfs_file's index to 0
     newRamFile->index = 0;
     
+    prints("\nRAM file opened, offset=0x"); 
+    printHexDword(newRamFile->offset);
+    prints(", size=0x");
+    printHexDword(newRamFile->length);
+    prints("\n");
+    
     //If the root node is unpopulated, all we need
     //to do is insert the new ramfs_file
     if(!currentNode->file) {
@@ -295,12 +295,6 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
         
     //Install the node
     currentNode->next = newNode;
-    
-    prints("\nRAM file opened, offset=0x"); 
-    printHexDword(newRamFile->offset);
-    prints(", size=0x");
-    printHexDword(newRamFile->length);
-    prints("\n");
 }
 
 
