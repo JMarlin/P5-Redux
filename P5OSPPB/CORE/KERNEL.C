@@ -29,7 +29,7 @@ int main(void) {
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
     context* ctx;
-    block_dev ram0;
+    block_dev* ram0;
     unsigned char listBuf[256];
     
 
@@ -136,7 +136,7 @@ int main(void) {
     prints("Calculating offset to ramdisk\n");
     doffset = 0x100005 + pkgoffset;
     prints("Creating new ramdisk block device ram0...");
-    blk_ram_new(&ram0, doffset, sizes[0]);
+    ram0 = blk_ram_new(doffset, sizes[0]);
     prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
     prints("Done\nAttaching ramfs filesystem on ram0...");

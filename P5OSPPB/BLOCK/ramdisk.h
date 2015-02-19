@@ -16,7 +16,7 @@ typedef struct ramd_node {
     ram_disk* device;
 } ramd_node;
 
-int blk_ram_new(block_dev* dev, int startAddr, int size);
+block_dev* blk_ram_new(int startAddr, int size);
 void ramd_load(int devId, int blknum, char* buf);
 void ramd_store(int devId);
 

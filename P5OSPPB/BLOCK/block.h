@@ -20,6 +20,6 @@ typedef struct block_dev {
 //This ID is used for getting a reference to an OS block buffer for
 //the device and can also be used by the block device driver to
 //keep track of what device is being referenced during an operation
-void blk_device_new(block_dev* newDev);
+block_dev* blk_device_new(void);
 
 #endif //BLOCK_H

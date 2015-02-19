@@ -221,7 +221,7 @@ attach_point* get_attach(char* path) {
     while(currentNode) {
         
         for(strSz = 0; currentNode->attach->path[strSz]; strSz++);
-        
+                
         for(i = 0; path[i]; i++)
             testStr[i] = path[i];
         
@@ -271,11 +271,21 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     
     strSzSub = strSzSrc - strSzAt;
     
-    if(!(subDir = kmalloc(strSzSub)))
-        return;
+    if(strSzSub = 1) { 
     
-    for(i = 0; i < strSzSub; i++)
-        subDir[i] = dir[i + strSzAt];
+        if(!(subDir = kmalloc(2)))
+            return;
+            
+        subDir[0] = ':';
+        subDir[1] = 0;
+    }else{
+     
+        if(!(subDir = kmalloc(strSzSub)))
+            return;
+        
+        for(i = 0; i < strSzSub; i++)
+            subDir[i] = dir[i + strSzAt];
+    }
     
     //retval = (void*)0;
     
