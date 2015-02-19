@@ -421,7 +421,7 @@ int file_add(unsigned char* file) {
 
 void file_open(unsigned char* dir, FILE* file) {
 
-    fs_path_op((void*)file, (void*)0, (void*)file, ACT_FILE_OPEN);
+    fs_path_op((void*)dir, (void*)0, (void*)file, ACT_FILE_OPEN);
 }
 
 
