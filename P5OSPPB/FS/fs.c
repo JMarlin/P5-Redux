@@ -301,7 +301,7 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             if(!(subDir = kmalloc(strSzSub + 1)))
                 return;
             
-            subDir[0] = ":";
+            subDir[0] = ':';
             
             for(i = 0; i < strSzSub; i++)
                 subDir[i+ 1] = dir[i + strSzAt];
