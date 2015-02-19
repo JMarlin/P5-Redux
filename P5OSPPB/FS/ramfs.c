@@ -212,6 +212,12 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
             
             tmpName[i] = 0;
                         
+            prints("Does '");
+            prints(tmpName);
+            prints("' match '");
+            prints(seekName);
+            prints("'?");
+                        
             if(strcmp(tmpName, seekName)) {
                 
                 prints(" Yes\n");

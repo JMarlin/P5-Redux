@@ -305,10 +305,6 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
                 subDir[i] = dir[i + strSzAt];
         }
         
-        prints("    Attach: "); prints(pathAttach->path);
-        prints("\n   Request: "); prints(dir);
-        prints("\n   Subdir: "); prints(subDir);
-        prints("\n");
     }
     
     //retval = (void*)0;
