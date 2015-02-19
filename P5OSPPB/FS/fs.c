@@ -289,7 +289,7 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
         
         strSzSub = strSzSrc - strSzAt;
         
-        if(strSzSub = 1) { 
+        if(strSzSub == 1) { 
         
             if(!(subDir = kmalloc(2)))
                 return;
