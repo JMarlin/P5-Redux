@@ -147,11 +147,8 @@ int main(void) {
     
     //This is the final culmination of all our FS and process work
     //start_executable(":startup.bin");
-    prints("Done\nGetting root file listing...");
+    prints("Done\n");
     file_list(":", listBuf);
-    prints("Done\nFile listing of : is '"); prints(listBuf); prints("' (from 0x"); printHexDword((unsigned int)listBuf); prints(").\n");
-    
-    prints("Opening file :hello.txt\n");
     file_open(":hello.txt", &hellofile);
     
     if(!hellofile.id) {
@@ -160,7 +157,7 @@ int main(void) {
         while(1);
     }
     
-    prints("File contents:");
+    prints("File contents:\n\n");
     
     while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
