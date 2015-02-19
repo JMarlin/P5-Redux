@@ -27,10 +27,7 @@ char dir_exists(char* dir) {
     //The root folder always exists
     if(strcmp(dir, ":"))
         return 1;
-    
-    lastColon = 0;
-    folderCount = 0;
-    
+        
     for(len = 0; dir[len]; len++);
     
     for(i = 1; i < len; i++)
@@ -65,7 +62,7 @@ fsdriver* fs_driver_by_type(unsigned char type) {
     
     while(currentNode->next) {
 
-        if(currentNode->type == type)
+        if(currentNode->driver->type == type)
             return currentNode->driver;
         
         currentNode = currentNode->next;
@@ -128,7 +125,7 @@ int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
 
 int fs_detach(block_dev* device) {
 
-    fs_attachment_node* currentNode = fs_attachment_root;
+    fs_attachment_node* currentNode = &fs_attachment_root;
     fs_attachment_node* prevNode = (fs_attachment_node*)0;
     
     if(!(currentNode->attach))
@@ -147,7 +144,7 @@ int fs_detach(block_dev* device) {
             } else {
              
                 kfree((void*)currentNode->attach);
-                currentNode->attach = prevNode;
+                currentNode->attach = (attach_point*)0;
             }
         }
         
@@ -162,7 +159,7 @@ int fs_detach(block_dev* device) {
 int fs_install_driver(fsdriver* newDriver) {
 
     fs_driver_node* newNode;
-    fs_driver_node* currentNode = fs_driver_root;
+    fs_driver_node* currentNode = &fs_driver_root;
     
     if(!(currentNode->driver)) {
         
@@ -187,7 +184,7 @@ attach_point* get_attach(char* path) {
     unsigned char* testStr;
     int strSz, i, biggest;
     attach_point* retAttach = (attach_point*)0;
-    fs_attachment_node* currentNode = fs_attachment_root;
+    fs_attachment_node* currentNode = &fs_attachment_root;
     
     if(!(currentNode->attach))
         return retAttach;
@@ -212,7 +209,7 @@ attach_point* get_attach(char* path) {
         if(strcmp(testStr, currentNode->attach->path)) {
             
             if(strSz > biggest) {
-                biggest = strSz
+                biggest = strSz;
                 retAttach = currentNode->attach;
             }
         }

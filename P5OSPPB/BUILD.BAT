@@ -47,10 +47,12 @@ echo Starting fat12 build...
 gcc -c -o ..\build\hiinter.o hiinter.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
 cd ..\block
+echo Starting block build...
 gcc -c -o ..\build\block.o block.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\ramdisk.o ramdisk.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
 cd ..\fs
+echo Starting fs build...
 gcc -c -o ..\build\fs.o fs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\ramfs.o ramfs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 

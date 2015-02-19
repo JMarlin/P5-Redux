@@ -85,6 +85,6 @@ void file_open(unsigned char* dir, FILE* file);
 int file_close(FILE* file);
 int file_writeb(FILE* file, unsigned char data);
 int file_readb(FILE* file);
-int dir_exists(unsigned char* path);
+char dir_exists(unsigned char* path);
 
 #endif //FS_H

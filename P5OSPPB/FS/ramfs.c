@@ -5,7 +5,19 @@
 
 
 unsigned char blk_buf[BLOCKSZ];
-
+fsdriver fs_ramfs = {
+    FS_RAMFS,
+    &ramfs_dir_list,
+    &ramfs_file_list,
+    &ramfs_dir_del,
+    &ramfs_dir_add,
+    &ramfs_file_del,
+    &ramfs_file_add,
+    &ramfs_file_open,
+    &ramfs_file_close,
+    &ramfs_file_writeb,
+    &ramfs_file_readb
+};
 
 unsigned char block_linear_read(block_dev* dev, int index) {
 
