@@ -53,7 +53,7 @@ typedef struct fs_attachment_node {
 } fs_attachment_node;
 
 typedef struct FILE {
-    int fileId;
+    int id;
     attach_point* volume;    
 } FILE;
 

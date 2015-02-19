@@ -303,7 +303,7 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
     //Again, this kind of depends on how the file handle works
-    (int*) data = (unsigned char*)vdata;
+    int* data = (unsigned char*)vdata;
     FILE* file = (FILE*)vfile;
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
     
