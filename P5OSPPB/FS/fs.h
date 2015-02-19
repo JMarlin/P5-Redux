@@ -16,11 +16,11 @@
 #define ACT_FILE_WRITEB 8
 #define ACT_FILE_READB  9
 
+#define EOF -1
 
 typedef struct FILE {
     int fileId;
-    int headPtr;    
-    char* path;
+    attach_point* volume;    
 } FILE;
 
 typedef void (*fs_func)(block_dev*, void*, void*);

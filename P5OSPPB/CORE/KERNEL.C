@@ -30,7 +30,9 @@ int main(void) {
     unsigned char *dcount;
     context* ctx;
     block_dev* ram0;
+    FILE hellofile;
     unsigned char listBuf[256];
+    int tempCh = 0;
     
 
     initScreen();
@@ -148,7 +150,18 @@ int main(void) {
     prints("Done\nGetting root file listing...");
     file_list(":", listBuf);
     prints("Done\nFile listing of : is '"); prints(listBuf); prints("' (from 0x"); printHexDword((unsigned int)listBuf); prints(").\n");
-
+    
+    file_open(":hello.txt", &hellofile);
+    
+    if(!hellofile->id) {
+    
+        prints("File could not be opened.");
+        while(1);
+    }
+    
+    while((tempCh = file_readb(&hellofile) != EOF)
+        pchar((char)tempCh);
+    
     while(1);
 }
 

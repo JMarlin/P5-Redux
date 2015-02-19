@@ -245,6 +245,22 @@ attach_point* get_attach(char* path) {
 }
 
 
+void fs_init_file(FILE* file, attach_point* pathAttach) {
+
+    static char fs_files_inited = 0;
+    int fs_files_count = 0;
+    
+    if(fs_files_inited != 1) {
+        
+        fs_files_inited = 1;
+        fs_files_count = 0;
+    }
+    
+    file->id = ++fs_files_count;
+    file->volume = pathAttach;
+}
+
+
 void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
 
     attach_point* pathAttach;
@@ -253,39 +269,41 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     FILE* inFile;
     
     if(action == ACT_FILE_CLOSE || action == ACT_FILE_WRITEB || action == ACT_FILE_READB) {
-        inFile = (FILE*)ina;
-        dir = inFile->path;
-    } else {
-        dir = (unsigned char*)ina;
-    }
-    
-    if(!(pathAttach = get_attach(dir))) {
-        DEBUG("   Couldn't find the attached filesystem\n"); 
-        return;
-    }
-    
-    for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
-    
-    strSzSrc++;
-    
-    for(strSzAt = 0; pathAttach->path[strSzAt]; strSzAt++);
-    
-    strSzSub = strSzSrc - strSzAt;
-    
-    if(strSzSub = 1) { 
-    
-        if(!(subDir = kmalloc(2)))
-            return;
-            
-        subDir[0] = ':';
-        subDir[1] = 0;
-    }else{
-     
-        if(!(subDir = kmalloc(strSzSub)))
-            return;
         
-        for(i = 0; i < strSzSub; i++)
-            subDir[i] = dir[i + strSzAt];
+        inFile = (FILE*)ina;  
+        pathAttach = inFile->volume;        
+    } else {
+    
+        dir = (unsigned char*)ina;
+        
+        if(!(pathAttach = get_attach(dir))) {
+            DEBUG("   Couldn't find the attached filesystem\n"); 
+            return;
+        }
+        
+        for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
+        
+        strSzSrc++;
+        
+        for(strSzAt = 0; pathAttach->path[strSzAt]; strSzAt++);
+        
+        strSzSub = strSzSrc - strSzAt;
+        
+        if(strSzSub = 1) { 
+        
+            if(!(subDir = kmalloc(2)))
+                return;
+                
+            subDir[0] = ':';
+            subDir[1] = 0;
+        }else{
+         
+            if(!(subDir = kmalloc(strSzSub)))
+                return;
+            
+            for(i = 0; i < strSzSub; i++)
+                subDir[i] = dir[i + strSzAt];
+        }
     }
     
     //retval = (void*)0;
@@ -317,6 +335,11 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             break;
             
         case ACT_FILE_OPEN:
+            fs_init_file((FILE*)retval, pathAttach);
+            
+            if(!((FILE*)retval)->id)
+                break;
+            
             pathAttach->driver->file_open(pathAttach->device, (void*)subDir, retval);
             break;
         

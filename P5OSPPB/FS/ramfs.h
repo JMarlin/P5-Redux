@@ -6,6 +6,20 @@
 
 #define FS_RAMFS 0
 
+typedef struct ramfs_file {
+
+    int id;
+    int offset;
+    int length;
+    int index;
+} ramfs_file;
+
+typedef struct ramfs_file_node {
+
+    struct ramfs_file_node* next;
+    struct ramfs_file* file;
+} ramfs_file_node;
+
 void ramfs_dir_list(block_dev* dev, void* dir, void* buf);
 void ramfs_file_list(block_dev* dev, void* dir, void* buf);
 void ramfs_dir_del(block_dev* dev, void* dir, void* code);

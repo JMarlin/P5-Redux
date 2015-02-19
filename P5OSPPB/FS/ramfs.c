@@ -1,5 +1,6 @@
 #include "../block/block.h"
 #include "ramfs.h"
+#include "fs.h"
 #include "../ascii_io/ascii_i.h"
 #include "../memory/memory.h"
 #include "../core/global.h"
@@ -7,6 +8,7 @@
 
 unsigned char blk_buf[BLOCKSZ];
 fsdriver fs_ramfs;
+ramfs_file_node open_files_root;
 
 
 fsdriver* get_ramfs_driver() {
@@ -39,6 +41,23 @@ unsigned char block_linear_read(block_dev* dev, int index) {
     }
     
     return blk_buf[calcIndex];
+}
+
+
+ramfs_file* get_ramfile_by_id(int id) {
+
+    ramfs_file_node* currentNode = &open_files_root;
+    
+    if(!currentNode->file)
+        return (ramfs_file*)0;
+        
+    while(currentNode) {
+    
+        if(currentNode->file->id == id)
+            return currentNode->file;
+    }
+    
+    return (ramfs_file*)0;
 }
 
 
@@ -143,26 +162,162 @@ void ramfs_file_add(block_dev* dev, void* dir, void* code) {
 }
 
 
-void ramfs_file_open(block_dev* dev, void* dir, void* file) {
+//A lot of this could be consolidated into a read n-th filename function
+//which could be used in both file_list and seekFile
+int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
 
-    //This works, but we should probably figure out how file handles work
+    unsigned char* seekName, tmpName;
+    int i, count, offset, strlen, fileOffset, fileSize;
+        
+    //Don't waste time on an empty string
+    if(dir[0] == 0 || dir[1] == 0)
+        return 0;
+        
+    //Lop off the leading colon
+    seekName = dir + 1;
+    
+    if(!(tmpName = (unsigned char*)kalloc(256)))
+        return 0;
+        
+    offset = 0;
+    count = block_linear_read(dev, offset++);
+    count |= block_linear_read(dev, offset++) << 8;
+    count |= block_linear_read(dev, offset++) << 16;
+    count |= block_linear_read(dev, offset++) << 24;
+    
+    while(count) {
+            
+            //Get the payload pointers
+            fileOffset = block_linear_read(dev, offset++);
+            fileOffset |= block_linear_read(dev, offset++) << 8;
+            fileOffset |= block_linear_read(dev, offset++) << 16;
+            fileOffset |= block_linear_read(dev, offset++) << 24;
+            fileSize = block_linear_read(dev, offset++);
+            fileSize |= block_linear_read(dev, offset++) << 8;
+            fileSize |= block_linear_read(dev, offset++) << 16;
+            fileSize |= block_linear_read(dev, offset++) << 24;
+            strlen = block_linear_read(dev, offset++);
+            
+            //For now, we're just cutting it off at the buffer
+            //limit. I guess we could just call 256 chars the max
+            //filename limit
+            for(i = 0; i < strlen && i < 256; i++)
+                tmpName[i] = block_linear_read(dev, offset++);
+            
+            tmpName[i] = 0;
+            
+            if(strcmp(tmpName, seekName)) {
+                
+                newRamFile->offset = fileOffset;
+                newRamFile->length = fileSize;
+                kfree((void*)tmpName);
+                return 1;
+            }
+                
+            
+            count--;
+    }
+        
+    kfree((void*)tmpName);
+    return 0;
+}
+
+
+void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
+
+    static char open_files_inited = 0;
+    ramfs_file_node* currentNode = &open_files_root;
+    unsigned char* dir = (unsigned char*)vdir;
+    FILE* file = (FILE*)vfile;
+    ramfs_file_node* newNode;
+    ramfs_file* newRamFile;
+    
+    if(open_files_inited != 1) {
+        
+        open_files_inited = 1;
+        open_files_root.next = (ramfs_file_node)0;
+        open_files_root.file = (ramfs_file)0;
+    }
+            
+    //prepare a ramfs_file structure
+    if(!(newRamFile = (ramfs_file*)kmalloc(sizeof(ramfs_file)))) 
+        return;
+    
+    //Map the new ramfs_file to the OS file handle
+    newRamFile->id = file->id;
+    
+    //Look up the file
+    //This populates the offset and size values
+    if(!ramfs_seekFile(dev, dir, newRamFile)) {
+
+        kfree((void*)newRamFile);
+        return;
+    }
+    
+    //Reset the new ramfs_file's index to 0
+    newRamFile->index = 0;
+    
+    //If the root node is unpopulated, all we need
+    //to do is insert the new ramfs_file
+    if(!currentNode->file) {
+        
+        currentNode->file = newRamFile;
+        return;
+    }
+        
+    //Allocate a new node
+    if(!(newNode = (ramfs_file_node*)kmalloc(sizeof(ramfs_file_node))))  {
+
+        kfree((void*)newRamFile);
+        return;
+    }    
+    
+    //Populate it
+    newNode->next = (ramfs_file_node*)0;
+    newNode->file = newRamFile;
+    
+    //Fast-forward to the end of the list
+    while(currentNode->next)
+        currentNode = currentNode->next;
+        
+    //Install the node
+    currentNode->next = newNode;
 }
 
 
 void ramfs_file_close(block_dev* dev, void* file, void* code) {
 
     //I guess this should pretty much just free the file handle struct
+    //But for now, we're just not going to close it for testing of read function
+    ((int*)code)[0] = 0;
 }
 
 
 void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 
     //You want to write into a read only fs?
-    //((int*)code)[0] = 0;
+    ((int*)code)[0] = 0;
 }
 
 
-void ramfs_file_readb(block_dev* dev, void* file, void* data) {
+void ramfs_file_readb(block_dev* vdev, void* vfile, void* vdata) {
 
     //Again, this kind of depends on how the file handle works
+    int data = (unsigned char*)vdata;
+    FILE* file = (FILE*)vfile;
+    ramfs_file* ramFile = get_ramfile_by_id(file->id);
+    
+    if(!ramFile) {
+    
+        data[0] = EOF;
+        return;
+    }
+    
+    if((ramFile->offset + ramFile->index) >= ramFile->length) {
+        
+        data[0] = EOF;
+        return;
+    }    
+    
+    data[0] = (int)block_linear_read(dev, ramFile->base + ramFile->index);
 }
