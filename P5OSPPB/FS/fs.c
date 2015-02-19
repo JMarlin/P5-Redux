@@ -118,7 +118,7 @@ int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
     
     if(!fs_attach_list_insert(newAttach)) {
         
-        kfree(newAttach);
+        kfree((void*)newAttach);
         return 0;
     }
     
@@ -141,12 +141,12 @@ int fs_detach(block_dev* device) {
             if(prevNode) {
                 
                 prevNode->next = currentNode->next;
-                kfree(currentNode->attach);
-                kfree(currentNode);               
+                kfree((void*)currentNode->attach);
+                kfree((void*)currentNode);               
                 return 1;
             } else {
              
-                kfree(currentNode->attach);
+                kfree((void*)currentNode->attach);
                 currentNode->attach = prevNode;
             }
         }
@@ -220,7 +220,7 @@ attach_point* get_attach(char* path) {
         currentNode = currentNode->next;
     }
     
-    kfree(testStr);
+    kfree((void*)testStr);
     return retAttach;
 }
 
@@ -304,7 +304,7 @@ void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             break;
     }
     
-    kfree(subDir);    
+    kfree((void*)subDir);    
 }
 
 
@@ -316,7 +316,7 @@ void dir_list(unsigned char* dir, unsigned char* list) {
 
 void file_list(unsigned char* dir, unsigned char* list) {
 
-    fs_path_op((void*)dir, (void*)0, (void*)list ACT_FILE_LIST);
+    fs_path_op((void*)dir, (void*)0, (void*)list, ACT_FILE_LIST);
 }
 
 

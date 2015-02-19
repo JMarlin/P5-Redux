@@ -96,7 +96,7 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     
     if(!(newNode = (ramd_node*)kmalloc(sizeof(ramd_node)))) {
  
-        kfree(newNode); 
+        kfree((void*)newNode); 
         return 0;
     }
     
