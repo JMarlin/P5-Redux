@@ -78,7 +78,7 @@ block_dev* blk_ram_new(int startAddr, int size) {
     block_dev* dev;
     static char rdd_inited = 0;
     
-    if(!rdd_inited) {
+    if(rdd_inited != 1) {
         
         ramd_node_root.next = (ramd_node*)0;
         ramd_node_root.device = (ram_disk*)0;

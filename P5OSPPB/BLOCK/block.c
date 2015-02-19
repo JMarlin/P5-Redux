@@ -10,7 +10,7 @@ block_dev* blk_device_new(void) {
     static char blk_inited = 0;
     block_dev* newDev;
 
-    if(!blk_inited) {
+    if(blk_inited != 1) {
     
         blk_inited = 1;
         blk_dev_count = 0;
