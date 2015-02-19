@@ -176,7 +176,7 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
     //Lop off the leading colon
     seekName = dir + 1;
     
-    if(!(tmpName = (unsigned char*)kalloc(256)))
+    if(!(tmpName = (unsigned char*)kmalloc(256)))
         return 0;
         
     offset = 0;
