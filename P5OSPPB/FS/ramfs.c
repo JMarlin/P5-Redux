@@ -300,10 +300,10 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 }
 
 
-void ramfs_file_readb(block_dev* vdev, void* vfile, void* vdata) {
+void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
     //Again, this kind of depends on how the file handle works
-    int data = (unsigned char*)vdata;
+    (int*) data = (unsigned char*)vdata;
     FILE* file = (FILE*)vfile;
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
     
@@ -319,5 +319,5 @@ void ramfs_file_readb(block_dev* vdev, void* vfile, void* vdata) {
         return;
     }    
     
-    data[0] = (int)block_linear_read(dev, ramFile->base + ramFile->index);
+    data[0] = (int)block_linear_read(dev, ramFile->offset + ramFile->index);
 }

@@ -18,11 +18,6 @@
 
 #define EOF -1
 
-typedef struct FILE {
-    int fileId;
-    attach_point* volume;    
-} FILE;
-
 typedef void (*fs_func)(block_dev*, void*, void*);
 typedef void (*fs_func2)(block_dev*, void*, void*, void*);
 
@@ -56,6 +51,11 @@ typedef struct fs_attachment_node {
     struct fs_attachment_node* next;
     attach_point* attach;
 } fs_attachment_node;
+
+typedef struct FILE {
+    int fileId;
+    attach_point* volume;    
+} FILE;
 
 fs_driver_node fs_driver_root;
 fs_attachment_node fs_attachment_root;
