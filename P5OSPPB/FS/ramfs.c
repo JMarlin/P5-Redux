@@ -308,6 +308,8 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 
 void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
+    prints("\nEntered ramfs readb\n");
+
     int* data = (int*)vdata;
     FILE* file = (FILE*)vfile;   
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
