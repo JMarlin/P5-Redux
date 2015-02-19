@@ -56,14 +56,20 @@ void ramfs_dir_list(block_dev* dev, void* dir, void* buf) {
 //Returns directories delimited by colons
 //An empty string is a failed operation
 //A string with a single colon is an empty listing 
-void ramfs_file_list(block_dev* dev, void* dir, void* buf) {
+void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
 
     //Really need a way to make sure we don't 
     //overflow the user's buffer, but fuck it for now
-    char* dirlist = buf;
+    char* dirlist = (char*)buf;
+    char* dir = (char*)vdir;
     int i, offset, count, listsz;
     char strlen;
     
+    prints("\nCalled file listing for subdir '");
+    prints(dir);
+    prints("' in ramfs filesystem on device #");
+    printHexDword(dev->id);
+    prints("\n");
     listsz = 0;
        
     //ramfs doesn't have directories beneath root

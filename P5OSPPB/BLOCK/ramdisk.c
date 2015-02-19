@@ -78,12 +78,12 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     ramd_node* newNode;
     ram_disk* newDisk;
     
-    prints("\nAttempting to allocate space for a new ramdisk struct..."); 
+    prints("\n   Attempting to allocate space for a new ramdisk struct..."); 
     
     if(!(newDisk = (ram_disk*)kmalloc(sizeof(ram_disk)))) 
         return 0;
         
-    prints("Done\nSetting up ramdisk device structure...");
+    prints("Done\n   Setting up ramdisk device structure...");
     newDisk->base = startAddr;
     newDisk->size = size;
     newDisk->id = dev->id;
@@ -91,7 +91,7 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     newDisk->destBuf = (char*)0;
     dev->load = &ramd_load;
     dev->store = &ramd_store;
-    prints("Done\nChecking to see if there are any existing ramdisks...");
+    prints("Done\n   Checking to see if there are any existing ramdisks...");
     
     if(!(currentNode->device)) {
     
@@ -100,7 +100,7 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
         return 1;
     }
     
-    prints("Yes\nAllocating a new list node...");
+    prints("Yes\n   Allocating a new list node...");
     
     if(!(newNode = (ramd_node*)kmalloc(sizeof(ramd_node)))) {
  
@@ -108,10 +108,10 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
         return 0;
     }
     
-    prints("Done\nInstalling new ramdisk in new list node...");
+    prints("Done\n   Installing new ramdisk in new list node...");
     newNode->device = newDisk;
     newNode->next = (ramd_node*)0;
-    prints("Done\nAdding new node to the end of the list...");
+    prints("Done\n   Adding new node to the end of the list...");
     
     while(currentNode->next)
         currentNode = currentNode->next;

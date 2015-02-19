@@ -139,14 +139,14 @@ int main(void) {
     blk_ram_new(&ram0, doffset, sizes[0]);
     prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(&fs_ramfs);
-    prints("Done...\nAttaching ramfs filesystem on ram0...");
+    prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, &ram0, ":");
     
     //This is the final culmination of all our FS and process work
     //start_executable(":startup.bin");
-    prints("Done\nGetting root directory listing...");
+    prints("Done\nGetting root file listing...");
     file_list(":", listBuf);
-    prints("Done\nDirectory listing of : is '"); prints(listBuf); prints("'.\n");
+    prints("Done\nFile listing of : is '"); prints(listBuf); prints("' (from 0x"); printHexDword((unsigned int)listBuf); prints(").\n");
 
     while(1);
 }
