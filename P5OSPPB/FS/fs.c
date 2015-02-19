@@ -442,6 +442,9 @@ int file_readb(FILE* file)  {
 
     int retval;
 
+    prints("\nForwarding a file open request for file #'");
+    printHexDword(file);
+    prints("'\n");    
     fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_READB);
     return retval;
 }

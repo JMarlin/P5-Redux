@@ -308,11 +308,8 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 
 void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
-    //Again, this kind of depends on how the file handle works
     int* data = (int*)vdata;
-    FILE* file = (FILE*)vfile;
-    
-    prints("\nGetting ramfile by id\n");
+    FILE* file = (FILE*)vfile;   
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
     
     if(!ramFile) {
@@ -321,13 +318,11 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
         return;
     }
     
-    prints("Making sure it's not at EOF\n");
     if((ramFile->offset + ramFile->index) >= ramFile->length) {
         
         data[0] = EOF;
         return;
     }    
     
-    prints("Getting value from block device\n");
     data[0] = (int)block_linear_read(dev, ramFile->offset + ramFile->index);
 }
