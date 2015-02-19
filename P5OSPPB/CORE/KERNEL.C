@@ -140,7 +140,7 @@ int main(void) {
     prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
     prints("Done\nAttaching ramfs filesystem on ram0...");
-    fs_attach(FS_RAMFS, &ram0, ":");
+    fs_attach(FS_RAMFS, ram0, ":");
     
     //This is the final culmination of all our FS and process work
     //start_executable(":startup.bin");
