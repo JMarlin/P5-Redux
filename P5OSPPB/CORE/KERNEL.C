@@ -153,13 +153,13 @@ int main(void) {
     
     file_open(":hello.txt", &hellofile);
     
-    if(!hellofile->id) {
+    if(!hellofile.id) {
     
         prints("File could not be opened.");
         while(1);
     }
     
-    while((tempCh = file_readb(&hellofile) != EOF)
+    while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
     
     while(1);
