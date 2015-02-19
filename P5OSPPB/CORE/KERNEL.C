@@ -138,7 +138,7 @@ int main(void) {
     prints("Creating new ramdisk block device ram0...");
     blk_ram_new(&ram0, doffset, sizes[0]);
     prints("Done\nInstalling ramfs filesystem driver...");
-    fs_install_driver(&fs_ramfs);
+    fs_install_driver(get_ramfs_driver());
     prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, &ram0, ":");
     

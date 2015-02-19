@@ -16,7 +16,6 @@ void ramfs_file_open(block_dev* dev, void* dir, void* file);
 void ramfs_file_close(block_dev* dev, void* file, void* code);
 void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code);
 void ramfs_file_readb(block_dev* dev, void* file, void* data);
-
-fsdriver fs_ramfs;
+fsdriver* get_ramfs_driver(void);
 
 #endif //RAMFS_H

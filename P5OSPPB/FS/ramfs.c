@@ -5,19 +5,25 @@
 
 
 unsigned char blk_buf[BLOCKSZ];
-fsdriver fs_ramfs = {
-    FS_RAMFS,
-    &ramfs_dir_list,
-    &ramfs_file_list,
-    &ramfs_dir_del,
-    &ramfs_dir_add,
-    &ramfs_file_del,
-    &ramfs_file_add,
-    &ramfs_file_open,
-    &ramfs_file_close,
-    &ramfs_file_writeb,
-    &ramfs_file_readb
-};
+fsdriver fs_ramfs;
+
+
+fsdriver* get_ramfs_driver() {
+
+    fs_ramfs.type = FS_RAMFS;
+    fs_ramfs.dir_list = &ramfs_dir_list;
+    fs_ramfs.file_list = &ramfs_file_list;
+    fs_ramfs.dir_del = &ramfs_dir_del;
+    fs_ramfs.dir_add = &ramfs_dir_add;
+    fs_ramfs.file_del = &ramfs_file_del;
+    fs_ramfs.file_add = &ramfs_file_add;
+    fs_ramfs.file_open = &ramfs_file_open;
+    fs_ramfs.file_close = &ramfs_file_close;
+    fs_ramfs.file_writeb = &ramfs_file_writeb;
+    fs_ramfs.file_readb = &ramfs_file_readb;
+    return &fs_ramfs;
+}
+
 
 unsigned char block_linear_read(block_dev* dev, int index) {
 
