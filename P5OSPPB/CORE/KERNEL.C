@@ -58,6 +58,7 @@ int main(void) {
     else
         prints("Done.\n");
 
+    init_memory();        
     setupKeyTable();
     prints("WELCOME TO P5\n");
 
