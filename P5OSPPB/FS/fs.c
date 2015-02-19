@@ -250,7 +250,7 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     strSzSub = strSzSrc - strSzAt;
     
     if(!(subDir = kmalloc(strSzSub)))
-        return (void*)0;
+        return;
     
     for(i = 0; i < strSzSub; i++)
         subDir[i] = dir[i + strSzAt];
@@ -353,7 +353,8 @@ int file_add(unsigned char* file) {
 
     int retval;
 
-    return (int)fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_ADD);
+    fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_ADD);
+    return retval;
 }
 
 
