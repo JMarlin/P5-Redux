@@ -2,6 +2,7 @@
 #include "ramfs.h"
 #include "../ascii_io/ascii_i.h"
 #include "../memory/memory.h"
+#include "../core/global.h"
 
 
 unsigned char blk_buf[BLOCKSZ];
