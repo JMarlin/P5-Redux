@@ -1,6 +1,7 @@
 #include "fs.h"
 #include "../memory/memory.h"
 #include "../ascii_io/ascii_i.h"
+#include "../core/global.h"
 
 
 void fs_init() {
@@ -59,7 +60,7 @@ fsdriver* fs_driver_by_type(unsigned char type) {
     
     if(!(currentNode->driver)) {
         
-        prints("\n      No fs drivers installed\n");
+        DEBUG("\n      No fs drivers installed\n");
         return (fsdriver*)0;
     }
     
@@ -100,47 +101,47 @@ int fs_attach_list_insert(attach_point* newAttach) {
 
 int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
     
-    prints("\n   Allocating new attach point...");    
+    DEBUG("\n   Allocating new attach point...");    
     attach_point* newAttach = (attach_point*)kmalloc(sizeof(attach_point));
     
     if(!newAttach) {
     
-        prints("Failed\n");
+        DEBUG("Failed\n");
         return 0;
     }
         
-    prints("Done\n   Checking to see if attach dir exists...");
+    DEBUG("Done\n   Checking to see if attach dir exists...");
         
     if(!dir_exists(point)) {
         
-        prints("No\n");
+        DEBUG("No\n");
         kfree((void*)newAttach);
         return 0;
     }
         
-    prints("Yes\n   Looking up fs driver by type...");
+    DEBUG("Yes\n   Looking up fs driver by type...");
     newAttach->driver = fs_driver_by_type(type);
     
     if(!newAttach->driver) {
     
-        prints("Failed\n");
+        DEBUG("Failed\n");
         kfree((void*)newAttach);
         return 0;
     }
      
-    prints("Done\n   Inserting details into attach point description...");     
+    DEBUG("Done\n   Inserting details into attach point description...");     
     newAttach->device = device;    
     newAttach->path = point;
-    prints("Done\n   Adding attach point to list...");
+    DEBUG("Done\n   Adding attach point to list...");
     
     if(!fs_attach_list_insert(newAttach)) {
         
-        prints("Failed\n");
+        DEBUG("Failed\n");
         kfree((void*)newAttach);
         return 0;
     }
     
-    prints("Done\n");
+    DEBUG("Done\n");
     return 1;
 }
 
@@ -259,7 +260,7 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     }
     
     if(!(pathAttach = get_attach(dir))) {
-        prints("   Couldn't find the attached filesystem\n"); 
+        DEBUG("   Couldn't find the attached filesystem\n"); 
         return;
     }
     
@@ -347,9 +348,9 @@ void dir_list(unsigned char* dir, unsigned char* list) {
 
 void file_list(unsigned char* dir, unsigned char* list) {
 
-    prints("\n   Forwarding a file listing request for '");
-    prints(dir);
-    prints("'\n");
+    DEBUG("\n   Forwarding a file listing request for '");
+    DEBUG(dir);
+    DEBUG("'\n");
     fs_path_op((void*)dir, (void*)0, (void*)list, ACT_FILE_LIST);
 }
 

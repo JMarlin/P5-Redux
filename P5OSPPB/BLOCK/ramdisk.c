@@ -1,6 +1,7 @@
 #include "ramdisk.h"
 #include "block.h"
 #include "../ascii_io/ascii_o.h"
+#include "../core/global.h"
 
 
 ramd_node ramd_node_root;
@@ -87,12 +88,12 @@ block_dev* blk_ram_new(int startAddr, int size) {
     if(!(dev = blk_device_new()))
         return dev;
     
-    prints("\n   Attempting to allocate space for a new ramdisk struct..."); 
+    DEBUG("\n   Attempting to allocate space for a new ramdisk struct..."); 
     
     if(!(newDisk = (ram_disk*)kmalloc(sizeof(ram_disk)))) 
         return (block_dev*)0;
         
-    prints("Done\n   Setting up ramdisk device structure...");
+    DEBUG("Done\n   Setting up ramdisk device structure...");
     newDisk->base = startAddr;
     newDisk->size = size;
     newDisk->id = dev->id;
@@ -100,16 +101,16 @@ block_dev* blk_ram_new(int startAddr, int size) {
     newDisk->destBuf = (char*)0;
     dev->load = &ramd_load;
     dev->store = &ramd_store;
-    prints("Done\n   Checking to see if there are any existing ramdisks...");
+    DEBUG("Done\n   Checking to see if there are any existing ramdisks...");
     
     if(!(currentNode->device)) {
     
-        prints("No\n");
+        DEBUG("No\n");
         currentNode->device = newDisk;
         return dev;
     }
     
-    prints("Yes\n   Allocating a new list node...");
+    DEBUG("Yes\n   Allocating a new list node...");
     
     if(!(newNode = (ramd_node*)kmalloc(sizeof(ramd_node)))) {
  
@@ -117,15 +118,15 @@ block_dev* blk_ram_new(int startAddr, int size) {
         return (block_dev*)0;
     }
     
-    prints("Done\n   Installing new ramdisk in new list node...");
+    DEBUG("Done\n   Installing new ramdisk in new list node...");
     newNode->device = newDisk;
     newNode->next = (ramd_node*)0;
-    prints("Done\n   Adding new node to the end of the list...");
+    DEBUG("Done\n   Adding new node to the end of the list...");
     
     while(currentNode->next)
         currentNode = currentNode->next;
         
     currentNode->next = newNode;
-    prints("Done\n");
+    DEBUG("Done\n");
     return dev;
 }

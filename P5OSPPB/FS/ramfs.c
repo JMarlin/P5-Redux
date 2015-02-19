@@ -71,11 +71,11 @@ void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
     int i, offset, count, listsz;
     char strlen;
     
-    prints("\nCalled file listing for subdir '");
-    prints(dir);
-    prints("' in ramfs filesystem on device #");
-    printHexDword(dev->id);
-    prints("\n");
+    DEBUG("\nCalled file listing for subdir '");
+    DEBUG(dir);
+    DEBUG("' in ramfs filesystem on device #");
+    DEBUG_HD(dev->id);
+    DEBUG("\n");
     listsz = 0;
        
     //ramfs doesn't have directories beneath root
