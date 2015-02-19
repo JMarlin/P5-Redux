@@ -151,6 +151,7 @@ int main(void) {
     file_list(":", listBuf);
     prints("Done\nFile listing of : is '"); prints(listBuf); prints("' (from 0x"); printHexDword((unsigned int)listBuf); prints(").\n");
     
+    prints("Opening file :hello.txt\n");
     file_open(":hello.txt", &hellofile);
     
     if(!hellofile.id) {
@@ -158,6 +159,8 @@ int main(void) {
         prints("File could not be opened.");
         while(1);
     }
+    
+    prints("File contents:");
     
     while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
