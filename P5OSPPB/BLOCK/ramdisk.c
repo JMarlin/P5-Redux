@@ -79,10 +79,11 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     ram_disk* newDisk;
     
     prints("\nAttempting to allocate space for a new ramdisk struct..."); 
+    
     if(!(newDisk = (ram_disk*)kmalloc(sizeof(ram_disk)))) 
         return 0;
-    prints("Done\n");
-    
+        
+    prints("Done\n Setting up ramdisk device structure...");
     newDisk->base = startAddr;
     newDisk->size = size;
     newDisk->id = dev->id;
@@ -90,6 +91,7 @@ int blk_ram_new(block_dev* dev, int startAddr, int size) {
     newDisk->destBuf = (char*)0;
     dev->load = &ramd_load;
     dev->store = &ramd_store;
+    prints("Done\n");
     
     if(!(currentNode->device)) {
     
