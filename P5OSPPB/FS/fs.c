@@ -97,28 +97,45 @@ int fs_attach_list_insert(attach_point* newAttach) {
 
 int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
     
+    prints("\n   Allocating new attach point...");    
     attach_point* newAttach = (attach_point*)kmalloc(sizeof(attach_point));
     
-    if(!newAttach)
+    if(!newAttach) {
+    
+        prints("Failed\n");
         return 0;
+    }
         
-    if(!dir_exists(point))
+    prints("Done\n   Checking to see if attach dir exists...")
+        
+    if(!dir_exists(point)) {
+        
+        prints("No\n");
         return 0;
+    }
         
+    prints("Yes\n   Looking up fs driver by type...");
     newAttach->driver = fs_driver_by_type(type);
     
-    if(!newAttach->driver)
+    if(!newAttach->driver) {
+    
+        prints("Failed\n");
         return 0;
-        
+    }
+     
+    prints("Done\n   Inserting details into attach point description...");     
     newAttach->device = device;    
     newAttach->path = point;
+    prints("Done\n   Adding attach point to list...");
     
     if(!fs_attach_list_insert(newAttach)) {
         
+        prints("Failed\n");
         kfree((void*)newAttach);
         return 0;
     }
     
+    prints("Done\n");
     return 1;
 }
 
