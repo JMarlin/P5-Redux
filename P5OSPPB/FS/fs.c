@@ -281,10 +281,6 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             return;
         }
         
-        prints("    Attach: "); prints(pathAttach->path);
-        prints("\n   Request: "); prints(dir);
-        prints("\n");
-        
         for(strSzSrc = 0; dir[strSzSrc]; strSzSrc++);
         
         strSzSrc++;
@@ -308,6 +304,11 @@ void fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
             for(i = 0; i < strSzSub; i++)
                 subDir[i] = dir[i + strSzAt];
         }
+        
+        prints("    Attach: "); prints(pathAttach->path);
+        prints("\n   Request: "); prints(dir);
+        prints("\n   Subdir: "); prints(subDir);
+        prints("\n");
     }
     
     //retval = (void*)0;
