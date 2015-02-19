@@ -206,14 +206,21 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
             
             tmpName[i] = 0;
             
+            prints("Does '");
+            prints(tmpName);
+            prints("' match '");
+            prints(seekName);
+            prints("'?"):
+            
             if(strcmp(tmpName, seekName)) {
                 
+                prints(" Yes\n");
                 newRamFile->offset = fileOffset;
                 newRamFile->length = fileSize;
                 kfree((void*)tmpName);
                 return 1;
             }
-                
+            prints(" No\n");    
             
             count--;
     }
@@ -250,7 +257,6 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     //This populates the offset and size values
     if(!ramfs_seekFile(dev, dir, newRamFile)) {
 
-        prints("\nSeek failed.\n");
         kfree((void*)newRamFile);
         return;
     }
