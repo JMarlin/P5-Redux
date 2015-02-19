@@ -170,14 +170,20 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
     int i, count, offset, strlen, fileOffset, fileSize;
         
     //Don't waste time on an empty string
-    if(dir[0] == 0 || dir[1] == 0)
+    if(dir[0] == 0 || dir[1] == 0) {
+    
+        prints("\nPath is empty\n");
         return 0;
+    }
         
     //Lop off the leading colon
     seekName = dir + 1;
     
-    if(!(tmpName = (unsigned char*)kmalloc(256)))
+    if(!(tmpName = (unsigned char*)kmalloc(256))) {
+    
+        prints("\nCouldn't allocate RAM\n");
         return 0;
+    }
         
     offset = 0;
     count = block_linear_read(dev, offset++);
@@ -205,13 +211,7 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
                 tmpName[i] = block_linear_read(dev, offset++);
             
             tmpName[i] = 0;
-            
-            prints("Does '");
-            prints(tmpName);
-            prints("' match '");
-            prints(seekName);
-            prints("'?");
-            
+                        
             if(strcmp(tmpName, seekName)) {
                 
                 prints(" Yes\n");
