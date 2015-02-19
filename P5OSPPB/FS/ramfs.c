@@ -210,7 +210,7 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
             prints(tmpName);
             prints("' match '");
             prints(seekName);
-            prints("'?"):
+            prints("'?");
             
             if(strcmp(tmpName, seekName)) {
                 
