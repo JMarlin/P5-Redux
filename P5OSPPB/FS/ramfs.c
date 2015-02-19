@@ -327,7 +327,7 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
         return;
     }
     
-    if((ramFile->offset + ramFile->index) >= ramFile->length) {
+    if(ramFile->index >= ramFile->length) {
         
         data[0] = EOF;
         return;
