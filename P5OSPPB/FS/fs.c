@@ -72,7 +72,7 @@ fsdriver* fs_driver_by_type(unsigned char type) {
 }
 
 
-int fs_attach_list(attach_point* newAttach) {
+int fs_attach_list_insert(attach_point* newAttach) {
 
     fs_attachment_node* newNode;
     fs_attachment_node* currentNode = &fs_attachment_root;
