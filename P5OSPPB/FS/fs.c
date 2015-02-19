@@ -253,7 +253,7 @@ void* fs_path_op(void* ina, void* inb, void* retval, unsigned char action) {
     for(i = 0; i < strSzSub; i++)
         subDir[i] = dir[i + strSzAt];
     
-    retval = (void*)0;
+    //retval = (void*)0;
     
     switch(action) {
     
@@ -313,6 +313,9 @@ void dir_list(unsigned char* dir, unsigned char* list) {
 
 void file_list(unsigned char* dir, unsigned char* list) {
 
+    prints("\n   Forwarding a file listing request for '");
+    prints(dir);
+    prints("'\n");
     fs_path_op((void*)dir, (void*)0, (void*)list, ACT_FILE_LIST);
 }
 
