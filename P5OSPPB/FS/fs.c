@@ -57,10 +57,13 @@ fsdriver* fs_driver_by_type(unsigned char type) {
     
     fs_driver_node* currentNode = &fs_driver_root;
     
-    if(!(currentNode->driver))
+    if(!(currentNode->driver)) {
+        
+        prints("\n      No fs drivers installed\n");
         return (fsdriver*)0;
+    }
     
-    while(currentNode->next) {
+    while(currentNode) {
 
         if(currentNode->driver->type == type)
             return currentNode->driver;
@@ -111,6 +114,7 @@ int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
     if(!dir_exists(point)) {
         
         prints("No\n");
+        kfree((void*)newAttach);
         return 0;
     }
         
@@ -120,6 +124,7 @@ int fs_attach(unsigned char type, block_dev* device, unsigned char* point) {
     if(!newAttach->driver) {
     
         prints("Failed\n");
+        kfree((void*)newAttach);
         return 0;
     }
      
