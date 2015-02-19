@@ -128,6 +128,7 @@ int main(void) {
     startProc(ctx);
     */
 
+    prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
     prints("Initializing filesystem\n");    
     fs_init();
     
