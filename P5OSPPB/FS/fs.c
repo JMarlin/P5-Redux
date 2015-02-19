@@ -16,7 +16,7 @@ void fs_init() {
 //directory in the path. If one can't be listed, then that
 //directory doesn't exist. If they can all be listed, then
 //the path is valid
-char dir_exists(char* dir) {
+char dir_exists(unsigned char* dir) {
 
     int i, len;
     char listBuf[256];
