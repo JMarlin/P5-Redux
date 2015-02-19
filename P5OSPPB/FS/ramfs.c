@@ -166,7 +166,7 @@ void ramfs_file_add(block_dev* dev, void* dir, void* code) {
 //which could be used in both file_list and seekFile
 int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
 
-    unsigned char* seekName, tmpName;
+    unsigned char *seekName, *tmpName;
     int i, count, offset, strlen, fileOffset, fileSize;
         
     //Don't waste time on an empty string
@@ -235,8 +235,8 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     if(open_files_inited != 1) {
         
         open_files_inited = 1;
-        open_files_root.next = (ramfs_file_node)0;
-        open_files_root.file = (ramfs_file)0;
+        open_files_root.next = (ramfs_file_node*)0;
+        open_files_root.file = (ramfs_file*)0;
     }
             
     //prepare a ramfs_file structure
@@ -303,7 +303,7 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
     //Again, this kind of depends on how the file handle works
-    int* data = (unsigned char*)vdata;
+    int* data = (int*)vdata;
     FILE* file = (FILE*)vfile;
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
     
