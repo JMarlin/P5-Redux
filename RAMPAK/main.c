@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
         fileCount = argc - 2;
         file = (fileMeta*)malloc(4*fileCount);
         
-        printf("%d files\n");
+        printf("%d files\n", fileCount);
         
         for(i = 2; i < argc; i++){
 
@@ -126,6 +126,8 @@ int main(int argc, char* argv[]){
             
             for(j = 0; j < file[i].length; j++) 
                 fputc(fgetc(fileImage), diskImage);
+                
+            fclose(fileImage);
         }
  
         free(file);
