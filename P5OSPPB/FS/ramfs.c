@@ -322,14 +322,13 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
     
     if(!ramFile) {
     
-        prints("\nCouldn't find ramfile\n");
         data[0] = EOF;
         return;
     }
     
     if(ramFile->index >= ramFile->length) {
         
-        prints("\nIndex is at file length\n");
+        prints("\nIndex is at file length ( "); printHexDword(ramFile->index); prints(" vs "); printHexDword(ramFile->length); prints(" )\n");
         data[0] = EOF;
         return;
     }    
