@@ -467,7 +467,7 @@ void start_process(unsigned char* path) {
         return;
     }
     
-    while((tmpVal = file_readb(exeFile)) != EOF)
+    while((tmpVal = file_readb(&exeFile)) != EOF)
         usrBase[i++] = (char)tmpVal;
     
     //usermode package should be set up to load at 0x801000
