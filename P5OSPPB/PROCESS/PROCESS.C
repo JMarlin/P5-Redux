@@ -60,7 +60,7 @@ void kernelDebug(void) {
     prints("Error code: 0x"); printHexDword(old_err); prints("\n");
 
     //Get the command byte that the processor failed on:
-    prints("Failed instructions: 0x"); printHexByte(insPtr[0]);
+    prints("Failed instructions (0x"); printHexDword(insPtr); prints("): 0x"); printHexByte(insPtr[0]);
     prints(", 0x"); printHexByte(insPtr[1]);
     prints(", 0x"); printHexByte(insPtr[2]);
     prints(", 0x"); printHexByte(insPtr[3]);
