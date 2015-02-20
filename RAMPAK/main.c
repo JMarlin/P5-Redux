@@ -57,7 +57,9 @@ int main(int argc, char* argv[]){
         */
           
         fileCount = argc - 2;
-        file = (unsigned int*)malloc(4*fileCount);
+        file = (fileMeta*)malloc(4*fileCount);
+        
+        printf("%d files\n");
         
         for(i = 2; i < argc; i++){
 
@@ -94,6 +96,12 @@ int main(int argc, char* argv[]){
         fputDword(fileCount, diskImage);
  
         for(i = 0; i < fileCount; i++) {
+            
+            printf("-------------\n");
+            printf("offset 0x%x", offset);
+            printf("length 0x%x", file[i].length);
+            printf("strlen 0x%x", file[i].nameLength);
+            printf("name %s", file[i].name);
             
             fputDword(offset, diskImage);
             fputDword(file[i].length, diskImage);

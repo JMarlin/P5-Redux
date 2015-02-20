@@ -33,6 +33,7 @@ int main(void) {
     FILE hellofile;
     unsigned char listBuf[256];
     int tempCh = 0;
+    int i;
     
 
     initScreen();
@@ -149,7 +150,13 @@ int main(void) {
     //start_executable(":startup.bin");
     prints("Done\n");
     file_list(":", listBuf);
-    file_open(":two.txt", &hellofile);
+    
+    for(i = 0; listBuf[i]; i++)
+        if(listBuf[i] == ':') listBuf[i] = '\n';
+    
+    prints("Directory listing: \n");
+    prints(listBuf);
+    file_open(":test.txt", &hellofile);
     
     if(!hellofile.id) {
     
