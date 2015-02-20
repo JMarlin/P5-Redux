@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
             fputc(file[i].nameLength, diskImage);
             
             for(j = 0; j < file[i].nameLength; j++)
-                fputc(file[i].name[j], diskImage);
+                file[i].name[j] = fgetc(diskImage);
                 
             offset += file[i].length;
         }
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
         
             fileImage = fopen(file[i].name, "rb");
             if(!fileImage){
-                printf("Error: Could not open driver image '%s'!\n", argv[i]);
+                printf("Error: Could not open file '%s'!\n", file[i].name);
                 free(file);
                 fclose(diskImage);
                 return -1;
