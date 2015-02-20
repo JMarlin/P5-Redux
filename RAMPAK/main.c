@@ -57,7 +57,7 @@ int main(int argc, char* argv[]){
         */
           
         fileCount = argc - 2;
-        file = (fileMeta*)malloc(4*fileCount);
+        file = (fileMeta*)malloc(fileCount*sizeof(fileMeta));
         
         printf("%d files\n", fileCount);
         
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
                 while((tempChar = fgetc(fileImage)) != EOF)
                         file[i].length++;
 
-                file[i].name = argv[i];        
+                file[i].name = argv[i+2];        
                         
                 for(file[i].nameLength = 0; file[i].name[file[i].nameLength]; file[i].nameLength++);
                 
