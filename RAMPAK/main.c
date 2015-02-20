@@ -61,22 +61,22 @@ int main(int argc, char* argv[]){
         
         printf("%d files\n", fileCount);
         
-        for(i = 2; i < argc; i++){
+        for(i = 0; i < fileCount; i++){
 
-                fileImage = fopen(argv[i], "rb");
+                fileImage = fopen(argv[i+2], "rb");
                 if(!fileImage){
-                        printf("Error: Could not open driver image '%s'!\n", argv[i]);
+                        printf("Error: Could not open file '%s'!\n", argv[i+2]);
                         free(file);
                         return -1;
                 }
         
-                file[i-2].length = 0;
+                file[i].length = 0;
                 while((tempChar = fgetc(fileImage)) != EOF)
-                        file[i-2].length++;
+                        file[i].length++;
 
-                file[i-2].name = argv[i];        
+                file[i].name = argv[i];        
                         
-                for(file[i-2].nameLength = 0; file[i-2].name[file[i-2].nameLength]; file[i-2].nameLength++);
+                for(file[i].nameLength = 0; file[i].name[file[i].nameLength]; file[i].nameLength++);
                 
                 fclose(fileImage);
         }
@@ -109,16 +109,16 @@ int main(int argc, char* argv[]){
             fputc(file[i].nameLength, diskImage);
             
             for(j = 0; j < file[i].nameLength; j++)
-                file[i].name[j] = fgetc(diskImage);
+                fputc(file[i].name[j], diskImage);
                 
             offset += file[i].length;
         }
  
         for(i = 0; i < fileCount; i++) {
         
-            fileImage = fopen(file[i].name, "rb");
+            fileImage = fopen(argv[i+2], "rb");
             if(!fileImage){
-                printf("Error: Could not open file '%s'!\n", file[i].name);
+                printf("Error: Could not open file '%s'!\n", argv[i+2]);
                 free(file);
                 fclose(diskImage);
                 return -1;
