@@ -46,18 +46,18 @@ void kernelDebug(void) {
     //Kernel debug, should be moved to its own function
     prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
     prints("Previous State:\n");
-    prints("eax: 0x"); printHexDword(old_eax); prints("  ebx: 0x"); printHexDword(old_ebx); prints("\n");
-    prints("ecx: 0x"); printHexDword(old_ecx); prints("  edx: 0x"); printHexDword(old_edx); prints("\n");
-    prints("esp: 0x"); printHexDword(old_esp); prints("  ebp: 0x"); printHexDword(old_ebp); prints("\n");
-    prints("esi: 0x"); printHexDword(old_esi); prints("  edi: 0x"); printHexDword(old_edi); prints("\n");
-    prints("cr3: 0x"); printHexDword(old_cr3); prints("  eip: 0x"); printHexDword(old_eip); prints("\n");
-    prints("eflags: 0x"); printHexDword(old_eflags); prints("\n");
-    prints("es: 0x"); printHexWord(old_es); prints("  cs: 0x"); printHexWord(old_cs); prints("\n");
-    prints("ss: 0x"); printHexWord(old_ss); prints("  ds: 0x"); printHexWord(old_ds); prints("\n");
-    prints("fs: 0x"); printHexWord(old_fs); prints("  gs: 0x"); printHexWord(old_gs); prints("\n");
+    prints("eax: 0x"); printHexDword(activeContext->eax); prints("  ebx: 0x"); printHexDword(activeContext->ebx); prints("\n");
+    prints("ecx: 0x"); printHexDword(activeContext->ecx); prints("  edx: 0x"); printHexDword(activeContext->edx); prints("\n");
+    prints("esp: 0x"); printHexDword(activeContext->esp); prints("  ebp: 0x"); printHexDword(activeContext->ebp); prints("\n");
+    prints("esi: 0x"); printHexDword(activeContext->esi); prints("  edi: 0x"); printHexDword(activeContext->edi); prints("\n");
+    prints("cr3: 0x"); printHexDword(activeContext->cr3); prints("  eip: 0x"); printHexDword(activeContext->eip); prints("\n");
+    prints("eflags: 0x"); printHexDword(activeContext->eflags); prints("\n");
+    prints("es: 0x"); printHexWord(activeContext->es); prints("  cs: 0x"); printHexWord(activeContext->cs); prints("\n");
+    prints("ss: 0x"); printHexWord(activeContext->ss); prints("  ds: 0x"); printHexWord(activeContext->ds); prints("\n");
+    prints("fs: 0x"); printHexWord(activeContext->fs); prints("  gs: 0x"); printHexWord(activeContext->gs); prints("\n");
 
     //Get the error code
-    prints("Error code: 0x"); printHexDword(old_err); prints("\n");
+    prints("Error code: 0x"); printHexDword(activeContext->err); prints("\n");
 
     //Get the command byte that the processor failed on:
     prints("Failed instructions (0x"); printHexDword(insPtr); prints("): 0x"); printHexByte(insPtr[0]);
@@ -390,6 +390,7 @@ void startProc(context* ctx) {
 
     //Enter the new context
     activeContext = ctx;
+    kernelDebug();
     returnToProcess(activeContext);
     return;
 }
