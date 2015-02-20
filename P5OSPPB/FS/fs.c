@@ -249,7 +249,7 @@ attach_point* get_attach(char* path) {
 void fs_init_file(FILE* file, attach_point* pathAttach) {
 
     static char fs_files_inited = 0;
-    int fs_files_count = 0;
+    static int fs_files_count = 0;
     
     if(fs_files_inited != 1) {
         
