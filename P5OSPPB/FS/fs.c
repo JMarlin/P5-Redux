@@ -478,6 +478,8 @@ void start_process(unsigned char* path) {
         usrBase[i++] = (char)tmpVal;
     }
     
+    prints("\n tmpVal: 0x");
+    printHexDword(tmpVal);
     prints("\n Written data:\n");
     
     for(i = 0; i < 50; i++) {
