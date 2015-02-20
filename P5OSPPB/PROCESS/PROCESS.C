@@ -303,18 +303,16 @@ void kernelEntry(void) {
     activeContext->gs = old_gs;
     activeContext->err = old_err;
 
-    //Convert the V86 seg:off into a linear address
-    //This is V86 specific and should be moved
-    insPtr = (char*)(((((unsigned int)old_cs)&0xFFFF) << 4) + (((unsigned int)old_eip) &0xFFFF));
-
     //Switch to the V86 monitor if the thread was a V86 thread
     if(old_eflags & 0x20000) {
 
+        insPtr = (char*)(((((unsigned int)old_cs)&0xFFFF) << 4) + (((unsigned int)old_eip) &0xFFFF));
         V86Entry();
         return;
     } else {
 
         //Otherwise, for now we just dump the system state and move on
+        insPtr = (char*)old_eip;
         prints("(Non-V86)\n");
         kernelDebug();
         scans(5, fake);
