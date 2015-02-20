@@ -394,5 +394,6 @@ void startProc(context* ctx) {
 
     //Enter the new context
     activeContext = ctx;
+    returnToProcess(activeContext);
     return;
 }

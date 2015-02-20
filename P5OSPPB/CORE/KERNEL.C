@@ -130,7 +130,6 @@ int main(void) {
     fs_attach(FS_RAMFS, ram0, ":");
     
     //This is the final culmination of all our FS and process work
-    //start_executable(":startup.bin");
     prints("Done\n");
     file_list(":", listBuf);
     

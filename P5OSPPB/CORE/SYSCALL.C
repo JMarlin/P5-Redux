@@ -79,27 +79,6 @@ void syscall_exec(void) {
                     vram[j] = buf[j];
             }
 
-//write 2 to 3c4
-//write
-/*
-		    for(i = 0; i < 32; i++) {
-
-                lineBuf = logoMap[i];
-
-			    for(j = 0; j < 32; j++) {
-
-                    index = (i+224)*640 + j + 304;
-                    if(index % 2) {
-                        vram[index] &= 0xf0;
-				        vram[index] |= (lineBuf & 0x80000000) ? 0X0f : 0x0d;
-                    } else {
-                        vram[index] &= 0x0f;
-                        vram[index] |= (lineBuf & 0x80000000) ? 0Xf0 : 0xd0;
-                    }
-                    lineBuf = lineBuf << 1;
-				}
-			}
-*/
 			prints("Done writing to screen.\n");
 		    while(1);
         break;
