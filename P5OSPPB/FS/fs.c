@@ -474,7 +474,7 @@ void start_process(unsigned char* path) {
     while((tmpVal = file_readb(&exeFile)) != EOF) {
         
         printHexDword(tmpVal);
-        prints(" ");
+        prints(" - ");
         usrBase[i++] = (char)tmpVal;
     }
     
