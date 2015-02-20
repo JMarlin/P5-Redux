@@ -473,5 +473,6 @@ void start_process(unsigned char* path) {
     //usermode package should be set up to load at 0x801000
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
+    prints("Launching usermode process");
     startProc(ctx);
 }
