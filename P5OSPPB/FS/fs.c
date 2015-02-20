@@ -2,6 +2,7 @@
 #include "../memory/memory.h"
 #include "../ascii_io/ascii_i.h"
 #include "../core/global.h"
+#include "../process/process.h"
 
 
 void fs_init() {
@@ -447,4 +448,30 @@ int file_readb(FILE* file)  {
 
     fs_path_op((void*)file, (void*)0, (void*)&retval, ACT_FILE_READB);
     return retval;
+}
+
+void start_process(unsigned char* path) {
+
+    FILE exeFile;
+    context* ctx;
+    char* usrBase = (char*)0x801000;
+    int tmpVal, i;
+
+    file_open(path, &exeFile);
+    
+    if(!exeFile.id) {
+    
+        prints("Could not open file ");
+        prints(path);
+        prints("\n");
+        return;
+    }
+    
+    while((tmpVal = file_readb(exeFile)) != EOF)
+        usrBase[i++] = (char)tmpVal;
+    
+    //usermode package should be set up to load at 0x801000
+    ctx = newUserProc();
+    setProcEntry(ctx, (void*)0x801000);
+    startProc(ctx);
 }

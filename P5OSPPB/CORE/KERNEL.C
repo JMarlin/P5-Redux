@@ -21,14 +21,12 @@ extern long pkgoffset;
 extern char imagename;
 char prompt[] = "P5-> ";
 char inbuf[50];
-char* usrBase = (char*)0x801000;
 char* usrCode = (char*)0x80000;
 
 int main(void) {
 
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
-    context* ctx;
     block_dev* ram0;
     FILE hellofile;
     unsigned char listBuf[256];
@@ -114,22 +112,8 @@ int main(void) {
     ctx = newV86Proc();
     setProcEntry(ctx, (void*)usrCode);
     startProc(ctx);
-    
-    //NEED TO FIGURE OUT USERMODE STACK SITCH
-    //Should be at 0x800000
-    prints("Moving startup package to userland...");
-    doffset = 0x100005 + pkgoffset;
-    for(i = 0; i < sizes[0]; i++) {
-        usrBase[i] = ((char*)doffset)[i];
-    }
-    prints("Done.\n\n");
-
-    //usermode package should be set up to load at 0x801000
-    ctx = newUserProc();
-    setProcEntry(ctx, (void*)0x801000);
-    startProc(ctx);
     */
-
+   
     prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
     prints("Initializing filesystem\n");    
     fs_init();
@@ -167,6 +151,8 @@ int main(void) {
     
     while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
+    
+    start_process(":usr.mod");
     
     while(1);
 }

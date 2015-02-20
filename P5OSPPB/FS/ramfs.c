@@ -257,6 +257,7 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     //This populates the offset and size values
     if(!ramfs_seekFile(dev, dir, newRamFile)) {
 
+        file->id = 0;
         kfree((void*)newRamFile);
         return;
     }
@@ -281,6 +282,7 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     //Allocate a new node
     if(!(newNode = (ramfs_file_node*)kmalloc(sizeof(ramfs_file_node))))  {
 
+        file->id = 0;
         kfree((void*)newRamFile);
         return;
     }    

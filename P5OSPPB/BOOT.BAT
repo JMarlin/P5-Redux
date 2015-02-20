@@ -1,7 +1,7 @@
 copy bin\p5kern.bin ..\kpkg\
 cd ..\rampak\
 gcc -o rampak.exe main.c
-rampak p5.rd test.txt
+rampak p5.rd test.txt usr.mod
 copy p5.rd ..\kpkg\
 cd ..\kpkg\
 kpkg p5kern.bin p5.rd
