@@ -95,13 +95,7 @@ _returnToProc:
     
     mov _old_ss, %esp /* This will need to be updated to match the actual process's stack location */
     shl $4, %esp
-    add _old_esp, %esp
-    jmp cont
-    
- user:
-    mov _old_esp, %esp 
-     
- cont:   
+    add _old_esp, %esp  
     mov $0x0, %eax    
     mov _old_gs, %ax
     push %eax
@@ -131,6 +125,39 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
-    
     iret
     
+ user:
+    /* mov _old_esp, %esp */
+    mov _old_ds, %ax
+    mov %ax, %ds
+    mov _old_es, %ax
+    mov %ax, %es
+    mov _old_fs, %ax
+    mov %ax, %fs
+    mov _old_gs, %ax
+    mov %ax, %gs
+    mov _old_ss, %ax
+    mov %ax, %ss
+    xor %eax, %eax
+    mov _old_ds, %ax
+    push %eax
+    mov _old_esp, %eax
+    push %eax 
+    mov _old_eflags, %eax
+    push %eax
+    xor %eax, %eax
+    mov _old_cs, %ax
+    push %eax
+    mov _old_eip, %eax
+    push %eax
+    mov %eax, _old_cr3
+    mov %cr3, %eax
+    mov _old_eax, %eax
+    mov _old_ebx, %ebx
+    mov _old_ecx, %ecx
+    mov _old_edx, %edx
+    mov _old_ebp, %ebp
+    mov _old_esi, %esi
+    mov _old_edi, %edi
+    iret 
