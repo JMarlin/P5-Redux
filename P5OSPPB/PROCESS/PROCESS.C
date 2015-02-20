@@ -390,7 +390,7 @@ void startProc(context* ctx) {
 
     //Enter the new context
     activeContext = ctx;
-    insPtr = (char*)(((((unsigned int)old_cs)&0xFFFF) << 4) + (((unsigned int)old_eip) &0xFFFF));
+    insPtr = (char*)(activeContext->eip);
     kernelDebug();
     returnToProcess(activeContext);
     return;
