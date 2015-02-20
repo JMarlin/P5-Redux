@@ -33,7 +33,6 @@ int main(void) {
     FILE hellofile;
     unsigned char listBuf[256];
     int tempCh = 0;
-    int i;
     
 
     initScreen();
