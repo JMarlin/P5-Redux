@@ -264,11 +264,6 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     
     //Reset the new ramfs_file's index to 0
     newRamFile->index = 0;    
-    prints("\nRAM file opened, offset=0x"); 
-    printHexDword(newRamFile->offset);
-    prints(", size=0x");
-    printHexDword(newRamFile->length);
-    prints("\n");
         
     //If the root node is unpopulated, all we need
     //to do is insert the new ramfs_file
@@ -328,7 +323,6 @@ void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
     
     if(ramFile->index >= ramFile->length) {
         
-        prints("\nIndex is at file length ( "); printHexDword(ramFile->index); prints(" vs "); printHexDword(ramFile->length); prints(" )\n");
         data[0] = EOF;
         return;
     }    

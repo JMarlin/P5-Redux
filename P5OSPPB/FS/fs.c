@@ -467,30 +467,16 @@ void start_process(unsigned char* path) {
         prints("\n");
         return;
     }
-    
-    prints("\n Read data:\n");
-    
+
     i = 0;
     while((tmpVal = file_readb(&exeFile)) != EOF) {
         
-        printHexDword(tmpVal);
-        prints(" - ");
         usrBase[i++] = (char)tmpVal;
     }
-    
-    prints("\n tmpVal: 0x");
-    printHexDword(tmpVal);
-    prints("\n Written data:\n");
-    
-    for(i = 0; i < 50; i++) {
-    
-        printHexByte(usrBase[i]);
-        prints(" ");
-    }
-    
+
     //usermode package should be set up to load at 0x801000
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
     prints("Launching usermode process");
-    //startProc(ctx);
+    startProc(ctx);
 }
