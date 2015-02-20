@@ -70,6 +70,7 @@ int main(int argc, char* argv[]){
                         return -1;
                 }
         
+                file[i-2].length = 0;
                 while((tempChar = fgetc(fileImage)) != EOF)
                         file[i-2].length++;
 
@@ -98,10 +99,10 @@ int main(int argc, char* argv[]){
         for(i = 0; i < fileCount; i++) {
             
             printf("-------------\n");
-            printf("offset 0x%x", offset);
-            printf("length 0x%x", file[i].length);
-            printf("strlen 0x%x", file[i].nameLength);
-            printf("name %s", file[i].name);
+            printf("offset 0x%x\n", offset);
+            printf("length 0x%x\n", file[i].length);
+            printf("strlen 0x%x\n", file[i].nameLength);
+            printf("name %s\n", file[i].name);
             
             fputDword(offset, diskImage);
             fputDword(file[i].length, diskImage);
