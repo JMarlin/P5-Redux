@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
                 fileImage = fopen(argv[i], "rb");
                 if(!fileImage){
                         printf("Error: Could not open driver image '%s'!\n", argv[i]);
-                        free(driverSize);
+                        free(file);
                         return -1;
                 }
         
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]){
         diskImage = fopen(argv[1], "wb");
         if(!diskImage){
                 printf("Error: Couldn't open disk image '%s'!\n", argv[1]);
-                free(driverSize);
+                free(file);
                 return -1;
         }   
                
@@ -110,15 +110,15 @@ int main(int argc, char* argv[]){
             fileImage = fopen(file[i].name, "rb");
             if(!fileImage){
                 printf("Error: Could not open driver image '%s'!\n", argv[i]);
-                free(driverSize);
-                fclose(kernelImage);
+                free(file);
+                fclose(diskImage);
                 return -1;
             }
             
             for(j = 0; j < file[i].length; j++) 
-                fputc(fgetc(fileImage), kernelImage);
+                fputc(fgetc(fileImage), diskImage);
         }
  
-        free(driverSize);
-        fclose(kernelImage);
+        free(file);
+        fclose(diskImage);
 }
