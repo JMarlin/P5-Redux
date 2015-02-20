@@ -9,8 +9,6 @@
 unsigned char fake[6];
 unsigned char* insPtr;
 context V86Context, usrContext;
-unsigned short V86RetCS;
-unsigned int V86RetIP;
 int intVect = 0;
 
 //We'll ACTUALLY use this in the future
