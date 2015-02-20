@@ -383,7 +383,7 @@ void setProcEntry(context* ctx, void* entryPoint) {
         ctx->eip = (unsigned int)entryPoint & 0xFFFF;
         ctx->cs = ((unsigned int)entryPoint - ctx->eip) >> 4;
     } else {
-        ctx->cs = (unsigned int)entryPoint;
+        ctx->eip = (unsigned int)entryPoint;
     }
 }
 
