@@ -154,7 +154,7 @@ int main(void) {
         prints(" ");
     }
     
-    start_process(":usr.mod");
+    //start_process(":usr.mod");
     
     while(1);
 }
