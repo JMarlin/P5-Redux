@@ -138,7 +138,7 @@ int main(void) {
     
     prints("Directory listing: \n");
     prints(listBuf);
-    file_open(":usr.mod", &hellofile);
+    file_open(":test.txt", &hellofile);
     
     if(!hellofile.id) {
     
@@ -148,13 +148,10 @@ int main(void) {
     
     prints("File contents:\n\n");
     
-    for(i = 0; ((tempCh = file_readb(&hellofile)) != EOF) && (i < 50); i++) {
+    while((tempCh = file_readb(&hellofile)) != EOF)    
+        pchar((char)tempCh);
     
-        printHexByte((char)tempCh);
-        prints(" ");
-    }
-    
-    //start_process(":usr.mod");
+    start_process(":usr.mod");
     
     while(1);
 }
