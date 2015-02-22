@@ -331,6 +331,7 @@ void kernelEntry(void) {
             syscall_param1 = activeContext->ebx;
             syscall_param2 = activeContext->ecx;
             syscall_exec();
+            activeContext->eip += 2;
             break;
 
         default:
