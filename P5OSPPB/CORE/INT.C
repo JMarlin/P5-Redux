@@ -105,7 +105,7 @@ void installExceptionHandlers() {
     installInterrupt(0x0, &expt_zeroDivide, 0);
     installInterrupt(0x1, &expt_debugCall, 0);
     installInterrupt(0x2, &expt_NMI, 0);
-    installInterrupt(0x3, &expt_breakpoint, 0);
+    installInterrupt(0x3, &expt_breakpoint, 3);
     installInterrupt(0x4, &expt_overflow, 0);
     installInterrupt(0x5, &expt_outOfBound, 0);
     installInterrupt(0x6, &expt_illegalOpcode, 0);
