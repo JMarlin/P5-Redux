@@ -111,7 +111,8 @@ _returnToProc:
     
     mov %eax, (0x1000)
 
-    mov _old_ss, %esp 
+    xor %esp, %esp
+    mov _old_ss, %sp 
     shl $4, %esp
     add _old_esp, %esp  
     mov $0x0, %eax    
