@@ -37,6 +37,8 @@ void returnToProcess(context* newContext) {
     old_gs = newContext->gs;
     old_err = newContext->err;
 
+    prints("About to jump to 0x"); printHexDword(old_eip); prints("\n");
+
     returnToProc();
 }
 
