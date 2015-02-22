@@ -109,8 +109,6 @@ _returnToProc:
     cmp $0x20000, %eax
     jne user
     
-    mov %eax, (0x1000)
-
     xor %esp, %esp
     mov _old_ss, %sp 
     shl $4, %esp
@@ -144,6 +142,9 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
+
+    mov %eax, (0x1000)
+
     iret
     
  user:
