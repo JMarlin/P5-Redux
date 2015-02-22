@@ -303,6 +303,10 @@ void kernelEntry(void) {
     activeContext->gs = old_gs;
     activeContext->err = old_err;
 
+    insPtr = (char*)((unsigned int)activeContext->eip);
+    kernelDebug();
+    scans(5, fake);
+
     switch(except_num) {
 
         case EX_GPF:
