@@ -305,9 +305,9 @@ void kernelEntry(void) {
     //Switch to the V86 monitor if the thread was a V86 thread
     if(old_eflags & 0x20000) {
 
-        insPtr = (char*)(((((unsigned int)old_cs)&0xFFFF) << 4) + (((unsigned int)old_eip) &0xFFFF));
+        insPtr = (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)activeContext->eip) &0xFFFF));
         V86Entry();
-        returnToProcess(context* newContext);
+        returnToProcess(activeContext);
         return;
     } else {
 
