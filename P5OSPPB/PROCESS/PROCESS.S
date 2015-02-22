@@ -144,6 +144,9 @@ _returnToProc:
     /* iret */
     
  user:
+    
+    mov %ax, [0x1000]
+
     mov _old_esp, %esp 
     mov _old_ds, %ax
     mov %ax, %ds
