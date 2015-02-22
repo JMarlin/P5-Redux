@@ -3,6 +3,7 @@
 #include "../ascii_io/ascii_i.h"
 #include "../core/global.h"
 #include "../process/process.h"
+#include "../memory/gdt.h"
 
 
 void fs_init() {
@@ -477,6 +478,7 @@ void start_process(unsigned char* path) {
     //usermode package should be set up to load at 0x801000
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
-    prints("Launching usermode process");
-    startProc(ctx);
+    prints("Launching usermode proces");
+    //startProc(ctx);
+    jumpUser((unsigned int *)0x801000);
 }
