@@ -103,6 +103,7 @@ _switchToKernel:
     call _kernelEntry
 
 _returnToProc:
+/*
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
@@ -143,6 +144,7 @@ _returnToProc:
     iret
     
  user:
+ */
     mov _old_esp, %esp 
     mov _old_ds, %ax
     mov %ax, %ds
