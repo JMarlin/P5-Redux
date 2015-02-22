@@ -92,6 +92,7 @@ int main(void) {
     prints("b\n");
 
     
+    /*
     //Test V86 mode
     prints("Installing V86 code...");
     usrCode[0] = 0xB8;
@@ -109,7 +110,7 @@ int main(void) {
     ctx = newV86Proc();
     setProcEntry(ctx, (void*)usrCode);
     startProc(ctx);
-    /*
+    */
    
     prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
     prints("Initializing filesystem\n");    
@@ -149,7 +150,6 @@ int main(void) {
         pchar((char)tempCh);
      
     start_process(":usr.mod");
-    */
 
     while(1);
 }

@@ -316,6 +316,7 @@ void kernelEntry(void) {
         prints("(Non-V86)\n");
         kernelDebug();
         scans(5, fake);
+        returnToProcess(activeContext);
         return;
     }
 }
