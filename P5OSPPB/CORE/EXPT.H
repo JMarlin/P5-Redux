@@ -40,7 +40,7 @@ extern void expt_mathFault(void);
 extern void expt_alignCheck(void);
 extern void expt_machineCheck(void);
 extern void expt_simdFailure(void);
-extern void _expt_syscall(void);
+extern void expt_syscall(void);
 
 extern unsigned char except_num;
 
