@@ -27,7 +27,7 @@ int main(void) {
 
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
-    context ctx;
+    context* ctx;
     block_dev* ram0;
     FILE hellofile;
     unsigned char listBuf[256];
