@@ -72,7 +72,7 @@ _switchToKernel:
     pop %eax
     mov %ax, _old_ss
 
-    check to see if we have anything else on the stack
+    /* check to see if we have anything else on the stack */
     mov _old_eflags, %ax
     and $0x20000, %eax
     cmp $0x20000, %eax
