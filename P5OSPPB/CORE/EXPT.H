@@ -1,23 +1,47 @@
-#ifndef EXPT_C
-#define EXPT_C
+#ifndef EXPT_H
+#define EXPT_H
 
-void expt_zeroDivide(void);
-void expt_debugCall(void);
-void expt_NMI(void);
-void expt_breakpoint(void);
-void expt_overflow(void);
-void expt_outOfBound(void);
-void expt_illegalOpcode(void);
-void expt_noCoprocessor(void);
-void expt_doubleFault(void);
-void expt_invalidTSS(void);
-void expt_segNotPresent(void);
-void expt_stackFault(void);
-void expt_generalProtection(void);
-void expt_pageFault(void);    
-void expt_mathFault(void);
-void expt_alignCheck(void);
-void expt_machineCheck(void);
-void expt_simdFailure(void);
+#define EX_ZERODIVIDE      0
+#define EX_DEBUGCALL       1
+#define EX_NMI             2
+#define EX_BREAKPOINT      3
+#define EX_OVERFLOW        4
+#define EX_OUTOFBOUND      5
+#define EX_ILLEGALOPCODE   6
+#define EX_NOCOPROCESSOR   7
+#define EX_DOUBLEFAULT     8
+#define EX_INVALIDTSS      9
+#define EX_SEGNOTPRESENT  10
+#define EX_STACKFAULT     11
+#define EX_GPF            12
+#define EX_PAGEFAULT      13
+#define EX_MATHFAULT      14
+#define EX_ALIGNCHECK     15
+#define EX_MACHINECHECK   16
+#define EX_SIMDFAILURE    17
+#define EX_SYSCALL        0xFF
 
-#endif //EXPT_C
+
+extern void expt_zeroDivide(void);
+extern void expt_debugCall(void);
+extern void expt_NMI(void);
+extern void expt_breakpoint(void);
+extern void expt_overflow(void);
+extern void expt_outOfBound(void);
+extern void expt_illegalOpcode(void);
+extern void expt_noCoprocessor(void);
+extern void expt_doubleFault(void);
+extern void expt_invalidTSS(void);
+extern void expt_segNotPresent(void);
+extern void expt_stackFault(void);
+extern void expt_generalProtection(void);
+extern void expt_pageFault(void);    
+extern void expt_mathFault(void);
+extern void expt_alignCheck(void);
+extern void expt_machineCheck(void);
+extern void expt_simdFailure(void);
+extern void _expt_syscall(void);
+
+extern unsigned char except_num;
+
+#endif //EXPT_H

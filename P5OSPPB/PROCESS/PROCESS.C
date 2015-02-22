@@ -4,6 +4,7 @@
 #include "../ascii_io/ascii_i.h"
 #include "../core/syscall.h"
 #include "../core/util.h"
+#include "../core/expt.h"
 
 
 unsigned char fake[6];
@@ -302,23 +303,38 @@ void kernelEntry(void) {
     activeContext->gs = old_gs;
     activeContext->err = old_err;
 
-    //Switch to the V86 monitor if the thread was a V86 thread
-    if(old_eflags & 0x20000) {
+    switch(except_num) {
 
-        insPtr = (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)activeContext->eip) &0xFFFF));
-        V86Entry();
-        returnToProcess(activeContext);
-        return;
-    } else {
+        case EX_GPF:
+        //Switch to the V86 monitor if the thread was a V86 thread
+            if(old_eflags & 0x20000) {
 
-        //Otherwise, for now we just dump the system state and move on
-        insPtr = (char*)old_eip;
-        prints("(Non-V86)\n");
-        kernelDebug();
-        scans(5, fake);
-        returnToProcess(activeContext);
-        return;
+                insPtr = (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)activeContext->eip) &0xFFFF));
+                V86Entry();
+            } else {
+
+                //Otherwise, for now we just dump the system state and move on
+                insPtr = (char*)old_eip;
+                prints("(Non-V86)\n");
+                kernelDebug();
+                scans(5, fake);
+            }
+            break;
+
+        case EX_SYSCALL:
+            syscall_number = activeContext->eax & 0xFFFF;
+            syscall_param1 = activeContext->ebx & 0xFFFF;
+            syscall_param2 = activeContext->ecx & 0xFFFF;
+            syscall_exec();
+            break;
+
+        default:
+            prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
+            while(1);
+            break; 
     }
+
+    returnToProcess(activeContext);
 }
 
 

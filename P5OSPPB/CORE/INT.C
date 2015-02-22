@@ -114,9 +114,7 @@ void installExceptionHandlers() {
     installInterrupt(0xA, &expt_invalidTSS, 0);
     installInterrupt(0xB, &expt_segNotPresent, 0);
     installInterrupt(0xC, &expt_stackFault, 0);
-    
-    //installInterrupt(0xD, &expt_generalProtection, 0);
-    installInterrupt(0xD, &switchToKernel, 0);
+    installInterrupt(0xD, &expt_generalProtection, 0);
     installInterrupt(0xE, &expt_pageFault, 0);
     installInterrupt(0x10, &expt_mathFault, 0);
     installInterrupt(0x11, &expt_alignCheck, 0);
@@ -124,5 +122,5 @@ void installExceptionHandlers() {
     installInterrupt(0x13, &expt_simdFailure, 0);
     
     //And the syscall interface
-    installInterrupt(0xFF, &syscall_handler, 3);
+    installInterrupt(0xFF, &expt_syscall, 3);
 }

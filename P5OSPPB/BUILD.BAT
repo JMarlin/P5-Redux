@@ -16,7 +16,7 @@ gcc -c -o ..\build\cicomp.o cicomp.c -nostdlib -nostartfiles -nodefaultlibs -nos
 gcc -c -o ..\build\commands.o commands.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\util.o util.c -nostdlib
 gcc -c -o ..\build\int.o int.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-gcc -c -o ..\build\expt.o expt.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+as -o ..\build\expt.o expt.s
 
 cd ..\memory
 echo Starting memory build...
