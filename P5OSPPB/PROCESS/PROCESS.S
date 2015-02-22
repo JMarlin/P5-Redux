@@ -1,6 +1,6 @@
 .extern _kernelEntry
 
-/* .globl _stashCurrentState */
+.globl _stashCurrentState
 .globl _switchToKernel
 .globl _returnToProc
 
@@ -72,7 +72,7 @@ _switchToKernel:
     pop %eax
     mov %ax, _old_ss
 
-    /* check to see if we have anything else on the stack */
+    check to see if we have anything else on the stack
     mov _old_eflags, %ax
     and $0x20000, %eax
     cmp $0x20000, %eax
@@ -104,49 +104,46 @@ _switchToKernel:
 
 _returnToProc:
 
-    /* mov _old_eflags, %eax */
-    /* and $0x20000, %eax */
-    /* cmp $0x20000, %eax */
-    /* jne user */
+    mov _old_eflags, %eax
+    and $0x20000, %eax
+    cmp $0x20000, %eax
+    jne user
     
-    /* mov _old_ss, %esp */ 
-    /* shl $4, %esp */
-    /* add _old_esp, %esp */  
-    /* mov $0x0, %eax */    
-    /* mov _old_gs, %ax */
-    /* push %eax */
-    /* mov _old_fs, %ax */
-    /* push %eax */
-    /* mov _old_ds, %ax */
-    /* push %eax */
-    /* mov _old_es, %ax */
-    /* push %eax */
-    /* mov _old_ss, %ax */
-    /* push %eax */
-    /* mov _old_esp, %eax */
-    /* push %eax */
-    /* mov _old_eflags, %eax */
-    /* push %eax */
-    /* mov $0x0, %eax */
-    /* mov _old_cs, %eax */
-    /* push %eax */
-    /* mov _old_eip, %eax */
-    /* push %eax */
-    /* mov %eax, _old_cr3 */
-    /* mov %cr3, %eax */
-    /* mov _old_eax, %eax */
-    /* mov _old_ebx, %ebx */
-    /* mov _old_ecx, %ecx */
-    /* mov _old_edx, %edx */
-    /* mov _old_ebp, %ebp */
-    /* mov _old_esi, %esi */
-    /* mov _old_edi, %edi */
-    /* iret */
+    mov _old_ss, %esp 
+    shl $4, %esp
+    add _old_esp, %esp  
+    mov $0x0, %eax    
+    mov _old_gs, %ax
+    push %eax
+    mov _old_fs, %ax
+    push %eax
+    mov _old_ds, %ax
+    push %eax
+    mov _old_es, %ax
+    push %eax
+    mov _old_ss, %ax
+    push %eax
+    mov _old_esp, %eax
+    push %eax
+    mov _old_eflags, %eax
+    push %eax
+    mov $0x0, %eax
+    mov _old_cs, %eax
+    push %eax
+    mov _old_eip, %eax
+    push %eax
+    mov %eax, _old_cr3
+    mov %cr3, %eax
+    mov _old_eax, %eax
+    mov _old_ebx, %ebx
+    mov _old_ecx, %ecx
+    mov _old_edx, %edx
+    mov _old_ebp, %ebp
+    mov _old_esi, %esi
+    mov _old_edi, %edi
+    iret
     
  user:
-    
-    mov %ax, (0x1000)
-
     mov _old_esp, %esp 
     mov _old_ds, %ax
     mov %ax, %ds
@@ -156,10 +153,8 @@ _returnToProc:
     mov %ax, %fs
     mov _old_gs, %ax
     mov %ax, %gs
-    mov _old_ss, %ax
-    mov %ax, %ss
     xor %eax, %eax
-    mov _old_ds, %ax
+    mov _old_ss, %ax
     push %eax
     mov _old_esp, %eax
     push %eax 
