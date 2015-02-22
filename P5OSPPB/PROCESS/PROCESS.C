@@ -322,9 +322,10 @@ void kernelEntry(void) {
             break;
 
         case EX_SYSCALL:
-            syscall_number = activeContext->eax & 0xFFFF;
-            syscall_param1 = activeContext->ebx & 0xFFFF;
-            syscall_param2 = activeContext->ecx & 0xFFFF;
+            prints("Syscall\n");
+            syscall_number = activeContext->eax;
+            syscall_param1 = activeContext->ebx;
+            syscall_param2 = activeContext->ecx;
             syscall_exec();
             break;
 
