@@ -307,6 +307,7 @@ void kernelEntry(void) {
 
         insPtr = (char*)(((((unsigned int)old_cs)&0xFFFF) << 4) + (((unsigned int)old_eip) &0xFFFF));
         V86Entry();
+        returnToProcess(context* newContext);
         return;
     } else {
 
