@@ -71,6 +71,20 @@ _switchToKernel:
     mov %eax, _old_esp
     pop %eax
     mov %ax, _old_ss
+
+    /* check to see if we have anything else on the stack */
+    mov _old_eflags, %ax
+    and $0x20000, %eax
+    cmp $0x20000, %eax
+    jne v86_enter
+
+    mov %es, _old_es
+    mov %ds, _old_ds
+    mov %fs, _old_fs
+    mov %gs, _old_gs 
+    jmp k_continue
+
+ v86_enter:
     pop %eax
     mov %ax, _old_es    
     pop %eax
@@ -79,7 +93,8 @@ _switchToKernel:
     mov %ax, _old_fs
     pop %eax
     mov %ax, _old_gs
-    
+
+ k_continue:    
     mov $0x10, %ax
     mov %ax, %gs
     mov %ax, %fs
