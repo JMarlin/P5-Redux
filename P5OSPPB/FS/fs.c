@@ -479,5 +479,6 @@ void start_process(unsigned char* path) {
     ctx = newUserProc();
     setProcEntry(ctx, (void*)0x801000);
     prints("Launching usermode proces");
-    startProc(ctx);
+    jumpUser(0x801000);
+    //startProc(ctx);
 }
