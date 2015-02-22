@@ -73,7 +73,7 @@ _switchToKernel:
     mov %ax, _old_ss
 
     /* check to see if we have anything else on the stack */
-    mov _old_eflags, %ax
+    mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
     jne v86_enter
@@ -109,6 +109,8 @@ _returnToProc:
     cmp $0x20000, %eax
     jne user
     
+    mov %eax, (0x1000)
+
     mov _old_ss, %esp 
     shl $4, %esp
     add _old_esp, %esp  
