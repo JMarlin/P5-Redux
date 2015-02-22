@@ -143,7 +143,7 @@ _returnToProc:
     iret
     
  user:
-    /* mov _old_esp, %esp */
+    mov _old_esp, %esp 
     mov _old_ds, %ax
     mov %ax, %ds
     mov _old_es, %ax
