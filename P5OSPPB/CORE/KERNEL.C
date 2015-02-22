@@ -95,19 +95,15 @@ int main(void) {
     //Test V86 mode
     prints("Installing V86 code...");
     usrCode[0] = 0xB8;
-    usrCode[1] = 0x34;
-    usrCode[2] = 0x12;
-    usrCode[3] = 0xCC;
-    usrCode[4] = 0xB8;
-    usrCode[5] = 0x13;
+    usrCode[1] = 0x13;
+    usrCode[2] = 0x00;
+    usrCode[3] = 0xCD;
+    usrCode[4] = 0x10;
+    usrCode[5] = 0xB8;
     usrCode[6] = 0x00;
-    usrCode[7] = 0xCD;
-    usrCode[8] = 0x10;
-    usrCode[9] = 0xB8;
-    usrCode[10] = 0x00;
-    usrCode[11] = 0x00;
-    usrCode[12] = 0xCD;
-    usrCode[13] = 0xFF;
+    usrCode[7] = 0x00;
+    usrCode[8] = 0xCD;
+    usrCode[9] = 0xFF;
     prints("Done.\n");
     prints("Entering V86 mode\n");
     ctx = newV86Proc();
