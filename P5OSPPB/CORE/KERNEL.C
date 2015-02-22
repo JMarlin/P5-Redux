@@ -27,6 +27,7 @@ int main(void) {
 
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
+    context ctx;
     block_dev* ram0;
     FILE hellofile;
     unsigned char listBuf[256];
@@ -153,7 +154,7 @@ int main(void) {
      
     start_process(":usr.mod");
     */
-    
+
     while(1);
 }
 
