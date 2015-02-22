@@ -145,7 +145,7 @@ _returnToProc:
     
  user:
     
-    mov %ax, [0x1000]
+    mov %ax, (0x1000)
 
     mov _old_esp, %esp 
     mov _old_ds, %ax
