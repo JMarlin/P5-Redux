@@ -19,27 +19,27 @@ int nextProc = 0;
 process* p;
 
 
-void returnToProcess(context* newContext) {
+void returnToProcess(process* newProcess) {
 
     //Restore the running context
-    old_esp = newContext->esp;
-    old_cr3 = newContext->cr3;
-    old_eip = newContext->eip;
-    old_eflags = newContext->eflags;
-    old_eax = newContext->eax;
-    old_ecx = newContext->ecx;
-    old_edx = newContext->edx;
-    old_ebx = newContext->ebx;
-    old_ebp = newContext->ebp;
-    old_esi = newContext->esi;
-    old_edi = newContext->edi;
-    old_es = newContext->es;
-    old_cs = newContext->cs;
-    old_ss = newContext->ss;
-    old_ds = newContext->ds;
-    old_fs = newContext->fs;
-    old_gs = newContext->gs;
-    old_err = newContext->err;
+    old_esp = newProcess->ctx.esp;
+    old_cr3 = newProcess->ctx.cr3;
+    old_eip = newProcess->ctx.eip;
+    old_eflags = newProcess->ctx.eflags;
+    old_eax = newProcess->ctx.eax;
+    old_ecx = newProcess->ctx.ecx;
+    old_edx = newProcess->ctx.edx;
+    old_ebx = newProcess->ctx.ebx;
+    old_ebp = newProcess->ctx.ebp;
+    old_esi = newProcess->ctx.esi;
+    old_edi = newProcess->ctx.edi;
+    old_es = newProcess->ctx.es;
+    old_cs = newProcess->ctx.cs;
+    old_ss = newProcess->ctx.ss;
+    old_ds = newProcess->ctx.ds;
+    old_fs = newProcess->ctx.fs;
+    old_gs = newProcess->ctx.gs;
+    old_err = newProcess->ctx.err;
 
     returnToProc();
 }
@@ -64,7 +64,7 @@ void kernelDebug(void) {
     prints("Error code: 0x"); printHexDword(p->ctx.err); prints("\n");
 
     //Get the command byte that the processor failed on:
-    prints("Current instructions (0x"); printHexDword(insPtr); prints("): 0x"); printHexByte(insPtr[0]);
+    prints("Current instructions (0x"); printHexDword((unsigned int)insPtr); prints("): 0x"); printHexByte(insPtr[0]);
     prints(", 0x"); printHexByte(insPtr[1]);
     prints(", 0x"); printHexByte(insPtr[2]);
     prints(", 0x"); printHexByte(insPtr[3]);
@@ -338,7 +338,7 @@ void kernelEntry(void) {
             break; 
     }
 
-    returnToProcess(p->ctx);
+    returnToProcess(p);
 }
 
 
