@@ -306,10 +306,6 @@ void kernelEntry(void) {
     activeContext->gs = old_gs;
     activeContext->err = old_err;
 
-    insPtr = (char*)((unsigned int)activeContext->eip);
-    kernelDebug();
-    scans(5, fake);
-
     switch(except_num) {
 
         case EX_GPF:
@@ -321,7 +317,7 @@ void kernelEntry(void) {
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
-                insPtr = (char*)old_eip;
+                insPtr = (char*)activeContext->eip;
                 prints("(Non-V86)\n");
                 kernelDebug();
                 scans(5, fake);
@@ -329,7 +325,6 @@ void kernelEntry(void) {
             break;
 
         case EX_SYSCALL:
-            prints("Syscall\n");
             syscall_number = activeContext->eax;
             syscall_param1 = activeContext->ebx;
             syscall_param2 = activeContext->ecx;
