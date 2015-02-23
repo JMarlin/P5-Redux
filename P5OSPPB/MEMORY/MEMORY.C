@@ -4,38 +4,13 @@
 
 
 extern long pkgoffset;
+unsigned long maxRAM = 0x006FFFFF;
+memblock rootBlock;
 
-//There are 8k pages availible, which equates to 32 megs of ram
-//At the moment, this is assumed. In the future, we'll actually
-//check the BIOS memory map
-unsigned int maxPages = 0x2000;
-
-//Available memory starts at 8 meg, or the 0x800th page
-unsigned int basePage = 0x800;
-
-//AM HERE. TOO TIRED TO THINK ABOUT THIS SHIT RIGHT NOW
-/*
-physPageEntry* 
-    pageNumber   //The page number in physical memory of this page -- if pageNumber == 0 then the page isn't allocated
-    virtualBase  //Where this should be mapped when it's active
-    rootBlock    //The memblock from which all mallocs in this page originate
-
-physPageEntry* allocate_pages(int page_count, int baseAddr, char is_kernel) {
-
-    //For each requested page:
-        //Iterate through the page allocation table until we find a free page
-        //Initialize the page with its base virtual address
-}
-
-int free_pages(physPageEntry) {
-
-
-}
-*/
 
 void testRAM() {
 
-    int i = 0x100000;
+    int i = 0xB00000;
     unsigned char prev;
     unsigned char* sysram = (unsigned char*)0;
 
@@ -84,7 +59,7 @@ void init_memory() {
 
     //Start of kernel
     rootBlock.base = (void*)0x100000;
-    rootBlock.size = 0x1029A0;
+    rootBlock.size = 0x300000;
     rootBlock.next = (memblock*)0;
 
     /*

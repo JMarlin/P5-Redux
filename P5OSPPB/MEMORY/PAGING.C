@@ -1,5 +1,6 @@
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
+#include "../memory/memory.h"
 
 
 extern void loadPageDirectory(unsigned int*);
@@ -9,20 +10,9 @@ unsigned int *pageTable = (unsigned int*)0x700000;
 unsigned int *pageMap = (unsigned int*)0x300000;
 
 
-void clear_page_map() {
-
-    int i;
-    
-    for(i = 0; i < 0x100000; i++)
-        pageMap[i] = 0x0;
-}
-
-
 void init_page_system() {
     
     int i, j;        
-
-    clear_page_map();
     
     //Clear the 1,024 page directory entries
     for(i = 0; i < 1024; i++) {
@@ -33,8 +23,8 @@ void init_page_system() {
         
         for(j = 0; j < 1024; j++) {
             
-            //Same flags, but page NOT present
-            pageTable[(i * 1024) + j] = 0x00000006;
+            //Supervisor access, not present
+            pageTable[(i * 1024) + j] = 0x00000002;
         }
     }
 }
@@ -50,8 +40,7 @@ void free_pages(unsigned int physBase, unsigned int size) {
     //memory, so if both of these are set then
     //we know that this page is a deactivated user page
     for( ; i < max; i++) {    
-        pageTable[i] &= 0xFFFFFFFE;
-        pageTable[i] |= 0x00000004;
+        pageTable[i] &= 0xFFFFF7FA;
     }
 }
 
@@ -61,83 +50,148 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
     int i = physBase >> 12;
     int max = i + (size >> 12);
         
-    for( ; i < max; i++, virtBase += 0x1000)    
-        pageTable[i] = (virtBase & 0xFFFFF000) | (flags & 0xFFF);
+    for( ; i < max; i++, virtBase += 0x1000) {   
+        
+        //Make sure to preserve the page-reserved bit
+        pageTable[i] &= 0x00000E00;
+        pageTable[i] |= (virtBase & 0xFFFFF000) | (flags & 0x1FF);
+    }
 }
 
 
-void page_proc_free(void* procBase) {
+pageRange* new_page_tree(unsigned int pageCount) {
 
-    void* trackPtr, oldTrk;
-
-    if(procBase) {
-                    
-        trackPtr = procBase;
+    int i;
+    pageRange* new_pr;
+    
+    if(!(new_pr = (pageRange*)kmalloc(sizeof(pageRange))));
+        return (pageRange*)0x0;
+    
+    new_pr->base_page = pageBase;
+    new_pr->count = 0; 
+    new_pr->next = (pageRange*)0x0;
+    
+    for(i = 0; i < pageCount; i++) {
         
-        while(trackPtr) {
-                    
-            free_pages(trackPtr, 1);
-            oldTrk = trackPtr;
-            trackPtr = (void*)pageMap[(unsigned int)trackPtr >> 12];
-            pageMap[(unsigned int)oldTrk >> 12] = 0x0;
+        if(!append_page(new_pr)) {
+            
+            kfree((void*)new_pr);
+            return (pageRange*)0x0;
         }
     }
 }
 
 
-//Allocate a chain of pages to a contiguous process space
-void* page_proc_map(unsigned int procBase, unsigned int pageCount, char protect) {
+void disable_page_range(pageRange* pr_base) {
 
-    int j, i, lastPage;
-    void* retPtr;
+    pageRange* pr_current = pr_base;    
     
-    for(j = 0; j < count; j++) {
+    //Iterate through 
+    while(pr_current) {
     
-        for(i = 0x100; i < 0x100000; i++) {
-            
-            if(!pageMap[i])
+        free_pages(pr_current->base_page << 12, pr_current->count << 12);  
+        pr_current = pr_current->next;
+    }
+    
+    loadPageDirectory(pageDirectory);
+}
+
+
+void apply_page_range(unsigned int vBase, pageRange* pr_base) {
+
+    pageRange* pr_current = pr_base;
+    unsigned int v_addr;
+    
+    v_addr = vBase;
+    
+    //Iterate through 
+    while(pr_current) {
+    
+        map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, 7);   
+        v_addr += (pr_current->count << 12);
+        pr_current = pr_current->next;
+    }
+    
+    loadPageDirectory(pageDirectory);
+}
+
+
+//This ends the search of the page table at 0x2000
+//as opposed to 0x100000 because we're just assuming our
+//system has 32 megs of memory for now
+int append_page(pageRange* pr_base) {
+
+    unsigned total_count = 0;
+    pageRange* pr_current = pr_base;
+    unsigned int offset;
+    int i;
+    
+    //Get to the end of the list
+    while(pr_current->next) {
+        total_count += pr_current->count;
+        pr_current = pr_current->next;
+    }
+    
+    //There is nothing allocated here yet, so we'll go
+    //ahead and find the first free phys page
+    if(!pr_current->count) {
+    
+        for(i = 0xB00; i < 0x2000; i++) {
+        
+            if(!(pageTable[i] & 0x800))
                 break;
         }
-        
-        if(i == 0x100000) {
-            
-            //Unallocate everything we just allocated
-            page_proc_free(retPtr);            
-            return (void*)0x0;
-        }
-                            
-        if(j = 0) {
-        
-            lastPage = i;
-            retPtr = (void*)(i * 0x1000);
-        } else {          
-        
-            pageMap[lastPage] = (void*)(i * 0x1000);
-        }
-        
-        mapPages(i * 0x1000, procBase + (j * 0x1000), 0x1000, protect ? 3 : 7);
-    }    
     
-    return retPtr;
-}
-
-
-//Find the last page allocator in the chain
-void* page_proc_last(unsigned int procBase) {
-
-    void* trackPtr, oldTrk;
-
-    if(procBase) {
-                    
-        trackPtr = procBase;
-        
-        while(pageMap[(unsigned int)trackPtr >> 12])                    
-            trackPtr = (void*)pageMap[(unsigned int)trackPtr >> 12];
-        
-        return trackPtr;
+        if(i == 0x2000)
+            return 0;
+            
+        pr_current->count++;
+        pr_current->base_page = i;
+        pageTable[i] |= 0x00000800;
+        return (total_count + pr_current->count) << 12;
     }
     
-    return (void*)0x0;
+    offset =  pr_base->base_page + pr_base->count;
+    
+    //The physical page immediately following the last
+    //allocated page is free, so we can go ahead and 
+    //just mark the memory as used and ratchet up the 
+    //count of this contiguous block
+    if(!(pageTable[offset] & 0x800)) {
+        
+        //Bit 0x800, which is available to the OS,
+        //indicates physical page availability.
+        //We mark it to 1 to indicate that we're
+        //claiming this page
+        pr_current->count++;
+        pageTable[offset] |= 0x00000800;
+        return (total_count + pr_current->count) << 12;
+    }
+    
+    //We can't allocate contiguous memory, so we have
+    //to allocate a new pageRange
+    if(!(pr_current->next = (pageRange*)kmalloc(sizeof(pageRange)))) {
+        
+        pr_current->next = (pageRange*)0x0;
+        return 0;
+    }
+    
+    for(i = 0xB00; i < 0x2000; i++) {
+        
+        if(!(pageTable[i] & 0x800))
+            break;
+    }
+    
+    if(i == 0x2000) {
+        
+        pr_current->next = (pageRange*)0x0;
+        return 0;
+    }
+            
+    pr_current->count++;
+    pr_current->base_page = i;
+    pageTable[i] |= 0x00000800;
+    return (total_count + pr_current->count) << 12;
 }
 
 
@@ -153,8 +207,8 @@ void init_mmu() {
     //Map the first 1MB of pages as usr for v86 code
     map_pages(0x00000000, 0x00000000, 0x00100000, 7); 
         
-    //Force enter the kernel's page mapping
-    page_proc_map(0x00100000, 0xA00, 1);
+    //Map the pages for the kernel space
+    map_pages(0x00100000, 0x00100000, 0x00A00000, 3);
     
     //DEBUG("Done\nMap user's 4Mb...");
     //Flags: user ram, R/W enable, page present
@@ -164,18 +218,4 @@ void init_mmu() {
     DEBUG("Done\nEnabling paging...");
     enablePaging();        
     DEBUG("Done\n");
-}
-
-
-//Toggle the 
-int deactivate_proc_paging(process* proc) {
-    
-    
-}
-
-
-//Append a new page to the end of the process's allocated virtual space
-int proc_add_page(process* proc) {
-
-    
 }

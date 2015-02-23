@@ -60,22 +60,24 @@ typedef struct context {
 
 typedef struct process {
     unsigned int id;
-    void* root_page;
+    pageRange* root_page;
     context ctx;
     void* usr;
-    ramblock root_block;
+    unsigned int base;
+    unsigned int size;
 } process;
 
-process* ap, lp;
+process* p;
 
 void startProcessManagement();
-void terminateProcess(proc* p);
+void terminateProcess(proc* proc);
 void kernelEntry(void);
 context* newUserProc();
 context* newV86Proc();
-void setProcEntry(process* p, void* entryPoint);
-void startProc(process* p);
+void setProcEntry(process* proc, void* entryPoint);
+void startProc(process* proc);
 process* exec_process(unsigned char* path);
+int request_new_page(process* p);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);

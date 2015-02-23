@@ -16,7 +16,7 @@ process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 
 //We'll ACTUALLY use this in the future
-context* activeContext;
+process* p;
 
 
 void returnToProcess(context* newContext) {
@@ -50,18 +50,18 @@ void kernelDebug(void) {
     //Kernel debug, should be moved to its own function
     prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
     prints("Previous State:\n");
-    prints("eax: 0x"); printHexDword(activeContext->eax); prints("  ebx: 0x"); printHexDword(activeContext->ebx); prints("\n");
-    prints("ecx: 0x"); printHexDword(activeContext->ecx); prints("  edx: 0x"); printHexDword(activeContext->edx); prints("\n");
-    prints("esp: 0x"); printHexDword(activeContext->esp); prints("  ebp: 0x"); printHexDword(activeContext->ebp); prints("\n");
-    prints("esi: 0x"); printHexDword(activeContext->esi); prints("  edi: 0x"); printHexDword(activeContext->edi); prints("\n");
-    prints("cr3: 0x"); printHexDword(activeContext->cr3); prints("  eip: 0x"); printHexDword(activeContext->eip); prints("\n");
-    prints("eflags: 0x"); printHexDword(activeContext->eflags); prints("\n");
-    prints("es: 0x"); printHexWord(activeContext->es); prints("  cs: 0x"); printHexWord(activeContext->cs); prints("\n");
-    prints("ss: 0x"); printHexWord(activeContext->ss); prints("  ds: 0x"); printHexWord(activeContext->ds); prints("\n");
-    prints("fs: 0x"); printHexWord(activeContext->fs); prints("  gs: 0x"); printHexWord(activeContext->gs); prints("\n");
+    prints("eax: 0x"); printHexDword(p->ctx->eax); prints("  ebx: 0x"); printHexDword(p->ctx->ebx); prints("\n");
+    prints("ecx: 0x"); printHexDword(p->ctx->ecx); prints("  edx: 0x"); printHexDword(p->ctx->edx); prints("\n");
+    prints("esp: 0x"); printHexDword(p->ctx->esp); prints("  ebp: 0x"); printHexDword(p->ctx->ebp); prints("\n");
+    prints("esi: 0x"); printHexDword(p->ctx->esi); prints("  edi: 0x"); printHexDword(p->ctx->edi); prints("\n");
+    prints("cr3: 0x"); printHexDword(p->ctx->cr3); prints("  eip: 0x"); printHexDword(p->ctx->eip); prints("\n");
+    prints("eflags: 0x"); printHexDword(p->ctx->eflags); prints("\n");
+    prints("es: 0x"); printHexWord(p->ctx->es); prints("  cs: 0x"); printHexWord(p->ctx->cs); prints("\n");
+    prints("ss: 0x"); printHexWord(p->ctx->ss); prints("  ds: 0x"); printHexWord(p->ctx->ds); prints("\n");
+    prints("fs: 0x"); printHexWord(p->ctx->fs); prints("  gs: 0x"); printHexWord(p->ctx->gs); prints("\n");
 
     //Get the error code
-    prints("Error code: 0x"); printHexDword(activeContext->err); prints("\n");
+    prints("Error code: 0x"); printHexDword(p->ctx->err); prints("\n");
 
     //Get the command byte that the processor failed on:
     prints("Current instructions (0x"); printHexDword(insPtr); prints("): 0x"); printHexByte(insPtr[0]);
@@ -77,7 +77,7 @@ void kernelDebug(void) {
 void V86Entry(void) {
 
     unsigned short seg, off;
-    unsigned short* stack = (unsigned short*)((unsigned int)0 + (activeContext->ss << 4) + (activeContext->esp & 0xFFFF));
+    unsigned short* stack = (unsigned short*)((unsigned int)0 + (p->ctx->ss << 4) + (p->ctx->esp & 0xFFFF));
     unsigned int* stack32 = (unsigned int*)stack;
     char op32 = 0;
 
@@ -91,23 +91,23 @@ void V86Entry(void) {
                 if(insPtr[1] == 0xFF) {
 
     	    	    prints("Syscall triggered\n");
-                    syscall_number = activeContext->eax & 0xFFFF;
-                    syscall_param1 = activeContext->ebx & 0xFFFF;
-                    syscall_param2 = activeContext->ecx & 0xFFFF;
+                    syscall_number = p->ctx->eax & 0xFFFF;
+                    syscall_param1 = p->ctx->ebx & 0xFFFF;
+                    syscall_param2 = p->ctx->ecx & 0xFFFF;
                     syscall_exec();
                 } else {
 
             		stack -= 3;
-            		activeContext->esp = ((activeContext->esp & 0xFFFF) - 6) & 0xFFFF;
-            		stack[0] = (unsigned short)(activeContext->eip + 2);
-            		stack[1] = activeContext->cs;
-            		stack[2] = (unsigned short)activeContext->eflags;
+            		p->ctx->esp = ((p->ctx->esp & 0xFFFF) - 6) & 0xFFFF;
+            		stack[0] = (unsigned short)(p->ctx->eip + 2);
+            		stack[1] = p->ctx->cs;
+            		stack[2] = (unsigned short)p->ctx->eflags;
             		prints("Stack:\n");
         	        prints("0: 0x"); printHexWord(stack[0]); prints("\n");
         	        prints("1: 0x"); printHexWord(stack[1]); prints("\n");
         	        prints("2: 0x"); printHexWord(stack[2]); prints("\n");
 
-            		if(activeContext->vif)
+            		if(p->ctx->vif)
             		    stack[2] |= 0x20;
             		else
             		    stack[2] &= 0xFFDF;
@@ -122,8 +122,8 @@ void V86Entry(void) {
                     prints("\n");
                     kernelDebug();
     		        //scans(5, fake);
-                    activeContext->cs = seg;
-                    activeContext->eip = (((unsigned int)off) & 0xFFFF);
+                    p->ctx->cs = seg;
+                    p->ctx->eip = (((unsigned int)off) & 0xFFFF);
                 }
                 return;
                 break;
@@ -137,11 +137,11 @@ void V86Entry(void) {
         	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
         	    kernelDebug();
         	    //scans(5, fake);
-                activeContext->eip = stack[0];
-        	    activeContext->cs = stack[1];
-        	    activeContext->eflags = stack[2] | 0x20020;
-        	    activeContext->vif = (stack[2] & 0x20) != 0;
-        	    activeContext->esp = ((activeContext->esp & 0xFFFF) + 6) & 0xFFFF;
+                p->ctx->eip = stack[0];
+        	    p->ctx->cs = stack[1];
+        	    p->ctx->eflags = stack[2] | 0x20020;
+        	    p->ctx->vif = (stack[2] & 0x20) != 0;
+        	    p->ctx->esp = ((p->ctx->esp & 0xFFFF) + 6) & 0xFFFF;
                 op32 = 0;
                 return;
                 break;
@@ -149,14 +149,14 @@ void V86Entry(void) {
             //O32
             case 0x66:
                 prints("o32 ");
-                (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)(++activeContext->eip) &0xFFFF)));
+                (char*)(((((unsigned int)p->ctx->cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx->eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
                 prints("a32 ");
-                (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)(++activeContext->eip) &0xFFFF)));
+                (char*)(((((unsigned int)p->ctx->cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx->eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
@@ -165,27 +165,27 @@ void V86Entry(void) {
     	        prints("Flags pushed\n");
 
                 if(op32) {
-                    activeContext->esp = ((activeContext->esp & 0xFFFF) - 4) & 0xFFFF;
+                    p->ctx->esp = ((p->ctx->esp & 0xFFFF) - 4) & 0xFFFF;
                     stack32--;
-    		        stack32[0] = (unsigned short)activeContext->eflags & 0xDFF;
+    		        stack32[0] = (unsigned short)p->ctx->eflags & 0xDFF;
 
-    		        if(activeContext->vif)
+    		        if(p->ctx->vif)
     		            stack32[0] |= 0x20;
     		        else
     		            stack32[0] &= 0xFFFFFFDF;
                     op32 = 0;
                 } else {
-                    activeContext->esp = ((activeContext->esp & 0xFFFF) - 2) & 0xFFFF;
+                    p->ctx->esp = ((p->ctx->esp & 0xFFFF) - 2) & 0xFFFF;
     		        stack--;
-    		        stack[0] = (unsigned short)activeContext->eflags;
+    		        stack[0] = (unsigned short)p->ctx->eflags;
 
-    		        if(activeContext->vif)
+    		        if(p->ctx->vif)
     		            stack[0] |= 0x20;
     		        else
     		            stack[0] &= 0xFFDF;
                 }
 
-                activeContext->eip++;
+                p->ctx->eip++;
                 return;
                 break;
 
@@ -194,34 +194,34 @@ void V86Entry(void) {
         	    prints("Flags popped\n");
 
                 if(op32) {
-                    activeContext->eflags = 0x20020 | (stack32[0] & 0xDFF);
-        		    activeContext->vif = (stack32[0] & 0x20) != 0;
-        			activeContext->esp = ((activeContext->esp & 0xFFFF) + 4) & 0xFFFF;
+                    p->ctx->eflags = 0x20020 | (stack32[0] & 0xDFF);
+        		    p->ctx->vif = (stack32[0] & 0x20) != 0;
+        			p->ctx->esp = ((p->ctx->esp & 0xFFFF) + 4) & 0xFFFF;
                     op32 = 0;
                 } else {
-        		    activeContext->eflags = 0x20020 | stack[0];
-        		    activeContext->vif = (stack[0] & 0x20) != 0;
-        			activeContext->esp = ((activeContext->esp & 0xFFFF) + 2) & 0xFFFF;
+        		    p->ctx->eflags = 0x20020 | stack[0];
+        		    p->ctx->vif = (stack[0] & 0x20) != 0;
+        			p->ctx->esp = ((p->ctx->esp & 0xFFFF) + 2) & 0xFFFF;
                 }
 
-        	    activeContext->eip++;
+        	    p->ctx->eip++;
         	    return;
         	    break;
 
         	//OUT DX AL
         	case 0xEE:
         	    prints("Out\n");
-        	    outb((unsigned short)activeContext->edx, (unsigned char)activeContext->eax);
-        	    activeContext->eip++;
+        	    outb((unsigned short)p->ctx->edx, (unsigned char)p->ctx->eax);
+        	    p->ctx->eip++;
         	    return;
         	    break;
 
         	//IN AL DX
         	case 0xEC:
         	    prints("In\n");
-        	    activeContext->eax &= 0xFFFFFF00;
-        	    activeContext->eax |= ((unsigned int)0 + (inb((unsigned short)activeContext->edx) & 0xFF));
-        	    activeContext->eip++;
+        	    p->ctx->eax &= 0xFFFFFF00;
+        	    p->ctx->eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx->edx) & 0xFF));
+        	    p->ctx->eip++;
         	    return;
         	    break;
 
@@ -229,11 +229,11 @@ void V86Entry(void) {
         	case 0xEF:
         	    prints("OutW\n");
                 if(op32) {
-                    outd((unsigned short)activeContext->edx, activeContext->eax);
+                    outd((unsigned short)p->ctx->edx, p->ctx->eax);
                 } else {
-        	        outw((unsigned short)activeContext->edx, (unsigned short)activeContext->eax);
+        	        outw((unsigned short)p->ctx->edx, (unsigned short)p->ctx->eax);
         	    }
-                activeContext->eip++;
+                p->ctx->eip++;
         	    return;
         	    break;
 
@@ -242,12 +242,12 @@ void V86Entry(void) {
         	    prints("In\n");
 
                 if(op32) {
-        			activeContext->eax = ind(activeContext->edx);
+        			p->ctx->eax = ind(p->ctx->edx);
         		} else {
-        			activeContext->eax &= 0xFFFF0000;
-        			activeContext->eax |= ((unsigned int)0 + (inw((unsigned short)activeContext->edx) & 0xFFFF));
+        			p->ctx->eax &= 0xFFFF0000;
+        			p->ctx->eax |= ((unsigned int)0 + (inw((unsigned short)p->ctx->edx) & 0xFFFF));
         		}
-        	    activeContext->eip++;
+        	    p->ctx->eip++;
         	    return;
         	    break;
 
@@ -256,23 +256,23 @@ void V86Entry(void) {
                 prints("V86 Debug Interrupt\n");
                 kernelDebug();
                 //scans(5, fake);
-                activeContext->eip++;
+                p->ctx->eip++;
                 return;
                 break;
 
     		//CLI
     		case 0xfa:
                 prints("cli\n");
-                activeContext->vif = 0;
-                activeContext->eip++;
+                p->ctx->vif = 0;
+                p->ctx->eip++;
                 return;
                 break;
 
     		//STI
             case 0xfb:
                 prints("sti\n");
-                activeContext->vif = 1;
-                activeContext->eip++;
+                p->ctx->vif = 1;
+                p->ctx->eip++;
                 return;
                 break;
 
@@ -288,24 +288,24 @@ void V86Entry(void) {
 void kernelEntry(void) {
 
     //Backup the running context
-    activeContext->esp = old_esp;
-    activeContext->cr3 = old_cr3;
-    activeContext->eip = old_eip;
-    activeContext->eflags = old_eflags;
-    activeContext->eax = old_eax;
-    activeContext->ecx = old_ecx;
-    activeContext->edx = old_edx;
-    activeContext->ebx = old_ebx;
-    activeContext->ebp = old_ebp;
-    activeContext->esi = old_esi;
-    activeContext->edi = old_edi;
-    activeContext->es = old_es;
-    activeContext->cs = old_cs;
-    activeContext->ss = old_ss;
-    activeContext->ds = old_ds;
-    activeContext->fs = old_fs;
-    activeContext->gs = old_gs;
-    activeContext->err = old_err;
+    p->ctx->esp = old_esp;
+    p->ctx->cr3 = old_cr3;
+    p->ctx->eip = old_eip;
+    p->ctx->eflags = old_eflags;
+    p->ctx->eax = old_eax;
+    p->ctx->ecx = old_ecx;
+    p->ctx->edx = old_edx;
+    p->ctx->ebx = old_ebx;
+    p->ctx->ebp = old_ebp;
+    p->ctx->esi = old_esi;
+    p->ctx->edi = old_edi;
+    p->ctx->es = old_es;
+    p->ctx->cs = old_cs;
+    p->ctx->ss = old_ss;
+    p->ctx->ds = old_ds;
+    p->ctx->fs = old_fs;
+    p->ctx->gs = old_gs;
+    p->ctx->err = old_err;
 
     switch(except_num) {
 
@@ -313,12 +313,12 @@ void kernelEntry(void) {
         //Switch to the V86 monitor if the thread was a V86 thread
             if(old_eflags & 0x20000) {
 
-                insPtr = (char*)(((((unsigned int)activeContext->cs)&0xFFFF) << 4) + (((unsigned int)activeContext->eip) &0xFFFF));
+                insPtr = (char*)(((((unsigned int)p->ctx->cs)&0xFFFF) << 4) + (((unsigned int)p->ctx->eip) &0xFFFF));
                 V86Entry();
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
-                insPtr = (char*)activeContext->eip;
+                insPtr = (char*)p->ctx->eip;
                 prints("(Non-V86)\n");
                 kernelDebug();
                 scans(5, fake);
@@ -326,9 +326,9 @@ void kernelEntry(void) {
             break;
 
         case EX_SYSCALL:
-            syscall_number = activeContext->eax;
-            syscall_param1 = activeContext->ebx;
-            syscall_param2 = activeContext->ecx;
+            syscall_number = p->ctx->eax;
+            syscall_param1 = p->ctx->ebx;
+            syscall_param2 = p->ctx->ecx;
             syscall_exec();
             break;
 
@@ -338,7 +338,7 @@ void kernelEntry(void) {
             break; 
     }
 
-    returnToProcess(activeContext);
+    returnToProcess(p->ctx);
 }
 
 
@@ -372,7 +372,7 @@ process* newProcess() {
         
     p = &(processTable[i]);
     p->id = nextProc++;
-    p->root_page = 0x0;    
+    p->root_page = (pageRange*)0x0;    
     return p;
 }
 
@@ -386,9 +386,8 @@ process* newUserProc() {
     if(!newP)
         return newP;
     
-    p->root_block.base = 0xB00000;
-    p->root_block.size = 0x0;
-    p->root_block.next = (memblock*)0x0;
+    newP->base = 0xB00000;
+    newP->size = 0x0;
     
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0xB00FFF;
@@ -403,7 +402,7 @@ process* newUserProc() {
     return newP;
 }
 
-
+/*
 process* newV86Proc() {
 
     clearContext(&V86Context);
@@ -422,7 +421,7 @@ process* newV86Proc() {
     V86Context.eflags |= 0x20;
     return &V86Context;
 }
-
+*/
 
 void setProcEntry(process* p, void* entryPoint) {
 
@@ -437,11 +436,16 @@ void setProcEntry(process* p, void* entryPoint) {
 }
 
 
-void startProc(context* ctx) {
+void startProc(process* proc) {
 
-    //Enter the new context
-    activeContext = ctx;
-    returnToProcess(activeContext);
+    //Turn off the page mapping of the last process
+    if(p) disable_page_range(p->root_page);
+
+    //Enter the new context, assuming the standard
+    //user process base address of 0xB00000
+    p = proc;
+    apply_page_range(p->base, p->root_page)
+    returnToProcess(p);
     return;
 }
 
@@ -451,35 +455,38 @@ void startProc(context* ctx) {
 void startProcessManagement() {
 
     int i;
+    p = (process*)0;    
         
     //Clear the contents of the process table
     for(i = 0; i < 256; i++) 
         processTable[i].id = 0;
     
-    nextProc = 2;
-        
-    //Set up the kernel's entry
-    //We ignore ctx because we will never actually
-    //need or store the kernel's context
-    processTable[0].id = 1;
-    processTable[0].root_page = 0x100000;
-    processTable[0].usr = (void*)0x0;
-    processTable[0].root_block.base = 0x100000;
-    processTable[0].root_block.size = 0xA00000;
-    processTable[0].root_block.next = (memblock*)0x0;
+    nextProc = 1;
+}
+
+
+//Append a new page to the end of the process's allocated virtual space
+int proc_add_page(process* proc) {
+
+    int newSize;
+    
+    if(!(newSize = append_page(proc->root_page)))
+        return proc->size = newSize;
+    else
+        return newSize;
 }
 
 
 process* exec_process(unsigned char* path) {
 
     FILE exeFile;
-    process* p;
+    process* proc;
     char* usrBase = (char*)0xB01000;
     int tmpVal, i;
     int pageCount;
     
-    if(!(p = newUserProc()))
-        return p;
+    if(!(proc = newUserProc()))
+        return proc;
     
     file_open(path, &exeFile);
     
@@ -489,36 +496,37 @@ process* exec_process(unsigned char* path) {
         prints(path);
         prints("\n");
         //fclose(&exeFile);
-        freeProcess(p);
+        freeProcess(proc);
         return;
     }
 
     for(i = 0; file_readb(&exeFile) != EOF; i++);
     
-    pageCount = i / 4096;
+    //Add an extra 4k to account for the stack space
+    pageCount = (i + 0x1000) / 0x1000;
     
-    if(i % 4096)
+    if(i % 0x1000)
         pageCount++;
         
-    p->root_page = page_proc_map(0xB00000, pageCount, 0);
+    proc->root_page = new_page_tree(pageCount);
     
-    if(!(p->root_page)) {
+    if(!(proc->root_page)) {
     
         //fclose(&exeFile);
-        freeProcess(p);
+        freeProcess(proc);
     }
     
     //Finish the definition of the root malloc block
-    p->root_block.size = 0x1000 + i;
+    proc->root_block.size = pageCount << 12;
     
     //Activate the new pages so we're writing to the
     //correct locations on physical ram
-    proc_activate_pages(p);
+    proc_activate_pages(proc);
     
     i = 0;
     while((tmpVal = file_readb(&exeFile)) != EOF)
         usrBase[i++] = (char)tmpVal;
 
     prints("Launching usermode process\n");
-    startProc(p);
+    startProc(proc);
 }
