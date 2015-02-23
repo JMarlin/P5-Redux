@@ -43,6 +43,10 @@ _old_gs: .short 0x0
 _old_err: .int 0x0
 
 _switchToKernel:
+
+    /* debug breakpoint */
+    mov %eax, (0x1000)
+
     push %eax
     mov $0x10, %ax
     mov %ax, %ds
@@ -103,6 +107,9 @@ _switchToKernel:
     call _kernelEntry
 
 _returnToProc:
+
+    /* debug breakpoint */
+    mov %eax, (0x1000)
 
     mov _old_eflags, %eax
     and $0x20000, %eax
