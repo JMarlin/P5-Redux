@@ -1,6 +1,7 @@
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
 #include "../memory/memory.h"
+#include "paging.h"
 
 
 extern void loadPageDirectory(unsigned int*);
