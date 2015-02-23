@@ -1,7 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "../memory/memory.h"
+#include "../memory/paging.h"
 
 #define PT_USER 0
 #define PT_V86  1

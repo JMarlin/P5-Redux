@@ -175,7 +175,7 @@ int MBCollision(void* base, unsigned long size) {
 }
 
 
-void* kmalloc(unsigned long size) {
+void* kmalloc(unsigned int size) {
         
     memblock* tailBlock = getMBTail();
     memblock* nextBlock;
