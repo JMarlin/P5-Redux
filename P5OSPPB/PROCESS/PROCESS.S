@@ -54,7 +54,10 @@ _switchToKernel:
     /* after using it for storing the original ds val */
     push %es 
     push %ds 
-    mov %ss, %ds 
+    push %eax 
+    mov %ss, %ax
+    mov %ax, %ds
+    pop %eax  
 
     /* store segment regs, restoring the pushed */
     /* ds back into es */
@@ -89,7 +92,7 @@ _switchToKernel:
     pop %eax
     mov %eax, _old_err
 
- no_err
+ no_err:
     pop %eax
     mov %eax, _old_eip
     pop %eax
@@ -126,7 +129,7 @@ _switchToKernel:
     mov %ax, %ds
     mov %ax, %es
     call _kernelEntry
-    
+
 
 _returnToProc:
 
