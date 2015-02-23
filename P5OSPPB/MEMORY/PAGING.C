@@ -5,100 +5,177 @@
 extern void loadPageDirectory(unsigned int*);
 extern void enablePaging();
 unsigned int *pageDirectory = (unsigned int*)0x200000;
-unsigned int *pageTable = (unsigned int*)0x400000;
+unsigned int *pageTable = (unsigned int*)0x700000;
+unsigned int *pageMap = (unsigned int*)0x300000;
 
 
-void initPageDirectory() {
+void clear_page_map() {
+
+    int i;
     
-    int i;        
+    for(i = 0; i < 0x100000; i++)
+        pageMap[i] = 0x0;
+}
 
+
+void init_page_system() {
+    
+    int i, j;        
+
+    clear_page_map();
+    
     //Clear the 1,024 page directory entries
     for(i = 0; i < 1024; i++) {
     
-        //Set to supervisor-only access, write-enabled,
-        //page-not-present
-        pageDirectory[i] = 0x00000002;
+        //Set to global access, write-enabled,
+        //page present
+        pageDirectory[i] = 0x00000007 + (i * 0x1000);
+        
+        for(j = 0; j < 1024; j++) {
+            
+            //Same flags, but page NOT present
+            pageTable[(i * 1024) + j] = 0x00000006;
+        }
     }
 }
 
 
-void setPage(unsigned int blockNumber, unsigned int blockIndex, unsigned int physAddr, unsigned char flags) {
-                
-    //Set the table, don't give a shit if it already existed
-    pageTable[(blockNumber * 1024) + blockIndex] = (physAddr & 0xFFFFF000) | (flags & 0xFFF);
+void free_pages(unsigned int physBase, unsigned int size) {
+
+    int i = physBase >> 12;
+    int max = i + (size >> 12);
+        
+    //Mark these pages as not present and supervisor
+    //the supervisor should always have its pages in
+    //memory, so if both of these are set then
+    //we know that this page is a deactivated user page
+    for( ; i < max; i++) {    
+        pageTable[i] &= 0xFFFFFFFE;
+        pageTable[i] |= 0x00000004;
+    }
 }
 
 
-void setPagesInBlock(unsigned int physBase, unsigned int blockNumber, unsigned int firstPage, unsigned int pageCount, unsigned char flags) {
+void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
 
-    int i;
-    unsigned int curPhysAddr = physBase;
+    int i = physBase >> 12;
+    int max = i + (size >> 12);
+        
+    for( ; i < max; i++, virtBase += 0x1000)    
+        pageTable[i] = (virtBase & 0xFFFFF000) | (flags & 0xFFF);
+}
+
+
+void page_proc_free(void* procBase) {
+
+    void* trackPtr, oldTrk;
+
+    if(procBase) {
+                    
+        trackPtr = procBase;
+        
+        while(trackPtr) {
+                    
+            free_pages(trackPtr, 1);
+            oldTrk = trackPtr;
+            trackPtr = (void*)pageMap[(unsigned int)trackPtr >> 12];
+            pageMap[(unsigned int)oldTrk >> 12] = 0x0;
+        }
+    }
+}
+
+
+//Allocate a chain of pages to a contiguous process space
+void* page_proc_map(unsigned int procBase, unsigned int pageCount, char protect) {
+
+    int j, i, lastPage;
+    void* retPtr;
     
-    for(i = firstPage; i < firstPage + pageCount; curPhysAddr += 0x1000, i++) {
-        setPage(blockNumber, i, curPhysAddr, flags);
-    }
-} 
-
-
-void setPageBlock(unsigned int physAddr, unsigned int virtAddr, unsigned char flags) {
+    for(j = 0; j < count; j++) {
+    
+        for(i = 0x100; i < 0x100000; i++) {
+            
+            if(!pageMap[i])
+                break;
+        }
         
-    int i;
-    unsigned int blockNumber = virtAddr >> 22;
-    unsigned int curPhysAddr = physAddr;        
-
-    for(i = 0; i < 1024; i++) {
+        if(i == 0x100000) {
+            
+            //Unallocate everything we just allocated
+            page_proc_free(retPtr);            
+            return (void*)0x0;
+        }
+                            
+        if(j = 0) {
         
-        setPage(blockNumber, i, curPhysAddr, flags);
-        curPhysAddr += 0x1000;
-    }
-
-    pageDirectory[blockNumber] = ((unsigned int)(pageTable + (blockNumber * 1024)) & 0xFFFFF000) | flags;                
+            lastPage = i;
+            retPtr = (void*)(i * 0x1000);
+        } else {          
+        
+            pageMap[lastPage] = (void*)(i * 0x1000);
+        }
+        
+        mapPages(i * 0x1000, procBase + (j * 0x1000), 0x1000, protect ? 3 : 7);
+    }    
+    
+    return retPtr;
 }
 
 
-//NOTE: Map region requires 4mb-aligned inputs. If the addresses
-//given are not 4mb-aligned, they WILL be mangled
-//size is given in units of 4mb 
-void mapRegion(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned char flags) {
+//Find the last page allocator in the chain
+void* page_proc_last(unsigned int procBase) {
 
-    int curVirt, curPhys, i;
+    void* trackPtr, oldTrk;
 
-    for(curVirt = virtBase, curPhys = physBase, i = 0; i < size; curVirt += 0x400000, curPhys += 0x400000, i++) {
-        DEBUG("\nMapping block ");
-        DEBUG_HD(curPhys);
-        DEBUG(" -> ");
-        DEBUG_HD(curVirt);
-        DEBUG("\n");
-        setPageBlock(curPhys, curVirt, flags);
-    } 
+    if(procBase) {
+                    
+        trackPtr = procBase;
+        
+        while(pageMap[(unsigned int)trackPtr >> 12])                    
+            trackPtr = (void*)pageMap[(unsigned int)trackPtr >> 12];
+        
+        return trackPtr;
+    }
+    
+    return (void*)0x0;
 }
 
 
-void initMMU() {
+void init_mmu() {
 
     //prints("\nInit page directory...");
-    initPageDirectory();
+    init_page_system();
         
     //map one 1:1 8mb region at the start of memory for reserved kernel
     //space
     DEBUG("Done\nMap first 8Mb...");
     
-    //Start by making a block of user ram, then change all but the first meg of 
-    //that block's pages to kernel ram so that the kernel is protected but 
-    //0-1Mb is user accessible for V86 code
-    //Flags: user ram, R/W enable, page present
-    mapRegion(0x00000000, 0x00000000, 2, 7); 
+    //Map the first 1MB of pages as usr for v86 code
+    map_pages(0x00000000, 0x00000000, 0x00100000, 7); 
+        
+    //Force enter the kernel's page mapping
+    page_proc_map(0x00100000, 0xA00, 1);
     
-    //Identity map the 12K pages in block 0 above the first MB
-    //Flags: kernel ram, R/W enable, page present (this is user kernel space)
-    setPagesInBlock(0x00100000, 0, 0x100, 0x300, 3);
-    DEBUG("Done\nMap user's 4Mb...");
-    
+    //DEBUG("Done\nMap user's 4Mb...");
     //Flags: user ram, R/W enable, page present
-    mapRegion(0x00800000, 0x00800000, 1, 7);
+    //mapRegion(0x00800000, 0x00800000, 1, 7);
     DEBUG("Done\nLoading the page directory...");
     loadPageDirectory(pageDirectory);
     DEBUG("Done\nEnabling paging...");
     enablePaging();        
     DEBUG("Done\n");
+}
+
+
+//Toggle the 
+int deactivate_proc_paging(process* proc) {
+    
+    
+}
+
+
+//Append a new page to the end of the process's allocated virtual space
+int proc_add_page(process* proc) {
+
+    
 }

@@ -51,7 +51,7 @@ int main(void) {
     prints("Done.\nSetting up the GDT...");
     initGdt();
     prints("Done.\nTurning on paging...");
-    initMMU();
+    init_mmu();
     prints("Done.\nSetting up keyboard...");
 
     if(!keyboard_init())

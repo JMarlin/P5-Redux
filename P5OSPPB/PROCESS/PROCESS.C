@@ -5,15 +5,18 @@
 #include "../core/syscall.h"
 #include "../core/util.h"
 #include "../core/expt.h"
+#include "../fs/fs.h"
 
 
 unsigned char fake[6];
 unsigned char* insPtr;
 context V86Context, usrContext;
 int intVect = 0;
+process* procTable = (process*)0x2029A0;
+int nextProc = 0;
 
 //We'll ACTUALLY use this in the future
-context* activeContext = &V86Context;
+context* activeContext;
 
 
 void returnToProcess(context* newContext) {
@@ -356,22 +359,52 @@ void clearContext(context* ctx) {
 }
 
 
-context* newUserProc() {
-
-    clearContext(&usrContext);
-    usrContext.esp = 0x800FFF;
-    usrContext.ss = 0x23;
-    usrContext.ds = 0x23;
-    usrContext.cs = 0x1B;
-
-    //Interrupts enabled by default
-    usrContext.vif = 1;
-    usrContext.eflags = 0x20;
-    return &usrContext;
+process* newProcess() {
+    
+    process* p;
+    int i;
+        
+    //fast-forward to the next free slot
+    for(i = 0; processTable[i].id && (i < 256); i++);
+    
+    if(i == 256)
+        return (process*)0x0;
+        
+    p = &(processTable[i]);
+    p->id = nextProc++;
+    p->root_page = 0x0;    
+    return p;
 }
 
 
-context* newV86Proc() {
+process* newUserProc() {
+
+    process* newP;
+    
+    newP = newProcess();
+    
+    if(!newP)
+        return newP;
+    
+    p->root_block.base = 0xB00000;
+    p->root_block.size = 0x0;
+    p->root_block.next = (memblock*)0x0;
+    
+    clearContext(&(newP->ctx));
+    newP->ctx.esp = 0xB00FFF;
+    newP->ctx.ss = 0x23;
+    newP->ctx.ds = 0x23;
+    newP->ctx.cs = 0x1B;
+    newP->ctx.eip = 0xB01000;
+
+    //Interrupts enabled by default
+    newP->ctx.vif = 1;
+    newP->ctx.eflags = 0x20;
+    return newP;
+}
+
+
+process* newV86Proc() {
 
     clearContext(&V86Context);
     V86Context.type = PT_V86;
@@ -391,15 +424,15 @@ context* newV86Proc() {
 }
 
 
-void setProcEntry(context* ctx, void* entryPoint) {
+void setProcEntry(process* p, void* entryPoint) {
 
-    if(ctx->type == PT_V86) {
+    if(p->ctx->type == PT_V86) {
 
 	//Convert entry address to seg:offset
-        ctx->eip = (unsigned int)entryPoint & 0xFFFF;
-        ctx->cs = ((unsigned int)entryPoint - ctx->eip) >> 4;
+        p->ctx->eip = (unsigned int)entryPoint & 0xFFFF;
+        p->ctx->cs = ((unsigned int)entryPoint - ctx->eip) >> 4;
     } else {
-        ctx->eip = (unsigned int)entryPoint;
+        p->ctx->eip = (unsigned int)entryPoint;
     }
 }
 
@@ -410,4 +443,82 @@ void startProc(context* ctx) {
     activeContext = ctx;
     returnToProcess(activeContext);
     return;
+}
+
+
+//Kernel id = 1
+//id == 0 means no process in this slot
+void startProcessManagement() {
+
+    int i;
+        
+    //Clear the contents of the process table
+    for(i = 0; i < 256; i++) 
+        processTable[i].id = 0;
+    
+    nextProc = 2;
+        
+    //Set up the kernel's entry
+    //We ignore ctx because we will never actually
+    //need or store the kernel's context
+    processTable[0].id = 1;
+    processTable[0].root_page = 0x100000;
+    processTable[0].usr = (void*)0x0;
+    processTable[0].root_block.base = 0x100000;
+    processTable[0].root_block.size = 0xA00000;
+    processTable[0].root_block.next = (memblock*)0x0;
+}
+
+
+process* exec_process(unsigned char* path) {
+
+    FILE exeFile;
+    process* p;
+    char* usrBase = (char*)0xB01000;
+    int tmpVal, i;
+    int pageCount;
+    
+    if(!(p = newUserProc()))
+        return p;
+    
+    file_open(path, &exeFile);
+    
+    if(!exeFile.id) {
+    
+        prints("Could not open file ");
+        prints(path);
+        prints("\n");
+        //fclose(&exeFile);
+        freeProcess(p);
+        return;
+    }
+
+    for(i = 0; file_readb(&exeFile) != EOF; i++);
+    
+    pageCount = i / 4096;
+    
+    if(i % 4096)
+        pageCount++;
+        
+    p->root_page = page_proc_map(0xB00000, pageCount, 0);
+    
+    if(!(p->root_page)) {
+    
+        //fclose(&exeFile);
+        freeProcess(p);
+    }
+    
+    //Finish the definition of the root malloc block
+    p->root_block.size = 0x1000 + i;
+    
+    //Activate the new pages so we're writing to the
+    //correct locations on physical ram
+    proc_activate_pages(p);
+    
+    i = 0;
+    while((tmpVal = file_readb(&exeFile)) != EOF)
+        usrBase[i++] = (char)tmpVal;
+
+    prints("Launching usermode process\n");
+    startProc(p);
 }

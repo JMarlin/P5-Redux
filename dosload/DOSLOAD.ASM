@@ -158,7 +158,7 @@ mov eax, 0x10
 mov ds, eax
 mov es, eax
 mov ss, eax
-mov esp, 0x3FFFFF
+mov esp, 0x2FFFFF
 
 ;Enable A20
 call wait_kbc

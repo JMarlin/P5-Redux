@@ -1,6 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include "../memory/memory.h"
 
 #define PT_USER 0
 #define PT_V86  1
@@ -57,12 +58,24 @@ typedef struct context {
     unsigned char type;
 } context;
 
+typedef struct process {
+    unsigned int id;
+    void* root_page;
+    context ctx;
+    void* usr;
+    ramblock root_block;
+} process;
+
+process* ap, lp;
+
+void startProcessManagement();
 void terminateProcess(proc* p);
 void kernelEntry(void);
 context* newUserProc();
 context* newV86Proc();
-void setProcEntry(context* ctx, void* entryPoint);
-void startProc(context* ctx);
+void setProcEntry(process* p, void* entryPoint);
+void startProc(process* p);
+process* exec_process(unsigned char* path);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);
