@@ -521,7 +521,7 @@ process* exec_process(unsigned char* path) {
     
     //Activate the new pages so we're writing to the
     //correct locations on physical ram
-    proc_activate_pages(proc);
+    apply_page_range(proc->base, proc->root_page);
     
     i = 0;
     while((tmpVal = file_readb(&exeFile)) != EOF)
