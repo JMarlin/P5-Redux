@@ -9,7 +9,7 @@ Memory:
     *0x00201810 -> 0x0020181F : GDT Base struct (also only 6 in reality)
     *0x00201820 -> 0x0020199F : GDT Entries (null, kcode, kdat, ucode, udat, tss)
     *0x002019A0 -> 0x0020299F : TSS (only 100 bytes, but need 4kb granularity)
-    *0x002029A0 -> 0x002FFFFF : Kernel Heap
+    *0x002029A0 -> 0x002FFFFF : Page allocation entries (Was kernel heap)
 0x00300000 -> 0x003FFFFF : Kernel Stack
 0x00400000 -> 0x007FFFFF : Page tables
 0x00800000 -> 0xFFFFFFFF : Unmapped (user) 
