@@ -1,4 +1,5 @@
 .extern _kernelEntry
+.extern _except_num
 
 .globl _stashCurrentState
 .globl _switchToKernel
@@ -47,10 +48,24 @@ _switchToKernel:
     /* debug breakpoint */
     mov %eax, (0x1000)
 
-    push %eax
-    mov $0x10, %ax
-    mov %ax, %ds
-    pop %eax
+
+    /* setup a quick temp ds for var access */
+    /* push es first so we can restore it later */
+    /* after using it for storing the original ds val */
+    push %es 
+    push %ds 
+    mov %ss, %ds 
+
+    /* store segment regs, restoring the pushed */
+    /* ds back into es */
+    pop %es 
+    mov %es, _old_ds
+    pop %es 
+    mov %es, _old_es
+    mov %fs, _old_fs
+    mov %gs, _old_gs 
+
+    /* store general regs */
     mov %eax, _old_eax
     mov %ebx, _old_ebx
     mov %ecx, _old_ecx
@@ -63,8 +78,18 @@ _switchToKernel:
     mov %edi, %eax
     mov %eax, _old_edi
     
+    /* check the interrupt number to see if */
+    /* we need to pop the error code or not */
+    /* NOTE: for now, we're only going to */
+    /* check for gpf */
+    mov _except_num, %eax 
+    cmp $0xD, %eax
+    je no_err
+    
     pop %eax
     mov %eax, _old_err
+
+ no_err
     pop %eax
     mov %eax, _old_eip
     pop %eax
@@ -82,10 +107,6 @@ _switchToKernel:
     cmp $0x20000, %eax
     jne v86_enter
 
-    mov %es, _old_es
-    mov %ds, _old_ds
-    mov %fs, _old_fs
-    mov %gs, _old_gs 
     jmp k_continue
 
  v86_enter:
@@ -105,6 +126,7 @@ _switchToKernel:
     mov %ax, %ds
     mov %ax, %es
     call _kernelEntry
+    
 
 _returnToProc:
 
