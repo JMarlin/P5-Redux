@@ -496,7 +496,7 @@ process* exec_process(unsigned char* path) {
         prints(path);
         prints("\n");
         //fclose(&exeFile);
-        freeProcess(proc);
+        //freeProcess(proc);
         return;
     }
 
@@ -513,7 +513,7 @@ process* exec_process(unsigned char* path) {
     if(!(proc->root_page)) {
     
         //fclose(&exeFile);
-        freeProcess(proc);
+        //freeProcess(proc);
     }
     
     //Finish the definition of the root malloc block

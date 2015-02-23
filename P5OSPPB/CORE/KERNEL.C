@@ -61,6 +61,7 @@ int main(void) {
 
     init_memory();        
     setupKeyTable();
+    void startProcessManagement();
     prints("WELCOME TO P5\n");
 
     //ksize = (unsigned int*)0x100005;
@@ -149,7 +150,7 @@ int main(void) {
     while((tempCh = file_readb(&hellofile)) != EOF)    
         pchar((char)tempCh);
      
-    start_process(":usr.mod");
+    exec_process(":usr.mod");
 
     while(1);
 }

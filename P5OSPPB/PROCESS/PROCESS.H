@@ -78,6 +78,7 @@ void setProcEntry(process* proc, void* entryPoint);
 void startProc(process* proc);
 process* exec_process(unsigned char* path);
 int request_new_page(process* proc);
+process* exec_process(unsigned char* path);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);
