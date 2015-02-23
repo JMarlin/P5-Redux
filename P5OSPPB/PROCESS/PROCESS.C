@@ -37,6 +37,9 @@ void returnToProcess(context* newContext) {
     old_fs = newContext->fs;
     old_gs = newContext->gs;
     old_err = newContext->err;
+
+    prints("Returning to process\n");
+
     returnToProc();
 }
 

@@ -108,9 +108,7 @@ _switchToKernel:
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    jne v86_enter
-
-    jmp k_continue
+    jne k_continue
 
  v86_enter:
     pop %eax
@@ -123,7 +121,7 @@ _switchToKernel:
     mov %ax, _old_gs
 
  k_continue:    
-    mov $0x10, %ax
+    mov %ss, %ax
     mov %ax, %gs
     mov %ax, %fs
     mov %ax, %ds
@@ -134,7 +132,7 @@ _switchToKernel:
 _returnToProc:
 
     /* debug breakpoint */
-    mov %eax, (0x1000)
+    mov %eax, (0x1001)
 
     mov _old_eflags, %eax
     and $0x20000, %eax
