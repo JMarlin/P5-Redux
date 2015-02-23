@@ -68,7 +68,7 @@ pageRange* new_page_tree(unsigned int pageCount) {
     if(!(new_pr = (pageRange*)kmalloc(sizeof(pageRange))));
         return (pageRange*)0x0;
     
-    new_pr->base_page = pageBase;
+    new_pr->base_page = 0;
     new_pr->count = 0; 
     new_pr->next = (pageRange*)0x0;
     

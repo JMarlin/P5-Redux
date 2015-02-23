@@ -72,12 +72,12 @@ process* p;
 void startProcessManagement();
 void terminateProcess(proc* proc);
 void kernelEntry(void);
-context* newUserProc();
-context* newV86Proc();
+process* newUserProc();
+//process* newV86Proc();
 void setProcEntry(process* proc, void* entryPoint);
 void startProc(process* proc);
 process* exec_process(unsigned char* path);
-int request_new_page(process* p);
+int request_new_page(process* proc);
 
 extern void switchToKernel(void);
 extern void returnToProc(void);
