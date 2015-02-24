@@ -61,7 +61,7 @@ int main(void) {
 
     init_memory();        
     setupKeyTable();
-    void startProcessManagement();
+    startProcessManagement();
     prints("WELCOME TO P5\n");
 
     //ksize = (unsigned int*)0x100005;
