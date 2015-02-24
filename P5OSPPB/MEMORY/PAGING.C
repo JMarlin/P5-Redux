@@ -47,14 +47,16 @@ void free_pages(unsigned int physBase, unsigned int size) {
 
 void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
 
-    int i = physBase >> 12;
+    int i = virtBase >> 12;
     int max = i + (size >> 12);
         
-    for( ; i < max; i++, virtBase += 0x1000) {   
+    for( ; i < max; i++, physBase += 0x1000) {   
+        
+        prints("Mapping phys 0x"); printHexDword(i << 12); prints(" -> virt 0x"); printHexDword(physBase); prints("\n");
         
         //Make sure to preserve the page-reserved bit
         pageTable[i] &= 0x00000E00;
-        pageTable[i] |= (virtBase & 0xFFFFF000) | (flags & 0x1FF);
+        pageTable[i] |= (physBase & 0xFFFFF000) | (flags & 0x1FF);
     }
 }
 

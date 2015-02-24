@@ -444,6 +444,7 @@ void startProc(process* proc) {
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
     p = proc;
+    prints("Applying process paging:\n");
     apply_page_range(p->base, p->root_page);
     returnToProcess(p);
     return;
