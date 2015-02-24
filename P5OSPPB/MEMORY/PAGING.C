@@ -81,6 +81,8 @@ pageRange* new_page_tree(unsigned int pageCount) {
             return (pageRange*)0x0;
         }
     }
+    
+    return new_pr;
 }
 
 
