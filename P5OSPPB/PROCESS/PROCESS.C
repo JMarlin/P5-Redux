@@ -14,6 +14,7 @@ context V86Context, usrContext;
 int intVect = 0;
 process* procTable = (process*)0x2029A0;
 int nextProc = 0;
+unsigned char procPtr = 0;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
@@ -467,6 +468,7 @@ void startProcessManagement() {
         procTable[i].id = 0;
     
     nextProc = 1;
+    procPtr = 0;
 }
 
 
@@ -536,4 +538,15 @@ process* exec_process(unsigned char* path) {
 
     prints("Launching usermode process\n");
     startProc(proc);
+}
+
+void next_process() {
+
+    //Look for the next populated proc entry in the table
+    //This will spin because of wrapping if there are no processes 
+    //in the list
+    for(procPtr++; (!procTable[procPtr].id); procPtr++);
+        
+    p = &procTable[procPtr];
+    returnToProcess(p);
 }

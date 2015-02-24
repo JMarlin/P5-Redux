@@ -10,7 +10,6 @@ void usrExit(void);
 void causeError(void);
 void peekV86(void);
 void peekKern(void);
-void startProc(void);
 void swap(void);
 
 
@@ -27,7 +26,6 @@ char* cmdWord[CMD_COUNT] = {
     "V86",
     "KERN",
     "SWITCH",
-    "START"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -38,7 +36,6 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&peekV86,
     (sys_command)&peekKern,
     (sys_command)&swap,
-    (sys_command)&startProc
 };
 
 char inbuf[50];
@@ -71,7 +68,7 @@ void main(void) {
     
     prints("Entered console\n");
     while(1) {
-        prints("::");
+        prints("DOS>");
         scans(50, inbuf);
         parse(inbuf);
     }    
@@ -145,12 +142,6 @@ void peekKern(void) {
     } else {
         prints("Value is high\n");
     }
-}
-
-
-void startDos(void) {
-
-    startProc();
 }
 
 

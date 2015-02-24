@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include "../ascii_io/ascii_o.h"
 #include "../ascii_io/ascii_i.h"
+#include "../process/process.h"
 
 
 unsigned int logoMap[] = {
@@ -94,7 +95,15 @@ void syscall_exec(void) {
         case 3:
             clear();
         break;
+        
+        case 4:
+            exec_process(":dos.mod");
+        break;
 
+        case 5:
+            next_process();
+        break;
+        
         default:
         break;
     }

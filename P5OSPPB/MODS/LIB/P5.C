@@ -50,3 +50,27 @@ void clearScreen() {
         : "eax"
     );
 }
+
+
+void startProc() {
+
+    __asm__ volatile (
+        "mov $0x04, %%eax \n"
+        "int $0xFF \n"
+        :
+        :
+        : "eax"
+    );
+}
+
+
+void nextProc() {
+
+    __asm__ volatile (
+        "mov $0x05, %%eax \n"
+        "int $0xFF \n"
+        :
+        :
+        : "eax"
+    );
+}
