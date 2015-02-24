@@ -54,11 +54,12 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
            
     for( ; i < max; i++, physBase += 0x1000) {   
         
-        //DEBUG("Mapping virt 0x");
-        //DEBUG_HD(i << 12);
-        //DEBUG(" -> phys 0x");
-        //DEBUG_HD(physBase);
-        //DEBUG("\n");
+        DEBUG("Mapping virt 0x");
+        DEBUG_HD(i << 12);
+        DEBUG(" -> phys 0x");
+        DEBUG_HD(physBase);
+        DEBUG("\n");
+        
         //Some day, we'll figure this out. Some day.
         prints("\0");
         

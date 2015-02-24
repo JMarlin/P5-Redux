@@ -85,7 +85,7 @@ void syscall_exec(void) {
         break;
 
         case 1:
-            prints((unsigned char*)syscall_param1);
+            pchar((unsigned char)(syscall_param1 & 0xFF));
         break;
 
         case 2:

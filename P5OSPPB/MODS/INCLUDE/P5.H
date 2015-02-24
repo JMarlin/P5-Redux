@@ -2,6 +2,7 @@
 #define P5_H
 
 
+void pchar(char c);
 unsigned char getch();
 void prints(char* s);
 void terminate(void);
