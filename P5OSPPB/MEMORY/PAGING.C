@@ -77,6 +77,7 @@ pageRange* new_page_tree(unsigned int pageCount) {
         
         if(!append_page(new_pr)) {
             
+            prints("Couldn't append to range!\n");
             kfree((void*)new_pr);
             return (pageRange*)0x0;
         }
