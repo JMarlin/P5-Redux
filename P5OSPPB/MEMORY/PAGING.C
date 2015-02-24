@@ -47,9 +47,12 @@ void free_pages(unsigned int physBase, unsigned int size) {
 
 void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
 
+    prints("Entered map_pages\n");
+
     int i = virtBase >> 12;
     int max = i + (size >> 12);
         
+    prints("About to enter mapping loop\n");    
     for( ; i < max; i++, physBase += 0x1000) {   
         
         prints("Mapping virt 0x"); printHexDword(i << 12); prints(" -> phys 0x"); printHexDword(physBase); prints("\n");
