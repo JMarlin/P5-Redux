@@ -45,6 +45,9 @@ _old_err: .int 0x0
 
 _switchToKernel:
 
+    /*kill interrupts*/
+    cli
+
     /* debug breakpoint */
     mov %eax, (0x1000)
 
@@ -175,6 +178,8 @@ _returnToProc:
 
     mov %eax, (0x1000)
 
+    /*interrupts on*/
+    sti
     iret
     
  user:
@@ -208,4 +213,7 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
+    
+    /*interrupts on*/
+    sti
     iret 

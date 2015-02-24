@@ -59,6 +59,7 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         //DEBUG(" -> phys 0x");
         //DEBUG_HD(physBase);
         //DEBUG("\n");
+        //Some day, we'll figure this out. Some day.
         prints("\0");
         
         //Make sure to preserve the page-reserved bit

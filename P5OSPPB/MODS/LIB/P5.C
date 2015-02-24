@@ -1,7 +1,7 @@
 #include "../include/p5.h"
 
 
-void prints(char* s) {
+void pchar(char* s) {
     
     __asm__ volatile (
         "mov $0x01, %%eax \n"
@@ -26,17 +26,20 @@ void terminate(void) {
 }
 
 
-void scans(int c, char* b) {
+unsigned char getch() {
+
+    unsigned int c;
 
     __asm__ volatile (
         "mov $0x02, %%eax \n"
-        "mov %0, %%ebx \n"
-        "mov %1, %%ecx \n"
         "int $0xFF \n"
-        :
-        : "r" (c), "r" (b)
-        : "eax", "ebx", "ecx"
+        "mov %%ebx, %0"
+        : "r" (c)
+        : 
+        : "ebx"
     );
+    
+    return (unsigned char)(c & 0xFF);
 }
 
 
@@ -74,3 +77,32 @@ void nextProc() {
         : "eax"
     );
 }
+
+
+void scans(unsigned int length, char* outstr) {
+    
+    unsigned char temp_char;
+    int index = 0;
+  
+    for(index = 0 ; index < length-1 ; ) {    
+        temp_char = getch();
+
+        if(temp_char != 0) {       
+            outstr[index] = temp_char;
+            pchar(outstr[index]);
+    
+            if(outstr[index] == '\n') {
+                outstr[index] = 0;
+                break;
+            }
+
+            index++;
+            
+            if(index == length-1)
+                pchar('\n');    
+        }
+    }
+    
+    outstr[index+1] = 0;
+}
+

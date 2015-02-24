@@ -89,7 +89,7 @@ void syscall_exec(void) {
         break;
 
         case 2:
-            scans(syscall_param1, (unsigned char*)syscall_param2);
+            p->ctx.ebx = (unsigned int)getch();
         break;
 
         case 3:

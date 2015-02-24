@@ -2,6 +2,7 @@
 #define P5_H
 
 
+unsigned char getch();
 void prints(char* s);
 void terminate(void);
 void scans(int c, char* b);
