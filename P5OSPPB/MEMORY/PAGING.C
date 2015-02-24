@@ -8,7 +8,6 @@ extern void loadPageDirectory(unsigned int*);
 extern void enablePaging();
 unsigned int *pageDirectory = (unsigned int*)0x200000;
 unsigned int *pageTable = (unsigned int*)0x700000;
-unsigned int *pageMap = (unsigned int*)0x300000;
 
 
 void init_page_system() {
@@ -20,7 +19,7 @@ void init_page_system() {
     
         //Set to global access, write-enabled,
         //page present
-        pageDirectory[i] = 0x00000007 + (i * 0x1000);
+        pageDirectory[i] = 0x00700007 + (i * 0x1000);
         
         for(j = 0; j < 1024; j++) {
             
