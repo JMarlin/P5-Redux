@@ -372,7 +372,7 @@ void clearContext(context* ctx) {
 
 process* newProcess() {
     
-    process* p;
+    process* proc;
     int i;
         
     //fast-forward to the next free slot
@@ -381,11 +381,11 @@ process* newProcess() {
     if(i == 256)
         return (process*)0x0;
         
-    p = &(procTable[i]);
+    proc = &(procTable[i]);
     procPtr = (unsigned char)i;
-    p->id = nextProc++;
-    p->root_page = (pageRange*)0x0;    
-    return p;
+    proc->id = nextProc++;
+    proc->root_page = (pageRange*)0x0;    
+    return proc;
 }
 
 
