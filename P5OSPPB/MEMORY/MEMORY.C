@@ -59,7 +59,7 @@ void init_memory() {
 
     //Start of kernel
     rootBlock.base = (void*)0x100000;
-    rootBlock.size = 0x300000;
+    rootBlock.size = 0x200000;
     rootBlock.next = (memblock*)0;
 
     
