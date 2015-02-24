@@ -6,6 +6,7 @@
 #include "../core/util.h"
 #include "../core/expt.h"
 #include "../fs/fs.h"
+#include "../core/global.h"
 
 
 unsigned char fake[6];
