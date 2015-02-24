@@ -484,7 +484,7 @@ int request_new_page(process* proc) {
 
 process* exec_process(unsigned char* path) {
 
-    FILE exeFile;
+    FILE exeFile, exeFile2;
     process* proc;
     char* usrBase = (char*)0xB01000;
     int tmpVal, i;
@@ -528,8 +528,10 @@ process* exec_process(unsigned char* path) {
     //correct locations on physical ram
     apply_page_range(proc->base, proc->root_page);
     
+    //Because we can't rewind or close and reopen the file yet
+    file_open(path, &exeFile2);
     i = 0;
-    while((tmpVal = file_readb(&exeFile)) != EOF)
+    while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
 
     prints("Launching usermode process\n");
