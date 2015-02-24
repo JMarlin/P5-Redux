@@ -19,36 +19,6 @@ int nextProc = 0;
 process* p = (process*)0;
 
 
-void returnToProcess(process* newProcess) {
-
-    p = newProcess();
-
-    //Restore the running context
-    old_esp = newProcess->ctx.esp;
-    old_cr3 = newProcess->ctx.cr3;
-    old_eip = newProcess->ctx.eip;
-    old_eflags = newProcess->ctx.eflags;
-    old_eax = newProcess->ctx.eax;
-    old_ecx = newProcess->ctx.ecx;
-    old_edx = newProcess->ctx.edx;
-    old_ebx = newProcess->ctx.ebx;
-    old_ebp = newProcess->ctx.ebp;
-    old_esi = newProcess->ctx.esi;
-    old_edi = newProcess->ctx.edi;
-    old_es = newProcess->ctx.es;
-    old_cs = newProcess->ctx.cs;
-    old_ss = newProcess->ctx.ss;
-    old_ds = newProcess->ctx.ds;
-    old_fs = newProcess->ctx.fs;
-    old_gs = newProcess->ctx.gs;
-    old_err = newProcess->ctx.err;
-
-    kernelDebug();
-    
-    returnToProc();
-}
-
-
 void kernelDebug(void) {
 
     //Kernel debug, should be moved to its own function
@@ -74,6 +44,36 @@ void kernelDebug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
+}
+
+
+void returnToProcess(process* newProcess) {
+
+    p = newProcess;
+
+    //Restore the running context
+    old_esp = newProcess->ctx.esp;
+    old_cr3 = newProcess->ctx.cr3;
+    old_eip = newProcess->ctx.eip;
+    old_eflags = newProcess->ctx.eflags;
+    old_eax = newProcess->ctx.eax;
+    old_ecx = newProcess->ctx.ecx;
+    old_edx = newProcess->ctx.edx;
+    old_ebx = newProcess->ctx.ebx;
+    old_ebp = newProcess->ctx.ebp;
+    old_esi = newProcess->ctx.esi;
+    old_edi = newProcess->ctx.edi;
+    old_es = newProcess->ctx.es;
+    old_cs = newProcess->ctx.cs;
+    old_ss = newProcess->ctx.ss;
+    old_ds = newProcess->ctx.ds;
+    old_fs = newProcess->ctx.fs;
+    old_gs = newProcess->ctx.gs;
+    old_err = newProcess->ctx.err;
+
+    kernelDebug();
+    
+    returnToProc();
 }
 
 
