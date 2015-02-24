@@ -66,11 +66,8 @@ pageRange* new_page_tree(unsigned int pageCount) {
     int i;
     pageRange* new_pr;
     
-    if(!(new_pr = (pageRange*)kmalloc(sizeof(pageRange)))) {
-        
-        prints("Couldn't allocate a new pageRange node!\n");
-        return (pageRange*)0x0;
-    }
+    if(!(new_pr = (pageRange*)kmalloc(sizeof(pageRange)))) 
+        return (pageRange*)0x0;    
     
     new_pr->base_page = 0;
     new_pr->count = 0; 
@@ -80,7 +77,6 @@ pageRange* new_page_tree(unsigned int pageCount) {
         
         if(!append_page(new_pr)) {
             
-            prints("Couldn't append to range!\n");
             kfree((void*)new_pr);
             return (pageRange*)0x0;
         }

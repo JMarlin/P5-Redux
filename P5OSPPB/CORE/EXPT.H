@@ -10,16 +10,16 @@
 #define EX_ILLEGALOPCODE   6
 #define EX_NOCOPROCESSOR   7
 #define EX_DOUBLEFAULT     8
-#define EX_INVALIDTSS      9
-#define EX_SEGNOTPRESENT  10
-#define EX_STACKFAULT     11
-#define EX_GPF            12
-#define EX_PAGEFAULT      13
-#define EX_MATHFAULT      14
-#define EX_ALIGNCHECK     15
-#define EX_MACHINECHECK   16
-#define EX_SIMDFAILURE    17
-#define EX_SYSCALL        0xFF
+#define EX_INVALIDTSS      0xA
+#define EX_SEGNOTPRESENT   0xB
+#define EX_STACKFAULT      0xC
+#define EX_GPF             0xD
+#define EX_PAGEFAULT       0xE
+#define EX_MATHFAULT       0xF
+#define EX_ALIGNCHECK      0x10
+#define EX_MACHINECHECK    0x11
+#define EX_SIMDFAILURE     0x12
+#define EX_SYSCALL         0xFF
 
 
 extern void expt_zeroDivide(void);
