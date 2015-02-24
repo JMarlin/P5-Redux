@@ -9,7 +9,7 @@ void consVer(void);
 void chPrompt(void);
 void swap(void);
 
-unsigned char prompt[50];
+char prompt[50];
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -58,7 +58,10 @@ void parse(char* cmdbuf) {
 
 void main(void) {
     
-    prompt = "DOS"
+    prompt[0] = 'D';
+    prompt[1] = 'O';
+    prompt[2] = 'S';
+    prompt[3] = 0;
     
     prints("Entered console\n");
     while(1) {

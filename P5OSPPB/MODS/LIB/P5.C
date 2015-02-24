@@ -3,7 +3,7 @@
 
 void pchar(char c) {
     
-    unsigned int pc = (unsigned int)c;
+    unsigned int ec = (unsigned int)c;
     
     __asm__ volatile (
         "mov $0x01, %%eax \n"
@@ -36,7 +36,7 @@ unsigned char getch() {
         "mov $0x02, %%eax \n"
         "int $0xFF \n"
         "mov %%ebx, %0"
-        : "r" (c)
+        : "=r" (c)
         : 
         : "ebx"
     );
