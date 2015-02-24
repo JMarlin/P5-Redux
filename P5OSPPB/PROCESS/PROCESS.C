@@ -71,7 +71,7 @@ void returnToProcess(process* newProcess) {
     old_gs = newProcess->ctx.gs;
     old_err = newProcess->ctx.err;
 
-    kernelDebug();
+    //kernelDebug();
     
     returnToProc();
 }
