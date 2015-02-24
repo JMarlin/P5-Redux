@@ -39,8 +39,10 @@ void free_pages(unsigned int physBase, unsigned int size) {
     //the supervisor should always have its pages in
     //memory, so if both of these are set then
     //we know that this page is a deactivated user page
-    for( ; i < max; i++) {    
-        pageTable[i] &= 0xFFFFF7FA;
+    for( ; i < max; i++) {
+    
+        //Make sure to preserve the page-reserved bit
+        pageTable[i] &= 0x00000E00;
     }
 }
 
