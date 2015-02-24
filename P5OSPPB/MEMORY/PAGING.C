@@ -49,15 +49,12 @@ void free_pages(unsigned int physBase, unsigned int size) {
 
 void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
 
-    prints("Entered map_pages\n");
-
     int i = virtBase >> 12;
     int max = i + (size >> 12);
-        
-    prints("About to enter mapping loop\n");    
+           
     for( ; i < max; i++, physBase += 0x1000) {   
         
-        prints("Mapping virt 0x"); printHexDword(i << 12); prints(" -> phys 0x"); printHexDword(physBase); prints("\n");
+        DEBUG("Mapping virt 0x"); DEBUG_HD(i << 12); DEBUG(" -> phys 0x"); DEBUG_HD(physBase); prints("\n");
         
         //Make sure to preserve the page-reserved bit
         pageTable[i] &= 0x00000E00;
@@ -119,7 +116,6 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
     //Iterate through 
     while(pr_current) {
     
-        prints("   MAP: ");
         map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, 7);   
         v_addr += (pr_current->count << 12);
         pr_current = pr_current->next;

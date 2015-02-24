@@ -54,8 +54,8 @@ void returnToProcess(process* newProcess) {
     if(p) disable_page_range(p->root_page);
 
     p = newProcess;
-    prints("Entering process #"); printHexDword(p->id); prints("\n");
-    prints("Applying process paging:\n");
+    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
+    DEBUG("Applying process paging:\n");
     apply_page_range(p->base, p->root_page);
     
     //Restore the running context
