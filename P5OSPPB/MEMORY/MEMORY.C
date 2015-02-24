@@ -62,7 +62,7 @@ void init_memory() {
     rootBlock.size = 0x300000;
     rootBlock.next = (memblock*)0;
 
-    /*
+    
     //testRAM();
     prints("Top of RAM: 0x");
     printHexDword(maxRAM);
@@ -102,7 +102,7 @@ void init_memory() {
     }
 
     //printChain();         
-    */    
+    
 }
 
 
