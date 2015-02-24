@@ -50,6 +50,8 @@ void kernelDebug(void) {
 
 void returnToProcess(process* newProcess) {
 
+    prints("Entering process #"); printHexDword(newProcess->id); prints("\n");
+
     //Turn off the page mapping of the last process
     if(p) disable_page_range(p->root_page);
 
