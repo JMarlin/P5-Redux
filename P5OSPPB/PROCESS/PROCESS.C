@@ -50,34 +50,33 @@ void kernelDebug(void) {
 
 void returnToProcess(process* newProcess) {
 
-    prints("Entering process #"); printHexDword(newProcess->id); prints("\n");
-
     //Turn off the page mapping of the last process
     if(p) disable_page_range(p->root_page);
 
     p = newProcess;
+    prints("Entering process #"); printHexDword(p->id); prints("\n");
     prints("Applying process paging:\n");
     apply_page_range(p->base, p->root_page);
     
     //Restore the running context
-    old_esp = newProcess->ctx.esp;
-    old_cr3 = newProcess->ctx.cr3;
-    old_eip = newProcess->ctx.eip;
-    old_eflags = newProcess->ctx.eflags;
-    old_eax = newProcess->ctx.eax;
-    old_ecx = newProcess->ctx.ecx;
-    old_edx = newProcess->ctx.edx;
-    old_ebx = newProcess->ctx.ebx;
-    old_ebp = newProcess->ctx.ebp;
-    old_esi = newProcess->ctx.esi;
-    old_edi = newProcess->ctx.edi;
-    old_es = newProcess->ctx.es;
-    old_cs = newProcess->ctx.cs;
-    old_ss = newProcess->ctx.ss;
-    old_ds = newProcess->ctx.ds;
-    old_fs = newProcess->ctx.fs;
-    old_gs = newProcess->ctx.gs;
-    old_err = newProcess->ctx.err;
+    old_esp = p->ctx.esp;
+    old_cr3 = p->ctx.cr3;
+    old_eip = p->ctx.eip;
+    old_eflags = p->ctx.eflags;
+    old_eax = p->ctx.eax;
+    old_ecx = p->ctx.ecx;
+    old_edx = p->ctx.edx;
+    old_ebx = p->ctx.ebx;
+    old_ebp = p->ctx.ebp;
+    old_esi = p->ctx.esi;
+    old_edi = p->ctx.edi;
+    old_es = p->ctx.es;
+    old_cs = p->ctx.cs;
+    old_ss = p->ctx.ss;
+    old_ds = p->ctx.ds;
+    old_fs = p->ctx.fs;
+    old_gs = p->ctx.gs;
+    old_err = p->ctx.err;
 
     //kernelDebug();
     
