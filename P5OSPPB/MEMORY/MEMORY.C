@@ -183,7 +183,7 @@ void* kmalloc(unsigned int size) {
 
     //This needs to be fixed when we start playing with
     //actual packages as allocations will clobber the packages
-    void* rambase = (void*)(0x002029A0); //User RAM starts at 1MB
+    void* rambase = (void*)(0x00300000); //User RAM starts at 3MB
 
     while(1) {
                 
