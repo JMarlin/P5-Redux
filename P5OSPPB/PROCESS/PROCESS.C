@@ -50,6 +50,9 @@ void kernelDebug(void) {
 
 void returnToProcess(process* newProcess) {
 
+    //Turn off the page mapping of the last process
+    if(p) disable_page_range(p->root_page);
+
     p = newProcess;
     prints("Applying process paging:\n");
     apply_page_range(p->base, p->root_page);
@@ -378,6 +381,7 @@ process* newProcess() {
         return (process*)0x0;
         
     p = &(procTable[i]);
+    procPtr = (unsigned char)i;
     p->id = nextProc++;
     p->root_page = (pageRange*)0x0;    
     return p;
@@ -444,9 +448,6 @@ void setProcEntry(process* p, void* entryPoint) {
 
 
 void startProc(process* proc) {
-
-    //Turn off the page mapping of the last process
-    if(p) disable_page_range(p->root_page);
 
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
@@ -546,6 +547,5 @@ void next_process() {
     //in the list
     for(procPtr++; (!procTable[procPtr].id); procPtr++);
         
-    p = &procTable[procPtr];
-    returnToProcess(p);
+    returnToProcess(&procTable[procPtr]);
 }
