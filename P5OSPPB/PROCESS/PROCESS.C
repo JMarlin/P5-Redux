@@ -16,10 +16,12 @@ process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 
 //We'll ACTUALLY use this in the future
-process* p;
+process* p = (process*)0;
 
 
 void returnToProcess(process* newProcess) {
+
+    p = newProcess();
 
     //Restore the running context
     old_esp = newProcess->ctx.esp;
@@ -41,6 +43,8 @@ void returnToProcess(process* newProcess) {
     old_gs = newProcess->ctx.gs;
     old_err = newProcess->ctx.err;
 
+    kernelDebug();
+    
     returnToProc();
 }
 
