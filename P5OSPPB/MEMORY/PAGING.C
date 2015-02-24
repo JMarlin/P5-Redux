@@ -52,7 +52,7 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         
     for( ; i < max; i++, physBase += 0x1000) {   
         
-        prints("Mapping phys 0x"); printHexDword(i << 12); prints(" -> virt 0x"); printHexDword(physBase); prints("\n");
+        prints("Mapping virt 0x"); printHexDword(i << 12); prints(" -> phys 0x"); printHexDword(physBase); prints("\n");
         
         //Make sure to preserve the page-reserved bit
         pageTable[i] &= 0x00000E00;

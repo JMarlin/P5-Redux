@@ -51,7 +51,9 @@ void kernelDebug(void) {
 void returnToProcess(process* newProcess) {
 
     p = newProcess;
-
+    prints("Applying process paging:\n");
+    apply_page_range(p->base, p->root_page);
+    
     //Restore the running context
     old_esp = newProcess->ctx.esp;
     old_cr3 = newProcess->ctx.cr3;
@@ -448,9 +450,6 @@ void startProc(process* proc) {
 
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
-    p = proc;
-    prints("Applying process paging:\n");
-    apply_page_range(p->base, p->root_page);
     returnToProcess(p);
     return;
 }
