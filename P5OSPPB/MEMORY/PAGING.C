@@ -106,6 +106,9 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
     
     v_addr = vBase;
     
+    if(!pr_current)
+        prints("    PAGE TREE IS EMPTY!\n");
+    
     //Iterate through 
     while(pr_current) {
     
