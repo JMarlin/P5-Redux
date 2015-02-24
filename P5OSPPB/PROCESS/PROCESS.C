@@ -453,7 +453,7 @@ void startProc(process* proc) {
 
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
-    returnToProcess(p);
+    returnToProcess(proc);
     return;
 }
 
