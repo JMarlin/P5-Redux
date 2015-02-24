@@ -54,7 +54,7 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
            
     for( ; i < max; i++, physBase += 0x1000) {   
         
-        DEBUG("Mapping virt 0x"); DEBUG_HD(i << 12); DEBUG(" -> phys 0x"); DEBUG_HD(physBase); prints("\n");
+        DEBUG("Mapping virt 0x"); DEBUG_HD(i << 12); DEBUG(" -> phys 0x"); DEBUG_HD(physBase); DEBUG("\n");
         
         //Make sure to preserve the page-reserved bit
         pageTable[i] &= 0x00000E00;
