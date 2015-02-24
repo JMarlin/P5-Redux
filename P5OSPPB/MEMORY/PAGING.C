@@ -109,6 +109,7 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
     //Iterate through 
     while(pr_current) {
     
+        prints("   MAP: ");
         map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, 7);   
         v_addr += (pr_current->count << 12);
         pr_current = pr_current->next;
