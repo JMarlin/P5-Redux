@@ -124,18 +124,18 @@ memblock* nextMBByAddress(void* baseAddr) {
     int blockFound = 0;
 
     while(1) {
-        DEBUG("Checking address "); DEBUG_HD((unsigned long)baseAddr);
-        DEBUG(" against block "); DEBUG_HD((unsigned long)nextBlock->base);
-        DEBUG("-"); DEBUG_HD((unsigned long)nextBlock->base + nextBlock->size);
-        DEBUG("...");
+        //DEBUG("Checking address "); //DEBUG_HD((unsigned long)baseAddr);
+        //DEBUG(" against block "); //DEBUG_HD((unsigned long)nextBlock->base);
+        //DEBUG("-"); //DEBUG_HD((unsigned long)nextBlock->base + nextBlock->size);
+        //DEBUG("...");
         
         if(nextBlock->base >= baseAddr && nextBlock->base < nextBase) {
             returnBlock = nextBlock;
             nextBase = returnBlock->base;
             blockFound = 1;
-            DEBUG("match.\n");
+            //DEBUG("match.\n");
         } else {
-            DEBUG("no match.\n");
+            //DEBUG("no match.\n");
         }
 
         if(nextBlock->next)
@@ -211,21 +211,21 @@ void* kfree(void* base) {
     memblock* prevBlock = &rootBlock;
     void* realBase = base - sizeof(memblock);
 
-    DEBUG("Free base: "); DEBUG_HD((unsigned long)base);
-    DEBUG("\nReal base: "); DEBUG_HD((unsigned long)realBase);
-    DEBUG("\n");
+    //DEBUG("Free base: "); //DEBUG_HD((unsigned long)base);
+    //DEBUG("\nReal base: "); //DEBUG_HD((unsigned long)realBase);
+    //DEBUG("\n");
 
     while(1) {
-        DEBUG("   Matches ");
-        DEBUG_HD((unsigned long)nextBlock->base);
-        DEBUG("?...");
+        //DEBUG("   Matches ");
+        //DEBUG_HD((unsigned long)nextBlock->base);
+        //DEBUG("?...");
         
         if(nextBlock->base == realBase) {
-            DEBUG("yes\n");
+            //DEBUG("yes\n");
             prevBlock->next = nextBlock->next;                                
             return (void*)0;
         } else {
-            DEBUG("no\n");
+            //DEBUG("no\n");
         }
         
         if(nextBlock->next) {
