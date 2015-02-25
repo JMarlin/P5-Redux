@@ -47,7 +47,9 @@ void syscall_exec(void) {
     int i, j, o, row;
     unsigned char fake[10];
     
-    prints("About to execute a syscall\n");
+    prints("About to execute syscall #0x");
+    printHexDword(syscall_number);
+    prints("...\n");
     scans(5, fake);
     
     switch(syscall_number) {
@@ -114,6 +116,8 @@ void syscall_exec(void) {
         break;
                 
         default:
+            prints("Unknown syscall");
+            while(1);
         break;
     }
 }
