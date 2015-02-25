@@ -25,5 +25,7 @@ INPUT(
     block.o
     ramfs.o
     ramdisk.o
+    timer.o
+    timers.o
 )
 

@@ -16,6 +16,7 @@ int intVect = 0;
 process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 unsigned char procPtr = 0;
+unsigned int t_count = 0;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
@@ -345,6 +346,18 @@ void kernelEntry(void) {
             syscall_exec();
             break;
 
+        case EX_TIMER:
+            t_count++;
+            
+            //This happens roughly once a ms, so 
+            //we should get a tick every second-ish
+            if(t_count == 1000) {
+            
+                prints("\nTICK!\n");
+                t_count = 0;
+            }
+            break;
+            
         default:
             prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
             while(1);

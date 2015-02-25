@@ -15,6 +15,7 @@
 #include "../fs/ramfs.h"
 #include "../block/block.h"
 #include "../block/ramdisk.h"
+#include "../timer/timer.h"
 
 
 extern long pkgoffset;
@@ -62,6 +63,8 @@ int main(void) {
     init_memory();        
     setupKeyTable();
     startProcessManagement();
+    init_timer();
+    timer_on();
     prints("WELCOME TO P5\n");
 
     //ksize = (unsigned int*)0x100005;

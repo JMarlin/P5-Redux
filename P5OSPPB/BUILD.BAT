@@ -56,6 +56,11 @@ echo Starting fs build...
 gcc -c -o ..\build\fs.o fs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 gcc -c -o ..\build\ramfs.o ramfs.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
+cd ..\timer
+echo Starting timer build...
+gcc -c -o ..\build\timer.o timer.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+as -o ..\build\timers.o timer.s
+
 cd ..\build
 echo Linking binary
 ld -o ..\bin\p5kern.bin -T ..\lscpt.lds ..\files

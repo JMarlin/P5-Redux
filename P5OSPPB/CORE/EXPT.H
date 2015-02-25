@@ -19,6 +19,7 @@
 #define EX_ALIGNCHECK      0x10
 #define EX_MACHINECHECK    0x11
 #define EX_SIMDFAILURE     0x12
+#define EX_TIMER           0xEF
 #define EX_SYSCALL         0xFF
 
 
