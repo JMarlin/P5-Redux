@@ -45,13 +45,7 @@ void syscall_exec(void) {
     unsigned char* vram = (unsigned char*)0xA0000;
     unsigned char* buf = (unsigned char*)0x50000;
     int i, j, o, row;
-    unsigned char fake[10];
-    
-    prints("About to execute syscall #0x");
-    printHexDword(syscall_number);
-    prints("...\n");
-    scans(5, fake);
-    
+        
     switch(syscall_number) {
 
         case 0:
@@ -91,10 +85,7 @@ void syscall_exec(void) {
         break;
 
         case 1:
-            prints("Printing character \n");
-            scans(5, fake);
             pchar((unsigned char)(syscall_param1 & 0xFF));
-            scans(5, fake);
         break;
 
         case 2:
@@ -118,8 +109,6 @@ void syscall_exec(void) {
         break;
                 
         default:
-            prints("Unknown syscall");
-            while(1);
         break;
     }
 }
