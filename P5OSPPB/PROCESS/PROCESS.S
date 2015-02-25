@@ -89,13 +89,26 @@ _switchToKernel:
     /* NOTE: for now, we're only going to */
     /* check for gpf */
     mov _except_num, %eax 
+    cmp $0x8, %eax
+    je pop_err
+    cmp $0xA, %eax
+    je pop_err
+    cmp $0xB, %eax
+    je pop_err
+    cmp $0xC, %eax
+    je pop_err
     cmp $0xD, %eax
-    je no_err
+    je pop_err
+    cmp $0x11, %eax
+    je pop_err
+    jmp res_kentry
     
+ pop_err:   
     pop %eax
     mov %eax, _old_err
-
- no_err:
+    jmp res_kentry
+    
+ res_kenry:
     pop %eax
     mov %eax, _old_eip
     pop %eax
