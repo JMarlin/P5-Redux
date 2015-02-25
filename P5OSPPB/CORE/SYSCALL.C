@@ -45,7 +45,11 @@ void syscall_exec(void) {
     unsigned char* vram = (unsigned char*)0xA0000;
     unsigned char* buf = (unsigned char*)0x50000;
     int i, j, o, row;
-
+    unsigned char fake[10];
+    
+    prints("About to execute a syscall\n");
+    scans(5, fake);
+    
     switch(syscall_number) {
 
         case 0:
