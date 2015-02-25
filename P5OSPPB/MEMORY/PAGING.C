@@ -98,7 +98,7 @@ pageRange* new_page_tree(unsigned int pageCount) {
 void del_page_tree(pageRange* root_page) {
 
     int i = 0;
-    int j;
+    int j, count;
     pageRange* current_pr = root_page;
     pageRange* last_pr;
     
@@ -108,8 +108,10 @@ void del_page_tree(pageRange* root_page) {
         i++;
     }
     
+    count = i;
+    
     for(i = 0; i < count; i++) {        
-        current_pr = root_page
+        current_pr = root_page;
         last_pr = (pageRange*)0;
           
         while(current_pr->next) {
@@ -117,11 +119,11 @@ void del_page_tree(pageRange* root_page) {
             current_pr = current_pr->next;
         }
         
-        for(j = pr_current->base_page; j < pr_current->base_page + pr_current->count; j++)
+        for(j = current_pr->base_page; j < current_pr->base_page + current_pr->count; j++)
             pageTable[j] &= 0xFFFFF7FF;
         
         if(last_pr) last_pr->next = (pageRange*)0;
-        kfree((void*)current_pr)
+        kfree((void*)current_pr);
     }
 }
 
