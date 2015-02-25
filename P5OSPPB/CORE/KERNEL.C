@@ -34,7 +34,8 @@ int main(void) {
     unsigned char listBuf[256];
     int tempCh = 0;
     
-
+    __asm__ ("sti");
+    
     initScreen();
     setColor(0x1F);
     clear();
