@@ -32,6 +32,16 @@ void timer_int_ack() {
 }
 
 
+void genericIRQ(void) {
+
+    __asm__ ("cli");
+    prints("ONE OF THE IRQS!");
+    __asm__ ("sti");
+
+    while(1);
+}
+
+
 void init_pic() {
     
     //Some of this IO may need delays to wait for the PIC
@@ -73,5 +83,22 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
+    installInterrupt(TIMER_INT_NUM, &timer_handler, 3);
+    
+    //Debug
+    installInterrupt(0xF0, &genericIRQ, 3);
+    installInterrupt(0xF1, &genericIRQ, 3);
+    installInterrupt(0xF2, &genericIRQ, 3);
+    installInterrupt(0xF3, &genericIRQ, 3);
+    installInterrupt(0xF4, &genericIRQ, 3);
+    installInterrupt(0xF5, &genericIRQ, 3);
+    installInterrupt(0xF6, &genericIRQ, 3);
+    installInterrupt(0xF7, &genericIRQ, 3);
+    installInterrupt(0xF8, &genericIRQ, 3);
+    installInterrupt(0xF9, &genericIRQ, 3);
+    installInterrupt(0xFA, &genericIRQ, 3);
+    installInterrupt(0xFB, &genericIRQ, 3);
+    installInterrupt(0xFC, &genericIRQ, 3);
+    installInterrupt(0xFD, &genericIRQ, 3);
+    installInterrupt(0xFE, &genericIRQ, 3);
 }
