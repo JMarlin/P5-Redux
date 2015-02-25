@@ -85,25 +85,24 @@ _switchToKernel:
     /* we need to pop the error code or not */
     /* NOTE: for now, we're only going to */
     /* check for gpf */
-    mov _except_num, %eax 
-    cmp $0x8, %eax
+    mov _except_num, %ax 
+    cmp $0x8, %ax
     je pop_err
-    cmp $0xA, %eax
+    cmp $0xA, %ax
     je pop_err
-    cmp $0xB, %eax
+    cmp $0xB, %ax
     je pop_err
-    cmp $0xC, %eax
+    cmp $0xC, %ax
     je pop_err
-    cmp $0xD, %eax
+    cmp $0xD, %ax
     je pop_err
-    cmp $0x11, %eax
+    cmp $0x11, %ax
     je pop_err
     jmp res_kentry
     
  pop_err:   
     pop %eax
     mov %eax, _old_err
-    jmp res_kentry
     
  res_kentry:
     pop %eax
