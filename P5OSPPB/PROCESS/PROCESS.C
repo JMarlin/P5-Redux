@@ -7,6 +7,7 @@
 #include "../core/expt.h"
 #include "../fs/fs.h"
 #include "../core/global.h"
+#include "../timer/timer.h"
 
 
 unsigned char fake[6];
@@ -356,6 +357,7 @@ void kernelEntry(void) {
                 prints("\nTICK!\n");
                 t_count = 0;
             }
+            timer_int_ack();
             break;
             
         default:
