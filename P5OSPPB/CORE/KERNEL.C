@@ -34,7 +34,7 @@ int main(void) {
     unsigned char listBuf[256];
     int tempCh = 0;
     
-    __asm__ ("sti");
+    __asm__ ("cli");
     
     initScreen();
     setColor(0x1F);
@@ -153,7 +153,8 @@ int main(void) {
     
     while((tempCh = file_readb(&hellofile)) != EOF)    
         pchar((char)tempCh);
-     
+    
+    __asm__ ("sti");    
     exec_process(":usr.mod");
 
     while(1);
