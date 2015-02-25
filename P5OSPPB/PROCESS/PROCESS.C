@@ -56,7 +56,6 @@ void returnToProcess(process* newProcess) {
     //Turn off the page mapping of the last process
     if(p) disable_page_range(p->base, p->root_page);
     prints("Previous process de-paged\n");
-    kernelDebug();
     scans(5, fake);
 
     p = newProcess;
