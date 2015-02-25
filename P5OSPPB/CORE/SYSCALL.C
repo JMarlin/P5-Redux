@@ -91,8 +91,10 @@ void syscall_exec(void) {
         break;
 
         case 1:
-            prints("Printing character\n");
+            prints("Printing character \n");
+            scans(5, fake);
             pchar((unsigned char)(syscall_param1 & 0xFF));
+            scans(5, fake);
         break;
 
         case 2:
