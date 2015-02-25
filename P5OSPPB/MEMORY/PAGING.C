@@ -42,7 +42,7 @@ void free_pages(unsigned int physBase, unsigned int size) {
     for( ; i < max; i++) {
     
         //Make sure to preserve the page-reserved bit
-        pageTable[i] &= 0x00000E00;
+        pageTable[i] &= 0x00000802;
     }
 }
 
@@ -64,7 +64,7 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         prints("\0");
         
         //Make sure to preserve the page-reserved bit
-        pageTable[i] &= 0x00000E00;
+        pageTable[i] &= 0x00000800;
         pageTable[i] |= (physBase & 0xFFFFF000) | (flags & 0x1FF);
     }
 }
@@ -136,9 +136,9 @@ void disable_page_range(unsigned int vBase, pageRange* pr_base) {
     //Iterate through 
     while(pr_current) {
     
-        free_pages(pr_current->base_page << 12, pr_current->count << 12);  
-        //free_pages(vPage, pr_current->count << 12);  
-        //vPage += pr_current->count; 
+        //free_pages(pr_current->base_page << 12, pr_current->count << 12);  
+        free_pages(vPage, pr_current->count << 12);  
+        vPage += pr_current->count; 
         pr_current = pr_current->next;
     }
     
