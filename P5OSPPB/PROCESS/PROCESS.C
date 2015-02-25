@@ -348,15 +348,15 @@ void kernelEntry(void) {
             break;
 
         case EX_TIMER:
-            t_count++;
+            //t_count++;
             
             //This happens roughly once a ms, so 
             //we should get a tick every second-ish
-            if(t_count == 1000) {
+            //if(t_count == 1000) {
             
                 prints("\nTICK!\n");
-                t_count = 0;
-            }
+            //    t_count = 0;
+            //}
             timer_int_ack();
             break;
             
