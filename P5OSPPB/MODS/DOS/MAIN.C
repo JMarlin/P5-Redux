@@ -8,8 +8,10 @@ void usrClear(void);
 void consVer(void);
 void chPrompt(void);
 void swap(void);
+void quit(void);
 
 char prompt[50];
+char strBuf[255];
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -20,14 +22,16 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "PROMPT",
-    "SWITCH"
+    "SWITCH",
+    "EXIT"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&chPrompt,
-    (sys_command)&swap
+    (sys_command)&swap,
+    (sys_command)&quit
 };
 
 char inbuf[50];
@@ -111,4 +115,10 @@ void chPrompt() {
 void swap(void) {
 
     nextProc();
+}
+
+
+void quit(void) {
+
+    endProc();
 }

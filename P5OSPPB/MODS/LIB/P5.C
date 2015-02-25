@@ -81,6 +81,18 @@ void nextProc() {
 }
 
 
+void endProc() {
+
+    __asm__ volatile (
+        "mov $0x06, %%eax \n"
+        "int $0xFF \n"
+        :
+        :
+        : "eax"
+    );
+}
+
+
 void scans(int c, char* b) {
     
     unsigned char temp_char;

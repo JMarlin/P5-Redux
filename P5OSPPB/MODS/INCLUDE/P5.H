@@ -10,6 +10,7 @@ void scans(int c, char* b);
 void clearScreen();
 void startProc();
 void nextProc();
+void endProc();
 
 
 #endif //P5_H

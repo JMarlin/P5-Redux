@@ -95,14 +95,47 @@ pageRange* new_page_tree(unsigned int pageCount) {
 }
 
 
-void disable_page_range(pageRange* pr_base) {
+void del_page_tree(pageRange* root_page) {
+
+    int i = 0;
+    int j;
+    pageRange* current_pr = root_page;
+    pageRange* last_pr;
+    
+    while(current_pr) {
+    
+        current_pr = current_pr->next;
+        i++;
+    }
+    
+    for(i = 0; i < count; i++) {        
+        current_pr = root_page
+        last_pr = (pageRange*)0;
+          
+        while(current_pr->next) {
+            last_pr = current_pr;
+            current_pr = current_pr->next;
+        }
+        
+        for(j = pr_current->base_page; j < pr_current->base_page + pr_current->count; j++)
+            pageTable[j] &= 0xFFFFF7FF;
+        
+        if(last_pr) last_pr->next = (pageRange*)0;
+        kfree((void*)current_pr)
+    }
+}
+
+
+void disable_page_range(unsigned int vBase, pageRange* pr_base) {
 
     pageRange* pr_current = pr_base;    
+    unsigned int vPage = vBase << 12;
     
     //Iterate through 
     while(pr_current) {
     
-        free_pages(pr_current->base_page << 12, pr_current->count << 12);  
+        free_pages(vPage, pr_current->count << 12);  
+        vPage += pr_current->count; 
         pr_current = pr_current->next;
     }
     

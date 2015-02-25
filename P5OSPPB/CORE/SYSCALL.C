@@ -104,6 +104,10 @@ void syscall_exec(void) {
             next_process();
         break;
         
+        case 6:
+            endProc(p);
+        break;
+                
         default:
         break;
     }

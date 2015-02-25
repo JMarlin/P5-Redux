@@ -70,7 +70,7 @@ typedef struct process {
 process* p;
 
 void startProcessManagement();
-void terminateProcess(proc* proc);
+void endProc(proc* proc);
 void kernelEntry(void);
 process* newUserProc();
 //process* newV86Proc();

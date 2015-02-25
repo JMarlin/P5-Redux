@@ -52,7 +52,7 @@ void kernelDebug(void) {
 void returnToProcess(process* newProcess) {
 
     //Turn off the page mapping of the last process
-    if(p) disable_page_range(p->root_page);
+    if(p) disable_page_range(0xB00000, p->root_page);
 
     p = newProcess;
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
@@ -354,10 +354,13 @@ void kernelEntry(void) {
 }
 
 
-void terminateProcess(proc* p) {
+void endProc(process* proc) {
 
-    //This is just some bullshit 'go back to console' placeholder
-    sys_console();
+    disable_page_range(0xB00000, proc->page_root);
+    del_page_tree(proc->page_root);
+    proc->page_root = (pageRange*)0;
+    proc->id = 0;    
+    next_process();
 }
 
 
