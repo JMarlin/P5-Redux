@@ -49,7 +49,7 @@ _switchToKernel:
     cli
 
     /* debug breakpoint */
-    mov %eax, (0x1000)
+    /* mov %eax, (0x1000) */
 
 
     /* setup a quick temp ds for var access */
@@ -135,7 +135,7 @@ _switchToKernel:
 _returnToProc:
 
     /* debug breakpoint */
-    mov %eax, (0x1001)
+    /* mov %eax, (0x1001) */
 
     mov _old_eflags, %eax
     and $0x20000, %eax
