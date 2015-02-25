@@ -128,7 +128,7 @@ void del_page_tree(pageRange* root_page) {
 void disable_page_range(unsigned int vBase, pageRange* pr_base) {
 
     pageRange* pr_current = pr_base;    
-    unsigned int vPage = vBase << 12;
+    unsigned int vPage = vBase >> 12;
     
     //Iterate through 
     while(pr_current) {
