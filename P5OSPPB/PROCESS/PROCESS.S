@@ -108,7 +108,7 @@ _switchToKernel:
     mov %eax, _old_err
     jmp res_kentry
     
- res_kenry:
+ res_kentry:
     pop %eax
     mov %eax, _old_eip
     pop %eax
