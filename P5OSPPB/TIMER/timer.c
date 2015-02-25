@@ -6,14 +6,14 @@
 void timer_on() {
     
     //Clear IRQ 0 mask
-    outb(PIC1_DATA, inb(PIC1_DATA) & 0x7F);
+    outb(PIC1_DATA, inb(PIC1_DATA) & 0xFE);
 }
 
 
 void timer_off() {
     
     //Mask IRQ 0
-    outb(PIC1_DATA, inb(PIC1_DATA) | 0x80);
+    outb(PIC1_DATA, inb(PIC1_DATA) | 0x01);
 }
 
 
