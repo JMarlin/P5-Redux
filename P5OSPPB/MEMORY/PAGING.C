@@ -136,7 +136,7 @@ void disable_page_range(unsigned int vBase, pageRange* pr_base) {
     //Iterate through 
     while(pr_current) {
     
-        free_pages(pr_current->base << 12, pr_current->count << 12);  
+        free_pages(pr_current->base_page << 12, pr_current->count << 12);  
         //free_pages(vPage, pr_current->count << 12);  
         //vPage += pr_current->count; 
         pr_current = pr_current->next;
