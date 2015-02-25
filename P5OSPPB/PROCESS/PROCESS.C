@@ -319,13 +319,6 @@ void kernelEntry(void) {
     p->ctx.fs = old_fs;
     p->ctx.gs = old_gs;
     p->ctx.err = old_err;
-
-    /*TEMP*/
-    insPtr = (char*)p->ctx.eip;
-    prints("\n");
-    kernelDebug();
-    scans(5, fake);
-    /*TEMP*/
     
     switch(except_num) {
 
