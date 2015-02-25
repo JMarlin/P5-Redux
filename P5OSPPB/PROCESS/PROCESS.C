@@ -52,7 +52,7 @@ void kernelDebug(void) {
 void returnToProcess(process* newProcess) {
 
     //Turn off the page mapping of the last process
-    if(p) disable_page_range(0xB00000, p->root_page);
+    if(p) disable_page_range(p->base, p->root_page);
 
     p = newProcess;
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
@@ -319,6 +319,13 @@ void kernelEntry(void) {
     p->ctx.gs = old_gs;
     p->ctx.err = old_err;
 
+    /*TEMP*/
+    insPtr = (char*)p->ctx.eip;
+    prints("\n");
+    kernelDebug();
+    scans(5, fake);
+    /*TEMP*/
+    
     switch(except_num) {
 
         case EX_GPF:
