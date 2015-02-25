@@ -356,9 +356,9 @@ void kernelEntry(void) {
 
 void endProc(process* proc) {
 
-    disable_page_range(0xB00000, proc->page_root);
-    del_page_tree(proc->page_root);
-    proc->page_root = (pageRange*)0;
+    disable_page_range(0xB00000, proc->root_page);
+    del_page_tree(proc->root_page);
+    proc->root_page = (pageRange*)0;
     proc->id = 0;    
     next_process();
 }
