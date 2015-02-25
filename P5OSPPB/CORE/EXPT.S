@@ -88,7 +88,7 @@ _expt_doubleFault:
 .globl _expt_invalidTSS
 _expt_invalidTSS: 
     push %eax 
-    mov $9, %al
+    mov $10, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -97,7 +97,7 @@ _expt_invalidTSS:
 .globl _expt_segNotPresent
 _expt_segNotPresent: 
     push %eax 
-    mov $10, %al
+    mov $11, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -106,7 +106,7 @@ _expt_segNotPresent:
 .globl _expt_stackFault
 _expt_stackFault: 
     push %eax 
-    mov $11, %al
+    mov $12, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -115,7 +115,7 @@ _expt_stackFault:
 .globl _expt_generalProtection
 _expt_generalProtection: 
     push %eax 
-    mov $12, %al
+    mov $13, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -124,7 +124,7 @@ _expt_generalProtection:
 .globl _expt_pageFault
 _expt_pageFault: 
     push %eax 
-    mov $13, %al
+    mov $14, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -133,7 +133,7 @@ _expt_pageFault:
 .globl _expt_mathFault
 _expt_mathFault: 
     push %eax 
-    mov $14, %al
+    mov $16, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -142,7 +142,7 @@ _expt_mathFault:
 .globl _expt_alignCheck
 _expt_alignCheck: 
     push %eax 
-    mov $15, %al
+    mov $17, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -151,7 +151,7 @@ _expt_alignCheck:
 .globl _expt_machineCheck
 _expt_machineCheck: 
     push %eax 
-    mov $16, %al
+    mov $18, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
@@ -160,7 +160,7 @@ _expt_machineCheck:
 .globl _expt_simdFailure
 _expt_simdFailure: 
     push %eax 
-    mov $17, %al
+    mov $19, %al
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
