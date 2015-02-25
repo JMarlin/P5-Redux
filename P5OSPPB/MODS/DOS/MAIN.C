@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 4 
+#define CMD_COUNT 5
 
 
 //Function declarations
