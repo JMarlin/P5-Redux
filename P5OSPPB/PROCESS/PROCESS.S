@@ -81,6 +81,11 @@ _switchToKernel:
     mov %edi, %eax
     mov %eax, _old_edi
     
+    /* Discard the calling entry point's return */
+    /* address from the top of the stack. We    */
+    /* won't be going back that way             */
+    pop %eax
+    
     /* check the interrupt number to see if */
     /* we need to pop the error code or not */
     /* NOTE: for now, we're only going to */
