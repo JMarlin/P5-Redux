@@ -6,6 +6,10 @@ _except_num:
 
 .globl _expt_zeroDivide
 _expt_zeroDivide: 
+    
+    /*kill interrupts*/
+    cli
+    
     push %eax 
     mov $0, %al
     mov %al, _except_num
