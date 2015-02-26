@@ -35,6 +35,12 @@ void timer_int_ack() {
 }
 
 
+void c_spurious_handler {
+
+    prints("SPURIOUS INTERRUPT\n");
+}
+
+
 void c_timer_handler() {
 
     t_counter++;
@@ -103,4 +109,5 @@ void init_timer() {
     init_pic();
     init_time_chip(1000);
     installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
+    installInterrupt(0xE7, &spurious_handler, 0);
 }
