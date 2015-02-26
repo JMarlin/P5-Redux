@@ -154,7 +154,7 @@ int main(void) {
     while((tempCh = file_readb(&hellofile)) != EOF)    
         pchar((char)tempCh);
     
-    __asm__ ("sti");    
+    __asm__ ("sti");
     exec_process(":usr.mod");
 
     while(1);

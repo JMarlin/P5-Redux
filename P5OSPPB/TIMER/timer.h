@@ -13,6 +13,7 @@ void timer_on();
 void timer_off();
 void init_timer();
 void timer_int_ack();
+void c_timer_handler();
 
 extern void timer_handler(void);
 

@@ -32,6 +32,13 @@ void timer_int_ack() {
 }
 
 
+void c_timer_handler() {
+
+    prints("\nTICK!\n");
+    timer_int_ack();
+}
+
+
 void init_pic() {
     
     //Some of this IO may need delays to wait for the PIC

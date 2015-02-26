@@ -194,7 +194,7 @@ _returnToProc:
     mov %eax, (0x1000)
 
     /*interrupts on*/
-    sti
+    /*sti*/
     iret
     
  user:
@@ -230,5 +230,5 @@ _returnToProc:
     mov _old_edi, %edi
     
     /*interrupts on*/
-    sti
+    /*sti*/
     iret 
