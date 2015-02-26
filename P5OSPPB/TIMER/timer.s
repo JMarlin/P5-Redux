@@ -13,7 +13,7 @@ _timer_handler:
 .globl _spurious_handler
 _spurious_handler:
     pusha
-    /*call _c_spurious_handler*/
+    call _c_spurious_handler
     popa
     iret
     
