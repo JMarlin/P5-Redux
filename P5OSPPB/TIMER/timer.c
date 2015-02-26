@@ -48,7 +48,7 @@ void c_timer_handler() {
 
     //if(t_counter == 1000) {
     
-        prints("\nTICK!\n");
+        prints("!");
     //    t_counter = 0;
     //}
     
