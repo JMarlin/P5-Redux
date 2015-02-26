@@ -43,10 +43,10 @@ void c_timer_handler() {
 
     t_counter++;
 
-    if(!(t_counter % 1000)) {
+    //if(!(t_counter % 1000)) {
     
         prints(".");
-    }
+    //}
     
     timer_int_ack();
 }
