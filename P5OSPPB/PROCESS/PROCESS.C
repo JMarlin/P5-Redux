@@ -322,6 +322,7 @@ void kernelEntry(void) {
     p->ctx.gs = old_gs;
     p->ctx.err = old_err;
         
+    /*
     __asm__ volatile (
         "pushf \n"
         "pop %0"
@@ -331,6 +332,7 @@ void kernelEntry(void) {
     );
     prints("Kernel EFLAGS: "); printHexDword(kflags); prints("\n");    
     scans(5, fake);
+    */
         
     switch(except_num) {
 
