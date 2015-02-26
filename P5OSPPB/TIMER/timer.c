@@ -38,6 +38,7 @@ void timer_int_ack() {
 void c_spurious_handler() {
 
     prints("SPURIOUS INTERRUPT\n");
+    timer_int_ack();
 }
 
 
