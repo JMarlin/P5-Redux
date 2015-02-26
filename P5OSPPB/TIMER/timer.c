@@ -3,6 +3,9 @@
 #include "timer.h"
 
 
+unsigned int t_counter = 0;
+
+
 void timer_on() {
     
     //Clear IRQ 0 mask
@@ -34,7 +37,14 @@ void timer_int_ack() {
 
 void c_timer_handler() {
 
-    prints("\nTICK!\n");
+    t_counter++;
+
+    if(t_counter == 1000) {
+    
+        prints("\nTICK!\n");
+        t_counter = 0;
+    }
+    
     timer_int_ack();
 }
 
@@ -77,6 +87,8 @@ void init_time_chip(unsigned int freq) {
 
 
 void init_timer() {
+
+    t_counter = 0;
 
     init_pic();
     init_time_chip(1000);
