@@ -18,11 +18,10 @@ process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
-process* nextP;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
-
+process* nextP;
 
 void kernelDebug(void) {
 
@@ -54,14 +53,14 @@ void kernelDebug(void) {
 
 void returnToProcess() {
 
+    process* oldP = p;
+
     //Turn off the page mapping of the last process
-    if(p && p != nextP) disable_page_range(p->base, p->root_page);
-
-
+    if(p && p != nextP) disable_page_range(p->base, p->root_page);   
     if(p != nextP) p = nextP;
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
-    if(p != nextP) apply_page_range(p->base, p->root_page);
+    if(p != oldP) apply_page_range(p->base, p->root_page);
     
     //Restore the running context
     old_esp = p->ctx.esp;
