@@ -45,7 +45,7 @@ void c_timer_handler() {
 
     //if(!(t_counter % 1000)) {
     
-        prints(".");
+       // prints(".");
     //}
     
     timer_int_ack();

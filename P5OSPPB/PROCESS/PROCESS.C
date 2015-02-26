@@ -82,6 +82,8 @@ void returnToProcess(process* newProcess) {
     old_gs = p->ctx.gs;
     old_err = p->ctx.err;
         
+    prints("ENTERING ASM");
+        
     returnToProc();
 }
 
@@ -428,7 +430,7 @@ process* newUserProc() {
 
     //Interrupts enabled by default
     newP->ctx.vif = 1;
-    newP->ctx.eflags = 0x20;
+    newP->ctx.eflags = 0x200;
     return newP;
 }
 
