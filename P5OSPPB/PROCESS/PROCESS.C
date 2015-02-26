@@ -81,9 +81,6 @@ void returnToProcess(process* newProcess) {
     old_fs = p->ctx.fs;
     old_gs = p->ctx.gs;
     old_err = p->ctx.err;
-
-    kernelDebug();
-    scans(5, fake);
         
     returnToProc();
 }

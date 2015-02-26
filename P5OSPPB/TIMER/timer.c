@@ -39,7 +39,7 @@ void c_timer_handler() {
 
     t_counter++;
 
-    if(t_counter == 18) {
+    if(t_counter == 1000) {
     
         prints("\nTICK!\n");
         t_counter = 0;
@@ -86,7 +86,7 @@ void init_time_chip(unsigned int freq) {
     }
     
     //Channel 0 mode 2
-    outb(TIMER_COMMAND, 0x34);
+    outb(TIMER_COMMAND, 0x36);
     
     prints("Setting up timer with divisor 0x"); printHexWord(reload); prints("\n");
     
@@ -101,6 +101,6 @@ void init_timer() {
     t_counter = 0;
 
     init_pic();
-    init_time_chip(1);
+    init_time_chip(1000);
     installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
 }
