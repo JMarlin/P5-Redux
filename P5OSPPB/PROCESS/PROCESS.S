@@ -46,6 +46,9 @@ _old_err: .int 0x0
 
 _switchToKernel:
 
+    /*get interrupts rolling again*/
+    sti
+
     /* debug breakpoint */
     mov %eax, (0x1000)
 
