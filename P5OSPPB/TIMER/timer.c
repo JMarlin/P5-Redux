@@ -44,13 +44,13 @@ void c_spurious_handler() {
 
 void c_timer_handler() {
 
-    t_counter++;
+    //t_counter++;
 
-    if(t_counter == 1000) {
+    //if(t_counter == 1000) {
     
         prints("\nTICK!\n");
-        t_counter = 0;
-    }
+    //    t_counter = 0;
+    //}
     
     timer_int_ack();
 }
@@ -110,5 +110,5 @@ void init_timer() {
     init_pic();
     init_time_chip(1000);
     installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
-    installInterrupt(0xE7, &spurious_handler, 0);
+    //installInterrupt(0xE7, &spurious_handler, 0);
 }
