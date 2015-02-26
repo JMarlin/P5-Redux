@@ -32,6 +32,8 @@ void timer_int_ack() {
 }
 
 
+//If and when we open up IRQ7 this will have to 
+//be updated to actually check the PIC
 void c_spurious_handler() {
 
     prints("SPURIOUS INTERRUPT\n");
@@ -105,6 +107,6 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &timer_handler, 3);
+    installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
     //installInterrupt(0xE7, &spurious_handler, 0);
 }
