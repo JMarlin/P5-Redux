@@ -48,7 +48,6 @@ void c_timer_handler() {
         
     if(t_counter >= 1000) {
         
-        prints("(S)"); 
         t_counter = 0;
         
         //If we're in userland, force a task switch
