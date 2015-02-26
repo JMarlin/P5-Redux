@@ -45,27 +45,29 @@ void c_spurious_handler() {
 void c_timer_handler() {
 
     t_counter++;    
-    
-    printHexDword(t_counter); prints("\n");
-    
+        
     if(t_counter >= 1000) {
-    
-        prints("(S)");
-    
+        
+        prints("(S)"); 
+        t_counter = 0;
+        
         //If we're in userland, force a task switch
         //otherwise, just set the next process to be swapped in 
         //when the kernel service is done
         if(in_kernel) {
             
+            timer_int_ack();
             prep_next_process();
         } else {
             
+            timer_int_ack();
             next_process();
-        }
-        t_counter = 0;
-    }
+        }    
+        
+    } else {
     
-    timer_int_ack();
+        timer_int_ack();
+    }
 }
 
 
