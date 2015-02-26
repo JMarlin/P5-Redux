@@ -39,11 +39,11 @@ void c_timer_handler() {
 
     t_counter++;
 
-    //if(t_counter == 2000) {
+    if(t_counter == 18) {
     
         prints("\nTICK!\n");
         t_counter = 0;
-    //}
+    }
     
     timer_int_ack();
 }
@@ -75,7 +75,13 @@ void init_pic() {
 
 void init_time_chip(unsigned int freq) {
 
-    unsigned short reload = (unsigned short)((1193182 / freq) & 0xFFFF);
+    if(freq <= 18) {
+        reload = 0xFFFF;
+    } else if(freq >= 596591) {
+        reload = 0x0002;
+    } else {
+        unsigned short reload = (unsigned short)((1193182 / freq) & 0xFFFF);
+    }
     
     //Channel 0 mode 2
     outb(TIMER_COMMAND, 0x34);
@@ -83,8 +89,8 @@ void init_time_chip(unsigned int freq) {
     prints("Setting up timer with divisor 0x"); printHexWord(reload); prints("\n");
     
     //Load reload count
-    outb(TIMER0_DATA, (unsigned char)(reload & 0xFF));
-    outb(TIMER0_DATA, (unsigned char)((reload & 0xFF00) >> 8));
+    outb(TIMER0_DATA, reload & 0xFF);
+    outb(TIMER0_DATA, reload >> 8);
 }
 
 
