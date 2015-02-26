@@ -46,6 +46,8 @@ void c_timer_handler() {
 
     t_counter++;    
     
+    printHexDword(t_counter); prints("\n");
+    
     if(t_counter >= 1000) {
     
         prints("(S)");
