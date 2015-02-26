@@ -39,7 +39,7 @@ void c_timer_handler() {
 
     t_counter++;
 
-    if(t_counter == 10000) {
+    if(t_counter == 2000) {
     
         prints("\nTICK!\n");
         t_counter = 0;
