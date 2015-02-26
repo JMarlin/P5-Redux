@@ -35,7 +35,7 @@ void timer_int_ack() {
 }
 
 
-void c_spurious_handler {
+void c_spurious_handler() {
 
     prints("SPURIOUS INTERRUPT\n");
 }
