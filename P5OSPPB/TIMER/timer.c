@@ -46,7 +46,9 @@ void c_timer_handler() {
 
     t_counter++;    
     
-    if(t_counter == 1000) {
+    if(t_counter >= 1000) {
+    
+        prints("(S)");
     
         //If we're in userland, force a task switch
         //otherwise, just set the next process to be swapped in 
