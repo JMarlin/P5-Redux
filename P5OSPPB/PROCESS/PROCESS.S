@@ -234,5 +234,5 @@ _returnToProc:
     mov _old_esi, %esi
     mov _old_edi, %edi
     
-    dec _in_kernel
+    decb _in_kernel
     iret 
