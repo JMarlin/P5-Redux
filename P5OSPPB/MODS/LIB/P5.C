@@ -93,6 +93,23 @@ void endProc() {
 }
 
 
+unsigned int getTimeCounter() {
+
+    unsigned int c;
+
+    __asm__ volatile (
+        "mov $0x07, %%eax \n"
+        "int $0xFF \n"
+        "mov %%ebx, %0"
+        : "=r" (c)
+        : 
+        : "ebx"
+    );
+    
+    return c;
+}
+
+
 void scans(int c, char* b) {
     
     unsigned char temp_char;
@@ -130,3 +147,35 @@ void prints(char* s) {
         index++;
     }
 }
+
+unsigned char digitToHex(unsigned char digit) {
+
+    if(digit < 0xA) {
+        return (digit + '0');
+    } else {
+        return ((digit - 0xA) + 'A');
+    }
+}
+
+
+void printHexByte(unsigned char byte) {
+    
+    pchar(digitToHex((byte & 0xF0)>>4));
+    pchar(digitToHex(byte & 0xF));
+}
+
+
+void printHexWord(unsigned short wd) {
+
+    printHexByte((unsigned char)((wd & 0xFF00)>>8));
+    printHexByte((unsigned char)(wd & 0xFF));
+}
+
+
+void printHexDword(unsigned int dword) {
+
+    printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    printHexWord((unsigned short)(dword & 0xFFFF));
+}
+
+

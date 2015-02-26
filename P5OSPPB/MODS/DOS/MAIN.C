@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 5
+#define CMD_COUNT 6
 
 
 //Function declarations
@@ -9,6 +9,7 @@ void consVer(void);
 void chPrompt(void);
 void swap(void);
 void quit(void);
+void getTime(void);
 
 char prompt[50];
 char strBuf[255];
@@ -23,7 +24,8 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "PROMPT",
     "SWITCH",
-    "EXIT"
+    "EXIT",
+    "TIME"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -31,7 +33,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&chPrompt,
     (sys_command)&swap,
-    (sys_command)&quit
+    (sys_command)&quit,
+    (sys_command)&getTime
 };
 
 char inbuf[50];
@@ -121,4 +124,10 @@ void swap(void) {
 void quit(void) {
 
     endProc();
+}
+
+
+void getTime(void) {
+
+   prints("Time counter: 0x"); printHexDword(getTimeCounter()); prints("\n");
 }

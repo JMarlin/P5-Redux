@@ -2,6 +2,7 @@
 #include "../ascii_io/ascii_o.h"
 #include "../ascii_io/ascii_i.h"
 #include "../process/process.h"
+#include "../timer/timer.h"
 
 
 unsigned int logoMap[] = {
@@ -107,7 +108,11 @@ void syscall_exec(void) {
         case 6:
             endProc(p);
         break;
-                
+            
+        case 7:
+            p->ctx.ebx = t_counter;
+        break;
+        
         default:
         break;
     }

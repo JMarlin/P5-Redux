@@ -11,6 +11,10 @@ void clearScreen();
 void startProc();
 void nextProc();
 void endProc();
+void printHexByte(unsigned char byte);
+void printHexWord(unsigned short wd);
+void printHexDword(unsigned int dword);
+unsigned int getTimeCounter();
 
 
 #endif //P5_H

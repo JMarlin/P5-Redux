@@ -19,4 +19,6 @@ void c_spurious_handler();
 extern void timer_handler(void);
 extern void spurious_handler(void);
 
+unsigned int t_counter;
+
 #endif //TIMER_H

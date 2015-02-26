@@ -3,9 +3,6 @@
 #include "timer.h"
 
 
-unsigned int t_counter = 0;
-
-
 void timer_on() {
     
     //Clear IRQ 0 mask
@@ -44,13 +41,12 @@ void c_spurious_handler() {
 
 void c_timer_handler() {
 
-    //t_counter++;
+    t_counter++;
 
-    //if(t_counter == 1000) {
+    if(!(t_counter % 1000)) {
     
-        prints("!");
-    //    t_counter = 0;
-    //}
+        //prints("!");
+    }
     
     timer_int_ack();
 }
