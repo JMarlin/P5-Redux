@@ -1,6 +1,6 @@
 #include "../core/util.h"
 #include "../core/int.h"
-#include "../process/process.c"
+#include "../process/process.h"
 #include "timer.h"
 
 
