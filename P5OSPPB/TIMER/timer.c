@@ -75,12 +75,14 @@ void init_pic() {
 
 void init_time_chip(unsigned int freq) {
 
+     unsigned short reload;
+
     if(freq <= 18) {
         reload = 0xFFFF;
     } else if(freq >= 596591) {
         reload = 0x0002;
     } else {
-        unsigned short reload = (unsigned short)((1193182 / freq) & 0xFFFF);
+        reload = (unsigned short)((1193182 / freq) & 0xFFFF);
     }
     
     //Channel 0 mode 2
