@@ -32,16 +32,6 @@ void timer_int_ack() {
 }
 
 
-void genericIRQ(void) {
-
-    __asm__ ("cli");
-    prints("ONE OF THE IRQS!");
-    __asm__ ("sti");
-
-    while(1);
-}
-
-
 void init_pic() {
     
     //Some of this IO may need delays to wait for the PIC
@@ -49,8 +39,8 @@ void init_pic() {
     //future if this ends up not running on real hardware
     outb(PIC1_COMMAND, 0x11); //0x10 init mode | 0x01 there will be four commands
     outb(PIC2_COMMAND, 0x11);
-    outb(PIC1_DATA, 0xEF); //0xEF will be the first IRQ vector (eg: IRQ0 -> int 0xEF)
-    outb(PIC2_DATA, 0xF7); //0xF7 will be the ninth IRQ vector (eg: IRQ8 -> int 0xF7)
+    outb(PIC1_DATA, 0xE0); //0xE0 will be the first IRQ vector (eg: IRQ0 -> int 0xE0)
+    outb(PIC2_DATA, 0xE8); //0xE8 will be the ninth IRQ vector (eg: IRQ8 -> int 0xE8)
     outb(PIC1_DATA, 0x04); //Identify slave exists at IRQ2
     outb(PIC2_DATA, 0x02); //Identify that PIC is a slave
     outb(PIC1_DATA, 0x01); //Set to 8086 mode
@@ -83,22 +73,5 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &timer_handler, 3);
-    
-    //Debug
-    installInterrupt(0xF0, &genericIRQ, 3);
-    installInterrupt(0xF1, &genericIRQ, 3);
-    installInterrupt(0xF2, &genericIRQ, 3);
-    installInterrupt(0xF3, &genericIRQ, 3);
-    installInterrupt(0xF4, &genericIRQ, 3);
-    installInterrupt(0xF5, &genericIRQ, 3);
-    installInterrupt(0xF6, &genericIRQ, 3);
-    installInterrupt(0xF7, &genericIRQ, 3);
-    installInterrupt(0xF8, &genericIRQ, 3);
-    installInterrupt(0xF9, &genericIRQ, 3);
-    installInterrupt(0xFA, &genericIRQ, 3);
-    installInterrupt(0xFB, &genericIRQ, 3);
-    installInterrupt(0xFC, &genericIRQ, 3);
-    installInterrupt(0xFD, &genericIRQ, 3);
-    installInterrupt(0xFE, &genericIRQ, 3);
+    installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
 }

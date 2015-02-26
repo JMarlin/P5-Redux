@@ -7,7 +7,7 @@
 #define PIC2_DATA	   0xA1
 #define TIMER0_DATA    0x40
 #define TIMER_COMMAND  0x43
-#define TIMER_INT_NUM  0xEF
+#define TIMER_INT_NUM  0xE0
 
 void timer_on();
 void timer_off();

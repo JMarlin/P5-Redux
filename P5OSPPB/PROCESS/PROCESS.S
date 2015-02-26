@@ -1,5 +1,6 @@
 .extern _kernelEntry
 .extern _except_num
+.extern _timer_on
 
 .globl _stashCurrentState
 .globl _switchToKernel

@@ -84,7 +84,7 @@ void returnToProcess(process* newProcess) {
 
     kernelDebug();
     scans(5, fake);
-    
+        
     returnToProc();
 }
 
