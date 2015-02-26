@@ -352,7 +352,7 @@ void kernelEntry(void) {
             //we should get a tick every second-ish
             //if(t_count == 1000) {
             
-                prints("\nTICK!\n");
+                prints("\nTOCK!(kern)\n");
             //    t_count = 0;
             //}
             timer_int_ack();

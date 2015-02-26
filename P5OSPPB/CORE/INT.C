@@ -18,7 +18,7 @@ void genericInterrupt(void) {
     prints("UNHANDLED INTERRUPT");
     __asm__ ("sti");
 
-    while(1);
+    //while(1);
 }
 
 

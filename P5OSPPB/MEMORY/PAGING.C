@@ -149,7 +149,7 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
     unsigned int v_addr;
     
     v_addr = vBase;
-    
+
     if(!pr_current)
         prints("    PAGE TREE IS EMPTY!\n");
     
@@ -159,7 +159,7 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
         map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, 7);   
         v_addr += (pr_current->count << 12);
         pr_current = pr_current->next;
-    }
+    } 
     
     loadPageDirectory(pageDirectory);
 }
