@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 6
+#define CMD_COUNT 5
 
 
 //Function declarations
@@ -24,8 +24,7 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "PROMPT",
     "SWITCH",
-    "EXIT",
-    "TIME"
+    "EXIT"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -33,8 +32,7 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&chPrompt,
     (sys_command)&swap,
-    (sys_command)&quit,
-    (sys_command)&getTime
+    (sys_command)&quit
 };
 
 char inbuf[50];
