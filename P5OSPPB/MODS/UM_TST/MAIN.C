@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 8 
+#define CMD_COUNT 9
 
 
 //Function declarations
@@ -12,6 +12,7 @@ void peekV86(void);
 void peekKern(void);
 void startProc(void);
 void swap(void);
+void global(void);
 
 
 //Typedefs
@@ -27,7 +28,8 @@ char* cmdWord[CMD_COUNT] = {
     "V86",
     "KERN",
     "SWITCH",
-    "START"
+    "START",
+    "GLOB"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -38,7 +40,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&peekV86,
     (sys_command)&peekKern,
     (sys_command)&swap,
-    (sys_command)&startProc
+    (sys_command)&startProc,
+    (sys_command)&global
 };
 
 char inbuf[50];
@@ -157,4 +160,10 @@ void startDos(void) {
 void swap(void) {
 
     nextProc();
+}
+
+
+void global(void) {
+
+   prints("Global counter: 0x"); printHexDword(getGlobal()); prints("\n");
 }

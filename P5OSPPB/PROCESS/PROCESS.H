@@ -26,6 +26,8 @@ extern short old_fs;
 extern short old_gs;
 extern int old_err;
 
+extern unsigned char in_kernel;
+
 typedef struct proc {
     int bs;
 } proc;
@@ -79,6 +81,7 @@ void startProc(process* proc);
 process* exec_process(unsigned char* path);
 int request_new_page(process* proc);
 void next_process();
+void prep_next_process();
 
 extern void switchToKernel(void);
 extern void returnToProc(void);

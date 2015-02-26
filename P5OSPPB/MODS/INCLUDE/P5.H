@@ -14,7 +14,8 @@ void endProc();
 void printHexByte(unsigned char byte);
 void printHexWord(unsigned short wd);
 void printHexDword(unsigned int dword);
-unsigned int getTimeCounter();
+void incGlobal();
+unsigned int getGlobal();
 
 
 #endif //P5_H

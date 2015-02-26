@@ -65,6 +65,7 @@ void parse(char* cmdbuf) {
 
 void main(void) {
     
+    /*
     prompt[0] = 'D';
     prompt[1] = 'O';
     prompt[2] = 'S';
@@ -76,7 +77,11 @@ void main(void) {
         prints("> ");
         scans(50, inbuf);
         parse(inbuf);
-    }    
+    } 
+    */
+    
+    while(1) incGlobal();
+    
 }
 
 
@@ -124,10 +129,4 @@ void swap(void) {
 void quit(void) {
 
     endProc();
-}
-
-
-void getTime(void) {
-
-   prints("Time counter: 0x"); printHexDword(getTimeCounter()); prints("\n");
 }

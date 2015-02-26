@@ -93,12 +93,24 @@ void endProc() {
 }
 
 
-unsigned int getTimeCounter() {
+void incGlobal() {
+
+    __asm__ volatile (
+        "mov $0x07, %%eax \n"
+        "int $0xFF \n"
+        :
+        :
+        : "eax"
+    );
+}
+
+
+unsigned int getGlobal()  {
 
     unsigned int c;
 
     __asm__ volatile (
-        "mov $0x07, %%eax \n"
+        "mov $0x08, %%eax \n"
         "int $0xFF \n"
         "mov %%ebx, %0"
         : "=r" (c)

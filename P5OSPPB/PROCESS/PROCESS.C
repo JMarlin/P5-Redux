@@ -18,6 +18,7 @@ process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
+process* nextP;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
@@ -51,16 +52,16 @@ void kernelDebug(void) {
 }
 
 
-void returnToProcess(process* newProcess) {
+void returnToProcess() {
 
     //Turn off the page mapping of the last process
-    if(p) disable_page_range(p->base, p->root_page);
+    if(p && p != nextP) disable_page_range(p->base, p->root_page);
 
 
-    p = newProcess;
+    if(p != nextP) p = nextP;
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
-    apply_page_range(p->base, p->root_page);
+    if(p != nextP) apply_page_range(p->base, p->root_page);
     
     //Restore the running context
     old_esp = p->ctx.esp;
@@ -302,6 +303,8 @@ void kernelEntry(void) {
 
     unsigned int kflags;
 
+    nextP = p;
+    
     //Backup the running context
     p->ctx.esp = old_esp;
     p->ctx.cr3 = old_cr3;
@@ -378,7 +381,7 @@ void kernelEntry(void) {
             break; 
     }
 
-    returnToProcess(p);
+    returnToProcess();
 }
 
 
@@ -484,7 +487,8 @@ void startProc(process* proc) {
 
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
-    returnToProcess(proc);
+    nextP = proc;
+    returnToProcess();
     return;
 }
 
@@ -576,10 +580,17 @@ process* exec_process(unsigned char* path) {
 
 void next_process() {
 
+    prep_next_process();    
+    returnToProcess();
+}
+
+
+void prep_next_process() {
+
     //Look for the next populated proc entry in the table
     //This will spin because of wrapping if there are no processes 
     //in the list
     for(procPtr++; (!procTable[procPtr].id); procPtr++);
-        
-    returnToProcess(&procTable[procPtr]);
+    
+    nextP = &procTable[procPtr];
 }

@@ -1,5 +1,6 @@
 #include "../core/util.h"
 #include "../core/int.h"
+#include "../process/process.c"
 #include "timer.h"
 
 
@@ -44,6 +45,22 @@ void c_spurious_handler() {
 void c_timer_handler() {
 
     t_counter++;    
+    
+    if(t_counter == 1000) {
+    
+        //If we're in userland, force a task switch
+        //otherwise, just set the next process to be swapped in 
+        //when the kernel service is done
+        if(in_kernel) {
+            
+            prep_next_process();
+        } else {
+            
+            next_process();
+        }
+        t_counter = 0;
+    }
+    
     timer_int_ack();
 }
 

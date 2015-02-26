@@ -6,6 +6,8 @@
 .globl _switchToKernel
 .globl _returnToProc
 
+.globl _in_kernel
+
 .globl _old_esp
 .globl _old_cr3
 .globl _old_eip
@@ -43,6 +45,8 @@ _old_ds: .short 0x0
 _old_fs: .short 0x0
 _old_gs: .short 0x0
 _old_err: .int 0x0
+
+_in_kernel: .byte 0x0
 
 _switchToKernel:
 
@@ -196,8 +200,6 @@ _returnToProc:
 
     mov %eax, (0x1000)
 
-    /*interrupts on*/
-    /*sti*/
     iret
     
  user:
@@ -232,6 +234,5 @@ _returnToProc:
     mov _old_esi, %esi
     mov _old_edi, %edi
     
-    /*interrupts on*/
-    /*sti*/
+    dec _in_kernel
     iret 

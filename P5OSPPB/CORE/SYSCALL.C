@@ -4,6 +4,7 @@
 #include "../process/process.h"
 #include "../timer/timer.h"
 
+unsigned int gcount = 0;
 
 unsigned int logoMap[] = {
     0b00000000000000000000000000000000,
@@ -110,7 +111,11 @@ void syscall_exec(void) {
         break;
             
         case 7:
-            p->ctx.ebx = t_counter;
+            gcount++;
+        break;
+        
+        case 8:
+            p->ctx.ebx = gcount;
         break;
         
         default:
