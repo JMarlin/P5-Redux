@@ -43,13 +43,7 @@ void c_spurious_handler() {
 
 void c_timer_handler() {
 
-    t_counter++;
-
-    //if(!(t_counter % 1000)) {
-    
-    prints(".");
-    //}
-    
+    t_counter++;    
     timer_int_ack();
 }
 
