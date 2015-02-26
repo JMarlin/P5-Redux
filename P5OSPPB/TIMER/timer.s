@@ -5,20 +5,16 @@
 
 .globl _timer_handler
 _timer_handler: 
-    cli
     pusha
     call _c_timer_handler    
     popa
-    sti
     iret
 
 .globl _spurious_handler
 _spurious_handler:
-    cli
     pusha
     call _c_spurious_handler
     popa
-    sti
     iret
     
     cli
