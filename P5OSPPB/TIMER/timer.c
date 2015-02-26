@@ -39,11 +39,11 @@ void c_timer_handler() {
 
     t_counter++;
 
-    if(t_counter == 2000) {
+    //if(t_counter == 2000) {
     
         prints("\nTICK!\n");
         t_counter = 0;
-    }
+    //}
     
     timer_int_ack();
 }
@@ -93,6 +93,6 @@ void init_timer() {
     t_counter = 0;
 
     init_pic();
-    init_time_chip(1000);
+    init_time_chip(1);
     installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
 }
