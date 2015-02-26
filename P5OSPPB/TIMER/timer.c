@@ -78,7 +78,9 @@ void init_time_chip(unsigned int freq) {
     unsigned short reload = (unsigned short)((1193182 / freq) & 0xFFFF);
     
     //Channel 0 mode 2
-    outb(TIMER_COMMAND, 0x36);
+    outb(TIMER_COMMAND, 0x34);
+    
+    prints("Setting up timer with divisor 0x"); printHexWord(reload); prints("\n")
     
     //Load reload count
     outb(TIMER0_DATA, (unsigned char)(reload & 0xFF));
