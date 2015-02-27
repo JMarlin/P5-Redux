@@ -95,9 +95,9 @@ unsigned char getch(void) {
     
     tempData = keyboard_getData();
     
-    while(tempData == 0xF0) {
+    if(tempData == 0xF0) {
         keyboard_getData();
-        tempData = keyboard_getData();
+        return 0;
     }
 
     if(tempData < 132) {
