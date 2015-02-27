@@ -244,7 +244,7 @@ _returnToProc:
     jne kretfinish
    
     mov $0x20, %al
-    mov %al, $0x20
+    out %al, $0x20
     decb _pending_eoi
         
  kretfinish:   
