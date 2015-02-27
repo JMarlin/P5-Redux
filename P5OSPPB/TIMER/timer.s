@@ -37,7 +37,7 @@ _timer_handler:
     inc %eax
     mov $2, %ebx
     cmp %eax, %ebx
-    jgt timer_reset
+    jg timer_reset
     
     mov %eax, _t_counter    
     mov $0x20, %al
