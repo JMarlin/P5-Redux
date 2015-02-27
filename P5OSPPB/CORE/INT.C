@@ -122,5 +122,6 @@ void installExceptionHandlers() {
     installInterrupt(0x13, &expt_simdFailure, 0);
     
     //And the syscall interface
+    installInterrupt(0xFE, &expt_forceenter, 3);
     installInterrupt(0xFF, &expt_syscall, 3);
 }

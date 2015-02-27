@@ -21,7 +21,6 @@ unsigned int t_count = 0;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
-process* nextP;
 
 void kernelDebug(void) {
 
@@ -51,15 +50,18 @@ void kernelDebug(void) {
 }
 
 
-void returnToProcess() {
-
-    __asm__ (
-        ".extern _swapping"
-        "incb _swapping"
-    );
+void returnToProcess(process* proc) {
 
     process* oldP = p;
-    if(p != nextP) p = nextP;
+
+    if(needs_swap) {
+        for(procPtr++; (!procTable[procPtr].id); procPtr++);
+
+        proc = &procTable[procPtr].id;
+        needs_swap = 0;
+    }
+    
+    if(p != proc) p = proc;
 
     prints("Switching to process #"); printHexDword(p->id); prints("\n");
     
@@ -308,8 +310,6 @@ void V86Entry(void) {
 void kernelEntry(void) {
 
     unsigned int kflags;
-
-    nextP = p;
     
     //Backup the running context
     p->ctx.esp = old_esp;
@@ -367,27 +367,19 @@ void kernelEntry(void) {
             syscall_param2 = p->ctx.ecx;
             syscall_exec();
             break;
-
-        case EX_TIMER:
-            //t_count++;
-            
-            //This happens roughly once a ms, so 
-            //we should get a tick every second-ish
-            //if(t_count == 1000) {
-            
-                prints("\nTOCK!(kern)\n");
-            //    t_count = 0;
-            //}
-            timer_int_ack();
+        
+        case FORCE_ENTER:
+            //We don't want to do anything here, this is just
+            //so that we get an entry into and an exit from the kernel
             break;
-            
+        
         default:
             prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
             while(1);
             break; 
     }
 
-    returnToProcess();
+    returnToProcess(p);
 }
 
 
@@ -397,7 +389,11 @@ void endProc(process* proc) {
     del_page_tree(proc->root_page);
     proc->root_page = (pageRange*)0;
     proc->id = 0;    
-    next_process();
+    
+    if(proc == p)
+        needs_swap = 1;
+    
+    returnToProcess(p);
 }
 
 
@@ -493,8 +489,8 @@ void startProc(process* proc) {
 
     //Enter the new context, assuming the standard
     //user process base address of 0xB00000
-    nextP = proc;
-    returnToProcess();
+    needs_swap = 0;
+    returnToProcess(proc);
     return;
 }
 
@@ -505,6 +501,7 @@ void startProcessManagement() {
 
     int i;
     p = (process*)0;    
+    needs_swap = 0;
         
     //Clear the contents of the process table
     for(i = 0; i < 256; i++) 
@@ -584,20 +581,20 @@ process* exec_process(unsigned char* path) {
 }
 
 
+//Deprecated
 void next_process() {
 
-    prep_next_process();    
-    returnToProcess();
+    //Look for the next populated proc entry in the table
+    //This will spin because of wrapping if there are no processes 
+    //in the list
+    //for(procPtr++; (!procTable[procPtr].id); procPtr++);
+
+    //needs_swap = 0;
+    //returnToProcess(&procTable[procPtr]);
 }
 
 
 void prep_next_process() {
 
-
-    //Look for the next populated proc entry in the table
-    //This will spin because of wrapping if there are no processes 
-    //in the list
-    for(procPtr++; (!procTable[procPtr].id); procPtr++);
-    
-    nextP = &procTable[procPtr];
+    needs_swap = 1;
 }

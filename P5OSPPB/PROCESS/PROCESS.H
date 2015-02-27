@@ -28,6 +28,8 @@ extern int old_err;
 
 extern unsigned char in_kernel;
 
+unsigned char needs_swap;
+
 typedef struct proc {
     int bs;
 } proc;
@@ -85,7 +87,5 @@ void prep_next_process();
 
 extern void switchToKernel(void);
 extern void returnToProc(void);
-
-extern unsigned char swapping;
 
 #endif //PROCESS_H

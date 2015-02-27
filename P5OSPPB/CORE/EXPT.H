@@ -19,8 +19,8 @@
 #define EX_ALIGNCHECK      0x10
 #define EX_MACHINECHECK    0x11
 #define EX_SIMDFAILURE     0x12
-#define EX_TIMER           0xEF
 #define EX_SYSCALL         0xFF
+#define FORCE_ENTER        0xFE
 
 
 extern void expt_zeroDivide(void);
@@ -42,6 +42,7 @@ extern void expt_alignCheck(void);
 extern void expt_machineCheck(void);
 extern void expt_simdFailure(void);
 extern void expt_syscall(void);
+extern void expt_forceenter(void);
 
 extern unsigned char except_num;
 

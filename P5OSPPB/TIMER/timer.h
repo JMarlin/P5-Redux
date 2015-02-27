@@ -13,8 +13,8 @@ void timer_on();
 void timer_off();
 void init_timer();
 void timer_int_ack();
-void c_timer_handler();
 void c_spurious_handler();
+void irq_enter_kernel();
 
 extern void timer_handler(void);
 extern void spurious_handler(void);

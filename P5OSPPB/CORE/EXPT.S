@@ -193,3 +193,14 @@ _expt_syscall:
     mov %al, _except_num
     pop %eax 
     call _switchToKernel
+
+    
+.globl _expt_forceenter
+_expt_forceenter:
+    incb _in_kernel
+    push %eax 
+    mov $0xFE, %al
+    mov %al, _except_num
+    pop %eax 
+    call _switchToKernel    
+    
