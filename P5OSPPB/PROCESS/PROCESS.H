@@ -2,6 +2,7 @@
 #define PROCESS_H
 
 #include "../memory/paging.h"
+#include "message.h"
 
 #define PT_USER 0
 #define PT_V86  1
@@ -29,6 +30,7 @@ extern int old_err;
 extern unsigned char in_kernel;
 
 unsigned char needs_swap;
+process* procTable;
 
 typedef struct proc {
     int bs;
@@ -65,6 +67,7 @@ typedef struct context {
 typedef struct process {
     unsigned int id;
     pageRange* root_page;
+    message* root_msg;
     context ctx;
     void* usr;
     unsigned int base;
@@ -79,7 +82,7 @@ void kernelEntry(void);
 process* newUserProc();
 //process* newV86Proc();
 void setProcEntry(process* proc, void* entryPoint);
-void startProc(process* proc);
+void enterProc(unsigned int pid);
 process* exec_process(unsigned char* path);
 int request_new_page(process* proc);
 void next_process();

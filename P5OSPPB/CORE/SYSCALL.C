@@ -1,8 +1,7 @@
 #include "syscall.h"
-#include "../ascii_io/ascii_o.h"
-#include "../ascii_io/ascii_i.h"
 #include "../process/process.h"
 #include "../timer/timer.h"
+#include "../process/message.h"
 
 unsigned int gcount = 0;
 
@@ -44,12 +43,14 @@ unsigned int lineBuf;
 
 void syscall_exec(void) {
 
+    message temp_message;
     unsigned char* vram = (unsigned char*)0xA0000;
     unsigned char* buf = (unsigned char*)0x50000;
     int i, j, o, row;
         
     switch(syscall_number) {
 
+        //Legacy for V86
         case 0:
             prints("Program terminated.\n");
 
@@ -82,40 +83,27 @@ void syscall_exec(void) {
                     vram[j] = buf[j];
             }
 
-			prints("Done writing to screen.\n");
 		    while(1);
         break;
 
+        //Process post message
         case 1:
-            pchar((unsigned char)(syscall_param1 & 0xFF));
+            passMessage(p->id, p->ctx.ebx, p->ctx.ecx, p->ctx.edx);
         break;
 
+        //Process recieve message
         case 2:
-            p->ctx.ebx = (unsigned int)getch();
-        break;
-
-        case 3:
-            clear();
-        break;
-        
-        case 4:
-            exec_process(":dos.mod");
-        break;
-
-        case 5:
-            next_process();
-        break;
-        
-        case 6:
-            endProc(p);
-        break;
-            
-        case 7:
-            gcount++;
-        break;
-        
-        case 8:
-            p->ctx.ebx = gcount;
+            if(getMessage(p, &temp_message)) {
+                p->ctx.eax = 1; //a 1 in eax is 'message found'
+                p->ctx.ebx = temp_message->source;
+                p->ctx.ecx = temp_message->command;
+                p->ctx.edx = temp_message->payload;
+            } else {
+                p->ctx.eax = 0; //a 0 in eax is 'no messages pending'
+                p->ctx.ebx = 0;
+                p->ctx.ecx = 0;
+                p->ctx.edx = 0;
+            }
         break;
         
         default:

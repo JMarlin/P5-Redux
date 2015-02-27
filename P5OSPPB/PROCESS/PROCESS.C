@@ -8,13 +8,13 @@
 #include "../fs/fs.h"
 #include "../core/global.h"
 #include "../timer/timer.h"
+#include "message.h"
 
 
 unsigned char fake[6];
 unsigned char* insPtr;
 context V86Context, usrContext;
 int intVect = 0;
-process* procTable = (process*)0x2029A0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
@@ -27,7 +27,6 @@ void kernelDebug(void) {
     //Kernel debug, should be moved to its own function
     prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
     prints("Previous State:\n");
-    prints("Page root: 0x"); printHexDword(p->root_page); prints("\n");
     prints("eax: 0x"); printHexDword(p->ctx.eax); prints("  ebx: 0x"); printHexDword(p->ctx.ebx); prints("\n");
     prints("ecx: 0x"); printHexDword(p->ctx.ecx); prints("  edx: 0x"); printHexDword(p->ctx.edx); prints("\n");
     prints("esp: 0x"); printHexDword(p->ctx.esp); prints("  ebp: 0x"); printHexDword(p->ctx.ebp); prints("\n");
@@ -429,7 +428,8 @@ process* newProcess() {
     proc = &(procTable[i]);
     procPtr = (unsigned char)i;
     proc->id = nextProc++;
-    proc->root_page = (pageRange*)0x0;    
+    proc->root_page = (pageRange*)0x0;  
+    proc->root_msg = (message*)0x0;
     return proc;
 }
 
@@ -493,13 +493,21 @@ void setProcEntry(process* p, void* entryPoint) {
 }
 
 
-void startProc(process* proc) {
+void enterProc(unsigned int pid) {
 
-    //Enter the new context, assuming the standard
-    //user process base address of 0xB00000
+    int i;
+    process* proc;
+
+    for(i = 0; i < 256 && (procTable[i].id != pid); i++);
+    
+    if(i == 256)
+        return;
+    
+    proc = &procTable[i];
+    
+    //Enter the new context
     needs_swap = 0;
     returnToProcess(proc);
-    return;
 }
 
 
@@ -510,6 +518,7 @@ void startProcessManagement() {
     int i;
     p = (process*)0;    
     needs_swap = 0;
+    procTable = (process*)0x2029A0;
         
     //Clear the contents of the process table
     for(i = 0; i < 256; i++) 
@@ -532,7 +541,7 @@ int request_new_page(process* proc) {
 }
 
 
-process* exec_process(unsigned char* path) {
+unsigned int exec_process(unsigned char* path) {
 
     FILE exeFile, exeFile2;
     process* proc;
@@ -541,7 +550,7 @@ process* exec_process(unsigned char* path) {
     int pageCount;
     
     if(!(proc = newUserProc()))
-        return proc;
+        return 0;
     
     file_open(path, &exeFile);
     
@@ -552,7 +561,7 @@ process* exec_process(unsigned char* path) {
         prints("\n");
         //fclose(&exeFile);
         //freeProcess(proc);
-        return;
+        return 0;
     }
 
     for(i = 0; file_readb(&exeFile) != EOF; i++);
@@ -583,26 +592,6 @@ process* exec_process(unsigned char* path) {
     i = 0;
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
-
-    prints("Launching usermode process\n");
-    startProc(proc);
-}
-
-
-//Deprecated
-void next_process() {
-
-    //Look for the next populated proc entry in the table
-    //This will spin because of wrapping if there are no processes 
-    //in the list
-    //for(procPtr++; (!procTable[procPtr].id); procPtr++);
-
-    //needs_swap = 0;
-    //returnToProcess(&procTable[procPtr]);
-}
-
-
-void prep_next_process() {
-
-    needs_swap = 1;
+        
+    return proc->id;
 }

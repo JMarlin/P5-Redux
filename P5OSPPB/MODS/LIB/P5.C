@@ -1,124 +1,88 @@
 #include "../include/p5.h"
 
 
-void pchar(char c) {
+message tmp_msg;
+
+
+int getMessage(message* msg) {
     
-    unsigned int ec = (unsigned int)c;
+    unsigned int source, command, payload, retval;
     
-    __asm__ volatile (
-        "mov $0x01, %%eax \n"
+        __asm__ volatile (
+        "mov $0x02, %%eax \n"
+        "int $0xFF \n"
+        "mov %%eax, %0 \n"
+        "mov %%ebx, %1 \n"
+        "mov %%ecx, %2 \n"
+        "mov %%edx, %3 \n"
+        : "=r" (retval), "=r" (source), "=r" (command), "=r" (payload)
+        : 
+        : "eax", "ebx", "ecx", "edx"
+    );
+    
+    if(!retval)
+        return 0;
+        
+    msg->source = source;
+    msg->command = command;
+    msg->payload = payload;    
+    return 1;
+}
+
+
+void postMessage(unsigned int dest, unsigned int command, unsigned int payload)  {
+        
+        __asm__ volatile (
         "mov %0, %%ebx \n"
+        "mov %1, %%ecx \n"
+        "mov %2, %%edx \n"
+        "mov $0x01, %%eax \n"
         "int $0xFF \n"
         :
-        : "r" (ec)
-        : "eax", "ebx"
+        : "r" (dest), "=r" (command), "=r" (payload)
+        : "eax", "ebx", "ecx", "edx"
     );
+}
+
+void pchar(char c) {
+    
+    postMessage(0, 1, (unsigned int)c);
 }
 
 
 void terminate(void) {
     
-    __asm__ volatile (
-        "mov $0x00, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
+    postMessage(0, 0, 0);
 }
 
 
 unsigned char getch() {
 
-    unsigned int c;
+    postMessage(0, 2, 0);
     
-    __asm__ volatile (
-        "mov $0x02, %%eax \n"
-        "int $0xFF \n"
-        "mov %%ebx, %0"
-        : "=r" (c)
-        : 
-        : "ebx"
-    );
+    //We should probably add a method to ignore messages
+    //we don't care about but leave them in the queue
+    while(!getMessage(&temp_msg));
     
-    return (unsigned char)(c & 0xFF);
+    return (unsigned char)(temp_msg.payload & 0xFF);
 }
 
 
 void clearScreen() {
 
-    __asm__ volatile (
-        "mov $0x03, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
+    postMessage(0, 3, 0);
 }
 
 
-void startProc() {
+unsigned int startProc(unsigned char* path) {
 
-    __asm__ volatile (
-        "mov $0x04, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
-}
+    postMessage(0, 3, (unsigned int)path);
 
-
-void nextProc() {
-
-    __asm__ volatile (
-        "mov $0x05, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
-}
-
-
-void endProc() {
-
-    __asm__ volatile (
-        "mov $0x06, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
-}
-
-
-void incGlobal() {
-
-    __asm__ volatile (
-        "mov $0x07, %%eax \n"
-        "int $0xFF \n"
-        :
-        :
-        : "eax"
-    );
-}
-
-
-unsigned int getGlobal()  {
-
-    unsigned int c;
-
-    __asm__ volatile (
-        "mov $0x08, %%eax \n"
-        "int $0xFF \n"
-        "mov %%ebx, %0"
-        : "=r" (c)
-        : 
-        : "ebx"
-    );
+    //We should probably add a method to ignore messages
+    //we don't care about but leave them in the queue
+    while(!getMessage(&temp_msg));
     
-    return c;
+    return temp_msg.payload;
 }
 
 

@@ -1,7 +1,8 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 9
+#define CMD_COUNT 8
 
+unsigned int client_pid = 0;
 
 //Function declarations
 void usrClear(void);
@@ -11,7 +12,6 @@ void causeError(void);
 void peekV86(void);
 void peekKern(void);
 void startProc(void);
-void swap(void);
 void global(void);
 
 
@@ -27,9 +27,8 @@ char* cmdWord[CMD_COUNT] = {
     "ERR",
     "V86",
     "KERN",
-    "SWITCH",
     "START",
-    "GLOB"
+    "MSG"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -39,9 +38,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&causeError,
     (sys_command)&peekV86,
     (sys_command)&peekKern,
-    (sys_command)&swap,
     (sys_command)&startProc,
-    (sys_command)&global
+    (sys_command)&sendMsg
 };
 
 char inbuf[50];
@@ -153,17 +151,17 @@ void peekKern(void) {
 
 void startDos(void) {
 
-    startProc();
+    client_pid = startProc(":dos.mod");
 }
 
 
-void swap(void) {
+void sendMsg(void) {
 
-    nextProc();
-}
+   message tmp_msg;
 
-
-void global(void) {
-
-   prints("Global counter: 0x"); printHexDword(getGlobal()); prints("\n");
+   postMessage(client_pid, 0, 0);
+   
+   while(!getMessage(&tmp_msg));
+   
+   prints("Message was: "); printHexDword(tmp_msg.payload); prints("\n");
 }
