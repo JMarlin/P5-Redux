@@ -70,7 +70,7 @@ _timer_handler:
     mov $0x20, %al
     out %al, $0x20
     
-    mov $0xEF, %al
+    mov $0xFE, %al
     mov %al, _except_num
     
     pop %ebx

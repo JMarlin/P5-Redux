@@ -55,6 +55,9 @@ void returnToProcess(process* proc) {
     process* oldP = p;
 
     if(needs_swap) {
+        
+        prints("PROC SWITCH\n");
+    
         for(procPtr++; (!procTable[procPtr].id); procPtr++);
 
         proc = &procTable[procPtr];
