@@ -55,6 +55,8 @@ void returnToProcess() {
 
     process* oldP = p;
 
+    prints("Switching to process #"); printHexDword(nextP->id); prints("\n");
+    
     //Turn off the page mapping of the last process
     if(p && p != nextP) disable_page_range(p->base, p->root_page);   
     if(p != nextP) p = nextP;
