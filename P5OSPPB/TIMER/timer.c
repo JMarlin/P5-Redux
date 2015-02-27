@@ -50,22 +50,25 @@ void c_timer_handler() {
         
         t_counter = 0;
             
-        //Don't switch if we're already in the middle of switching
-        if(!swapping) {
-        
-            //If we're in userland, force a task switch
-            //otherwise, just set the next process to be swapped in 
-            //when the kernel service is done
-            if(in_kernel) {
-                
-                timer_int_ack();
+        //If we're in userland, force a task switch
+        //otherwise, just set the next process to be swapped in 
+        //when the kernel service is done
+        if(in_kernel) {
+            
+            timer_int_ack();
+            if(!swapping)
                 prep_next_process();
-            } else {
-                
-                timer_int_ack();
-                next_process();
-            }    
-        }
+        } else {
+            
+            __asm__ (
+                ".extern _in_kernel"
+                "incb _in_kernel"
+            );
+            
+            timer_int_ack();
+            next_process();
+        }    
+        
     } else {
     
         timer_int_ack();
