@@ -31,8 +31,6 @@ void terminate(void) {
 unsigned char getch() {
 
     unsigned int c;
-
-    prints("getch\n");
     
     __asm__ volatile (
         "mov $0x02, %%eax \n"
