@@ -378,7 +378,9 @@ void kernelEntry(void) {
         
         default:
             prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
-            while(1);
+            insPtr = (char*)p->ctx.eip;
+            kernelDebug();
+            scans(5, fake);
             break; 
     }
 
