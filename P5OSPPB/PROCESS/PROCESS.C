@@ -68,14 +68,12 @@ void returnToProcess(process* proc) {
     
     //if(p != proc)
     p = proc;
-
-    prints("Switching to process #"); printHexDword(p->id); prints("\n");
     
     //Turn off the page mapping of the last process
     //if(oldP && oldP != p)
     disable_page_range(p->base, p->root_page);   
-    prints("Entering process #"); printHexDword(p->id); prints("\n");
-    prints("Applying process paging:\n");
+    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
+    DEBUG("Applying process paging:\n");
     //if(p != oldP) 
     apply_page_range(p->base, p->root_page);
     

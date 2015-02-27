@@ -93,7 +93,11 @@ unsigned char getch(void) {
         
     unsigned char tempData;
     
-    tempData = keyboard_getData();
+    //Don't block if there's nothing in the buffer
+    if(!(keyboard_getStatus() & SR_OBSTAT)) 
+        return 0;
+    
+    tempData = inb(KBC_DREG);
     
     if(tempData == 0xF0) {
         keyboard_getData();
