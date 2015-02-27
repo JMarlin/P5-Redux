@@ -58,7 +58,7 @@ void returnToProcess(process* proc) {
     //needs_swap = 1;
     if(needs_swap) {
         
-        prints("PROC SWITCH\n");
+        //prints("PROC SWITCH\n");
     
         for(procPtr++; (!procTable[procPtr].id); procPtr++);
 
