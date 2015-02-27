@@ -557,6 +557,7 @@ process* exec_process(unsigned char* path) {
     
     if(!(proc->root_page)) {
     
+        prints("Page tree couldn't be allocated.");
         //fclose(&exeFile);
         //freeProcess(proc);
     }
