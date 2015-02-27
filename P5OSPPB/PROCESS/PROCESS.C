@@ -27,6 +27,7 @@ void kernelDebug(void) {
     //Kernel debug, should be moved to its own function
     prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
     prints("Previous State:\n");
+    prints("Page root: 0x"); printHexDword(p->root_page); prints("\n");
     prints("eax: 0x"); printHexDword(p->ctx.eax); prints("  ebx: 0x"); printHexDword(p->ctx.ebx); prints("\n");
     prints("ecx: 0x"); printHexDword(p->ctx.ecx); prints("  edx: 0x"); printHexDword(p->ctx.edx); prints("\n");
     prints("esp: 0x"); printHexDword(p->ctx.esp); prints("  ebp: 0x"); printHexDword(p->ctx.ebp); prints("\n");
