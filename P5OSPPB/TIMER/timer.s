@@ -25,9 +25,12 @@
 .extern _old_gs
 .extern _old_err
 
+.globl _pending_eoi
+_pending_eoi: .byte 0x0
+
 .globl _timer_handler
-_timer_handler: 
-      
+_timer_handler:   
+    
     push %eax
     push %ebx    
     mov _t_counter, %eax
@@ -56,19 +59,18 @@ _timer_handler:
     cmp %al, %bl
     je timer_to_kernel
     
+    pop %ebx
+    
     mov $0x20, %al
     out %al, $0x20
     
-    pop %ebx
     pop %eax
     iret
  
  timer_to_kernel: 
     
     incb _in_kernel
-    
-    mov $0x20, %al
-    out %al, $0x20
+    incb _pending_eoi
     
     mov $0xFE, %al
     mov %al, _except_num

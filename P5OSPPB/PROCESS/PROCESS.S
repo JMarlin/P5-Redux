@@ -1,6 +1,7 @@
 .extern _kernelEntry
 .extern _except_num
 .extern _timer_on
+.extern _pending_eoi
 
 .globl _stashCurrentState
 .globl _switchToKernel
@@ -51,7 +52,7 @@ _in_kernel: .byte 0x0
 _switchToKernel:
 
     /*get interrupts rolling again*/
-    /* sti */
+    sti 
 
     /* debug breakpoint */
     mov %eax, (0x1000)
@@ -200,8 +201,8 @@ _returnToProc:
 
     mov %eax, (0x1000)
 
-    decb _in_kernel
-    iret
+    jmp kernreturn
+
     
  user:
     mov _old_esp, %esp 
@@ -234,6 +235,19 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
+
+ kernreturn:    
     
+    push %eax
+    mov _pending_eoi, %eax
+    cmp $0, %eax
+    jne kretfinish
+   
+    mov $0x20, %al
+    mov %al, $0x20
+    decb _pending_eoi
+        
+ kretfinish:   
+    pop %eax
     decb _in_kernel
     iret 
