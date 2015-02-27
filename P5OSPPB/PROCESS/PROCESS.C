@@ -593,13 +593,11 @@ void next_process() {
 
 void prep_next_process() {
 
-    //Don't switch if we're already in the middle of switching
-    if(!swapping) {
-        //Look for the next populated proc entry in the table
-        //This will spin because of wrapping if there are no processes 
-        //in the list
-        for(procPtr++; (!procTable[procPtr].id); procPtr++);
-        
-        nextP = &procTable[procPtr];
-    }
+
+    //Look for the next populated proc entry in the table
+    //This will spin because of wrapping if there are no processes 
+    //in the list
+    for(procPtr++; (!procTable[procPtr].id); procPtr++);
+    
+    nextP = &procTable[procPtr];
 }

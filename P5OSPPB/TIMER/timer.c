@@ -49,20 +49,23 @@ void c_timer_handler() {
     if(t_counter >= 1000) {
         
         t_counter = 0;
-        
-        //If we're in userland, force a task switch
-        //otherwise, just set the next process to be swapped in 
-        //when the kernel service is done
-        if(in_kernel) {
             
-            timer_int_ack();
-            prep_next_process();
-        } else {
-            
-            timer_int_ack();
-            next_process();
-        }    
+        //Don't switch if we're already in the middle of switching
+        if(!swapping) {
         
+            //If we're in userland, force a task switch
+            //otherwise, just set the next process to be swapped in 
+            //when the kernel service is done
+            if(in_kernel) {
+                
+                timer_int_ack();
+                prep_next_process();
+            } else {
+                
+                timer_int_ack();
+                next_process();
+            }    
+        }
     } else {
     
         timer_int_ack();
