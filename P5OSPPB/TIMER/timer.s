@@ -1,6 +1,5 @@
 .extern _kernelEntry
 .extern _except_num
-.extern _c_timer_handler
 .extern _c_spurious_handler
 .extern _timer_int_ack
 .extern _t_counter
