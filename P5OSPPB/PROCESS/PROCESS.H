@@ -86,5 +86,6 @@ void prep_next_process();
 extern void switchToKernel(void);
 extern void returnToProc(void);
 
+extern unsigned char swapping;
 
 #endif //PROCESS_H

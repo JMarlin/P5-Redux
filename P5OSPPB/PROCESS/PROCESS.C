@@ -53,13 +53,18 @@ void kernelDebug(void) {
 
 void returnToProcess() {
 
-    process* oldP = p;
+    __asm__ (
+        ".extern _swapping"
+        "incb _swapping"
+    );
 
-    prints("Switching to process #"); printHexDword(nextP->id); prints("\n");
+    process* oldP = p;
+    if(p != nextP) p = nextP;
+
+    prints("Switching to process #"); printHexDword(p->id); prints("\n");
     
     //Turn off the page mapping of the last process
-    if(p && p != nextP) disable_page_range(p->base, p->root_page);   
-    if(p != nextP) p = nextP;
+    if(oldP && oldP != p) disable_page_range(p->base, p->root_page);   
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
     if(p != oldP) apply_page_range(p->base, p->root_page);
@@ -557,7 +562,6 @@ process* exec_process(unsigned char* path) {
     
     if(!(proc->root_page)) {
     
-        prints("Page tree couldn't be allocated.");
         //fclose(&exeFile);
         //freeProcess(proc);
     }
@@ -589,10 +593,13 @@ void next_process() {
 
 void prep_next_process() {
 
-    //Look for the next populated proc entry in the table
-    //This will spin because of wrapping if there are no processes 
-    //in the list
-    for(procPtr++; (!procTable[procPtr].id); procPtr++);
-    
-    nextP = &procTable[procPtr];
+    //Don't switch if we're already in the middle of switching
+    if(!swapping) {
+        //Look for the next populated proc entry in the table
+        //This will spin because of wrapping if there are no processes 
+        //in the list
+        for(procPtr++; (!procTable[procPtr].id); procPtr++);
+        
+        nextP = &procTable[procPtr];
+    }
 }
