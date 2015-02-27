@@ -35,7 +35,7 @@ _timer_handler:
     push %ebx    
     mov _t_counter, %eax
     inc %eax
-    mov $20, %ebx
+    mov $500, %ebx
     cmp %eax, %ebx
     jg timer_reset
     
