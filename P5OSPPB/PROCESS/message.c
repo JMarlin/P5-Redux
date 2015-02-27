@@ -16,7 +16,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     //core OS services
     if(!dest) {
         
-        post_to_kern(source, payload);
+        post_to_kern(source, command, payload);
         return;
     }
         
@@ -32,14 +32,14 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     if(!(new_message = (message*)kmalloc(sizeof(message))))
         return;
     
-    newMessage->source = source;
-    newMessage->command = command;
-    newMessage->payload = payload;
-    newMessage->next = (message*)0;
+    new_message->source = source;
+    new_message->command = command;
+    new_message->payload = payload;
+    new_message->next = (message*)0;
     
     if(!d_proc->root_msg) {
     
-        d_proc->root_msg = newMessage;
+        d_proc->root_msg = new_message;
         return;
     }
     
@@ -48,7 +48,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     while(cur_message->next)
         cur_message = cur_message->next;
         
-    cur_message->next = newMessage;
+    cur_message->next = new_message;
 }
 
 

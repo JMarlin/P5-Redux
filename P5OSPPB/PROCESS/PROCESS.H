@@ -30,11 +30,10 @@ extern int old_err;
 extern unsigned char in_kernel;
 
 unsigned char needs_swap;
-process* procTable;
 
-typedef struct proc {
-    int bs;
-} proc;
+//typedef struct proc {
+//    int bs;
+//} proc;
 
 typedef struct ivector {
     unsigned short offset;
@@ -75,6 +74,7 @@ typedef struct process {
 } process;
 
 process* p;
+process* procTable;
 
 void startProcessManagement();
 void endProc(process* proc);
@@ -83,7 +83,7 @@ process* newUserProc();
 //process* newV86Proc();
 void setProcEntry(process* proc, void* entryPoint);
 void enterProc(unsigned int pid);
-process* exec_process(unsigned char* path);
+unsigned int exec_process(unsigned char* path);
 int request_new_page(process* proc);
 void next_process();
 void prep_next_process();

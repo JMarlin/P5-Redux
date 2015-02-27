@@ -11,8 +11,8 @@ void usrExit(void);
 void causeError(void);
 void peekV86(void);
 void peekKern(void);
-void startProc(void);
-void global(void);
+void startDos(void);
+void sendMsg(void);
 
 
 //Typedefs
@@ -38,7 +38,7 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&causeError,
     (sys_command)&peekV86,
     (sys_command)&peekKern,
-    (sys_command)&startProc,
+    (sys_command)&startDos,
     (sys_command)&sendMsg
 };
 

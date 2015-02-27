@@ -95,9 +95,9 @@ void syscall_exec(void) {
         case 2:
             if(getMessage(p, &temp_message)) {
                 p->ctx.eax = 1; //a 1 in eax is 'message found'
-                p->ctx.ebx = temp_message->source;
-                p->ctx.ecx = temp_message->command;
-                p->ctx.edx = temp_message->payload;
+                p->ctx.ebx = temp_message.source;
+                p->ctx.ecx = temp_message.command;
+                p->ctx.edx = temp_message.payload;
             } else {
                 p->ctx.eax = 0; //a 0 in eax is 'no messages pending'
                 p->ctx.ebx = 0;

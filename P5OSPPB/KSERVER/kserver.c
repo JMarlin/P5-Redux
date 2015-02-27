@@ -2,6 +2,7 @@
 #include "../process/message.h"
 #include "../ascii_io/ascii_i.h"
 #include "../ascii_io/ascii_o.h"
+#include "kserver.h"
 
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
 

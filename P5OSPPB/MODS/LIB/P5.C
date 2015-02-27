@@ -1,7 +1,7 @@
 #include "../include/p5.h"
 
 
-message tmp_msg;
+message temp_msg;
 
 
 int getMessage(message* msg) {
@@ -39,7 +39,7 @@ void postMessage(unsigned int dest, unsigned int command, unsigned int payload) 
         "mov $0x01, %%eax \n"
         "int $0xFF \n"
         :
-        : "r" (dest), "=r" (command), "=r" (payload)
+        : "r" (dest), "r" (command), "r" (payload)
         : "eax", "ebx", "ecx", "edx"
     );
 }
