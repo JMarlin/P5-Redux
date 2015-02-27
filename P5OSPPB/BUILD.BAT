@@ -41,6 +41,11 @@ cd ..\process
 echo Starting process build...
 as -o ..\build\processs.o process.s
 gcc -c -o ..\build\process.o process.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+gcc -c -o ..\build\message.o message.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+
+cd ..\kserver
+echo Starting kserver build...
+gcc -c -o ..\build\kserver.o kserver.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
 
 cd ..\fat12
 echo Starting fat12 build...

@@ -27,5 +27,7 @@ INPUT(
     ramdisk.o
     timer.o
     timers.o
+    message.o
+    kserver.o
 )
 
