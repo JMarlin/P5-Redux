@@ -35,9 +35,9 @@ _timer_handler:
     push %ebx    
     mov _t_counter, %eax
     inc %eax
-    mov $1, %ebx
+    mov $2, %ebx
     cmp %eax, %ebx
-    je timer_reset
+    jgt timer_reset
     
     mov %eax, _t_counter    
     mov $0x20, %al
