@@ -52,7 +52,7 @@ _in_kernel: .byte 0x0
 _switchToKernel:
 
     /*get interrupts rolling again*/
-    sti 
+    /* sti */ 
 
     /* debug breakpoint */
     mov %eax, (0x1000)

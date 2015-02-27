@@ -55,6 +55,7 @@ void returnToProcess(process* proc) {
 
     process* oldP = p;
 
+    needs_swap = 1;
     if(needs_swap) {
         
         prints("PROC SWITCH\n");
