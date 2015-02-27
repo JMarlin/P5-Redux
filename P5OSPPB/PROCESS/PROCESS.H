@@ -2,11 +2,50 @@
 #define PROCESS_H
 
 #include "../memory/paging.h"
-#include "message.h"
 
 #define PT_USER 0
 #define PT_V86  1
 
+typedef struct context {
+    unsigned int esp;
+    unsigned int cr3;
+    unsigned int eip;
+    unsigned int eflags;
+    unsigned int eax;
+    unsigned int ecx;
+    unsigned int edx;
+    unsigned int ebx;
+    unsigned int ebp;
+    unsigned int esi;
+    unsigned int edi;
+    unsigned short es;
+    unsigned short cs;
+    unsigned short ss;
+    unsigned short ds;
+    unsigned short fs;
+    unsigned short gs;
+    unsigned int err;
+    unsigned char vif;
+    unsigned char type;
+} context;
+
+typedef struct message {
+
+    unsigned int source;
+    unsigned int command;
+    unsigned int payload;
+    struct message* next;
+} message;
+
+typedef struct process {
+    unsigned int id;
+    pageRange* root_page;
+    message* root_msg;
+    context ctx;
+    void* usr;
+    unsigned int base;
+    unsigned int size;
+} process;
 
 extern int old_esp;
 extern int old_cr3;
@@ -39,39 +78,6 @@ typedef struct ivector {
     unsigned short offset;
     unsigned short segment;
 } __attribute__ ((packed)) ivector;
-
-typedef struct context {
-    unsigned int esp;
-    unsigned int cr3;
-    unsigned int eip;
-    unsigned int eflags;
-    unsigned int eax;
-    unsigned int ecx;
-    unsigned int edx;
-    unsigned int ebx;
-    unsigned int ebp;
-    unsigned int esi;
-    unsigned int edi;
-    unsigned short es;
-    unsigned short cs;
-    unsigned short ss;
-    unsigned short ds;
-    unsigned short fs;
-    unsigned short gs;
-    unsigned int err;
-    unsigned char vif;
-    unsigned char type;
-} context;
-
-typedef struct process {
-    unsigned int id;
-    pageRange* root_page;
-    message* root_msg;
-    context ctx;
-    void* usr;
-    unsigned int base;
-    unsigned int size;
-} process;
 
 process* p;
 process* procTable;
