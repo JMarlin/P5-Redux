@@ -94,7 +94,7 @@ void init_timer() {
     t_counter = 0;
 
     init_pic();
-    init_time_chip(2000);
+    init_time_chip(1000);
     installInterrupt(TIMER_INT_NUM, &timer_handler, 0);
     //installInterrupt(0xE7, &spurious_handler, 0);
 }
