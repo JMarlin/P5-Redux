@@ -73,7 +73,7 @@ void returnToProcess(process* proc) {
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
     //if(p != oldP) 
-    apply_page_range(p->base, p->root_page);
+    apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
     
     //Restore the running context
     old_esp = p->ctx.esp;
