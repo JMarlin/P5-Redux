@@ -32,7 +32,7 @@ struct pageRange;
 
 typedef struct process {
     unsigned int id;
-    pageRange* root_page;
+    struct pageRange* root_page;
     struct message* root_msg;
     context ctx;
     void* usr;
@@ -62,10 +62,6 @@ extern int old_err;
 extern unsigned char in_kernel;
 
 unsigned char needs_swap;
-
-//typedef struct proc {
-//    int bs;
-//} proc;
 
 typedef struct ivector {
     unsigned short offset;
