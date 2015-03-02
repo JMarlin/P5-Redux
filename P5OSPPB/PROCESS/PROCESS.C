@@ -65,10 +65,6 @@ void returnToProcess(process* proc) {
     }
     
     p = proc;
-
-    insPtr = (char*)p->ctx.eip;
-    kernelDebug();
-    scans(5, fake);
     
     //Turn off the page mapping of the last process
     //if(oldP && oldP != p)

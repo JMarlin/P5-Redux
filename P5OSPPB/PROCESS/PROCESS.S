@@ -150,7 +150,7 @@ _switchToKernel:
     
  super_cont:
     pop %eax /* this is a test to see if it's cool if we just discard these values */
-    pop %eax
+    pop %eax /* update: we can, but that's because they're ESP and SS, dumbass. */
     mov %esp, _old_esp
     mov %ss, _old_ss
        
