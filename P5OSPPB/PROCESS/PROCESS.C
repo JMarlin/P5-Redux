@@ -605,7 +605,7 @@ unsigned int exec_process(unsigned char* path) {
         usrBase[i++] = (char)tmpVal;
     
     //Restore the active process's paging
-    apply_page_range(p->base, p->root_page);
+    if(p) apply_page_range(p->base, p->root_page);
     
     prints("Launching usermode process\n");    
         
