@@ -50,6 +50,7 @@ _old_err: .int 0x0
 
 _in_kernel: .byte 0x0
 _prc_is_super: .byte 0x0
+_super_esp: .int 0x0
 
 _switchToKernel:
 
@@ -148,6 +149,8 @@ _switchToKernel:
     jmp notsuper_cont
     
  super_cont:
+    pop %eax /* this is a test to see if it's cool if we just discard these values */
+    pop %eax
     mov %esp, _old_esp
     mov %ss, _old_ss
        
