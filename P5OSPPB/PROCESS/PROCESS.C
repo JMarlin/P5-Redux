@@ -54,10 +54,6 @@ void kernelDebug(void) {
 void returnToProcess(process* proc) {
 
     process* oldP = p;
-
-    insPtr = (char*)p->ctx.eip;
-    kernelDebug();
-    scans(5, fake);
     
     //needs_swap = 1;
     if(needs_swap) {
@@ -69,6 +65,10 @@ void returnToProcess(process* proc) {
     }
     
     p = proc;
+
+    insPtr = (char*)p->ctx.eip;
+    kernelDebug();
+    scans(5, fake);
     
     //Turn off the page mapping of the last process
     //if(oldP && oldP != p)
