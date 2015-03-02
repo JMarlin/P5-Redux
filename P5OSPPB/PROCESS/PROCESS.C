@@ -598,5 +598,7 @@ unsigned int exec_process(unsigned char* path) {
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
         
+    prints("Launching usermode process\n");    
+        
     return proc->id;
 }
