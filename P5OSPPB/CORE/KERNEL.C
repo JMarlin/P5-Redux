@@ -155,7 +155,7 @@ int main(void) {
         pchar((char)tempCh);
     
     //__asm__ ("sti");
-    enterProc(exec_process(":usr.mod"));
+    enterProc(exec_process(":usr.mod"), 1);
 
     prints("Initial process could not be started.\n");
     while(1);

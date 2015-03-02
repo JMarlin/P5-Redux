@@ -26,6 +26,7 @@ void terminate(void);
 unsigned char getch();
 void clearScreen();
 unsigned int startProc(unsigned char* path);
+unsigned int startSuperProc(unsigned char* path);
 void scans(int c, char* b);
 void prints(char* s);
 unsigned char digitToHex(unsigned char digit);

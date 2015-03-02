@@ -4,6 +4,9 @@
 #define PT_USER 0
 #define PT_V86  1
 
+//Process flags
+#define PF_SUPER 1 //If the flag at bit 1 is set then the process has supervisor permissions 
+
 typedef struct context {
     unsigned int esp;
     unsigned int cr3;
@@ -38,6 +41,7 @@ typedef struct process {
     void* usr;
     unsigned int base;
     unsigned int size;
+    unsigned int flags;
 } process;
 
 extern int old_esp;
@@ -75,10 +79,11 @@ void startProcessManagement();
 void endProc(process* proc);
 void kernelEntry(void);
 process* newUserProc();
+process* newSuperProc();
 //process* newV86Proc();
 void setProcEntry(process* proc, void* entryPoint);
 void enterProc(unsigned int pid);
-unsigned int exec_process(unsigned char* path);
+unsigned int exec_process(unsigned char* path, char isSuper);
 int request_new_page(process* proc);
 void next_process();
 void prep_next_process();

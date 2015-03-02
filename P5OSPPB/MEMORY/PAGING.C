@@ -143,7 +143,7 @@ void disable_page_range(unsigned int vBase, pageRange* pr_base) {
 }
 
 
-void apply_page_range(unsigned int vBase, pageRange* pr_base) {
+void apply_page_range(unsigned int vBase, pageRange* pr_base, char super) {
 
     pageRange* pr_current = pr_base;
     unsigned int v_addr;
@@ -156,7 +156,8 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base) {
     //Iterate through 
     while(pr_current) {
     
-        map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, 7);   
+        //Map the page with kernel privilege if super is set, user if not 
+        map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, super ? 3 : 7);   
         v_addr += (pr_current->count << 12);
         pr_current = pr_current->next;
     } 

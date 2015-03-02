@@ -64,7 +64,18 @@ unsigned int startProc(unsigned char* path) {
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
     
-    prints("");
+    return temp_msg.payload;
+}
+
+
+unsigned int startSuperProc(unsigned char* path) {
+
+    postMessage(0, 5, (unsigned int)path);
+
+    //We should probably add a method to ignore messages
+    //we don't care about but leave them in the queue
+    while(!getMessage(&temp_msg));
+    
     return temp_msg.payload;
 }
 

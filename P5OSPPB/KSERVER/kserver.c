@@ -50,13 +50,33 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             clear();
             break;
         
-        //message 4: startproc
+        //message 4: startuserproc
         //Read the string in the userspace at address payload
         //and use it to start a process from the executable at
         //that path, then send a PROC_STARTED message with
         //the ID of the new process in the payload
         case 4:
-            passMessage(0, source, PROC_STARTED, exec_process((unsigned char*)payload));
+            passMessage(0, source, PROC_STARTED, exec_process((unsigned char*)payload, 0));
+            break;
+        
+        //message 5: startsuperproc
+        //Works the same as the above, but the created process is 
+        //a superproc. The new superproc may only be created if the
+        //calling proc is also a superproc -- we cannot start superprocs
+        //from userprocs because that would defeat the purpose. Once we
+        //have users set up we will be able to start a superproc if the
+        //owning user is a superuser, but that's down the road
+        case 5:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            
+            if(i == 256)
+                return;
+            
+            if(!(procTable[i].flags & PF_SUPER))
+                passMessage(0, source, PROC_STARTED, 0);
+            else
+                passMessage(0, source, PROC_STARTED, exec_process((unsigned char*)payload, 1));
+            
             break;
             
         default:

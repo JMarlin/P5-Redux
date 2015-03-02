@@ -429,6 +429,7 @@ process* newProcess() {
     proc->id = nextProc++;
     proc->root_page = (pageRange*)0x0;  
     proc->root_msg = (message*)0x0;
+    proc->flags = 0;
     return proc;
 }
 
@@ -457,6 +458,36 @@ process* newUserProc() {
     newP->ctx.eflags = 0x200;
     return newP;
 }
+
+
+process* newSuperProc() {
+
+    process* newP;
+    
+    newP = newProcess();
+        
+    if(!newP)
+        return newP;
+    
+    //Set the superproc bit
+    newP->flags |= PF_SUPER;
+    
+    newP->base = 0xB00000;
+    newP->size = 0x0;
+    
+    clearContext(&(newP->ctx));
+    newP->ctx.esp = 0xB00FFF;
+    newP->ctx.ss = 0x10;
+    newP->ctx.ds = 0x10;
+    newP->ctx.cs = 0x8;
+    newP->ctx.eip = 0xB01000;
+
+    //Interrupts enabled by default
+    newP->ctx.vif = 1;
+    newP->ctx.eflags = 0x200;
+    return newP;
+}
+
 
 /*
 process* newV86Proc() {
@@ -540,7 +571,7 @@ int request_new_page(process* proc) {
 }
 
 
-unsigned int exec_process(unsigned char* path) {
+unsigned int exec_process(unsigned char* path, char isSuper) {
 
     FILE exeFile, exeFile2;
     process* proc;
@@ -554,8 +585,15 @@ unsigned int exec_process(unsigned char* path) {
         
     pathBuf[i] = 0;
     
-    if(!(proc = newUserProc()))
-        return 0;
+    if(isSuper) {
+    
+        if(!(proc = newSuperProc()))
+            return 0;
+    } else {
+    
+        if(!(proc = newUserProc()))
+            return 0;
+    }
     
     file_open(pathBuf, &exeFile);
     
@@ -590,7 +628,7 @@ unsigned int exec_process(unsigned char* path) {
     
     //Activate the new pages so we're writing to the
     //correct locations on physical ram
-    apply_page_range(proc->base, proc->root_page);
+    apply_page_range(proc->base, proc->root_page, proc->flags & PF_SUPER);
     
     //Because we can't rewind or close and reopen the file yet
     file_open(pathBuf, &exeFile2);
@@ -599,7 +637,7 @@ unsigned int exec_process(unsigned char* path) {
         usrBase[i++] = (char)tmpVal;
     
     //Restore the active process's paging
-    if(p) apply_page_range(p->base, p->root_page);
+    if(p) apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
     
     prints("Launching usermode process\n");    
         
