@@ -8,6 +8,7 @@
 .globl _returnToProc
 
 .globl _in_kernel
+.globl _prc_is_super
 
 .globl _old_esp
 .globl _old_cr3
@@ -48,16 +49,13 @@ _old_gs: .short 0x0
 _old_err: .int 0x0
 
 _in_kernel: .byte 0x0
+_prc_is_super: .byte 0x0
 
 _switchToKernel:
 
-    /*get interrupts rolling again*/
-    /* sti */ 
-
     /* debug breakpoint */
-    mov %eax, (0x1000)
-
-
+    mov %eax, (0x1000)  
+    
     /* setup a quick temp ds for var access */
     /* push es first so we can restore it later */
     /* after using it for storing the original ds val */
@@ -125,11 +123,25 @@ _switchToKernel:
     mov %ax, _old_cs
     pop %eax
     mov %eax, _old_eflags
+    
+    /* Check _prc_is_super and, if it was set, don't get the esp or ss */
+    /* In the future, it would probably be a great idea to retrieve the */
+    /* proper kernel ESP instead of hijacking the process stack, but whatev */
+    mov _prc_is_super, %eax
+    cmp %eax, $0x0
+    jne super_cont
+        
     pop %eax
     mov %eax, _old_esp
     pop %eax
     mov %ax, _old_ss
-
+    jmp notsuper_cont
+    
+ super_cont:
+    mov %esp, _old_esp
+    mov %ss, _old_ss
+    
+ notsuper_cont:   
     /* check to see if we have anything else on the stack */
     mov _old_eflags, %eax
     and $0x20000, %eax

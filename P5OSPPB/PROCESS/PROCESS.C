@@ -57,8 +57,7 @@ void returnToProcess(process* proc) {
 
     //needs_swap = 1;
     if(needs_swap) {
-        
-           
+                   
         for(++procPtr; (!procTable[procPtr].id); procPtr++);
 
         proc = &procTable[procPtr];
@@ -74,6 +73,9 @@ void returnToProcess(process* proc) {
     DEBUG("Applying process paging:\n");
     //if(p != oldP) 
     apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
+    
+    prc_is_super = p->flags & PF_SUPER ? 1 : 0;
+        
     
     //Restore the running context
     old_esp = p->ctx.esp;

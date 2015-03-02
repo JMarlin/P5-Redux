@@ -64,6 +64,7 @@ extern short old_gs;
 extern int old_err;
 
 extern unsigned char in_kernel;
+extern unsigned char prc_is_super;
 
 unsigned char needs_swap;
 
