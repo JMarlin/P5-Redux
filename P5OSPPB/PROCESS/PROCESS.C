@@ -55,6 +55,10 @@ void returnToProcess(process* proc) {
 
     process* oldP = p;
 
+    insPtr = (char*)p->ctx.eip;
+    kernelDebug();
+    scans(5, fake);
+    
     //needs_swap = 1;
     if(needs_swap) {
                    
@@ -336,19 +340,7 @@ void kernelEntry(void) {
     p->ctx.fs = old_fs;
     p->ctx.gs = old_gs;
     p->ctx.err = old_err;
-        
-    /*
-    __asm__ volatile (
-        "pushf \n"
-        "pop %0"
-        : "=r" (kflags)
-        :
-        :
-    );
-    prints("Kernel EFLAGS: "); printHexDword(kflags); prints("\n");    
-    scans(5, fake);
-    */
-        
+                
     switch(except_num) {
 
         case EX_GPF:
