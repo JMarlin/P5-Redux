@@ -57,10 +57,14 @@ _switchToKernel:
     mov %eax, (0x1000)  
 
     /* Make sure the ESP gets restored regardless */
-    /* of what the previous privilege level was */    
-    mov %ss, %ss:_old_ss
-    mov %esp, %ss:_old_esp
-    mov %ss:0x002019A4, %esp 
+    /* of what the previous privilege level was */   
+    /* NOTE: This isn't good enough. When we switch */
+    /* the stack on a kernel mode process, we lose */
+    /* the values that were popped onto the stack */
+    /* during the INT execution. We need to safely */
+    /* detect if we're in kernel mode very first thing */
+    /* and, if we are, don't switch the stack until */
+    /* we've gotten all the data we need. */    
     
     /* setup a quick temp ds for var access */
     /* push es first so we can restore it later */
@@ -146,7 +150,7 @@ _switchToKernel:
  super_cont:
     mov %esp, _old_esp
     mov %ss, _old_ss
-    
+       
  notsuper_cont:   
     /* check to see if we have anything else on the stack */
     mov _old_eflags, %eax
@@ -164,7 +168,12 @@ _switchToKernel:
     pop %eax
     mov %ax, _old_gs
 
- k_continue:    
+ k_continue:   
+   
+    /* ensure that we're switched over to */
+    /* the kernel stack */
+    mov 0x002019A4, %esp  
+ 
     mov %ss, %ax
     mov %ax, %gs
     mov %ax, %fs
