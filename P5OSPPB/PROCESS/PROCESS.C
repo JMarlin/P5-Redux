@@ -8,6 +8,7 @@
 #include "../fs/fs.h"
 #include "../core/global.h"
 #include "../timer/timer.h"
+#include "../memory/paging/h"
 #include "message.h"
 
 
