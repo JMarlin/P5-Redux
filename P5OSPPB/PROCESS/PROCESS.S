@@ -128,7 +128,7 @@ _switchToKernel:
     /* In the future, it would probably be a great idea to retrieve the */
     /* proper kernel ESP instead of hijacking the process stack, but whatev */
     mov _prc_is_super, %eax
-    cmp %eax, $0x0
+    cmp $0x0, %eax
     jne super_cont
         
     pop %eax
