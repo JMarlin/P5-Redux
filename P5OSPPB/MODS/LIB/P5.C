@@ -6,42 +6,24 @@ message temp_msg;
 
 int getMessage(message* msg) {
     
-    unsigned int source, command, payload, retval;
-    
-        __asm__ volatile (
-        "mov $0x02, %%eax \n"
-        "int $0xFF \n"
-        "mov %%eax, %0 \n"
-        "mov %%ebx, %1 \n"
-        "mov %%ecx, %2 \n"
-        "mov %%edx, %3 \n"
-        : "=r" (retval), "=r" (source), "=r" (command), "=r" (payload)
-        : 
-        : "eax", "ebx", "ecx", "edx"
-    );
+    asm_get_msg();
     
     if(!retval)
         return 0;
         
-    msg->source = source;
+    msg->source = dest;
     msg->command = command;
     msg->payload = payload;    
     return 1;
 }
 
 
-void postMessage(unsigned int dest, unsigned int command, unsigned int payload)  {
+void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayload)  {
         
-        __asm__ volatile (
-        "mov %0, %%ebx \n"
-        "mov %1, %%ecx \n"
-        "mov %2, %%edx \n"
-        "mov $0x01, %%eax \n"
-        "int $0xFF \n"
-        :
-        : "r" (dest), "r" (command), "r" (payload)
-        : "eax", "ebx", "ecx", "edx"
-    );
+    dest = ldest;
+    command = lcommand;
+    payload = lpayload;    
+    asm_send_msg();
 }
 
 void pchar(char c) {

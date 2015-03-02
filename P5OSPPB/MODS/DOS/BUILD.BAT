@@ -1,6 +1,6 @@
 as -o init.o init.s
 gcc -c -o main.o main.c -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
-ld -o dos.mod -T lscpt.lds init.o main.o ..\lib\p5.o
+ld -o dos.mod -T lscpt.lds init.o main.o ..\lib\p5.o ..\lib\p5s.o
 copy dos.mod ..\..\..\rampak\
 
 

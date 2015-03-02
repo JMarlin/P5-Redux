@@ -1,8 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "../memory/paging.h"
-
 #define PT_USER 0
 #define PT_V86  1
 
@@ -29,18 +27,13 @@ typedef struct context {
     unsigned char type;
 } context;
 
-typedef struct message {
-
-    unsigned int source;
-    unsigned int command;
-    unsigned int payload;
-    struct message* next;
-} message;
+struct message;
+struct pageRange;
 
 typedef struct process {
     unsigned int id;
     pageRange* root_page;
-    message* root_msg;
+    struct message* root_msg;
     context ctx;
     void* usr;
     unsigned int base;

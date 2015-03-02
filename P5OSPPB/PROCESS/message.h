@@ -1,8 +1,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "process.h"
-
 typedef struct message {
 
     unsigned int source;
@@ -11,7 +9,9 @@ typedef struct message {
     struct message* next;
 } message;
 
+struct process;
+
 void passMessage(unsigned int source, unsigned int dest, unsigned int command, unsigned int payload); 
-int getMessage(process* proc, message* msgBuf);
+int getMessage(struct process* proc, message* msgBuf);
 
 #endif //MESSAGE_H
