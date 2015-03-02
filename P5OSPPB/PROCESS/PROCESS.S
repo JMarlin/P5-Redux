@@ -55,6 +55,12 @@ _switchToKernel:
 
     /* debug breakpoint */
     mov %eax, (0x1000)  
+
+    /* Make sure the ESP gets restored regardless */
+    /* of what the previous privilege level was */    
+    mov %ss, %ss:_old_ss
+    mov %esp, %ss:_old_esp
+    mov %ss:0x002019A4, %esp 
     
     /* setup a quick temp ds for var access */
     /* push es first so we can restore it later */
