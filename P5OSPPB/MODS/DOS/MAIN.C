@@ -5,6 +5,8 @@ void main(void) {
     
     message temp_msg;
     
+    prints("\nStarted DOS.MOD\n");
+    
     while(1) {
         while(!getMessage(&temp_msg));
       

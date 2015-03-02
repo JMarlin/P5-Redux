@@ -58,9 +58,9 @@ void returnToProcess(process* proc) {
     //needs_swap = 1;
     if(needs_swap) {
         
-        prints("(S)");
+        //prints("(S)");
     
-        for(procPtr++; (!procTable[procPtr].id); procPtr++);
+        for(++procPtr; (!procTable[procPtr].id); procPtr++);
 
         proc = &procTable[procPtr];
         needs_swap = 0;
