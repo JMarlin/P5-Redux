@@ -64,6 +64,7 @@ unsigned int startProc(unsigned char* path) {
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
     
+    prints("");
     return temp_msg.payload;
 }
 

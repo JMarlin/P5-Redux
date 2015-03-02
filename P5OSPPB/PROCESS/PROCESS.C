@@ -58,15 +58,19 @@ void returnToProcess(process* proc) {
     //needs_swap = 1;
     if(needs_swap) {
         
-        //prints("(S)");
-    
+           
         for(++procPtr; (!procTable[procPtr].id); procPtr++);
 
         proc = &procTable[procPtr];
         needs_swap = 0;
     }
     
-    //if(p != proc)
+    if(p != proc) {
+        prints("Switch to process #");
+        printHexDword(proc->id);
+        prints("\n");
+    }
+    
     p = proc;
     
     //Turn off the page mapping of the last process
