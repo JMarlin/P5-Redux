@@ -553,11 +553,17 @@ unsigned int exec_process(unsigned char* path) {
     char* usrBase = (char*)0xB01000;
     int tmpVal, i;
     int pageCount;
+    unsigned char pathBuf[255];
+    
+    for(i = 0; path[i]; i++)
+        pathBuf[i] = path[i];
+        
+    pathBuf[i] = 0;
     
     if(!(proc = newUserProc()))
         return 0;
     
-    file_open(path, &exeFile);
+    file_open(pathBuf, &exeFile);
     
     if(!exeFile.id) {
     
@@ -593,11 +599,14 @@ unsigned int exec_process(unsigned char* path) {
     apply_page_range(proc->base, proc->root_page);
     
     //Because we can't rewind or close and reopen the file yet
-    file_open(path, &exeFile2);
+    file_open(pathBuf, &exeFile2);
     i = 0;
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
-        
+    
+    //Restore the active process's paging
+    apply_page_range(p->base, p->root_page);
+    
     prints("Launching usermode process\n");    
         
     return proc->id;
