@@ -58,7 +58,7 @@ void clearScreen() {
 
 unsigned int startProc(unsigned char* path) {
 
-    postMessage(0, 3, (unsigned int)path);
+    postMessage(0, 4, (unsigned int)path);
 
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
