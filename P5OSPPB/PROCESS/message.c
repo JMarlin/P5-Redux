@@ -1,6 +1,7 @@
 #include "process.h"
 #include "../memory/memory.h"
 #include "../kserver/kserver.h"
+#include "message.h"
 
 //Append a message with the given params to the end of the destination
 //process's message queue
