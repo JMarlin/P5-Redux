@@ -1,8 +1,8 @@
 .extern _switchToKernel
 .extern _in_kernel
-.globl %ss:_except_num
+.globl _except_num
 
-%ss:_except_num:
+_except_num:
     .byte 0x00, 0x00
 
 .globl _expt_zeroDivide
