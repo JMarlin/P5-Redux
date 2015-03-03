@@ -12,12 +12,20 @@ _msg: dw 0xBEEF
 start:
     mov ax, ds
     mov es, ax
-    mov ax, 0x1000
-    mov si, ax
+    mov ax, 0x2000
+    mov di, ax
+    mov al, 'V'
+    mov [0x2000], al
+    mov al, 'E'
+    mov [0x2001], al
+    mov al, 'S'
+    mov [0x2000], al
+    mov al, 'A'
+    mov [0x2000], al    
     mov ax, 0x4F00
     int 0x10
     cmp ax, 0x004F
-    jne wait_msg
+    je wait_msg
 
     mov ax, 0xDEAD
     mov [_msg], ax
