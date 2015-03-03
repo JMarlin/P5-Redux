@@ -32,8 +32,9 @@ _pending_eoi: .byte 0x0
 _timer_handler:   
     
     push %ds
-    mov $0x10, %ds
     push %eax
+    mov $0x10, %ax
+    mov %ax, %ds
     push %ebx    
     mov _t_counter, %eax
     inc %eax
