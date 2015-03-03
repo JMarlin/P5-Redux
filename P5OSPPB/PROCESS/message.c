@@ -2,6 +2,7 @@
 #include "../memory/memory.h"
 #include "../kserver/kserver.h"
 #include "message.h"
+#include "../ascii_io/ascii_o.h"
 
 //Append a message with the given params to the end of the destination
 //process's message queue
@@ -19,7 +20,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
         
         post_to_kern(source, command, payload);
         return;
-    }
+    }   
         
     //Otherwise, we'll look up the destination process and
     //append the new message to its queue
@@ -62,7 +63,9 @@ int getMessage(process* proc, message* msgBuf) {
     int i;
     message* cur_msg;
     message* prev_msg = (message*)0;
-       
+    
+    prints("Checking on messages...\n");
+    
     if(!proc->root_msg)
         return 0;
         
