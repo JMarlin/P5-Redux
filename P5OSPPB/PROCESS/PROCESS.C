@@ -122,6 +122,8 @@ void V86Entry(void) {
                 if(insPtr[1] == 0xFF) {
 
     	    	    prints("Syscall triggered\n");
+                    kernelDebug();
+    		        scans(5, fake);
                     syscall_number = p->ctx.eax & 0xFFFF;
                     syscall_param1 = p->ctx.ebx & 0xFFFF;
                     syscall_param2 = p->ctx.ecx & 0xFFFF;
