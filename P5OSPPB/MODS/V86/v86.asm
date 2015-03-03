@@ -62,7 +62,7 @@ get_modes:
     int 0xFF
     jmp wait_msg
     
-send_msg:
+beef_msg:
     mov ax, 0x1
     ;Don't need to set bx because it should still
     ;contain the value set by the get message call
