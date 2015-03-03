@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 8
+#define CMD_COUNT 9
 
 unsigned int client_pid = 0;
 
@@ -13,6 +13,7 @@ void peekV86(void);
 void peekKern(void);
 void startDos(void);
 void sendMsg(void);
+void getModes(void);
 
 
 //Typedefs
@@ -28,7 +29,8 @@ char* cmdWord[CMD_COUNT] = {
     "V86",
     "KERN",
     "START",
-    "MSG"
+    "MSG",
+    "MODES"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -39,7 +41,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&peekV86,
     (sys_command)&peekKern,
     (sys_command)&startDos,
-    (sys_command)&sendMsg
+    (sys_command)&sendMsg,
+    (sys_command)&getModes,
 };
 
 char inbuf[50];
@@ -154,6 +157,33 @@ void startDos(void) {
     client_pid = startV86(":v86.mod");
     if(!client_pid)
         prints("New process could not be started.\n");
+}
+
+
+void getModes(void) { 
+
+    message tmp_msg;
+    unsigned short* modeList;
+    unsigned short seg, off;
+    int i = 0;
+    
+    postMessage(client_pid, 1, 0);
+    
+    while(!getMessage(&tmp_msg));
+    
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+    while(!getMessage(&tmp_msg));
+    
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    modeList = (unsigned short*)((((unsigned int)seg) << 4) + off);
+    
+    prints("Available mode numbers: \n");
+    
+    while(modeList[i] != 0xFFFF) {
+    
+        prints("   0x"); printHexWord(modeList[i++]); prints("\n");
+    }
 }
 
 

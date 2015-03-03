@@ -133,10 +133,10 @@ void V86Entry(void) {
             		stack[0] = (unsigned short)(p->ctx.eip + 2);
             		stack[1] = p->ctx.cs;
             		stack[2] = (unsigned short)p->ctx.eflags;
-            		prints("Stack:\n");
-        	        prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-        	        prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-        	        prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+            		//prints("Stack:\n");
+        	        //prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+        	        //prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+        	        //prints("2: 0x"); printHexWord(stack[2]); prints("\n");
 
             		if(p->ctx.vif)
             		    stack[2] |= 0x20;
@@ -161,12 +161,12 @@ void V86Entry(void) {
 
             //IRET
             case 0xCF:
-                prints("Return from previous interrupt\n");
-        	    prints("Stack:\n");
-        	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-        	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-        	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
-        	    kernelDebug();
+                //prints("Return from previous interrupt\n");
+        	    //prints("Stack:\n");
+        	    //prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+        	    //prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+        	    //prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+        	    //kernelDebug();
         	    //scans(5, fake);
                 p->ctx.eip = stack[0];
         	    p->ctx.cs = stack[1];
@@ -179,21 +179,21 @@ void V86Entry(void) {
 
             //O32
             case 0x66:
-                prints("o32 ");
+                DEBUG("o32 ");
                 (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
-                prints("a32 ");
+                DEBUG("a32 ");
                 (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
     	    //PUSHF
             case 0x9C:
-    	        prints("Flags pushed\n");
+    	        DEBUG("Flags pushed\n");
 
                 if(op32) {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 4) & 0xFFFF;
@@ -222,7 +222,7 @@ void V86Entry(void) {
 
         	//POPF
         	case 0x9D:
-        	    prints("Flags popped\n");
+        	    DEBUG("Flags popped\n");
 
                 if(op32) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
@@ -241,7 +241,7 @@ void V86Entry(void) {
 
         	//OUT DX AL
         	case 0xEE:
-        	    prints("Out\n");
+        	    DEBUG("Out\n");
         	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
         	    p->ctx.eip++;
         	    return;
@@ -249,7 +249,7 @@ void V86Entry(void) {
 
         	//IN AL DX
         	case 0xEC:
-        	    prints("In\n");
+        	    DEBUG("In\n");
         	    p->ctx.eax &= 0xFFFFFF00;
         	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
         	    p->ctx.eip++;
@@ -258,7 +258,7 @@ void V86Entry(void) {
 
         	//OUT DX AX
         	case 0xEF:
-        	    prints("OutW\n");
+        	    DEBUG("OutW\n");
                 if(op32) {
                     outd((unsigned short)p->ctx.edx, p->ctx.eax);
                 } else {
@@ -270,7 +270,7 @@ void V86Entry(void) {
 
             //IN AX DX
         	case 0xED:
-        	    prints("In\n");
+        	    DEBUG("In\n");
 
                 if(op32) {
         			p->ctx.eax = ind(p->ctx.edx);
@@ -284,7 +284,7 @@ void V86Entry(void) {
 
             //INT 3 (debug) or anything else
             case 0xCC:
-                prints("V86 Debug Interrupt\n");
+                DEBUG("V86 Debug Interrupt\n");
                 kernelDebug();
                 //scans(5, fake);
                 p->ctx.eip++;
@@ -293,7 +293,7 @@ void V86Entry(void) {
 
     		//CLI
     		case 0xfa:
-                prints("cli\n");
+                DEBUG("cli\n");
                 p->ctx.vif = 0;
                 p->ctx.eip++;
                 return;
@@ -301,7 +301,7 @@ void V86Entry(void) {
 
     		//STI
             case 0xfb:
-                prints("sti\n");
+                DEBUG("sti\n");
                 p->ctx.vif = 1;
                 p->ctx.eip++;
                 return;

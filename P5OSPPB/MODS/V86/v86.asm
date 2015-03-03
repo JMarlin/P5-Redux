@@ -6,10 +6,30 @@
 
 jmp start
 
-_msg: db 0xBE, 0xEF
+_msg: dw 0xBEEF
 
 ;Random test to see if calling a VESA interrupt works
 start:
+    mov ax, 0x8000
+    mov ds, ax
+    
+wait_msg: 
+    mov ax, 0x2
+    int 0xFF
+    cmp ax, 0
+    jne decode_msg
+    jmp wait_msg
+    
+decode_msg:
+    cmp cx, 0x0
+    je beef_msg
+    cmp cx, 0x1
+    je get_modes
+    jmp wait_msg
+
+get_modes:
+    mov [_client], bx
+    
     mov ax, ds
     mov es, ax
     mov ax, 0x2000
@@ -25,16 +45,20 @@ start:
     mov ax, 0x4F00
     int 0x10
     cmp ax, 0x004F
-    je wait_msg
+    je ret_msgs
 
     mov ax, 0xDEAD
     mov [_msg], ax
-
-wait_msg: 
-    mov ax, 0x2
+    
+ ret_msgs:
+    mov bx, [_client]
+    mov cx, 0 ;doesn't matter
+    mov dx, es
+    mov ax, 0x1
     int 0xFF
-    cmp ax, 0
-    jne send_msg
+    mov dx, 0x2022 ;We should get this proper in the future, but fuck it for now
+    mov ax, 0x1
+    int 0xFF
     jmp wait_msg
     
 send_msg:
