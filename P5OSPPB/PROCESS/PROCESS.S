@@ -55,7 +55,7 @@ _super_esp: .int 0x0
 _switchToKernel:
 
     /* debug breakpoint */
-    mov %eax, (0x1000)  
+    mov %eax, %ss:0x1000  
 
     /* Make sure the ESP gets restored regardless */
     /* of what the previous privilege level was */   
