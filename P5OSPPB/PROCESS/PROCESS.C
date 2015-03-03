@@ -54,9 +54,7 @@ void kernelDebug(void) {
 void returnToProcess(process* proc) {
 
     process* oldP = p;
-    
-    prints("Returning to process\n");
-    
+        
     //needs_swap = 1;
     if(needs_swap) {
                    

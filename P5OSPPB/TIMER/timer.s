@@ -31,30 +31,33 @@ _pending_eoi: .byte 0x0
 .globl _timer_handler
 _timer_handler:   
     
+    push %ds
+    mov $0x10, %ds
     push %eax
     push %ebx    
-    mov %ss:_t_counter, %eax
+    mov _t_counter, %eax
     inc %eax
     mov $2, %ebx
     cmp %eax, %ebx
     jg timer_reset
     
-    mov %eax, %ss:_t_counter    
+    mov %eax, _t_counter    
     mov $0x20, %al
     out %al, $0x20
     pop %ebx
     pop %eax
+    pop %ds
     iret    
     
  timer_reset:
     
     xor %eax, %eax
-    mov %eax, %ss:_t_counter
+    mov %eax, _t_counter
     
     inc %eax
-    mov %al, %ss:_needs_swap
+    mov %al, _needs_swap
     
-    mov %ss:_in_kernel, %al
+    mov _in_kernel, %al
     xor %bl, %bl
     cmp %al, %bl
     je timer_to_kernel
@@ -65,18 +68,20 @@ _timer_handler:
     out %al, $0x20
     
     pop %eax
+    pop %ds
     iret
  
  timer_to_kernel: 
     
-    incb %ss:_in_kernel
-    incb %ss:_pending_eoi
+    incb _in_kernel
+    incb _pending_eoi
     
     mov $0xFE, %al
-    mov %al, %ss:_except_num
+    mov %al, _except_num
     
     pop %ebx
     pop %eax
+    pop %ds
     call _switchToKernel
 
     

@@ -63,9 +63,7 @@ int getMessage(process* proc, message* msgBuf) {
     int i;
     message* cur_msg;
     message* prev_msg = (message*)0;
-    
-    prints("Checking on messages...\n");
-    
+        
     if(!proc->root_msg)
         return 0;
         
