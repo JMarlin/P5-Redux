@@ -7,6 +7,7 @@
 jmp start
 
 _msg: dw 0xBEEF
+_client: dw 0x0
 
 ;Random test to see if calling a VESA interrupt works
 start:
