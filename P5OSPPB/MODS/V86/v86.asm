@@ -4,6 +4,13 @@
 ;This is just to see if our V86 machine plays nice with 
 ;our other processes
 
+;Random test to see if calling a VESA interrupt works
+mov es, ds
+mov ax, 0x1000
+mov si, ax
+mov ax, 0x4F00
+int 0x10
+
 wait_msg: 
     mov ax, 0x2
     int 0xFF
