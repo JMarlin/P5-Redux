@@ -5,7 +5,8 @@
 ;our other processes
 
 ;Random test to see if calling a VESA interrupt works
-mov es, ds
+mov ax, ds
+mov es, ax
 mov ax, 0x1000
 mov si, ax
 mov ax, 0x4F00
