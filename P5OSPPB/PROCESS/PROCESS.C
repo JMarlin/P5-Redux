@@ -121,13 +121,11 @@ void V86Entry(void) {
                 //If it was a service call, forward it to the syscall handler
                 if(insPtr[1] == 0xFF) {
 
-    	    	    prints("Syscall triggered\n");
-                    kernelDebug();
-    		        scans(5, fake);
                     syscall_number = p->ctx.eax & 0xFFFF;
                     syscall_param1 = p->ctx.ebx & 0xFFFF;
                     syscall_param2 = p->ctx.ecx & 0xFFFF;
                     syscall_exec();
+                    p->ctx.eip += 2;
                 } else {
 
             		stack -= 3;
@@ -149,11 +147,11 @@ void V86Entry(void) {
                     intVect *= 4;
                     off = ((unsigned short*)intVect)[0];
                     seg = ((unsigned short*)intVect)[1];
-                    prints("V86 Interrupt #"); printHexByte(insPtr[1]);
-                    prints(" -> "); printHexWord(seg);
-                    prints(":"); printHexWord(off);
-                    prints("\n");
-                    kernelDebug();
+                    //prints("V86 Interrupt #"); printHexByte(insPtr[1]);
+                    //prints(" -> "); printHexWord(seg);
+                    //prints(":"); printHexWord(off);
+                    //prints("\n");
+                    //kernelDebug();
     		        //scans(5, fake);
                     p->ctx.cs = seg;
                     p->ctx.eip = (((unsigned int)off) & 0xFFFF);
