@@ -29,6 +29,8 @@ decode_msg:
     je get_modes
     cmp cx, 0x2
     je get_info
+    cmp cx, 0x3
+    je set_mode
     jmp wait_msg
 
 get_modes:    
@@ -81,6 +83,18 @@ get_info:
     mov ax, 0x1
     int 0xFF
     jmp wait_msg
+    
+set_mode:
+   mov bx, dx
+   mov ax, 0x4F02
+   int 0x10
+   
+   mov bx, [_client]
+   mov cx, 0
+   mov dx, ax
+   mov ax, 0x1
+   int 0xFF
+   jmp wait_msg
     
 beef_msg:
     mov ax, 0x1

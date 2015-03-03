@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 9
+#define CMD_COUNT 10
 
 unsigned int client_pid = 0;
 
@@ -14,6 +14,7 @@ void peekKern(void);
 void startDos(void);
 void sendMsg(void);
 void getModes(void);
+void setMode(void);
 
 
 //Typedefs
@@ -55,7 +56,8 @@ char* cmdWord[CMD_COUNT] = {
     "KERN",
     "START",
     "MSG",
-    "MODES"
+    "MODES",
+    "SET"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -68,6 +70,7 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&startDos,
     (sys_command)&sendMsg,
     (sys_command)&getModes,
+    (sys_command)&setMode
 };
 
 char inbuf[50];
@@ -189,36 +192,6 @@ void getModes(void) {
 
     message tmp_msg;
     unsigned short* modeList;
-    unsigned short seg, off;
-    int i;
-    
-    postMessage(client_pid, 1, 0);
-    
-    while(!getMessage(&tmp_msg));
-    
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    
-    while(!getMessage(&tmp_msg));
-    
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    modeList = (unsigned short*)0x82022;
-    
-    prints("Available mode numbers: \n");
-    
-    i = 0;
-    while(modeList[i] != 0xFFFF) {
-    
-        
-    
-        prints("   0x"); printHexWord(modeList[i++]); prints("\n");
-    }
-}
-
-
-void modeInfo(void) { 
-
-    message tmp_msg;
-    unsigned short* modeList;
     ModeInfoBlock* info;
     unsigned short seg, off;
     int i;
@@ -251,6 +224,22 @@ void modeInfo(void) {
         info = (ModeInfoBlock*)0x83000;
         prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
     }
+}
+
+
+void setMode(void) {
+
+    int i, strlen;
+    unsigned short convNumber;
+
+    prints("Mode number: 0x");
+    scans(6, inbuf);
+    convNumber = (inbuf[3] >= 'A' ? inbuf[3] - 'A' : inbuf[3] - '0') +
+                 ((inbuf[2] >= 'A' ? inbuf[2] - 'A' : inbuf[2] - '0') << 4) +
+                 ((inbuf[1] >= 'A' ? inbuf[1] - 'A' : inbuf[1] - '0') << 8) +
+                 ((inbuf[0] >= 'A' ? inbuf[0] - 'A' : inbuf[0] - '0') << 12);
+    postMessage(client_pid, 3, convNumber);
+    while(!getMessage(&tmp_msg)); 
 }
 
 
