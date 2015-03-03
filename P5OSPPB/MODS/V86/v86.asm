@@ -52,12 +52,21 @@ get_modes:
     mov [_msg], ax
     
  ret_msgs:
+    ;For debuggan' purposes, we're going to fire the get mode info commmand as well
+    mov ax, ds
+    mov es, ax
+    mov ax, 0x3000
+    mov di, ax
+    mov cx, 0x0146
+    mov ax, 0x4F01
+    int 0x10    
+ 
     mov bx, [_client]
     mov cx, 0 ;doesn't matter
-    mov dx, es
+    mov dx, [0x200E]
     mov ax, 0x1
     int 0xFF
-    mov dx, 0x2022 ;We should get this proper in the future, but fuck it for now
+    mov dx, [0x2010] ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
     jmp wait_msg

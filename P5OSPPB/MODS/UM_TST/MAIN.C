@@ -19,7 +19,6 @@ void getModes(void);
 //Typedefs
 typedef void (*sys_command)(void);
 
-
 //Variable declarations
 char* cmdWord[CMD_COUNT] = {
     "CLR",
@@ -165,7 +164,7 @@ void getModes(void) {
     message tmp_msg;
     unsigned short* modeList;
     unsigned short seg, off;
-    int i = 0;
+    int i;
     
     postMessage(client_pid, 1, 0);
     
@@ -176,10 +175,39 @@ void getModes(void) {
     while(!getMessage(&tmp_msg));
     
     off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    modeList = (unsigned short*)((((unsigned int)seg) << 4) + off);
+    modeList = (unsigned short*)0x82022;
     
     prints("Available mode numbers: \n");
     
+    i = 0;
+    while(modeList[i] != 0xFFFF) {
+    
+        prints("   0x"); printHexWord(modeList[i++]); prints("\n");
+    }
+}
+
+
+void modeInfo(void) { 
+
+    message tmp_msg;
+    unsigned short* modeList;
+    unsigned short seg, off;
+    int i;
+    
+    postMessage(client_pid, 1, 0);
+    
+    while(!getMessage(&tmp_msg));
+    
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+    while(!getMessage(&tmp_msg));
+    
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    modeList = (unsigned short*)0x82022;
+    
+    prints("Available mode numbers: \n");
+    
+    i = 0;
     while(modeList[i] != 0xFFFF) {
     
         prints("   0x"); printHexWord(modeList[i++]); prints("\n");
