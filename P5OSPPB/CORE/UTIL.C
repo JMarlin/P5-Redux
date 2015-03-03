@@ -126,7 +126,18 @@ inline unsigned char inb(unsigned short _port) {
 
 inline void outw(unsigned short _port, unsigned short _data) {
 
-    asm volatile ( "outw %0, %1" : "=a"(_data) : "Nd"(_port) );
+    asm volatile ( 
+        "push %%ax \n"
+        "push %%dx \n"
+        "mov %0, %%ax \n"
+        "mov %1, %%dx \n"
+        "out %%ax, %%dx"
+        "pop %%dx \n"
+        "pop %%ax \n"
+        : 
+        : "r" (_port), "r" (_data)
+        :
+    );
 }
 
 
@@ -135,7 +146,18 @@ inline unsigned short inw(unsigned short _port) {
 
     unsigned short data;
     
-    asm volatile ("inw %1, %0" : "=a"(data) : "Nd"(_port) );
+        asm volatile ( 
+        "push %%ax \n"
+        "push %%dx \n"
+        "mov %1, %%dx \n"
+        "in %%dx, %%ax"
+        "mov %%ax, %0"
+        "pop %%dx \n"
+        "pop %%ax \n"
+        : "=r" (data)
+        : "r" (_port)
+        :
+    );
     return data;
 }
 
