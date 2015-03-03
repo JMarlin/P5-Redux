@@ -33,13 +33,13 @@ _timer_handler:
     
     push %eax
     push %ebx    
-    mov _t_counter, %eax
+    mov %ss:_t_counter, %eax
     inc %eax
     mov $2, %ebx
     cmp %eax, %ebx
     jg timer_reset
     
-    mov %eax, _t_counter    
+    mov %eax, %ss:_t_counter    
     mov $0x20, %al
     out %al, $0x20
     pop %ebx
@@ -49,12 +49,12 @@ _timer_handler:
  timer_reset:
     
     xor %eax, %eax
-    mov %eax, _t_counter
+    mov %eax, %ss:_t_counter
     
     inc %eax
-    mov %al, _needs_swap
+    mov %al, %ss:_needs_swap
     
-    mov _in_kernel, %al
+    mov %ss:_in_kernel, %al
     xor %bl, %bl
     cmp %al, %bl
     je timer_to_kernel
@@ -69,11 +69,11 @@ _timer_handler:
  
  timer_to_kernel: 
     
-    incb _in_kernel
-    incb _pending_eoi
+    incb %ss:_in_kernel
+    incb %ss:_pending_eoi
     
     mov $0xFE, %al
-    mov %al, _except_num
+    mov %al, %ss:_except_num
     
     pop %ebx
     pop %eax
