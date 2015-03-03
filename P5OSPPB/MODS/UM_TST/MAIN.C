@@ -19,6 +19,32 @@ void getModes(void);
 //Typedefs
 typedef void (*sys_command)(void);
 
+typedef struct ModeInfoBlock {
+  unsigned short attributes;
+  unsigned char winA,winB;
+  unsigned short granularity;
+  unsigned short winsize;
+  unsigned short segmentA, segmentB;
+  unsigned short realFctPtrSeg;
+  unsigned short realFctPtrOff;
+  unsigned short pitch; // bytes per scanline
+ 
+  unsigned short Xres, Yres;
+  unsigned char Wchar, Ychar, planes, bpp, banks;
+  unsigned char memory_model, bank_size, image_pages;
+  unsigned char reserved0;
+ 
+  unsigned char red_mask, red_position;
+  unsigned char green_mask, green_position;
+  unsigned char blue_mask, blue_position;
+  unsigned char rsv_mask, rsv_position;
+  unsigned char directcolor_attributes;
+ 
+  unsigned int physbase; 
+  unsigned int reserved1;
+  unsigned short reserved2;
+} ModeInfoBlock;
+
 //Variable declarations
 char* cmdWord[CMD_COUNT] = {
     "CLR",
@@ -182,6 +208,8 @@ void getModes(void) {
     i = 0;
     while(modeList[i] != 0xFFFF) {
     
+        
+    
         prints("   0x"); printHexWord(modeList[i++]); prints("\n");
     }
 }
@@ -191,6 +219,7 @@ void modeInfo(void) {
 
     message tmp_msg;
     unsigned short* modeList;
+    ModeInfoBlock* info;
     unsigned short seg, off;
     int i;
     
@@ -210,7 +239,17 @@ void modeInfo(void) {
     i = 0;
     while(modeList[i] != 0xFFFF) {
     
-        prints("   0x"); printHexWord(modeList[i++]); prints("\n");
+        postMessage(client_pid, 2, modeList[i]);
+        
+        while(!getMessage(&tmp_msg));
+    
+        seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+        while(!getMessage(&tmp_msg));
+    
+        off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+        info = (ModeInfoBlock*)0x83000;
+        prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
     }
 }
 

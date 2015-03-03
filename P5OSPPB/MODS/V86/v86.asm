@@ -22,15 +22,16 @@ wait_msg:
     jmp wait_msg
     
 decode_msg:
+    mov [_client], bx
     cmp cx, 0x0
     je beef_msg
     cmp cx, 0x1
     je get_modes
+    cmp cx, 0x2
+    je get_info
     jmp wait_msg
 
-get_modes:
-    mov [_client], bx
-    
+get_modes:    
     mov ax, ds
     mov es, ax
     mov ax, 0x2000
@@ -46,27 +47,37 @@ get_modes:
     mov ax, 0x4F00
     int 0x10
     cmp ax, 0x004F
-    je ret_msgs
+    je ret_msgs_m
 
     mov ax, 0xDEAD
     mov [_msg], ax
     
- ret_msgs:
-    ;For debuggan' purposes, we're going to fire the get mode info commmand as well
-    mov ax, ds
-    mov es, ax
-    mov ax, 0x3000
-    mov di, ax
-    mov cx, 0x0146
-    mov ax, 0x4F01
-    int 0x10    
- 
+ ret_msgs_m: 
     mov bx, [_client]
     mov cx, 0 ;doesn't matter
     mov dx, [0x200E]
     mov ax, 0x1
     int 0xFF
     mov dx, [0x2010] ;We should get this proper in the future, but fuck it for now
+    mov ax, 0x1
+    int 0xFF
+    jmp wait_msg
+
+get_info:
+    mov ax, ds
+    mov es, ax
+    mov ax, 0x3000
+    mov di, ax
+    mov cx, dx
+    mov ax, 0x4F01
+    int 0x10   
+    
+    mov bx, [_client]
+    mov cx, 0 ;doesn't matter
+    mov dx, 0x8000
+    mov ax, 0x1
+    int 0xFF
+    mov dx, 0x3000 ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
     jmp wait_msg
