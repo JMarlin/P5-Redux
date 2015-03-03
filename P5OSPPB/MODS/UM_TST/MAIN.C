@@ -231,6 +231,7 @@ void setMode(void) {
 
     int i, strlen;
     unsigned short convNumber;
+    unsigned char* v;
     message tmp_msg;
 
     prints("Mode number: 0x");
@@ -240,7 +241,13 @@ void setMode(void) {
                  ((inbuf[1] >= 'A' ? inbuf[1] - 'A' : inbuf[1] - '0') << 8) +
                  ((inbuf[0] >= 'A' ? inbuf[0] - 'A' : inbuf[0] - '0') << 12);
     postMessage(client_pid, 3, convNumber);
+    
     while(!getMessage(&tmp_msg)); 
+    
+    v = (unsigned char*)0xA0000;
+    
+    for(i = 0; i < 0x10000; i++)
+        v[i] = 0xFF;
 }
 
 
