@@ -78,6 +78,20 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
                 passMessage(0, source, PROC_STARTED, exec_process((unsigned char*)payload, 1));
             
             break;
+        
+        //Same as exec superproc call but starts a v86 process
+        case 6:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            
+            if(i == 256)
+                return;
+            
+            if(!(procTable[i].flags & PF_SUPER))
+                passMessage(0, source, PROC_STARTED, 0);
+            else
+                passMessage(0, source, PROC_STARTED, exec_v86((unsigned char*)payload));
+            
+            break;
             
         default:
         break;

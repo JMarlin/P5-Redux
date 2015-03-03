@@ -67,12 +67,15 @@ void returnToProcess(process* proc) {
     p = proc;
     
     //Turn off the page mapping of the last process
-    //if(oldP && oldP != p)
-    disable_page_range(p->base, p->root_page);   
+    if(oldP)
+        if(oldP->root_page)
+            disable_page_range(oldP->base, oldP->root_page);   
+    
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
-    //if(p != oldP) 
-    apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
+    
+    if(p->root_page) 
+        apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
     
     prc_is_super = p->flags & PF_SUPER ? 1 : 0;
         
@@ -479,26 +482,34 @@ process* newSuperProc() {
 }
 
 
-/*
 process* newV86Proc() {
 
-    clearContext(&V86Context);
-    V86Context.type = PT_V86;
-
-    //Set stack to 0x91000, aka 9000:1000
-    V86Context.esp = 0x1000;
-    V86Context.ss = 0x9000;
-    V86Context.ds = 0x9000;
-
-    //Set the flags to V86 mode enable
-    V86Context.eflags = 0x20000;
+    process* newP;
+    
+    newP = newProcess();
+        
+    if(!newP)
+        return newP;
+    
+    //Set the superproc bit
+    newP->flags |= PF_V86;
+    
+    newP->base = 0xB00000;
+    newP->size = 0x0;
+    
+    clearContext(&(newP->ctx));
+    newP->ctx.esp = 0x1000;
+    newP->ctx.ss = 0x9000;
+    newP->ctx.ds = 0x9000;
+    newP->ctx.cs = 0x8000;
+    newP->ctx.eip = 0x0;
 
     //Interrupts enabled by default
-    V86Context.vif = 1;
-    V86Context.eflags |= 0x20;
-    return &V86Context;
+    newP->ctx.vif = 1;
+    newP->ctx.eflags = 0x20200;
+    return newP;
 }
-*/
+
 
 void setProcEntry(process* p, void* entryPoint) {
 
@@ -558,6 +569,52 @@ int request_new_page(process* proc) {
         return proc->size = newSize;
     else
         return newSize;
+}
+
+
+unsigned int exec_v86(unsigned char* path) {
+
+    FILE exeFile, exeFile2;
+    process* proc;
+    char* usrBase = (char*)0x80000;
+    int tmpVal, i;
+    int pageCount;
+    unsigned char pathBuf[255];
+    
+    for(i = 0; path[i]; i++)
+        pathBuf[i] = path[i];
+        
+    pathBuf[i] = 0;
+       
+    if(!(proc = newV86Proc()))
+        return 0;
+    
+    file_open(pathBuf, &exeFile);
+    
+    if(!exeFile.id) {
+    
+        prints("Could not open file ");
+        prints(path);
+        prints("\n");
+        //fclose(&exeFile);
+        //freeProcess(proc);
+        return 0;
+    }
+
+    for(i = 0; file_readb(&exeFile) != EOF; i++);
+    
+    //Finish the definition of the root malloc block
+    proc->size = i;
+    
+    //Because we can't rewind or close and reopen the file yet
+    file_open(pathBuf, &exeFile2);
+    i = 0;
+    while((tmpVal = file_readb(&exeFile2)) != EOF)
+        usrBase[i++] = (char)tmpVal;
+    
+    prints("Launching v86 process\n");    
+        
+    return proc->id;
 }
 
 

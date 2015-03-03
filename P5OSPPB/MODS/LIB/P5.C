@@ -80,6 +80,18 @@ unsigned int startSuperProc(unsigned char* path) {
 }
 
 
+unsigned int startV86(unsigned char* path) {
+
+    postMessage(0, 6, (unsigned int)path);
+
+    //We should probably add a method to ignore messages
+    //we don't care about but leave them in the queue
+    while(!getMessage(&temp_msg));
+    
+    return temp_msg.payload;
+}
+
+
 void scans(int c, char* b) {
     
     unsigned char temp_char;

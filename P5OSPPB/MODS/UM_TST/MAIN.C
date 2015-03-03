@@ -151,7 +151,9 @@ void peekKern(void) {
 
 void startDos(void) {
 
-    client_pid = startProc(":dos.mod");
+    client_pid = startV86(":v86.mod");
+    if(!client_pid)
+        prints("New process could not be started.\n");
 }
 
 

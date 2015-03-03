@@ -6,6 +6,7 @@
 
 //Process flags
 #define PF_SUPER 1 //If the flag at bit 1 is set then the process has supervisor permissions 
+#define PF_V86   2
 
 typedef struct context {
     unsigned int esp;
