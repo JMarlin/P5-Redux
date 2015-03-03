@@ -131,7 +131,7 @@ inline void outw(unsigned short _port, unsigned short _data) {
         "push %%dx \n"
         "mov %0, %%ax \n"
         "mov %1, %%dx \n"
-        "out %%ax, %%dx"
+        "out %%ax, %%dx \n"
         "pop %%dx \n"
         "pop %%ax \n"
         : 
@@ -150,8 +150,8 @@ inline unsigned short inw(unsigned short _port) {
         "push %%ax \n"
         "push %%dx \n"
         "mov %1, %%dx \n"
-        "in %%dx, %%ax"
-        "mov %%ax, %0"
+        "in %%dx, %%ax \n"
+        "mov %%ax, %0 \n"
         "pop %%dx \n"
         "pop %%ax \n"
         : "=r" (data)
