@@ -231,6 +231,7 @@ void setMode(void) {
 
     int i, strlen;
     unsigned short convNumber;
+    message tmp_msg;
 
     prints("Mode number: 0x");
     scans(6, inbuf);
