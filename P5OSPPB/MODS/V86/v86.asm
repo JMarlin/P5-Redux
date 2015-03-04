@@ -34,12 +34,12 @@ decode_msg:
     jmp wait_msg
 
 get_modes:    
-    ;Turn debugging on
-    ;mov ax, 0x1
-    ;mov bx, 0x0
-    ;mov cx, 0x7
-    ;mov dx, 0x0
-    ;int 0xFF
+    Turn debugging on
+    mov ax, 0x1
+    mov bx, 0x0
+    mov cx, 0x7
+    mov dx, 0x0
+    int 0xFF
     
     ;We will begin stepping here
     mov ax, ds
@@ -64,11 +64,11 @@ get_modes:
     
  ret_msgs_m: 
     ;Turn debugging back off
-    ;mov ax, 0x1
-    ;mov bx, 0x0
-    ;mov cx, 0x7
-    ;mov dx, 0x0
-    ;int 0xFF
+    mov ax, 0x1
+    mov bx, 0x0
+    mov cx, 0x7
+    mov dx, 0x0
+    int 0xFF
     
     mov bx, [_client]
     mov cx, 0 ;doesn't matter

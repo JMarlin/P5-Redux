@@ -170,6 +170,7 @@ void V86Entry(void) {
                     prints("1: 0x"); printHexWord(stack[1]); prints("\n");
                     prints("2: 0x"); printHexWord(stack[2]); prints("\n");
                     kernelDebug();
+                    while(1);
                     scans(5, fake);
                 }
                 return;
