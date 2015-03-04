@@ -186,6 +186,8 @@ void V86Entry(void) {
                 prints("(o32)");
                 //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
+                p->ctx.eip++;
+                return;
                 break;
 
             //A32
@@ -193,6 +195,8 @@ void V86Entry(void) {
                 prints("(a32)");
                 //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
+                p->ctx.eip++;
+                return;
                 break;
 
     	    //PUSHF
