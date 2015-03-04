@@ -241,7 +241,7 @@ void V86Entry(void) {
 
         	//OUT DX AL
         	case 0xEE:
-        	    prints("(Out)");
+        	    //prints("(Out)");
         	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
         	    p->ctx.eip++;
         	    return;
@@ -249,7 +249,7 @@ void V86Entry(void) {
 
         	//IN AL DX
         	case 0xEC:
-        	    prints("(In)");
+        	    //prints("(In)");
         	    p->ctx.eax &= 0xFFFFFF00;
         	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
         	    p->ctx.eip++;
@@ -258,7 +258,7 @@ void V86Entry(void) {
 
         	//OUT DX AX
         	case 0xEF:
-        	    prints("(OutW)");
+        	    //prints("(OutW)");
                 //if(op32) {
                 //    outd((unsigned short)p->ctx.edx, p->ctx.eax);
                 //} else {
@@ -270,7 +270,7 @@ void V86Entry(void) {
 
             //IN AX DX
         	case 0xED:
-        	    prints("(InW)");
+        	    //prints("(InW)");
 
                 //if(op32) {
         		//	p->ctx.eax = ind(p->ctx.edx);
