@@ -111,7 +111,7 @@ void setupKeyTable() {
     keyTable[0x1c] = '\n';
     keyTable[0x1a] = '[';
     keyTable[0x1b] = ']';
-    keyTable[0x27] = ';'';
+    keyTable[0x27] = ';';
     keyTable[0x28] = '\'';
     keyTable[0x33] = ',';
     keyTable[0x34] = '.';
