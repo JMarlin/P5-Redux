@@ -171,12 +171,12 @@ void V86Entry(void) {
             //IRET
             case 0xCF:
                 prints("Return from previous interrupt\n");
-        	    //prints("Stack:\n");
-        	    //prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-        	    //prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-        	    //prints("2: 0x"); printHexWord(stack[2]); prints("\n");
+        	    prints("Stack:\n");
+        	    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
+        	    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
+        	    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
         	    //kernelDebug();
-        	    //scans(5, fake);
+        	    scans(5, fake);
                 p->ctx.eip = stack[0];
         	    p->ctx.cs = stack[1];
         	    p->ctx.eflags = stack[2] | 0x20020;
