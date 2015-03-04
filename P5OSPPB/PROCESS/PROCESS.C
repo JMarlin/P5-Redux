@@ -170,7 +170,7 @@ void V86Entry(void) {
 
             //IRET
             case 0xCF:
-                prints("Return from previous interrupt\n");
+                //prints("Return from previous interrupt\n");
                 p->ctx.eip = stack[0];
         	    p->ctx.cs = stack[1];
         	    p->ctx.eflags = stack[2] | 0x20020;
@@ -181,21 +181,21 @@ void V86Entry(void) {
 
             //O32
             case 0x66:
-                prints("(o32)");
+                //prints("(o32)");
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
-                prints("(a32)");
+                //prints("(a32)");
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
     	    //PUSHF
             case 0x9C:
-    	        prints("(F Pu)");
+    	        //prints("(F Pu)");
 
                 if(op32) {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 4) & 0xFFFF;
@@ -223,7 +223,7 @@ void V86Entry(void) {
 
         	//POPF
         	case 0x9D:
-        	    prints("(F Po)");
+        	    //prints("(F Po)");
 
                 if(op32) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
@@ -284,7 +284,7 @@ void V86Entry(void) {
 
             //INT 3 (debug) or anything else
             case 0xCC:
-                prints("(V86 Debug Interrupt)");
+                //prints("(V86 Debug Interrupt)");
                 kernelDebug();
                 scans(5, fake);
                 p->ctx.eip++;
@@ -293,7 +293,7 @@ void V86Entry(void) {
 
     		//CLI
     		case 0xfa:
-                prints("(cli)");
+                //prints("(cli)");
                 p->ctx.vif = 0;
                 p->ctx.eip++;
                 return;
@@ -301,7 +301,7 @@ void V86Entry(void) {
 
     		//STI
             case 0xfb:
-                prints("(sti)");
+                //prints("(sti)");
                 p->ctx.vif = 1;
                 p->ctx.eip++;
                 return;
