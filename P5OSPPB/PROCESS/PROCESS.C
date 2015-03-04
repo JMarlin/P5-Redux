@@ -19,6 +19,7 @@ int intVect = 0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
+int onbreak;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
@@ -170,7 +171,7 @@ void V86Entry(void) {
                     prints("1: 0x"); printHexWord(stack[1]); prints("\n");
                     prints("2: 0x"); printHexWord(stack[2]); prints("\n");
                     kernelDebug();
-                    while(1);
+                    if(onbreak++ > 0) while(1);
                     scans(5, fake);
                 }
                 return;
@@ -510,6 +511,9 @@ process* newSuperProc() {
 process* newV86Proc() {
 
     process* newP;
+    
+    //remove
+    onbreak = 0;
     
     newP = newProcess();
         

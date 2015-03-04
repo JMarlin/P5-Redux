@@ -34,7 +34,7 @@ decode_msg:
     jmp wait_msg
 
 get_modes:    
-    Turn debugging on
+    ;Turn debugging on
     mov ax, 0x1
     mov bx, 0x0
     mov cx, 0x7
