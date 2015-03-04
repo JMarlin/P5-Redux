@@ -344,12 +344,12 @@ void kernelEntry(void) {
     p->ctx.gs = old_gs;
     p->ctx.err = old_err;
                 
+    if(p->flags & PF_V86)
+        insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
+    else
+        insPtr = (char*)p->ctx.eip;            
+                
     switch(except_num) {
-
-        if(p->flags & PF_V86)
-            insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
-        else
-            insPtr = (char*)p->ctx.eip;
     
         case EX_GPF:
         //Switch to the V86 monitor if the thread was a V86 thread
