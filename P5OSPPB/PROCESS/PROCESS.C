@@ -83,8 +83,8 @@ void returnToProcess(process* proc) {
         
     //If the process is a virtual 8086 process, set its IOPL to 3
     //so it can do port IO without having to fuck with the monitor
-    if(p->flags & PF_V86)
-        p->ctx.eflags |= 0x3000;
+    //if(p->flags & PF_V86)
+    //    p->ctx.eflags |= 0x3000;
     
     prc_is_super = p->flags & PF_SUPER ? 1 : 0;
         

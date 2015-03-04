@@ -135,7 +135,7 @@ inline void outw(unsigned short _port, unsigned short _data) {
         "pop %%dx \n"
         "pop %%ax \n"
         : 
-        : "r" (_data), "r" (_port)
+        : "r" (_port), "r" (_data)
         :
     );
 }
