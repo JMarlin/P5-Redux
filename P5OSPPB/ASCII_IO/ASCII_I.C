@@ -5,7 +5,7 @@
 
 unsigned char keyTable[132];
 
-void setupKeyTable() {
+void setupKeyTableBochs() {
     int i;
     
     for(i=0;i<132;i++)
@@ -60,6 +60,64 @@ void setupKeyTable() {
     keyTable[0x5A] = '\n';
     keyTable[0x5B] = ']';
 }
+
+
+void setupKeyTable() {
+    int i;
+    
+    for(i=0;i<132;i++)
+        keyTable[i] = 0;
+        
+    keyTable[0x1E] = 'A';
+    keyTable[0x30] = 'B';
+    keyTable[0x2E] = 'C';
+    keyTable[0x20] = 'D';
+    keyTable[0x12] = 'E';
+    keyTable[0x21] = 'F';
+    keyTable[0x22] = 'G';
+    keyTable[0x23] = 'H';
+    keyTable[0x17] = 'I';
+    keyTable[0x24] = 'J';
+    keyTable[0x25] = 'K';
+    keyTable[0x26] = 'L';
+    keyTable[0x32] = 'M';
+    keyTable[0x31] = 'N';
+    keyTable[0x18] = 'O';
+    keyTable[0x19] = 'P';
+    keyTable[0x10] = 'Q';
+    keyTable[0x13] = 'R';
+    keyTable[0x1f] = 'S';
+    keyTable[0x14] = 'T';
+    keyTable[0x16] = 'U';
+    keyTable[0x2f] = 'V';
+    keyTable[0x11] = 'W';
+    keyTable[0x2D] = 'X';
+    keyTable[0x15] = 'Y';
+    keyTable[0x2c] = 'Z';
+    keyTable[0x0b] = '0';
+    keyTable[0x02] = '1';
+    keyTable[0x03] = '2';
+    keyTable[0x04] = '3';
+    keyTable[0x05] = '4';
+    keyTable[0x06] = '5';
+    keyTable[0x07] = '6';
+    keyTable[0x08] = '7';
+    keyTable[0x09] = '8';
+    keyTable[0x0A] = '9';
+    keyTable[0x29] = '`';
+    keyTable[0x0c] = '-';
+    keyTable[0x0d] = '=';
+    keyTable[0x2b] = '\\';
+    keyTable[0x1c] = '\n';
+    keyTable[0x1a] = '[';
+    keyTable[0x1b] = ']';
+    keyTable[0x27] = ';'';
+    keyTable[0x28] = '\'';
+    keyTable[0x33] = ',';
+    keyTable[0x34] = '.';
+    keyTable[0x35] = '/';
+}
+
 
 void scans(unsigned int length, char* outstr) {
     
