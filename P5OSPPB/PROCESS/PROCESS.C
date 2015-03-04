@@ -156,10 +156,10 @@ void V86Entry(void) {
                     intVect *= 4;
                     off = ((unsigned short*)intVect)[0];
                     seg = ((unsigned short*)intVect)[1];
-                    prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
-                    prints(" -> "); printHexWord(seg);
-                    prints(":"); printHexWord(off);
-                    prints(")");
+                    //prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
+                    //prints(" -> "); printHexWord(seg);
+                    //prints(":"); printHexWord(off);
+                    //prints(")");
                     //kernelDebug();
     		        //scans(5, fake);
                     p->ctx.cs = seg;
