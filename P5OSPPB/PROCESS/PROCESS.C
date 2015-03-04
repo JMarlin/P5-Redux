@@ -289,8 +289,8 @@ void V86Entry(void) {
             //INT 3 (debug) or anything else
             case 0xCC:
                 prints("V86 Debug Interrupt\n");
-                kernelprints();
-                //scans(5, fake);
+                kernelDebug();
+                scans(5, fake);
                 p->ctx.eip++;
                 return;
                 break;
