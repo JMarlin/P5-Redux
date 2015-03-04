@@ -129,8 +129,8 @@ inline void outw(unsigned short _port, unsigned short _data) {
     asm volatile ( 
         "push %%ax \n"
         "push %%dx \n"
-        "mov %0, %%ax \n"
-        "mov %1, %%dx \n"
+        "mov %1, %%ax \n"
+        "mov %0, %%dx \n"
         "out %%ax, %%dx \n"
         "pop %%dx \n"
         "pop %%ax \n"

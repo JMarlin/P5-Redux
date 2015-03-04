@@ -19,7 +19,6 @@ int intVect = 0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
-int onbreak;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
@@ -165,14 +164,6 @@ void V86Entry(void) {
     		        //scans(5, fake);
                     p->ctx.cs = seg;
                     p->ctx.eip = (((unsigned int)off) & 0xFFFF);
-                    
-                    prints("Interrupt triggered.\nStack:\n");
-                    prints("0: 0x"); printHexWord(stack[0]); prints("\n");
-                    prints("1: 0x"); printHexWord(stack[1]); prints("\n");
-                    prints("2: 0x"); printHexWord(stack[2]); prints("\n");
-                    kernelDebug();
-                    if(onbreak++ > 0) while(1);
-                    scans(5, fake);
                 }
                 return;
                 break;
@@ -511,10 +502,7 @@ process* newSuperProc() {
 process* newV86Proc() {
 
     process* newP;
-    
-    //remove
-    onbreak = 0;
-    
+
     newP = newProcess();
         
     if(!newP)
