@@ -80,6 +80,11 @@ void returnToProcess(process* proc) {
     //If the process is in debug mode, set the debug flag
     if(p->flags & PF_DEBUG)
         p->ctx.eflags |= 0x100;
+        
+    //If the process is a virtual 8086 process, set its IOPL to 3
+    //so it can do port IO without having to fuck with the monitor
+    if(p->flags & PF_V86)
+        p->ctx.eflags |= 0x3000;
     
     prc_is_super = p->flags & PF_SUPER ? 1 : 0;
         
