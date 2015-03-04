@@ -323,6 +323,7 @@ void V86Entry(void) {
 void kernelEntry(void) {
 
     unsigned int kflags;
+    unsigned short* stack;
     
     //Backup the running context
     p->ctx.esp = old_esp;
@@ -378,7 +379,15 @@ void kernelEntry(void) {
             break;
         
         case EX_DEBUGCALL:
+            stack = (unsigned short*)((unsigned int)0 + (p->ctx.ss << 4) + (p->ctx.esp & 0xFFFF));
             prints("Process #"); printHexDword(p->id); prints(" single-step\n");
+            prints("Stack:\n");
+        	prints("   0: 0x"); printHexWord(stack[0]); prints("\n");
+        	prints("   1: 0x"); printHexWord(stack[1]); prints("\n");
+        	prints("   2: 0x"); printHexWord(stack[2]); prints("\n");
+            prints("   3: 0x"); printHexWord(stack[3]); prints("\n");
+        	prints("   4: 0x"); printHexWord(stack[4]); prints("\n");
+        	prints("   5: 0x"); printHexWord(stack[5]); prints("\n");
             kernelDebug();
             scans(5, fake);
             break;
@@ -503,7 +512,7 @@ process* newV86Proc() {
     if(!newP)
         return newP;
     
-    //Set the superproc bit
+    //Set the v86 mode bit
     newP->flags |= PF_V86;
     
     newP->base = 0xB00000;
