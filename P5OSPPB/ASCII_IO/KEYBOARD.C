@@ -96,6 +96,14 @@ int keyboard_init() {
         return 0;
     }
 
+    keyboard_sendCommand(PS2_SET_SCANCODE);
+    keyboard_sendData(0x01); //Scancode set 1
+    while(keyboard_getData() != PS2_OK) {
+    
+        keyboard_sendCommand(PS2_SET_SCANCODE);
+        keyboard_sendData(0x01); //Scancode set 1
+    }
+    
     DEBUG("[keyboard_init()]: KBC and PS/2 device ready for use.\n");
     return 1;    
 }

@@ -58,7 +58,8 @@
 #define KBC_TST_FAIL    0xFC //KBC self test failed
 
 //PS/2 commands
-#define PS2_RESET 0xFF //Reset the device
+#define PS2_RESET        0xFF //Reset the device
+#define PS2_SET_SCANCODE 0xF0
 
 //PS/2 command return codes
 #define PS2_OK   0xFA //ACK or Success
