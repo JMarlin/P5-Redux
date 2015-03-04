@@ -92,7 +92,21 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
                 passMessage(0, source, PROC_STARTED, exec_v86((unsigned char*)payload));
             
             break;
+        
+        //Toggle debug: sets or resets the process's debug flag
+        case 7:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++)
             
+            if(i == 256)
+                return;
+            
+            if(procTable[i].flags & PF_DEBUG)
+                procTable[i].flags &= ~((unsigned int)PF_DEBUG);
+            else
+                procTable[i].flags |= PF_DEBUG;
+            
+            break;
+        
         default:
         break;
     }            

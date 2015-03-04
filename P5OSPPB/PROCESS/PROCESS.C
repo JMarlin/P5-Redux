@@ -184,14 +184,14 @@ void V86Entry(void) {
             //O32
             case 0x66:
                 prints("o32 ");
-                (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
+                //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
                 prints("a32 ");
-                (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
+                //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
@@ -504,7 +504,7 @@ process* newV86Proc() {
         return newP;
     
     //Set the superproc bit
-    newP->flags |= PF_V86 | PF_DEBUG;
+    newP->flags |= PF_V86;
     
     newP->base = 0xB00000;
     newP->size = 0x0;
