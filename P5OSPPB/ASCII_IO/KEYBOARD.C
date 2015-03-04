@@ -96,7 +96,8 @@ int keyboard_init() {
         return 0;
     }
 
-    keyboard_sendCommand(PS2_SET_SCANCODE);
+    //Should also turn scanning on and off here
+    keyboard_sendData(PS2_SET_SCANCODE);
     keyboard_sendData(0x01); //Scancode set 1
     while(keyboard_getData() != PS2_OK) {
     
