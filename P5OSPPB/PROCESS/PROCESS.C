@@ -77,6 +77,10 @@ void returnToProcess(process* proc) {
     if(p->root_page) 
         apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
     
+    //If the process is in debug mode, set the debug flag
+    if(p->flags & PF_DEBUG)
+        p->ctx.eflags |= 0x100;
+    
     prc_is_super = p->flags & PF_SUPER ? 1 : 0;
         
     
@@ -147,10 +151,10 @@ void V86Entry(void) {
                     intVect *= 4;
                     off = ((unsigned short*)intVect)[0];
                     seg = ((unsigned short*)intVect)[1];
-                    //prints("V86 Interrupt #"); printHexByte(insPtr[1]);
-                    //prints(" -> "); printHexWord(seg);
-                    //prints(":"); printHexWord(off);
-                    //prints("\n");
+                    prints("V86 Interrupt #"); printHexByte(insPtr[1]);
+                    prints(" -> "); printHexWord(seg);
+                    prints(":"); printHexWord(off);
+                    prints("\n");
                     //kernelDebug();
     		        //scans(5, fake);
                     p->ctx.cs = seg;
@@ -161,7 +165,7 @@ void V86Entry(void) {
 
             //IRET
             case 0xCF:
-                //prints("Return from previous interrupt\n");
+                prints("Return from previous interrupt\n");
         	    //prints("Stack:\n");
         	    //prints("0: 0x"); printHexWord(stack[0]); prints("\n");
         	    //prints("1: 0x"); printHexWord(stack[1]); prints("\n");
@@ -179,21 +183,21 @@ void V86Entry(void) {
 
             //O32
             case 0x66:
-                DEBUG("o32 ");
+                prints("o32 ");
                 (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
-                DEBUG("a32 ");
+                prints("a32 ");
                 (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
     	    //PUSHF
             case 0x9C:
-    	        DEBUG("Flags pushed\n");
+    	        prints("Flags pushed\n");
 
                 if(op32) {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 4) & 0xFFFF;
@@ -222,7 +226,7 @@ void V86Entry(void) {
 
         	//POPF
         	case 0x9D:
-        	    DEBUG("Flags popped\n");
+        	    prints("Flags popped\n");
 
                 if(op32) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
@@ -241,7 +245,7 @@ void V86Entry(void) {
 
         	//OUT DX AL
         	case 0xEE:
-        	    DEBUG("Out\n");
+        	    prints("Out\n");
         	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
         	    p->ctx.eip++;
         	    return;
@@ -249,7 +253,7 @@ void V86Entry(void) {
 
         	//IN AL DX
         	case 0xEC:
-        	    DEBUG("In\n");
+        	    prints("In\n");
         	    p->ctx.eax &= 0xFFFFFF00;
         	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
         	    p->ctx.eip++;
@@ -258,7 +262,7 @@ void V86Entry(void) {
 
         	//OUT DX AX
         	case 0xEF:
-        	    DEBUG("OutW\n");
+        	    prints("OutW\n");
                 if(op32) {
                     outd((unsigned short)p->ctx.edx, p->ctx.eax);
                 } else {
@@ -270,7 +274,7 @@ void V86Entry(void) {
 
             //IN AX DX
         	case 0xED:
-        	    DEBUG("In\n");
+        	    prints("In\n");
 
                 if(op32) {
         			p->ctx.eax = ind(p->ctx.edx);
@@ -284,8 +288,8 @@ void V86Entry(void) {
 
             //INT 3 (debug) or anything else
             case 0xCC:
-                DEBUG("V86 Debug Interrupt\n");
-                kernelDebug();
+                prints("V86 Debug Interrupt\n");
+                kernelprints();
                 //scans(5, fake);
                 p->ctx.eip++;
                 return;
@@ -293,7 +297,7 @@ void V86Entry(void) {
 
     		//CLI
     		case 0xfa:
-                DEBUG("cli\n");
+                prints("cli\n");
                 p->ctx.vif = 0;
                 p->ctx.eip++;
                 return;
@@ -301,7 +305,7 @@ void V86Entry(void) {
 
     		//STI
             case 0xfb:
-                DEBUG("sti\n");
+                prints("sti\n");
                 p->ctx.vif = 1;
                 p->ctx.eip++;
                 return;
@@ -342,16 +346,19 @@ void kernelEntry(void) {
                 
     switch(except_num) {
 
+        if(p->flags & PF_V86)
+            insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
+        else
+            insPtr = (char*)p->ctx.eip;
+    
         case EX_GPF:
         //Switch to the V86 monitor if the thread was a V86 thread
-            if(old_eflags & 0x20000) {
+            if(p->flags & PF_V86) {
 
-                insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
                 V86Entry();
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
-                insPtr = (char*)p->ctx.eip;
                 prints("(Non-V86)\n");
                 kernelDebug();
                 scans(5, fake);
@@ -370,9 +377,14 @@ void kernelEntry(void) {
             //so that we get an entry into and an exit from the kernel
             break;
         
+        case EX_DEBUGCALL:
+            prints("Process #"); printHexDword(p->id); prints(" single-step\n");
+            kernelDebug();
+            scans(5, fake);
+            break;
+        
         default:
             prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
-            insPtr = (char*)p->ctx.eip;
             kernelDebug();
             scans(5, fake);
             break; 
@@ -492,7 +504,7 @@ process* newV86Proc() {
         return newP;
     
     //Set the superproc bit
-    newP->flags |= PF_V86;
+    newP->flags |= PF_V86 | PF_DEBUG;
     
     newP->base = 0xB00000;
     newP->size = 0x0;
