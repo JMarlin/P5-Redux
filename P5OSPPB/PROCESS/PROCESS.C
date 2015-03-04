@@ -184,17 +184,15 @@ void V86Entry(void) {
             //O32
             case 0x66:
                 prints("(o32)");
-                //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
+                insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
-                p->ctx.eip++;
                 break;
 
             //A32
             case 0x67:
                 prints("(a32)");
-                //(char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
+                insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
-                p->ctx.eip++;
                 break;
 
     	    //PUSHF
