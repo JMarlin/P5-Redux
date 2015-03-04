@@ -177,7 +177,6 @@ void V86Entry(void) {
         	    p->ctx.eflags = stack[2] | 0x20020;
         	    p->ctx.vif = (stack[2] & 0x20) != 0;
         	    p->ctx.esp = ((p->ctx.esp & 0xFFFF) + 6) & 0xFFFF;
-                op32 = 0;
                 return;
                 break;
 
@@ -208,7 +207,6 @@ void V86Entry(void) {
     		            stack32[0] |= 0x20;
     		        else
     		            stack32[0] &= 0xFFFFFFDF;
-                    op32 = 0;
                 } else {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 2) & 0xFFFF;
     		        stack--;
@@ -232,7 +230,6 @@ void V86Entry(void) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
         		    p->ctx.vif = (stack32[0] & 0x20) != 0;
         			p->ctx.esp = ((p->ctx.esp & 0xFFFF) + 4) & 0xFFFF;
-                    op32 = 0;
                 } else {
         		    p->ctx.eflags = 0x20020 | stack[0];
         		    p->ctx.vif = (stack[0] & 0x20) != 0;
@@ -263,11 +260,11 @@ void V86Entry(void) {
         	//OUT DX AX
         	case 0xEF:
         	    prints("(OutW)");
-                if(op32) {
-                    outd((unsigned short)p->ctx.edx, p->ctx.eax);
-                } else {
+                //if(op32) {
+                //    outd((unsigned short)p->ctx.edx, p->ctx.eax);
+                //} else {
         	        outw((unsigned short)p->ctx.edx, (unsigned short)p->ctx.eax);
-        	    }
+        	    //}
                 p->ctx.eip++;
         	    return;
         	    break;
@@ -276,12 +273,12 @@ void V86Entry(void) {
         	case 0xED:
         	    prints("(InW)");
 
-                if(op32) {
-        			p->ctx.eax = ind(p->ctx.edx);
-        		} else {
+                //if(op32) {
+        		//	p->ctx.eax = ind(p->ctx.edx);
+        		//} else {
         			p->ctx.eax &= 0xFFFF0000;
-        			p->ctx.eax |= ((unsigned int)0 + (inw((unsigned short)p->ctx.edx) & 0xFFFF));
-        		}
+        			p->ctx.eax |= ((unsigned int)0 + (inw((unsigned short)(p->ctx.edx&0xFFFF)) & 0xFFFF));
+        		//}
         	    p->ctx.eip++;
         	    return;
         	    break;
