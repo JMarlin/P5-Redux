@@ -1,8 +1,11 @@
 #include "../include/p5.h"
 
-#define CMD_COUNT 10
+#define CMD_COUNT 9
 
-unsigned int client_pid = 0;
+#define RGB(r, g, b) (((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF))
+#define RVAL(x) ((x & 0xFF0000) >> 16)
+#define GVAL(x) ((x & 0xFF00) >> 8)
+#define BVAL(x) ((x & 0xFF0000) >> 16)
 
 //Function declarations
 void usrClear(void);
@@ -13,8 +16,7 @@ void peekV86(void);
 void peekKern(void);
 void startDos(void);
 void sendMsg(void);
-void getModes(void);
-void setMode(void);
+void startGui(void);
 
 
 //Typedefs
@@ -28,7 +30,7 @@ typedef struct ModeInfoBlock {
   unsigned short segmentA, segmentB;
   unsigned short realFctPtrSeg;
   unsigned short realFctPtrOff;
-  unsigned short pitch; // bytes per scanline
+  unsigned short pitch;
  
   unsigned short Xres, Yres;
   unsigned char Wchar, Ychar, planes, bpp, banks;
@@ -46,6 +48,10 @@ typedef struct ModeInfoBlock {
   unsigned short reserved2;
 } ModeInfoBlock;
 
+modeInfoBlock curMode;
+unsigned int client_pid = 0;
+unsigned char curBank = 0;
+
 //Variable declarations
 char* cmdWord[CMD_COUNT] = {
     "CLR",
@@ -54,10 +60,8 @@ char* cmdWord[CMD_COUNT] = {
     "ERR",
     "V86",
     "KERN",
-    "START",
     "MSG",
-    "MODES",
-    "SET"
+    "GUI"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -67,10 +71,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&causeError,
     (sys_command)&peekV86,
     (sys_command)&peekKern,
-    (sys_command)&startDos,
     (sys_command)&sendMsg,
-    (sys_command)&getModes,
-    (sys_command)&setMode
+    (sys_command)&startGui
 };
 
 char inbuf[50];
@@ -180,6 +182,14 @@ void peekKern(void) {
 }
 
 
+void setVESABank(unsigned char bank_no) {
+
+    postMessage(client_pid, 4, bank_no);
+        
+    while(!getMessage(&tmp_msg));
+}
+
+
 void startDos(void) {
 
     client_pid = startV86(":v86.mod");
@@ -188,12 +198,133 @@ void startDos(void) {
 }
 
 
-void getModes(void) { 
+void plotPixel32(int x, int y, int color) {
+
+    unsigned int* v = (unsigned int*)0xA0000;
+    unsigned int linear_pos = y * curMode.pitch + x;
+    unsigned int window_pos = linear_pos % (curMode.winsize >> 2);
+    unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize >> 2)) & 0xFF);
+    
+    if(bank_number != curBank) {
+    
+        curBank = bank_number;
+        setVESABank(curBank);
+    }
+    
+    v[window_pos] = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
+}
+
+
+void plotPixel24(int x, int y, int color) {
+
+    unsigned char* v = (unsigned char*)0xA0000;
+    unsigned int linear_pos = y * curMode.pitch + (x * 3);
+    unsigned int window_pos = linear_pos % (curMode.winsize / 3);
+    unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize / 3)) & 0xFF);
+    unsigned int pixel = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
+    
+    if(bank_number != curBank) {
+    
+        curBank = bank_number;
+        setVESABank(curBank);
+    }
+    
+    //We do it in this order because we're little-endian
+    v[window_pos++] = pixel & 0xFF;
+    v[window_pos++] = (pixel >> 8) & 0xFF;
+    v[window_pos] = (pixel >> 16) & 0xFF;   
+}
+
+
+void plotPixel32(int x, int y, int color) {
+
+    unsigned short* v = (unsigned short*)0xA0000;
+    unsigned int linear_pos = y * curMode.pitch + x;
+    unsigned int window_pos = linear_pos % (curMode.winsize >> 1);
+    unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize >> 1)) & 0xFF);
+    
+    if(bank_number != curBank) {
+    
+        curBank = bank_number;
+        setVESABank(curBank);
+    }
+    
+    v[window_pos] = (unsigned short)((RVAL(color) & 0xF) << curMode.red_position) | ((GVAL(color) & 0xF) << curMode.green_position) | ((BVAL(color) & 0xF) << curMode.blue_position);
+}
+
+
+void plotPixel(int x, int y, unsigned int color) {
+
+    if(curMode.bpp == 32) plotPixel32(x, y, color);
+    if(curMode.bpp == 24) plotPixel24(x, y, color);
+    if(curMode.bpp == 16) plotPixel16(x, y, color);
+}
+
+
+void drawRect(int x, int y, int height, int width, unsigned int color) {
+
+    int i, j;
+
+    for(j = 0; j < height; j++) {
+        
+        for(i = 0; i < width; i++) {
+        
+            plotPixel(i, j, color);
+        }
+    }
+}
+
+
+void startGui(void) {
+
+    int i;
+    unsigned short mode;
+    int max = sizeof(ModeInfoBlock);
+    unsigned char* wipePtr = (unsigned char*)&curMode;
+    
+    for(i = 0; i < max; i++)
+        wipePtr[i] = 0;
+    
+    startDos();
+    
+    if(!(mode = getMode())) {
+    
+        prints("Could not find a valid VESA mode.\n");
+        return;
+    }
+    
+    setMode(mode);
+    
+    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(255, 0, 0));
+}
+
+
+ModeInfoBlock* getModeInfo(unsigned short mode) {
+
+    unsigned short seg, off;
+
+    postMessage(client_pid, 2, modeList[i]);
+        
+    while(!getMessage(&tmp_msg));
+    
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+    while(!getMessage(&tmp_msg));
+    
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    return (ModeInfoBlock*)0x83000;
+}
+
+
+unsigned short getMode(void) { 
 
     message tmp_msg;
     unsigned short* modeList;
     ModeInfoBlock* info;
     unsigned short seg, off;
+    unsigned short selected_mode = 0;
+    unsigned int max_size;
+    unsigned short selected_mode;
     int i;
     
     postMessage(client_pid, 1, 0);
@@ -210,44 +341,39 @@ void getModes(void) {
     prints("Available mode numbers: \n");
     
     i = 0;
+    max_size = 0;
+    selected_mode = 0;
+    
     while(modeList[i] != 0xFFFF) {
     
-        postMessage(client_pid, 2, modeList[i]);
+        info = getModeInfo(modeList[i]);
         
-        while(!getMessage(&tmp_msg));
-    
-        seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    
-        while(!getMessage(&tmp_msg));
-    
-        off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-        info = (ModeInfoBlock*)0x83000;
+        if((info->Xres + info->Yres) > max_size && (info->bpp > 8)) {
+        
+            selected_mode = modeList[i];
+            max_size = info->Xres + info->Yres;
+        }
+        
         prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
     }
 }
 
 
-void setMode(void) {
+void setMode(unsigned short mode) {
 
-    int i, strlen;
-    unsigned short convNumber;
-    unsigned char* v;
-    message tmp_msg;
-
-    prints("Mode number: 0x");
-    scans(6, inbuf);
-    convNumber = (inbuf[3] >= 'A' ? inbuf[3] - 'A' : inbuf[3] - '0') +
-                 ((inbuf[2] >= 'A' ? inbuf[2] - 'A' : inbuf[2] - '0') << 4) +
-                 ((inbuf[1] >= 'A' ? inbuf[1] - 'A' : inbuf[1] - '0') << 8) +
-                 ((inbuf[0] >= 'A' ? inbuf[0] - 'A' : inbuf[0] - '0') << 12);
-    postMessage(client_pid, 3, convNumber);
+    unsigned char* tmp_info, cast_mode;
+    int i;
     
+    postMessage(client_pid, 3, mode);
+    
+    //Should include timeouts for message waits like this
     while(!getMessage(&tmp_msg)); 
     
-    v = (unsigned char*)0xA0000;
+    tmp_info = (unsigned char*)getModeInfo(mode);
+    cast_mode = (unsigned char*)curMode;
     
-    for(i = 0; i < 0x10000; i++)
-        v[i] = 0xFF;
+    for(i = 0; i < sizeof(ModeInfoBlock); i++)
+        cast_mode[i] = tmp_info[i];
 }
 
 

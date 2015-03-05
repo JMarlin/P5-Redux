@@ -31,6 +31,8 @@ decode_msg:
     je get_info
     cmp cx, 0x3
     je set_mode
+    cmp cx, 0x4
+    je set_bank
     jmp wait_msg
 
 get_modes:    
@@ -51,9 +53,9 @@ get_modes:
     mov al, 'E'
     mov [0x2001], al
     mov al, 'S'
-    mov [0x2000], al
+    mov [0x2002], al
     mov al, 'A'
-    mov [0x2000], al    
+    mov [0x2003], al    
     mov ax, 0x4F00
     int 0x10
     cmp ax, 0x004F
@@ -110,6 +112,20 @@ set_mode:
    mov ax, 0x1
    int 0xFF
    jmp wait_msg
+   
+set_bank:
+   ;dx is conveniently both the message payload
+   ;as well as the mode number for the VESA int
+   mov bx, 0x0
+   mov ax, 0x4F05
+   int 0x10
+   
+   mov bx, [_client]
+   mov cx, 0
+   mov dx, 0
+   mov ax, 0x1
+   int 0xFF
+   jmp wait_msg   
     
 beef_msg:
     mov ax, 0x1
