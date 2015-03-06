@@ -430,7 +430,7 @@ void startGui(void) {
     prints("Press enter to continue...\n");
     scans(5, inbuf);
     
-    if!(setMode(mode)) return;
+    if(!setMode(mode)) return;
     
     drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(255, 0, 0));
 }
