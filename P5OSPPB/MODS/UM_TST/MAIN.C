@@ -48,7 +48,7 @@ typedef struct ModeInfoBlock {
   unsigned short reserved2;
 } ModeInfoBlock;
 
-modeInfoBlock curMode;
+ModeInfoBlock curMode;
 unsigned int client_pid = 0;
 unsigned char curBank = 0;
 
@@ -184,6 +184,8 @@ void peekKern(void) {
 
 void setVESABank(unsigned char bank_no) {
 
+    message tmp_msg;
+
     postMessage(client_pid, 4, bank_no);
         
     while(!getMessage(&tmp_msg));
@@ -195,6 +197,87 @@ void startDos(void) {
     client_pid = startV86(":v86.mod");
     if(!client_pid)
         prints("New process could not be started.\n");
+}
+
+
+ModeInfoBlock* getModeInfo(unsigned short mode) {
+
+    message tmp_msg;
+    unsigned short seg, off;
+
+    postMessage(client_pid, 2, mode);
+        
+    while(!getMessage(&tmp_msg));
+    
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+    while(!getMessage(&tmp_msg));
+    
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    return (ModeInfoBlock*)0x83000;
+}
+
+
+unsigned short getMode(void) { 
+
+    message tmp_msg;
+    unsigned short* modeList;
+    ModeInfoBlock* info;
+    unsigned short seg, off;
+    unsigned short selected_mode = 0;
+    unsigned int max_size;
+    int i;
+    
+    postMessage(client_pid, 1, 0);
+    
+    while(!getMessage(&tmp_msg));
+    
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    
+    while(!getMessage(&tmp_msg));
+    
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    modeList = (unsigned short*)0x82022;
+    
+    prints("Available mode numbers: \n");
+    
+    i = 0;
+    max_size = 0;
+    selected_mode = 0;
+    
+    while(modeList[i] != 0xFFFF) {
+    
+        info = getModeInfo(modeList[i]);
+        
+        if((info->Xres + info->Yres) > max_size && (info->bpp >= 24)) {
+        
+            selected_mode = modeList[i];
+            max_size = info->Xres + info->Yres;
+        }
+        
+        prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
+    }
+    
+    return selected_mode;
+}
+
+
+void setMode(unsigned short mode) {
+
+    message tmp_msg;
+    unsigned char *tmp_info, *cast_mode;
+    int i;
+    
+    postMessage(client_pid, 3, mode);
+    
+    //Should include timeouts for message waits like this
+    while(!getMessage(&tmp_msg)); 
+    
+    tmp_info = (unsigned char*)getModeInfo(mode);
+    cast_mode = (unsigned char*)&curMode;
+    
+    for(i = 0; i < sizeof(ModeInfoBlock); i++)
+        cast_mode[i] = tmp_info[i];
 }
 
 
@@ -236,7 +319,7 @@ void plotPixel24(int x, int y, int color) {
 }
 
 
-void plotPixel32(int x, int y, int color) {
+void plotPixel16(int x, int y, int color) {
 
     unsigned short* v = (unsigned short*)0xA0000;
     unsigned int linear_pos = y * curMode.pitch + x;
@@ -279,6 +362,7 @@ void startGui(void) {
 
     int i;
     unsigned short mode;
+    unsigned char *tmp_info, *cast_mode;
     int max = sizeof(ModeInfoBlock);
     unsigned char* wipePtr = (unsigned char*)&curMode;
     
@@ -293,87 +377,54 @@ void startGui(void) {
         return;
     }
     
-    setMode(mode);
-    
-    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(255, 0, 0));
-}
-
-
-ModeInfoBlock* getModeInfo(unsigned short mode) {
-
-    unsigned short seg, off;
-
-    postMessage(client_pid, 2, modeList[i]);
-        
-    while(!getMessage(&tmp_msg));
-    
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    
-    while(!getMessage(&tmp_msg));
-    
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    return (ModeInfoBlock*)0x83000;
-}
-
-
-unsigned short getMode(void) { 
-
-    message tmp_msg;
-    unsigned short* modeList;
-    ModeInfoBlock* info;
-    unsigned short seg, off;
-    unsigned short selected_mode = 0;
-    unsigned int max_size;
-    unsigned short selected_mode;
-    int i;
-    
-    postMessage(client_pid, 1, 0);
-    
-    while(!getMessage(&tmp_msg));
-    
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    
-    while(!getMessage(&tmp_msg));
-    
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    modeList = (unsigned short*)0x82022;
-    
-    prints("Available mode numbers: \n");
-    
-    i = 0;
-    max_size = 0;
-    selected_mode = 0;
-    
-    while(modeList[i] != 0xFFFF) {
-    
-        info = getModeInfo(modeList[i]);
-        
-        if((info->Xres + info->Yres) > max_size && (info->bpp > 8)) {
-        
-            selected_mode = modeList[i];
-            max_size = info->Xres + info->Yres;
-        }
-        
-        prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
-    }
-}
-
-
-void setMode(unsigned short mode) {
-
-    unsigned char* tmp_info, cast_mode;
-    int i;
-    
-    postMessage(client_pid, 3, mode);
-    
-    //Should include timeouts for message waits like this
-    while(!getMessage(&tmp_msg)); 
-    
     tmp_info = (unsigned char*)getModeInfo(mode);
-    cast_mode = (unsigned char*)curMode;
+    cast_mode = (unsigned char*)&curMode;
     
     for(i = 0; i < sizeof(ModeInfoBlock); i++)
         cast_mode[i] = tmp_info[i];
+    
+    prints("\nInfo block for VESA mode 0x"); printHexWord(mode); prints(":\n");
+    prints("    attributes: 0x"); printHexWord(curMode.attributes); prints("\n");
+    prints("    winA: 0x"); printHexByte(curMode.winA); prints("\n");
+    prints("    winB: 0x"); printHexByte(curMode.winB); prints("\n");
+    prints("    granularity: 0x"); printHexWord(curMode.granularity); prints("\n");
+    prints("    winsize: 0x"); printHexWord(curMode.winsize); prints("\n");
+    prints("    segmentA: 0x"); printHexWord(curMode.segmentA); prints("\n");
+    prints("    segmentB: 0x"); printHexWord(curMode.segmentB); prints("\n");
+    prints("    realFctPtrSeg: 0x"); printHexWord(curMode.realFctPtrSeg); prints("\n"); 
+    prints("    realFctPtrOff: 0x"); printHexWord(curMode.realFctPtrOff); prints("\n");  
+    prints("    pitch: 0x"); printHexWord(curMode.pitch); prints("\n");
+    prints("    Xres: 0x"); printHexWord(curMode.Xres); prints("\n");
+    prints("    Yres: 0x"); printHexWord(curMode.Yres); prints("\n");
+    prints("    Wchar: 0x"); printHexByte(curMode.Wchar); prints("\n");
+    prints("    Ychar: 0x"); printHexByte(curMode.Ychar); prints("\n");
+    prints("    planes: 0x"); printHexByte(curMode.planes); prints("\n");
+    prints("    bpp: 0x"); printHexByte(curMode.bpp); prints("\n");
+    prints("    banks: 0x"); printHexByte(curMode.banks); prints("\n");
+    prints("    memory_model: 0x"); printHexByte(curMode.memory_model); prints("\n");
+    prints("    bank_size: 0x"); printHexByte(curMode.bank_size); prints("\n");
+    prints("Press enter to continue...\n");
+    scans(5, inbuf);
+    prints("    image_pages: 0x"); printHexByte(curMode.image_pages); prints("\n");
+    prints("    reserved0: 0x"); printHexByte(curMode.reserved0); prints("\n");
+    prints("    red_mask: 0x"); printHexByte(curMode.red_mask); prints("\n");
+    prints("    red_position: 0x"); printHexByte(curMode.red_position); prints("\n");
+    prints("    green_mask: 0x"); printHexByte(curMode.green_mask); prints("\n");
+    prints("    green_position: 0x"); printHexByte(curMode.green_position); prints("\n");
+    prints("    blue_mask: 0x"); printHexByte(curMode.blue_mask); prints("\n");
+    prints("    blue_position: 0x"); printHexByte(curMode.blue_position); prints("\n");
+    prints("    rsv_mask: 0x"); printHexByte(curMode.rsv_mask); prints("\n");
+    prints("    rsv_position: 0x"); printHexByte(curMode.rsv_position); prints("\n");
+    prints("    directcolor_attributes: 0x"); printHexByte(curMode.directcolor_attributes); prints("\n");
+    prints("    physbase: 0x"); printHexDword(curMode.physbase); prints("\n");
+    prints("    reserved1: 0x"); printHexDword(curMode.reserved1); prints("\n");
+    prints("    reserved1: 0x"); printHexWord(curMode.reserved2); prints("\n");
+    prints("Press enter to continue...\n");
+    scans(5, inbuf);
+    
+    setMode(mode);
+    
+    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(255, 0, 0));
 }
 
 
