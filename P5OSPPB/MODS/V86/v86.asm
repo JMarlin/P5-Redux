@@ -74,10 +74,10 @@ get_modes:
     
     mov bx, [_client]
     mov cx, 0 ;doesn't matter
-    mov dx, [0x200E]
+    mov dx, es
     mov ax, 0x1
     int 0xFF
-    mov dx, [0x2010] ;We should get this proper in the future, but fuck it for now
+    mov dx, di ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
     jmp wait_msg

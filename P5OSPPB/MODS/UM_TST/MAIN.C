@@ -48,6 +48,18 @@ typedef struct ModeInfoBlock {
   unsigned short reserved2;
 } ModeInfoBlock;
 
+typedef struct VESAInfo {
+    unsigned char sig[4];
+    unsigned short version;
+    unsigned short OEMStringPtrSeg;
+    unsigned short OEMStringPtrOff;
+    unsigned char capabilities;
+    unsigned short modePtrSeg;
+    unsigned short modePtrOff;
+    unsigned short memSize;
+    unsigned char reserved;
+} VESAInfo;
+
 ModeInfoBlock curMode;
 unsigned int client_pid = 0;
 unsigned char curBank = 0;
@@ -129,7 +141,7 @@ int strcmp(char* s1, char* s2) {
 
 void usrClear(void) {
 
-    clearScreen();
+    clearScreen(); 
 }
 
 
@@ -214,7 +226,7 @@ ModeInfoBlock* getModeInfo(unsigned short mode) {
     while(!getMessage(&tmp_msg));
     
     off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    return (ModeInfoBlock*)0x83000;
+    return (ModeInfoBlock*)0x83000; //Should NOT do this
 }
 
 
@@ -223,6 +235,7 @@ unsigned short getMode(void) {
     message tmp_msg;
     unsigned short* modeList;
     ModeInfoBlock* info;
+    VESAInfo* vinfo;
     unsigned short seg, off;
     unsigned short selected_mode = 0;
     unsigned int max_size;
@@ -237,10 +250,18 @@ unsigned short getMode(void) {
     while(!getMessage(&tmp_msg));
     
     off = (unsigned short)(tmp_msg.payload & 0xFFFF);
-    modeList = (unsigned short*)0x82022;
-    
-    prints("Available mode numbers: \n");
-    
+    vinfo = (VESAInfo*)((((unsigned int)seg) << 4) + off);
+    prints("VESA Info at 0x"); printHexDword((unsigned int)vinfo); prints(":\n");
+    prints("    sig: "); pchar(vinfo->sig[0]); pchar(vinfo->sig[1]); pchar(vinfo->sig[2]); pchar(vinfo->sig[3]); pchar('\n');
+    prints("    version: "); printHexWord(vinfo->version); pchar('\n');
+    prints("    OEMStringPtr: "); printHexWord(vinfo->OEMStringPtrSeg); pchar(':'); printHexWord(vinfo->OEMStringPtrOff); pchar('\n');
+    prints("    Capabilities: "); printHexByte(vinfo->capabilities); pchar('\n');
+    prints("    Modes ptr: "); printHexWord(vinfo->modePtrSeg); pchar(':'); printHexWord(vinfo->modePtrOff); pchar('\n');
+    prints("    Memsize: "); printHexWord(vinfo->memSize); pchar('\n');
+    prints("    Reserved: "); printHexByte(vinfo->reserved); pchar('\n');
+    prints("Press enter to continue.\n");
+    modeList = (unsigned short*)((((unsigned int)vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
+    prints("Available mode numbers: (from address 0x\n"); printHexDword((unsigned int)modeList); pchar('\n');
     i = 0;
     max_size = 0;
     selected_mode = 0;
@@ -255,8 +276,17 @@ unsigned short getMode(void) {
             max_size = info->Xres + info->Yres;
         }
         
-        prints("   0x"); printHexWord(modeList[i++]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
+        prints("   0x"); printHexWord(modeList[i]); prints(" ("); printHexWord(info->Xres); prints(", "); printHexWord(info->Yres); prints(", "); printHexByte(info->bpp); prints("bpp)\n");
+        i++;
+        
+        if(!(i % 20)) {
+            
+            prints("Press enter to continue listing...\n");
+            scans(5, inbuf);
+        }
     }
+    
+    prints("Selected mode number: "); printHexWord(selected_mode); pchar('\n');
     
     return selected_mode;
 }
@@ -267,15 +297,25 @@ int setMode(unsigned short mode) {
     message tmp_msg;
     unsigned char *tmp_info, *cast_mode;
     int i;
-    
+   
+    prints("Sending mode change message...");
     postMessage(client_pid, 3, mode);
+    prints("listening...");
     
     //Should include timeouts for message waits like this
     while(!getMessage(&tmp_msg)); 
+    prints("done\n");
     
-    if(!tmp_msg.payload) {
+    if((tmp_msg.payload & 0xFF) == 0x4F) {
+    
+        if(tmp_msg.payload & 0x0100) {
+            
+            prints("Set mode command failed.\n");
+            return 0;
+        }
+    } else {
         
-        prints("Video mode could not be set.\n");
+        prints("Set mode command not supported.\n");
         return 0;
     }
     
@@ -384,6 +424,9 @@ void startGui(void) {
         prints("Could not find a valid VESA mode.\n");
         return;
     }
+    
+    prints("Press enter to continue...\n");
+    scans(5, inbuf);
     
     tmp_info = (unsigned char*)getModeInfo(mode);
     cast_mode = (unsigned char*)&curMode;
