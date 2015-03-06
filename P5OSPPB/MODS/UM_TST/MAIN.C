@@ -262,7 +262,7 @@ unsigned short getMode(void) {
 }
 
 
-void setMode(unsigned short mode) {
+int setMode(unsigned short mode) {
 
     message tmp_msg;
     unsigned char *tmp_info, *cast_mode;
@@ -273,11 +273,19 @@ void setMode(unsigned short mode) {
     //Should include timeouts for message waits like this
     while(!getMessage(&tmp_msg)); 
     
+    if(!tmp_msg.payload) {
+        
+        prints("Video mode could not be set.\n");
+        return 0;
+    }
+    
     tmp_info = (unsigned char*)getModeInfo(mode);
     cast_mode = (unsigned char*)&curMode;
     
     for(i = 0; i < sizeof(ModeInfoBlock); i++)
         cast_mode[i] = tmp_info[i];
+        
+    return 1;
 }
 
 
@@ -422,7 +430,7 @@ void startGui(void) {
     prints("Press enter to continue...\n");
     scans(5, inbuf);
     
-    setMode(mode);
+    if!(setMode(mode)) return;
     
     drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(255, 0, 0));
 }
