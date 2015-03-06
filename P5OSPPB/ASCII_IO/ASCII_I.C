@@ -5,7 +5,7 @@
 
 unsigned char keyTable[132];
 
-void setupKeyTableBochs() {
+void setupKeyTable() {
     int i;
     
     for(i=0;i<132;i++)
@@ -62,7 +62,7 @@ void setupKeyTableBochs() {
 }
 
 
-void setupKeyTable() {
+void setupKeyTable_phys() {
     int i;
     
     for(i=0;i<132;i++)
