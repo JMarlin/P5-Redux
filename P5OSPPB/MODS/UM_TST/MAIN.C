@@ -261,7 +261,7 @@ unsigned short getMode(void) {
     prints("    Reserved: "); printHexByte(vinfo->reserved); pchar('\n');
     prints("Press enter to continue.\n");
     scans(5, inbuf);
-    modeList = (unsigned short*)((((unsigned int)vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
+    modeList = (unsigned short*)((((unsigned int)(vinfo->modePtrSeg == 0x0) ? seg : vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
     prints("Available mode numbers: (from address 0x\n"); printHexDword((unsigned int)modeList); pchar('\n');
     i = 0;
     max_size = 0;
