@@ -53,7 +53,7 @@ typedef struct VESAInfo {
     unsigned short version;
     unsigned short OEMStringPtrSeg;
     unsigned short OEMStringPtrOff;
-    unsigned char capabilities;
+    unsigned int capabilities;
     unsigned short modePtrSeg;
     unsigned short modePtrOff;
     unsigned short memSize;
@@ -258,13 +258,13 @@ unsigned short getMode(void) {
     prints("    sig: "); pchar(vinfo->sig[0]); pchar(vinfo->sig[1]); pchar(vinfo->sig[2]); pchar(vinfo->sig[3]); pchar('\n');
     prints("    version: "); printHexWord(vinfo->version); pchar('\n');
     prints("    OEMStringPtr: "); printHexWord(vinfo->OEMStringPtrSeg); pchar(':'); printHexWord(vinfo->OEMStringPtrOff); pchar('\n');
-    prints("    Capabilities: "); printHexByte(vinfo->capabilities); pchar('\n');
+    prints("    Capabilities: "); printHexDword(vinfo->capabilities); pchar('\n');
     prints("    Modes ptr: "); printHexWord(vinfo->modePtrSeg); pchar(':'); printHexWord(vinfo->modePtrOff); pchar('\n');
     prints("    Memsize: "); printHexWord(vinfo->memSize); pchar('\n');
     prints("    Reserved: "); printHexByte(vinfo->reserved); pchar('\n');
     prints("Press enter to continue.\n");
     scans(5, inbuf);
-    modeList = (unsigned short*)((((unsigned int)(vinfo->modePtrSeg == 0x0) ? seg : vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
+    modeList = (unsigned short*)((((unsigned int)vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
     prints("Available mode numbers: (from address 0x"); printHexDword((unsigned int)modeList); pchar('\n');
     i = 0;
     max_size = 0;
