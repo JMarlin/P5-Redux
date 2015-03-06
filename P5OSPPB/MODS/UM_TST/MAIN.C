@@ -53,7 +53,7 @@ typedef struct VESAInfo {
     unsigned short version;
     unsigned short OEMStringPtrOff;
     unsigned short OEMStringPtrSeg;
-    unsigned short capabilities;
+    unsigned char capabilities[4];
     unsigned short modePtrOff;
     unsigned short modePtrSeg;
     unsigned short memSize;
