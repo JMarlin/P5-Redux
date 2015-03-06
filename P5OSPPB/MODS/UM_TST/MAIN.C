@@ -221,11 +221,11 @@ ModeInfoBlock* getModeInfo(unsigned short mode) {
         
     while(!getMessage(&tmp_msg));
     
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
     
     while(!getMessage(&tmp_msg));
     
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
     return (ModeInfoBlock*)0x83000; //Should NOT do this
 }
 
@@ -245,11 +245,11 @@ unsigned short getMode(void) {
     
     while(!getMessage(&tmp_msg));
     
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
     
     while(!getMessage(&tmp_msg));
     
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
     vinfo = (VESAInfo*)((((unsigned int)seg) << 4) + off);
     prints("VESA Info at 0x"); printHexDword((unsigned int)vinfo); prints(":\n");
     prints("    sig: "); pchar(vinfo->sig[0]); pchar(vinfo->sig[1]); pchar(vinfo->sig[2]); pchar(vinfo->sig[3]); pchar('\n');
