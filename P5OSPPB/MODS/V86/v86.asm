@@ -77,6 +77,18 @@ get_modes:
     mov dx, es
     mov ax, 0x1
     int 0xFF
+    
+  wait_msg_2: 
+    mov ax, 0x2
+    int 0xFF
+    cmp ax, 0
+    jne send_dos
+    jmp wait_msg_2
+    
+ send_dos:
+    
+    mov bx, [_client]
+    mov cx, 0
     mov dx, di ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
