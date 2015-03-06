@@ -302,8 +302,8 @@ void plotPixel24(int x, int y, int color) {
 
     unsigned char* v = (unsigned char*)0xA0000;
     unsigned int linear_pos = y * curMode.pitch + (x * 3);
-    unsigned int window_pos = linear_pos % (curMode.winsize / 3);
-    unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize / 3)) & 0xFF);
+    unsigned int window_pos = linear_pos % ((curMode.winsize * 0x400) / 3);
+    unsigned char bank_number = (unsigned char)((linear_pos / ((curMode.winsize * 0x400) / 3)) & 0xFF);
     unsigned int pixel = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
     
     if(bank_number != curBank) {
