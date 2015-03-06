@@ -51,11 +51,11 @@ typedef struct ModeInfoBlock {
 typedef struct VESAInfo {
     unsigned char sig[4];
     unsigned short version;
-    unsigned short OEMStringPtrSeg;
     unsigned short OEMStringPtrOff;
-    unsigned int capabilities;
-    unsigned short modePtrSeg;
+    unsigned short OEMStringPtrSeg;
+    unsigned short capabilities;
     unsigned short modePtrOff;
+    unsigned short modePtrSeg;
     unsigned short memSize;
     unsigned char reserved;
 } VESAInfo;
