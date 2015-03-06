@@ -258,7 +258,7 @@ unsigned short getMode(void) {
     prints("    sig: "); pchar(vinfo->sig[0]); pchar(vinfo->sig[1]); pchar(vinfo->sig[2]); pchar(vinfo->sig[3]); pchar('\n');
     prints("    version: "); printHexWord(vinfo->version); pchar('\n');
     prints("    OEMStringPtr: "); printHexWord(vinfo->OEMStringPtrSeg); pchar(':'); printHexWord(vinfo->OEMStringPtrOff); pchar('\n');
-    prints("    Capabilities: "); printHexDword(vinfo->capabilities); pchar('\n');
+    prints("    Capabilities: "); printHexByte(vinfo->capabilities[0]); printHexByte(vinfo->capabilities[1]); printHexByte(vinfo->capabilities[2]); printHexByte(vinfo->capabilities[3]); pchar('\n');
     prints("    Modes ptr: "); printHexWord(vinfo->modePtrSeg); pchar(':'); printHexWord(vinfo->modePtrOff); pchar('\n');
     prints("    Memsize: "); printHexWord(vinfo->memSize); pchar('\n');
     prints("    Reserved: "); printHexByte(vinfo->reserved); pchar('\n');
