@@ -274,7 +274,7 @@ unsigned short getMode(void) {
     
         info = getModeInfo(modeList[i]);
         
-        if((info->Xres + info->Yres) > max_size && (info->bpp >= 24)) {
+        if((info->Xres + info->Yres) > max_size && (info->bpp >= 24) && (info->attributes & 0x1)) {
         
             selected_mode = modeList[i];
             max_size = info->Xres + info->Yres;
@@ -473,7 +473,7 @@ void startGui(void) {
     prints("    directcolor_attributes: 0x"); printHexByte(curMode.directcolor_attributes); prints("\n");
     prints("    physbase: 0x"); printHexDword(curMode.physbase); prints("\n");
     prints("    reserved1: 0x"); printHexDword(curMode.reserved1); prints("\n");
-    prints("    reserved1: 0x"); printHexWord(curMode.reserved2); prints("\n");
+    prints("    reserved2: 0x"); printHexWord(curMode.reserved2); prints("\n");
     prints("Press enter to continue...\n");
     scans(5, inbuf);
     

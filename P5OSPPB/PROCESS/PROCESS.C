@@ -156,9 +156,9 @@ void V86Entry(void) {
                     intVect *= 4;
                     off = ((unsigned short*)intVect)[0];
                     seg = ((unsigned short*)intVect)[1];
-                    prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
-                    prints(" -> "); printHexWord(seg);
-                    prints(":"); printHexWord(off);
+                    //prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
+                    //prints(" -> "); printHexWord(seg);
+                    //prints(":"); printHexWord(off);
                     prints(")");
                     //kernelDebug();
     		        //scans(5, fake);
@@ -170,7 +170,7 @@ void V86Entry(void) {
 
             //IRET
             case 0xCF:
-                prints("(Return from previous interrupt)");
+                //prints("(Return from previous interrupt)");
                 p->ctx.eip = stack[0];
         	    p->ctx.cs = stack[1];
         	    p->ctx.eflags = stack[2] | 0x20020;
@@ -181,21 +181,21 @@ void V86Entry(void) {
 
             //O32
             case 0x66:
-                prints("(o32)");
+                //prints("(o32)");
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
-                prints("(a32)");
+                //prints("(a32)");
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
     	    //PUSHF
             case 0x9C:
-    	        prints("(F Pu)");
+    	        //prints("(F Pu)");
 
                 if(op32) {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 4) & 0xFFFF;
@@ -223,7 +223,7 @@ void V86Entry(void) {
 
         	//POPF
         	case 0x9D:
-        	    prints("(F Po)");
+        	    //prints("(F Po)");
 
                 if(op32) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
@@ -241,7 +241,7 @@ void V86Entry(void) {
 
         	//OUT DX AL
         	case 0xEE:
-        	    prints("(Out)");
+        	    //prints("(Out)");
         	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
         	    p->ctx.eip++;
         	    return;
@@ -249,7 +249,7 @@ void V86Entry(void) {
 
         	//IN AL DX
         	case 0xEC:
-        	    prints("(In)");
+        	    //prints("(In)");
         	    p->ctx.eax &= 0xFFFFFF00;
         	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
         	    p->ctx.eip++;
@@ -258,7 +258,7 @@ void V86Entry(void) {
 
         	//OUT DX AX
         	case 0xEF:
-        	    prints("(OutW)");
+        	    //prints("(OutW)");
                 //if(op32) {
                 //    outd((unsigned short)p->ctx.edx, p->ctx.eax);
                 //} else {
@@ -270,7 +270,7 @@ void V86Entry(void) {
 
             //IN AX DX
         	case 0xED:
-        	    prints("(InW)");
+        	    //prints("(InW)");
 
                 //if(op32) {
         		//	p->ctx.eax = ind(p->ctx.edx);
@@ -284,7 +284,7 @@ void V86Entry(void) {
 
             //INT 3 (debug) or anything else
             case 0xCC:
-                prints("(V86 Debug Interrupt)");
+                //prints("(V86 Debug Interrupt)");
                 kernelDebug();
                 scans(5, fake);
                 p->ctx.eip++;
@@ -293,7 +293,7 @@ void V86Entry(void) {
 
     		//CLI
     		case 0xfa:
-                prints("(cli)");
+                //prints("(cli)");
                 p->ctx.vif = 0;
                 p->ctx.eip++;
                 return;
@@ -301,14 +301,14 @@ void V86Entry(void) {
 
     		//STI
             case 0xfb:
-                prints("(sti)");
+                //prints("(sti)");
                 p->ctx.vif = 1;
                 p->ctx.eip++;
                 return;
                 break;
 
             default:
-                prints("(!!0x"); printHexByte(insPtr[0]); prints("!!)");
+                //prints("(!!0x"); printHexByte(insPtr[0]); prints("!!)");
                 while(1);
                 break;
         }
