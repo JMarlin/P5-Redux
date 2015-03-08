@@ -5,12 +5,12 @@
 
 unsigned char keyTable[132];
 
-void setupKeyTableBochs() {
+void setupKeyTable() {
     int i;
-    
+
     for(i=0;i<132;i++)
         keyTable[i] = 0;
-        
+
     keyTable[0xE] = '`';
     keyTable[0x15] = 'Q';
     keyTable[0x16] = '1';
@@ -62,12 +62,12 @@ void setupKeyTableBochs() {
 }
 
 
-void setupKeyTable() {
+void setupKeyTable_set1() {
     int i;
-    
+
     for(i=0;i<132;i++)
         keyTable[i] = 0;
-        
+
     keyTable[0x1E] = 'A';
     keyTable[0x30] = 'B';
     keyTable[0x2E] = 'C';
@@ -120,43 +120,43 @@ void setupKeyTable() {
 
 
 void scans(unsigned int length, char* outstr) {
-    
+
     unsigned char temp_char;
     int index = 0;
-  
-    for(index = 0 ; index < length-1 ; ) {    
+
+    for(index = 0 ; index < length-1 ; ) {
         temp_char = getch();
 
-        if(temp_char != 0) {       
+        if(temp_char != 0) {
             outstr[index] = temp_char;
             pchar(outstr[index]);
-    
+
             if(outstr[index] == '\n') {
                 outstr[index] = 0;
                 break;
             }
 
             index++;
-            
+
             if(index == length-1)
-                pchar('\n');    
+                pchar('\n');
         }
     }
-    
+
     outstr[index+1] = 0;
 }
 
 
 unsigned char getch(void) {
-        
+
     unsigned char tempData;
-    
+
     //Don't block if there's nothing in the buffer
-    if(!(keyboard_getStatus() & SR_OBSTAT)) 
+    if(!(keyboard_getStatus() & SR_OBSTAT))
         return 0;
-    
+
     tempData = inb(KBC_DREG);
-    
+
     if(tempData == 0xF0) {
         keyboard_getData();
         return 0;
@@ -178,34 +178,34 @@ int strcmp(char* in1, char* in2) {
     int index = 0;
 
     while(in1[index] != 0 && in2[index] != 0) {
-        
+
         if(in1[index] != in2[index])
             return 0;
-        
-        index++;    
+
+        index++;
     }
-    
+
     return 1;
 }
 
 int strcmpci(char* in1, char* in2) {
-    
+
     int index = 0;
-    
+
     while(in1[index] != 0 && in2[index] != 0) {
-    
+
         if(in1[index] > 64 && in1[index] < 91)
             in1[index] += 32;
-    
+
         if(in2[index] > 64 && in2[index] < 91)
-            in2[index] += 32;              
-       
+            in2[index] += 32;
+
         if(in1[index] != in2[index])
             return 0;
-       
+
         index++;
     }
-    
+
     return 1;
 }
 
@@ -214,8 +214,8 @@ int slen(char* ins) {
     int index = 0;
 
     while(ins[index] != 0) {
-        index++;        
+        index++;
     }
-    
+
     return index;
 }
