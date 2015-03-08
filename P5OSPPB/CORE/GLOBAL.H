@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-//#define PRINT_DEBUG
+#define PRINT_DEBUG
 
 #ifndef PRINT_DEBUG
 #define DEBUG(x)
@@ -16,4 +16,3 @@
 #endif //PRINT_DEBUG
 
 #endif //GLOBAL_H
-
