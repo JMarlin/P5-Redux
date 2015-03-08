@@ -99,6 +99,14 @@ int keyboard_init() {
     //Should also turn scanning on and off here
     DEBUG("[keyboard_init()]: Changing keyboard scancode to set 2.\n");
     keyboard_sendData(PS2_SET_SCANCODE);
+    if(keyboard_getData() != PS2_OK) {
+
+        DEBUG("[keyboard_init()]: PS/2 scancode change failed.\n");
+
+        //halt for testing
+        return 0;
+    }
+
     keyboard_sendData(0x02); //Scancode set 2
     if(keyboard_getData() != PS2_OK) {
 
