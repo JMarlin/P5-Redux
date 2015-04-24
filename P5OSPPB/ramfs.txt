@@ -1,0 +1,25 @@
+RAMFS image format:
+-------------------
+Count header:
+    1 dword - filecount
+List headers (there are filecount of these):
+    1 dword - payload offset (offset from the beginning of file at which the file data is found)
+    1 dword - payload size 
+    1 char  - filename length (length in characters of this file's name, not zero terminated)
+    x chars - filename (this is as long as the previous char indicates)
+Data payloads (there are filecount of these): 
+    x chars - file payload (this is payloadsize bytes)
+    
+Ex: a ramdisk has two files in it, hello.txt with the content "Hello, world!" and two.txt with the content "I'm a text file too!"
+
+0x0000 0x00000002
+0x0004 0x00000020
+0x0008 0x0000000D
+0x000C 0x09
+0x000D "hello.txt"
+0x0016 0x0000002D
+0x001A 0x00000014
+0x001E 0x07
+0x001F "two.txt"
+0x0020 "Hello, world!"
+0x002D "I'm a text file too!"

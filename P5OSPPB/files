@@ -1,0 +1,33 @@
+INPUT(
+    syscall.o
+    syscalls.o
+    expt.o 
+    init.o 
+    kernel.o 
+    commands.o 
+    cicomp.o 
+    util.o
+    int.o
+    ascii_i.o
+    ascii_o.o
+    keyboard.o
+    gdt.o
+    memory.o
+    paging.o
+    pagings.o
+    hiinter.o
+    lists.o
+    variant.o
+    process.o
+    processs.o
+    serial.o
+    fs.o
+    block.o
+    ramfs.o
+    ramdisk.o
+    timer.o
+    timers.o
+    message.o
+    kserver.o
+)
+

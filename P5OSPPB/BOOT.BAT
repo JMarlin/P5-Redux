@@ -1,10 +1,12 @@
-echo off
-cls
-copy p5kern.bin ..\kpkg\
+copy bin\p5kern.bin ..\kpkg\
+cd ..\rampak\
+gcc -o rampak.exe main.c
+rampak p5.rd test.txt usr.mod dos.mod v86.mod
+copy p5.rd ..\kpkg\
 cd ..\kpkg\
-kpkg p5kern.bin dellkey.mod
+kpkg p5kern.bin p5.rd
 copy p5kern.bin ..\dosload\
-cd ..\dosload
-echo About to boot into P5
-pause
-dosload
+cd ..\dosload\
+dosload.com
+
+

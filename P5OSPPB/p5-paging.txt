@@ -1,0 +1,85 @@
+Usermode paging configuration:
+	
+		1) Kernel load, just prior to spawning init process:
+		   The kernel allocates the first 8 meg to itself off the bat
+			PHYS:
+			   0x00000000 - 0x007FFFFF : Kernel reserved
+			   0x00800000 - 0xFFFFFFFF : No-man's land
+			VIRT:
+			   0x00000000 - 0x007FFFFF : Kernel reserved
+			   0x00800000 - 0xFFFFFFFF : Unreserved
+
+		2) First process spawn:
+			When it starts a process, the kernel finds how much space is going to be needed 
+			by the binary image and allocates that number of usermode pages to it, beginning at
+			the usermode base, which is 0x800000. When the process begins, the base pages are
+			mapped to 0x800000 with 4k of stack space from 0x800000 to 0x800FFF and the base
+			of the executable image at 0x801000. Let's assume a 5,673 byte executable: 
+			 PHYS:
+			    0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0xFFFFFFFF : No-man's land
+			 VIRT:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0xFFFFFFFF : Unreserved
+
+		3) Second process spawn:
+			This is where things get mildly interesting because the paging changes when the
+			second process spawns. This is because the image expects to be at 0x801000 while
+			that physical space is taken up by the first process's image. So, for the first 
+			time, the physical mapping does not match the vitrual mapping. Here we assume 
+			a 12,420 byte image:
+			 PHYS:
+			    0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0x00807FFF : User space for proc2
+			    0x00808000 - 0xFFFFFFFF : No-man's land
+			 VIRT:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00804FFF : User space for proc2
+			    0x00805000 - 0xFFFFFFFF : Unreserved
+
+		4) Return to first process:
+			The processor switches back to service process 1 and, in our simulation, happens
+			to request the loading of a dynamic library called libgfx. This library happens
+			to be 6,563 bytes large. So first, we switch the mapping to that for proc1, then 
+			allocate physical space for the library and then map the library into proc1's space
+			 PHYS:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0x00807FFF : User space for proc2
+			    0x00808000 - 0x0080AFFF : User space for libgfx
+			    0x0080B000 - 0xFFFFFFFF : No-man's land
+			 VIRT:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0x00805FFF : libgfx space in proc1 space
+			    0x00806000 - 0xFFFFFFFF : Unreserved
+
+		5) Switch back to second process:
+			Again, we switch tasks, and in this case we happen to both request another instance
+			of libgfx. The kernel knows that libgfx is already loaded and so all we need to do
+			is map the existing lib into the working virtual memory space of proc2:
+			 PHYS:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00802FFF : User space for proc1
+			    0x00803000 - 0x00807FFF : User space for proc2
+			    0x00808000 - 0x0080AFFF : User space for libgfx
+			    0x0080B000 - 0xFFFFFFFF : No-man's land
+			 VIRT:
+			 	0x00000000 - 0x007FFFFF : Kernel reserved
+			    0x00800000 - 0x00804FFF : User space for proc2
+			    0x00805000 - 0x00807FFF : libgfx space in proc2 space
+			    0x00805000 - 0xFFFFFFFF : Unreserved
+
+
+So we know we need a couple of things associated with processes:
+	-Image phys base
+	-Image virtual base
+	-Image size
+	-Mapped libraries (can be a list of structures which include the virtual address of the lib and a pointer to the entry in the kernel's dynamic lib list)
+	-List of mapped malloc pages
+
+The kernel also needs to have page-enabled usermode malloc enabled
+
