@@ -54,62 +54,62 @@ void kernelDebug(void) {
 void returnToProcess(process* proc) {
 
     process* oldP = p;
-        
+
     //needs_swap = 1;
     if(needs_swap) {
-                   
+
         for(++procPtr; (!procTable[procPtr].id); procPtr++);
 
         proc = &procTable[procPtr];
         needs_swap = 0;
     }
-    
+
     p = proc;
-    
+
     //Turn off the page mapping of the last process
     if(oldP)
         if(oldP->root_page)
-            disable_page_range(oldP->base, oldP->root_page);   
-    
+            disable_page_range(oldP->base, oldP->root_page);
+
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
-    
-    if(p->root_page) 
+
+    if(p->root_page)
         apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
-    
+
     //If the process is in debug mode, set the debug flag
     if(p->flags & PF_DEBUG)
         p->ctx.eflags |= 0x100;
-        
+
     //If the process is a virtual 8086 process, set its IOPL to 3
     //so it can do port IO without having to fuck with the monitor
     //if(p->flags & PF_V86)
     //    p->ctx.eflags |= 0x3000;
-    
-    prc_is_super = p->flags & PF_SUPER ? 1 : 0;
-        
-    
+
+    _prc_is_super = p->flags & PF_SUPER ? 1 : 0;
+
+
     //Restore the running context
-    old_esp = p->ctx.esp;
-    old_cr3 = p->ctx.cr3;
-    old_eip = p->ctx.eip;
-    old_eflags = p->ctx.eflags;
-    old_eax = p->ctx.eax;
-    old_ecx = p->ctx.ecx;
-    old_edx = p->ctx.edx;
-    old_ebx = p->ctx.ebx;
-    old_ebp = p->ctx.ebp;
-    old_esi = p->ctx.esi;
-    old_edi = p->ctx.edi;
-    old_es = p->ctx.es;
-    old_cs = p->ctx.cs;
-    old_ss = p->ctx.ss;
-    old_ds = p->ctx.ds;
-    old_fs = p->ctx.fs;
-    old_gs = p->ctx.gs;
-    old_err = p->ctx.err;
-                
-    returnToProc();
+    _old_esp = p->ctx.esp;
+    _old_cr3 = p->ctx.cr3;
+    _old_eip = p->ctx.eip;
+    _old_eflags = p->ctx.eflags;
+    _old_eax = p->ctx.eax;
+    _old_ecx = p->ctx.ecx;
+    _old_edx = p->ctx.edx;
+    _old_ebx = p->ctx.ebx;
+    _old_ebp = p->ctx.ebp;
+    _old_esi = p->ctx.esi;
+    _old_edi = p->ctx.edi;
+    _old_es = p->ctx.es;
+    _old_cs = p->ctx.cs;
+    _old_ss = p->ctx.ss;
+    _old_ds = p->ctx.ds;
+    _old_fs = p->ctx.fs;
+    _old_gs = p->ctx.gs;
+    _old_err = p->ctx.err;
+
+    _returnToProc();
 }
 
 
@@ -130,9 +130,9 @@ void V86Entry(void) {
                 //If it was a service call, forward it to the syscall handler
                 if(insPtr[1] == 0xFF) {
 
-                    syscall_number = p->ctx.eax & 0xFFFF;
-                    syscall_param1 = p->ctx.ebx & 0xFFFF;
-                    syscall_param2 = p->ctx.ecx & 0xFFFF;
+                    _syscall_number = p->ctx.eax & 0xFFFF;
+                    _syscall_param1 = p->ctx.ebx & 0xFFFF;
+                    _syscall_param2 = p->ctx.ecx & 0xFFFF;
                     syscall_exec();
                     p->ctx.eip += 2;
                 } else {
@@ -320,34 +320,34 @@ void kernelEntry(void) {
 
     unsigned int kflags;
     unsigned short* stack;
-    
+
     //Backup the running context
-    p->ctx.esp = old_esp;
-    p->ctx.cr3 = old_cr3;
-    p->ctx.eip = old_eip;
-    p->ctx.eflags = old_eflags;
-    p->ctx.eax = old_eax;
-    p->ctx.ecx = old_ecx;
-    p->ctx.edx = old_edx;
-    p->ctx.ebx = old_ebx;
-    p->ctx.ebp = old_ebp;
-    p->ctx.esi = old_esi;
-    p->ctx.edi = old_edi;
-    p->ctx.es = old_es;
-    p->ctx.cs = old_cs;
-    p->ctx.ss = old_ss;
-    p->ctx.ds = old_ds;
-    p->ctx.fs = old_fs;
-    p->ctx.gs = old_gs;
-    p->ctx.err = old_err;
-                
+    p->ctx.esp = _old_esp;
+    p->ctx.cr3 = _old_cr3;
+    p->ctx.eip = _old_eip;
+    p->ctx.eflags = _old_eflags;
+    p->ctx.eax = _old_eax;
+    p->ctx.ecx = _old_ecx;
+    p->ctx.edx = _old_edx;
+    p->ctx.ebx = _old_ebx;
+    p->ctx.ebp = _old_ebp;
+    p->ctx.esi = _old_esi;
+    p->ctx.edi = _old_edi;
+    p->ctx.es = _old_es;
+    p->ctx.cs = _old_cs;
+    p->ctx.ss = _old_ss;
+    p->ctx.ds = _old_ds;
+    p->ctx.fs = _old_fs;
+    p->ctx.gs = _old_gs;
+    p->ctx.err = _old_err;
+
     if(p->flags & PF_V86)
         insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
     else
-        insPtr = (char*)p->ctx.eip;            
-                
-    switch(except_num) {
-    
+        insPtr = (char*)p->ctx.eip;
+
+    switch(_except_num) {
+
         case EX_GPF:
         //Switch to the V86 monitor if the thread was a V86 thread
             if(p->flags & PF_V86) {
@@ -363,17 +363,17 @@ void kernelEntry(void) {
             break;
 
         case EX_SYSCALL:
-            syscall_number = p->ctx.eax;
-            syscall_param1 = p->ctx.ebx;
-            syscall_param2 = p->ctx.ecx;
+            _syscall_number = p->ctx.eax;
+            _syscall_param1 = p->ctx.ebx;
+            _syscall_param2 = p->ctx.ecx;
             syscall_exec();
             break;
-        
+
         case FORCE_ENTER:
             //We don't want to do anything here, this is just
             //so that we get an entry into and an exit from the kernel
             break;
-        
+
         case EX_DEBUGCALL:
             stack = (unsigned short*)((unsigned int)0 + (p->ctx.ss << 4) + (p->ctx.esp & 0xFFFF));
             prints("Process #"); printHexDword(p->id); prints(" single-step\n");
@@ -387,12 +387,12 @@ void kernelEntry(void) {
             kernelDebug();
             scans(5, fake);
             break;
-        
+
         default:
-            prints("Interrupt #0x"); printHexByte(except_num); prints(" triggered\n");
+            prints("Interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
             kernelDebug();
             scans(5, fake);
-            break; 
+            break;
     }
 
     returnToProcess(p);
@@ -404,11 +404,11 @@ void endProc(process* proc) {
     disable_page_range(0xB00000, proc->root_page);
     del_page_tree(proc->root_page);
     proc->root_page = (pageRange*)0;
-    proc->id = 0;    
-    
+    proc->id = 0;
+
     if(proc == p)
         needs_swap = 1;
-    
+
     returnToProcess(p);
 }
 
@@ -424,20 +424,20 @@ void clearContext(context* ctx) {
 
 
 process* newProcess() {
-    
+
     process* proc;
     int i;
-        
+
     //fast-forward to the next free slot
     for(i = 0; procTable[i].id && (i < 256); i++);
-    
+
     if(i == 256)
         return (process*)0x0;
-        
+
     proc = &(procTable[i]);
     procPtr = (unsigned char)i;
     proc->id = nextProc++;
-    proc->root_page = (pageRange*)0x0;  
+    proc->root_page = (pageRange*)0x0;
     proc->root_msg = (message*)0x0;
     proc->flags = 0;
     return proc;
@@ -447,15 +447,15 @@ process* newProcess() {
 process* newUserProc() {
 
     process* newP;
-    
+
     newP = newProcess();
-    
+
     if(!newP)
         return newP;
-    
+
     newP->base = 0xB00000;
     newP->size = 0x0;
-    
+
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0xB00FFF;
     newP->ctx.ss = 0x23;
@@ -473,18 +473,18 @@ process* newUserProc() {
 process* newSuperProc() {
 
     process* newP;
-    
+
     newP = newProcess();
-        
+
     if(!newP)
         return newP;
-    
+
     //Set the superproc bit
     newP->flags |= PF_SUPER;
-    
+
     newP->base = 0xB00000;
     newP->size = 0x0;
-    
+
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0xB00FFF;
     newP->ctx.ss = 0x10;
@@ -504,16 +504,16 @@ process* newV86Proc() {
     process* newP;
 
     newP = newProcess();
-        
+
     if(!newP)
         return newP;
-    
+
     //Set the v86 mode bit
     newP->flags |= PF_V86;
-    
+
     newP->base = 0xB00000;
     newP->size = 0x0;
-    
+
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0x1000;
     newP->ctx.ss = 0x9000;
@@ -547,12 +547,12 @@ void enterProc(unsigned int pid) {
     process* proc;
 
     for(i = 0; i < 256 && (procTable[i].id != pid); i++);
-    
+
     if(i == 256)
         return;
-    
+
     proc = &procTable[i];
-    
+
     //Enter the new context
     needs_swap = 0;
     returnToProcess(proc);
@@ -564,14 +564,14 @@ void enterProc(unsigned int pid) {
 void startProcessManagement() {
 
     int i;
-    p = (process*)0;    
+    p = (process*)0;
     needs_swap = 0;
     procTable = (process*)0x2029A0;
-        
+
     //Clear the contents of the process table
-    for(i = 0; i < 256; i++) 
+    for(i = 0; i < 256; i++)
         procTable[i].id = 0;
-    
+
     nextProc = 1;
     procPtr = 0;
 }
@@ -581,7 +581,7 @@ void startProcessManagement() {
 int request_new_page(process* proc) {
 
     int newSize;
-    
+
     if(!(newSize = append_page(proc->root_page)))
         return proc->size = newSize;
     else
@@ -597,19 +597,19 @@ unsigned int exec_v86(unsigned char* path) {
     int tmpVal, i;
     int pageCount;
     unsigned char pathBuf[255];
-    
+
     for(i = 0; path[i]; i++)
         pathBuf[i] = path[i];
-        
+
     pathBuf[i] = 0;
-       
+
     if(!(proc = newV86Proc()))
         return 0;
-    
+
     file_open(pathBuf, &exeFile);
-    
+
     if(!exeFile.id) {
-    
+
         prints("Could not open file ");
         prints(path);
         prints("\n");
@@ -619,18 +619,18 @@ unsigned int exec_v86(unsigned char* path) {
     }
 
     for(i = 0; file_readb(&exeFile) != EOF; i++);
-    
+
     //Finish the definition of the root malloc block
     proc->size = i;
-    
+
     //Because we can't rewind or close and reopen the file yet
     file_open(pathBuf, &exeFile2);
     i = 0;
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
-    
-    prints("Launching v86 process\n");    
-        
+
+    prints("Launching v86 process\n");
+
     return proc->id;
 }
 
@@ -643,26 +643,26 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     int tmpVal, i;
     int pageCount;
     unsigned char pathBuf[255];
-    
+
     for(i = 0; path[i]; i++)
         pathBuf[i] = path[i];
-        
+
     pathBuf[i] = 0;
-    
+
     if(isSuper) {
-    
+
         if(!(proc = newSuperProc()))
             return 0;
     } else {
-    
+
         if(!(proc = newUserProc()))
             return 0;
     }
-    
+
     file_open(pathBuf, &exeFile);
-    
+
     if(!exeFile.id) {
-    
+
         prints("Could not open file ");
         prints(path);
         prints("\n");
@@ -672,38 +672,38 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     }
 
     for(i = 0; file_readb(&exeFile) != EOF; i++);
-    
+
     //Add an extra 4k to account for the stack space
     pageCount = (i + 0x1000) / 0x1000;
-    
+
     if(i % 0x1000)
         pageCount++;
-        
+
     proc->root_page = new_page_tree(pageCount);
-    
+
     if(!(proc->root_page)) {
-    
+
         //fclose(&exeFile);
         //freeProcess(proc);
     }
-    
+
     //Finish the definition of the root malloc block
     proc->size = pageCount << 12;
-    
+
     //Activate the new pages so we're writing to the
     //correct locations on physical ram
     apply_page_range(proc->base, proc->root_page, proc->flags & PF_SUPER);
-    
+
     //Because we can't rewind or close and reopen the file yet
     file_open(pathBuf, &exeFile2);
     i = 0;
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
-    
+
     //Restore the active process's paging
     if(p) apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
-    
-    prints("Launching usermode process\n");    
-        
+
+    prints("Launching usermode process\n");
+
     return proc->id;
 }

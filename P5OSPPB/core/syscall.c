@@ -47,8 +47,8 @@ void syscall_exec(void) {
     unsigned char* vram = (unsigned char*)0xA0000;
     unsigned char* buf = (unsigned char*)0x50000;
     int i, j, o, row;
-        
-    switch(syscall_number) {
+
+    switch(_syscall_number) {
 
         //Legacy for V86
         case 0:
@@ -105,7 +105,7 @@ void syscall_exec(void) {
                 p->ctx.edx = 0;
             }
         break;
-        
+
         default:
         break;
     }

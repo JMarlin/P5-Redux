@@ -18,8 +18,8 @@
 #include "../timer/timer.h"
 
 
-extern long pkgoffset;
-extern char imagename;
+extern long _pkgoffset;
+extern char _imagename;
 char prompt[] = "P5-> ";
 char inbuf[50];
 char* usrCode = (char*)0x80000;
@@ -33,9 +33,9 @@ int main(void) {
     FILE hellofile;
     unsigned char listBuf[256];
     int tempCh = 0;
-    
+
     __asm__ ("cli");
-    
+
     initScreen();
     setColor(0x1F);
     clear();
@@ -61,7 +61,7 @@ int main(void) {
     else
         prints("Done.\n");
 
-    init_memory();        
+    init_memory();
     setupKeyTable();
     startProcessManagement();
     init_timer();
@@ -70,8 +70,8 @@ int main(void) {
 
     //ksize = (unsigned int*)0x100005;
 
-    dcount = (unsigned char*)((char*)0x100000+pkgoffset);
-    sizes = (unsigned int*)((char*)0x100001+pkgoffset);
+    dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
+    sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
 
     if(!dcount) {
 
@@ -91,12 +91,12 @@ int main(void) {
 
     //Print kernel size and version
     prints("Image: ");
-    prints(&imagename);
+    prints(&_imagename);
     prints("\nSize: ");
-    printHexDword(pkgoffset);
+    printHexDword(_pkgoffset);
     prints("b\n");
 
-    
+
     /*
     //Test V86 mode
     prints("Installing V86 code...");
@@ -116,44 +116,44 @@ int main(void) {
     setProcEntry(ctx, (void*)usrCode);
     startProc(ctx);
     */
-   
+
     prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
-    prints("Initializing filesystem\n");    
+    prints("Initializing filesystem\n");
     fs_init();
-    
+
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
     prints("Calculating offset to ramdisk\n");
-    doffset = 0x100005 + pkgoffset;
+    doffset = 0x100005 + _pkgoffset;
     prints("Creating new ramdisk block device ram0...");
     ram0 = blk_ram_new(doffset, sizes[0]);
     prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
     prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, ram0, ":");
-    
+
     //This is the final culmination of all our FS and process work
     prints("Done\n");
     file_list(":", listBuf);
-    
+
     for(i = 0; listBuf[i]; i++)
         if(listBuf[i] == ':') listBuf[i] = '\n';
-    
+
     prints("Directory listing: \n");
     prints(listBuf);
     file_open(":test.txt", &hellofile);
-    
+
     if(!hellofile.id) {
-    
+
         prints("File could not be opened.");
         while(1);
     }
-    
+
     prints("File contents:\n\n");
-    
-    while((tempCh = file_readb(&hellofile)) != EOF)    
+
+    while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
-    
+
     //__asm__ ("sti");
     enterProc(exec_process(":usr.mod", 1));
 

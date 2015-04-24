@@ -2,9 +2,9 @@
 .extern _except_num
 .extern _c_spurious_handler
 .extern _timer_int_ack
-.extern _t_counter
+.extern t_counter
 .extern _in_kernel
-.extern _needs_swap
+.extern needs_swap
 
 .extern _old_esp
 .extern _old_cr3
@@ -29,63 +29,63 @@
 _pending_eoi: .byte 0x0
 
 .globl _timer_handler
-_timer_handler:   
-    
+_timer_handler:
+
     push %ds
     push %eax
     mov $0x10, %ax
     mov %ax, %ds
-    push %ebx    
-    mov _t_counter, %eax
+    push %ebx
+    mov t_counter, %eax
     inc %eax
     mov $2, %ebx
     cmp %eax, %ebx
     jg timer_reset
-    
-    mov %eax, _t_counter    
+
+    mov %eax, t_counter
     mov $0x20, %al
     out %al, $0x20
     pop %ebx
     pop %eax
     pop %ds
-    iret    
-    
+    iret
+
  timer_reset:
-    
+
     xor %eax, %eax
-    mov %eax, _t_counter
-    
+    mov %eax, t_counter
+
     inc %eax
-    mov %al, _needs_swap
-    
+    mov %al, needs_swap
+
     mov _in_kernel, %al
     xor %bl, %bl
     cmp %al, %bl
     je timer_to_kernel
-    
+
     pop %ebx
-    
+
     mov $0x20, %al
     out %al, $0x20
-    
+
     pop %eax
     pop %ds
     iret
- 
- timer_to_kernel: 
-    
+
+ timer_to_kernel:
+
     incb _in_kernel
     incb _pending_eoi
-    
+
     mov $0xFE, %al
     mov %al, _except_num
-    
+
     pop %ebx
     pop %eax
     pop %ds
     call _switchToKernel
 
-    
+
 .globl _spurious_handler
 _spurious_handler:
     pusha
@@ -95,12 +95,11 @@ _spurious_handler:
 
 .globl _irq_enter_kernel
 irq_enter_kernel:
-    
-    
+
+
     cli
-    push %eax 
+    push %eax
     mov $0xEF, %al
     mov %al, _except_num
-    pop %eax 
+    pop %eax
     call _switchToKernel
-    

@@ -23,27 +23,27 @@
 #define FORCE_ENTER        0xFE
 
 
-extern void expt_zeroDivide(void);
-extern void expt_debugCall(void);
-extern void expt_NMI(void);
-extern void expt_breakpoint(void);
-extern void expt_overflow(void);
-extern void expt_outOfBound(void);
-extern void expt_illegalOpcode(void);
-extern void expt_noCoprocessor(void);
-extern void expt_doubleFault(void);
-extern void expt_invalidTSS(void);
-extern void expt_segNotPresent(void);
-extern void expt_stackFault(void);
-extern void expt_generalProtection(void);
-extern void expt_pageFault(void);    
-extern void expt_mathFault(void);
-extern void expt_alignCheck(void);
-extern void expt_machineCheck(void);
-extern void expt_simdFailure(void);
-extern void expt_syscall(void);
-extern void expt_forceenter(void);
+extern void _expt_zeroDivide(void);
+extern void _expt_debugCall(void);
+extern void _expt_NMI(void);
+extern void _expt_breakpoint(void);
+extern void _expt_overflow(void);
+extern void _expt_outOfBound(void);
+extern void _expt_illegalOpcode(void);
+extern void _expt_noCoprocessor(void);
+extern void _expt_doubleFault(void);
+extern void _expt_invalidTSS(void);
+extern void _expt_segNotPresent(void);
+extern void _expt_stackFault(void);
+extern void _expt_generalProtection(void);
+extern void _expt_pageFault(void);
+extern void _expt_mathFault(void);
+extern void _expt_alignCheck(void);
+extern void _expt_machineCheck(void);
+extern void _expt_simdFailure(void);
+extern void _expt_syscall(void);
+extern void _expt_forceenter(void);
 
-extern unsigned char except_num;
+extern unsigned char _except_num;
 
 #endif //EXPT_H

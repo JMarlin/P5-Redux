@@ -2,9 +2,9 @@
 #define SYSCALL_H
 
 
-extern unsigned int syscall_number;
-extern unsigned int syscall_param1;
-extern unsigned int syscall_param2;
+extern unsigned int _syscall_number;
+extern unsigned int _syscall_param1;
+extern unsigned int _syscall_param2;
 
 
 extern void syscall_handler(void);

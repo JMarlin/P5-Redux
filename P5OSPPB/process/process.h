@@ -5,7 +5,7 @@
 #define PT_V86  1
 
 //Process flags
-#define PF_SUPER 1 //If the flag at bit 1 is set then the process has supervisor permissions 
+#define PF_SUPER 1 //If the flag at bit 1 is set then the process has supervisor permissions
 #define PF_V86   2
 #define PF_DEBUG    4 //Process will single-step
 
@@ -46,27 +46,27 @@ typedef struct process {
     unsigned int flags;
 } process;
 
-extern int old_esp;
-extern int old_cr3;
-extern int old_eip;
-extern int old_eflags;
-extern int old_eax;
-extern int old_ecx;
-extern int old_edx;
-extern int old_ebx;
-extern int old_ebp;
-extern int old_esi;
-extern int old_edi;
-extern short old_es;
-extern short old_cs;
-extern short old_ss;
-extern short old_ds;
-extern short old_fs;
-extern short old_gs;
-extern int old_err;
+extern int _old_esp;
+extern int _old_cr3;
+extern int _old_eip;
+extern int _old_eflags;
+extern int _old_eax;
+extern int _old_ecx;
+extern int _old_edx;
+extern int _old_ebx;
+extern int _old_ebp;
+extern int _old_esi;
+extern int _old_edi;
+extern short _old_es;
+extern short _old_cs;
+extern short _old_ss;
+extern short _old_ds;
+extern short _old_fs;
+extern short _old_gs;
+extern int _old_err;
 
-extern unsigned char in_kernel;
-extern unsigned char prc_is_super;
+extern unsigned char _in_kernel;
+extern unsigned char _prc_is_super;
 
 unsigned char needs_swap;
 
@@ -91,7 +91,7 @@ int request_new_page(process* proc);
 void next_process();
 void prep_next_process();
 
-extern void switchToKernel(void);
-extern void returnToProc(void);
+extern void _switchToKernel(void);
+extern void _returnToProc(void);
 
 #endif //PROCESS_H

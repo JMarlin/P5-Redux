@@ -1,6 +1,6 @@
 #ifndef TIMER_H
 #define TIMER_H
-	
+
 #define PIC1_COMMAND   0x20
 #define PIC1_DATA	   0x21
 #define PIC2_COMMAND   0xA0
@@ -16,8 +16,8 @@ void timer_int_ack();
 void c_spurious_handler();
 void irq_enter_kernel();
 
-extern void timer_handler(void);
-extern void spurious_handler(void);
+extern void _timer_handler(void);
+extern void _spurious_handler(void);
 
 unsigned int t_counter;
 

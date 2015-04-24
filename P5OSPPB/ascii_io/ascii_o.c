@@ -1,7 +1,7 @@
 #include "ascii_o.h"
 #include "../core/commands.h"
 #include "../core/util.h"
-#include "SERIAL.H"
+#include "serial.h"
 
 
 char* screenBase;
@@ -20,7 +20,7 @@ unsigned char digitToHex(unsigned char digit) {
 
 
 void printHexByte(unsigned char byte) {
-    
+
     pchar(digitToHex((byte & 0xF0)>>4));
     pchar(digitToHex(byte & 0xF));
 }
@@ -51,10 +51,10 @@ void initScreen() {
 
 
 void setCursor(int x, int y) {
-        
+
     int linear_location = (y*80)+x;
     unsigned short* video_port = (unsigned short*)0x0463;
-    
+
     cursor_x = x;
     cursor_y = y;
     outb(video_port[0], 0x0F);
@@ -77,9 +77,9 @@ void scrollScreen() {
     int x, y;
 
     for(y = 0; y < 24; y++) {
-    
+
         for(x = 0; x < 160; x+=2) {
-            screenBase[(y*160)+x] = screenBase[((y+1)*160)+x];       
+            screenBase[(y*160)+x] = screenBase[((y+1)*160)+x];
         }
     }
 
@@ -93,10 +93,10 @@ void scrollScreen() {
 }
 
 void pchar(char _inin) {
-    
+
     serPutch(_inin);
     if(_inin != '\n'){
-    
+
         //Insert the character
         screenBase[((cursor_y*80)+cursor_x)*2] = _inin;
         screenBase[(((cursor_y*80)+cursor_x)*2)+1] = color_code;
@@ -106,7 +106,7 @@ void pchar(char _inin) {
     if(cursor_x == 80 || _inin == '\n') {
         cursor_x = 0;
         cursor_y++;
-        
+
         if(cursor_y == 25){
             scrollScreen();
         }
@@ -117,8 +117,8 @@ void pchar(char _inin) {
 }
 
 
-void prints(char* _str) {      
-    
+void prints(char* _str) {
+
     int index = 0;
 
     while(_str[index] != 0) {

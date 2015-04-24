@@ -11,42 +11,42 @@ void foo(void) {
     __asm__ ("\t movl %%esp, %0" : "=r"(i));
     printHexDword(i);
     prints("\n");
-    __asm__ ("jmp _foo");
+    __asm__ ("jmp foo");
 }
 
-void parse(char* instr) {     
+void parse(char* instr) {
 
   int i;
-     
-    if(findfatfile(instr) && ( slen(instr) <= 8 )) {        
-    
+
+    if(findfatfile(instr) && ( slen(instr) <= 8 )) {
+
         if(strcmpci("SPB",ext(instr))) {
-            fatexec(instr);        
-        } else {     
-            prints("PiCI Error: Not an SPB executable\n");             
+            fatexec(instr);
+        } else {
+            prints("PiCI Error: Not an SPB executable\n");
         }
     } else {
-    
+
         if(strcmpci(instr,"CLR")) {
-            clear();        
+            clear();
         } else {
 
             if(strcmpci(instr,"CHPROMPT")) {
-               chprompt();        
+               chprompt();
             } else {
-                
+
                 if(strcmpci(instr,"HELP")) {
-                    help();           
+                    help();
                 } else {
-                    
+
                     if(strcmpci(instr,"TSTVAR")) {
                         testvars();
                     } else {
-                        
+
                         if(strcmpci(instr, "INT")) {
                             __asm__ ("int $0x80 \n");
                         } else {
-                            prints("PiCI Error: PEBKAC\n");        
+                            prints("PiCI Error: PEBKAC\n");
                         }
                     }
                 }

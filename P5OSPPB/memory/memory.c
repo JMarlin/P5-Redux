@@ -1,6 +1,6 @@
 #include "memory.h"
-#include "..\ascii_io\ascii_o.h"
-#include "..\core\global.h"
+#include "../ascii_io/ascii_o.h"
+#include "../core/global.h"
 
 
 extern long pkgoffset;
@@ -19,20 +19,20 @@ void testRAM() {
         sysram[i] = ~prev;
 
         if(sysram[i] == prev)
-            break;    
+            break;
 
         sysram[i] = prev;
         printHexDword(i);
         prints("\n");
-        i++;      
-    }        
+        i++;
+    }
 
     maxRAM = i;
 }
 
 
 void printChain() {
- 
+
     memblock* nextBlock = &rootBlock;
 
     prints("Current allocated memory:\n");
@@ -43,13 +43,13 @@ void printChain() {
         prints(", Size: 0x");
         printHexDword(nextBlock->size);
         prints("\n");
-                
+
         if(nextBlock->next)
             nextBlock = nextBlock->next;
         else
             break;
-    }      
-}        
+    }
+}
 
 
 void init_memory() {
@@ -62,13 +62,13 @@ void init_memory() {
     rootBlock.size = 0x200000;
     rootBlock.next = (memblock*)0;
 
-    
+
     //testRAM();
     prints("Top of RAM: 0x");
     printHexDword(maxRAM);
     prints("\nAllocating 1k of RAM to ram_a.\n");
     ram_a = kmalloc(1024);
-    
+
     if(ram_a == (void*)0) {
         prints("Allocation failed.\n");
         return;
@@ -86,7 +86,7 @@ void init_memory() {
     //printChain();
     prints("Freeing ram_a.\n");
     ram_a = kfree(ram_a);
-    
+
     if(ram_a != (void*)0) {
         prints("Free failed.\n");
         return;
@@ -95,21 +95,21 @@ void init_memory() {
     //printChain();
     prints("Freeing ram_b.\n");
     ram_b = kfree(ram_b);
- 
+
     if(ram_b != (void*)0) {
         prints("Free failed.\n");
         return;
     }
 
-    //printChain();         
-    
+    //printChain();
+
 }
 
 
 memblock* getMBTail() {
-        
+
     memblock* nextBlock = &rootBlock;
-        
+
     while(nextBlock->next)
         nextBlock = nextBlock->next;
 
@@ -117,7 +117,7 @@ memblock* getMBTail() {
 }
 
 memblock* nextMBByAddress(void* baseAddr) {
-        
+
     memblock* nextBlock = &rootBlock;
     memblock* returnBlock;
     void* nextBase = (void*)maxRAM;
@@ -128,7 +128,7 @@ memblock* nextMBByAddress(void* baseAddr) {
         //DEBUG(" against block "); //DEBUG_HD((unsigned long)nextBlock->base);
         //DEBUG("-"); //DEBUG_HD((unsigned long)nextBlock->base + nextBlock->size);
         //DEBUG("...");
-        
+
         if(nextBlock->base >= baseAddr && nextBlock->base < nextBase) {
             returnBlock = nextBlock;
             nextBase = returnBlock->base;
@@ -152,7 +152,7 @@ memblock* nextMBByAddress(void* baseAddr) {
 
 
 int MBCollision(void* base, unsigned long size) {
-        
+
     unsigned int ibase = (unsigned int)base;
     unsigned int isize = (unsigned int)size;
     unsigned int nbase, nsize;
@@ -176,7 +176,7 @@ int MBCollision(void* base, unsigned long size) {
 
 
 void* kmalloc(unsigned int size) {
-        
+
     memblock* tailBlock = getMBTail();
     memblock* nextBlock;
     memblock* newBlock;
@@ -186,7 +186,7 @@ void* kmalloc(unsigned int size) {
     void* rambase = (void*)(0x00300000); //User RAM starts at 3MB
 
     while(1) {
-                
+
         if(!MBCollision(rambase, size + sizeof(memblock)))
             break;
 
@@ -195,18 +195,18 @@ void* kmalloc(unsigned int size) {
 
         rambase = nextBlock->base + nextBlock->size;
     }
-                
+
     tailBlock->next = (memblock*)rambase;
     newBlock = tailBlock->next;
     newBlock->next = (memblock*)0;
     newBlock->base = rambase;
     newBlock->size = size + sizeof(memblock);
-    return rambase + sizeof(memblock);         
+    return rambase + sizeof(memblock);
 }
 
 
 void* kfree(void* base) {
-                       
+
     memblock* nextBlock = &rootBlock;
     memblock* prevBlock = &rootBlock;
     void* realBase = base - sizeof(memblock);
@@ -219,20 +219,20 @@ void* kfree(void* base) {
         //DEBUG("   Matches ");
         //DEBUG_HD((unsigned long)nextBlock->base);
         //DEBUG("?...");
-        
+
         if(nextBlock->base == realBase) {
             //DEBUG("yes\n");
-            prevBlock->next = nextBlock->next;                                
+            prevBlock->next = nextBlock->next;
             return (void*)0;
         } else {
             //DEBUG("no\n");
         }
-        
+
         if(nextBlock->next) {
             prevBlock = nextBlock;
             nextBlock = nextBlock->next;
         } else {
             return base;
         }
-    }        
+    }
 }

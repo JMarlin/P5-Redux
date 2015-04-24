@@ -1,4 +1,4 @@
-#include "../CORE/UTIL.H"
+#include "../core/util.h"
 
 
 void initSerial() {
