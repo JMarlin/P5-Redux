@@ -1,4 +1,5 @@
 #include <memory.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 typedef struct fileMeta {

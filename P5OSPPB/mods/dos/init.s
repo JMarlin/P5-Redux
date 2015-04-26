@@ -2,5 +2,5 @@
 .globl _start
 .section .init
 _start:
-        jmp _main
+        jmp main
 

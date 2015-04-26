@@ -6,24 +6,24 @@ message temp_msg;
 
 int getMessage(message* msg) {
     
-    asm_get_msg();
+    _asm_get_msg();
     
-    if(!retval)
+    if(!_retval)
         return 0;
         
-    msg->source = dest;
-    msg->command = command;
-    msg->payload = payload;    
+    msg->source = _dest;
+    msg->command = _command;
+    msg->payload = _payload;    
     return 1;
 }
 
 
 void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayload)  {
         
-    dest = ldest;
-    command = lcommand;
-    payload = lpayload;    
-    asm_send_msg();
+    _dest = ldest;
+    _command = lcommand;
+    _payload = lpayload;    
+    _asm_send_msg();
 }
 
 void pchar(char c) {

@@ -11,13 +11,13 @@ typedef struct message {
     unsigned int payload;
 } message;
 
-extern unsigned int dest;
-extern unsigned int command;
-extern unsigned int payload;
-extern unsigned int retval;
+extern unsigned int _dest;
+extern unsigned int _command;
+extern unsigned int _payload;
+extern unsigned int _retval;
 
-extern void asm_get_msg(void);
-extern void asm_send_msg(void);
+extern void _asm_get_msg(void);
+extern void _asm_send_msg(void);
 
 int getMessage(message* msg);
 void postMessage(unsigned int dest, unsigned int command, unsigned int payload);
