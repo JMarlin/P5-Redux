@@ -3,7 +3,7 @@
 #include "ascii_o.h"
 #include "keyboard.h"
 
-
+//NOTE: Replace all prints with debugs
 void keyboard_sendCommand(unsigned char command) {
 
     keyboard_inputWait();
@@ -45,14 +45,6 @@ int keyboard_init() {
     DEBUG("[keyboard_init()]: Beginning keyboard initialization sequence.\n");
     DEBUG("[keyboard_init()]: Disabling devices and flushing KBC buffer.\n");
 
-/*remove this if this works after build
-    //wait a sec
-    i = 0;
-    while(i < 0xFFF) {
-        i++;
-    }
-*/
-
     //Diable the ports
     keyboard_sendCommand(KBC_DIS_PORT1);
     keyboard_sendCommand(KBC_DIS_PORT2);
@@ -73,7 +65,7 @@ int keyboard_init() {
 
     if(keyboard_getData() != KBC_TST_PASS) {
         DEBUG("[keyboard_init()]: KBC sleftest failed. Keyboard will be disabled.\n");
-        return 0;
+        return 2;
     }
 
     //Test the device
@@ -82,7 +74,7 @@ int keyboard_init() {
 
     if(keyboard_getData() != PORT_TST_PASS) {
         DEBUG("[keyboard_init()]: PS/2 device test failed. Keyboard will be disabled.\n");
-        return 0;
+        return 3;
     }
 
     //Enable and reset the device (when we start using the IRQs, we'll
@@ -93,28 +85,39 @@ int keyboard_init() {
 
     if(keyboard_getData() != PS2_OK) {
         DEBUG("[keyboard_init()]: PS/2 reset failed. Keyboard will be disabled.\n");
-        return 0;
+        return 4;
     }
+
+    //The keyboard reset sends an AA code that we need
+    //to clear out of the buffer here
+    keyboard_getData();
 
     //Should also turn scanning on and off here
     DEBUG("[keyboard_init()]: Changing keyboard scancode to set 2.\n");
     keyboard_sendData(PS2_SET_SCANCODE);
-    if(keyboard_getData() != PS2_OK) {
+    if((ccbValue = keyboard_getData()) != PS2_OK) {
 
-        DEBUG("[keyboard_init()]: PS/2 scancode change failed.\n");
+        DEBUG("[keyboard_init()]: PS/2 scancode change failed (KBC won't ACK PS2_SET_SCANCODE).\n");
+        DEBUG("[keyboard_init()]: KBC Return Code: 0x");
+        DEBUG_HB(ccbValue);
+        DEBUG("\n");
 
         //halt for testing
-        return 0;
+        return 5;
     }
 
     keyboard_sendData(0x02); //Scancode set 2
-    if(keyboard_getData() != PS2_OK) {
+    if((ccbValue = keyboard_getData()) != PS2_OK) {
 
-        DEBUG("[keyboard_init()]: PS/2 scancode change failed.\n");
+        DEBUG("[keyboard_init()]: PS/2 scancode change failed (KBC didn't accept set number).\n");
+        DEBUG("[keyboard_init()]: KBC Return Code: 0x");
+        DEBUG_HB(ccbValue);
+        DEBUG("\n");
 
-        //halt for testing
-        while(1);
-        return 0;
+        if(ccbValue != 1)
+            return ccbValue;
+        else
+            return 6;
     }
 
     DEBUG("[keyboard_init()]: KBC and PS/2 device ready for use.\n");

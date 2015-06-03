@@ -33,6 +33,7 @@ int main(void) {
     FILE hellofile;
     unsigned char listBuf[256];
     int tempCh = 0;
+    int key_stat;
 
     __asm__ ("cli");
 
@@ -56,10 +57,17 @@ int main(void) {
     init_mmu();
     prints("Done.\nSetting up keyboard...");
 
-    if(!keyboard_init())
-        prints("Failed\n[P5]: No input device availible.\n");
-    else
+    if((key_stat = keyboard_init()) != 1) {
+        prints("Failed (");
+        printHexByte((unsigned char)(key_stat & 0xFF));
+        prints(")\n[P5]: No input device availible.\n");
+    } else {
         prints("Done.\n");
+    }
+
+    //REMOVE ME
+    //Hang so we can see what the keyboard messages say
+    while(1);
 
     init_memory();
     setupKeyTable();

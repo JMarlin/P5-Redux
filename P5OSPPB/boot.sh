@@ -6,8 +6,8 @@ cp p5.rd ../kpkg/
 cd ../kpkg/
 gcc -o kpkg main.c
 ./kpkg p5kern.bin p5.rd
-#cp p5kern.bin ../dosload/
-#cd ../dosload/
+cp p5kern.bin ../dosload/
+cd ../dosload/
 #dosload.com
 
 
