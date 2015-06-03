@@ -16,7 +16,9 @@ void peekV86(void);
 void peekKern(void);
 void startDos(void);
 void sendMsg(void);
-void startGui(void);
+void startGui(unsigned short mode);
+void showModes(void);
+void enterMode(void);
 
 
 //Typedefs
@@ -73,7 +75,8 @@ char* cmdWord[CMD_COUNT] = {
     "V86",
     "KERN",
     "MSG",
-    "GUI"
+    "MODES",
+    "SET"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -84,7 +87,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&peekV86,
     (sys_command)&peekKern,
     (sys_command)&sendMsg,
-    (sys_command)&startGui
+    (sys_command)&showModes,
+    (sys_command)&enterMode
 };
 
 char inbuf[50];
@@ -115,12 +119,31 @@ void parse(char* cmdbuf) {
 
 void main(void) {
 
+    //Init the v86 video service thread
+    startDos();
+
     prints("Entered console\n");
     while(1) {
         prints("::");
         scans(50, inbuf);
         parse(inbuf);
     }
+}
+
+
+void enterMode(void) {
+
+    unsigned short modenum = 0;
+    
+    prints("What mode number?: ");
+    scans(5, inbuf);
+    prints("\n");
+    
+    modenum = (((inbuf[0] > 9 && inbuf[0] < 0) ? inbuf[0] - 'a' : inbuf[0] - '0') << 12) |
+              (((inbuf[1] > 9 && inbuf[1] < 0) ? inbuf[1] - 'a' : inbuf[1] - '0') << 8) |
+	      (((inbuf[2] > 9 && inbuf[2] < 0) ? inbuf[2] - 'a' : inbuf[2] - '0') << 4) |
+	      (((inbuf[3] > 9 && inbuf[3] < 0) ? inbuf[3] - 'a' : inbuf[3] - '0'));
+    startGui(modenum);
 }
 
 
@@ -435,7 +458,76 @@ void drawRect(int x, int y, int width, int height, unsigned int color) {
 }
 
 
-void startGui(void) {
+void showModes(void) {
+
+    getMode();
+}
+
+
+void startGui(unsigned short mode) {
+
+    int i;
+    unsigned char *tmp_info, *cast_mode;
+    int max = sizeof(ModeInfoBlock);
+    unsigned char* wipePtr = (unsigned char*)&curMode;
+
+    for(i = 0; i < max; i++)
+        wipePtr[i] = 0;
+
+    tmp_info = (unsigned char*)getModeInfo(mode);
+    cast_mode = (unsigned char*)&curMode;
+
+    for(i = 0; i < sizeof(ModeInfoBlock); i++)
+        cast_mode[i] = tmp_info[i];
+
+    if(!setMode(mode)) {
+    
+        prints("Mode number 0x");
+	printHexWord(mode);
+	prints(" unsupported.\n");
+        return;
+    }
+
+    //Backdrop
+    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(182, 182, 182));
+
+    //Top edge
+    drawHLine(99, 99, curMode.Xres - 198, RGB(107, 107, 107));
+    drawHLine(100, 100, curMode.Xres - 200, RGB(107, 107, 107));
+    drawHLine(101, 101, curMode.Xres - 202, RGB(107, 107, 107));
+
+    //Bottom edge
+    drawHLine(99, curMode.Yres - 100, curMode.Xres - 198, RGB(230, 230, 230));
+    drawHLine(100, curMode.Yres - 101, curMode.Xres - 200, RGB(230, 230, 230));
+    drawHLine(101, curMode.Yres - 102, curMode.Xres - 202, RGB(230, 230, 230));
+
+    //Left edge
+    drawVLine(99, 100, curMode.Yres - 200, RGB(230, 230, 230));
+    drawVLine(100, 101, curMode.Yres - 202, RGB(230, 230, 230));
+    drawVLine(101, 102, curMode.Yres - 204, RGB(230, 230, 230));
+
+    //Right edge
+    drawVLine(curMode.Xres - 100, 100, curMode.Yres - 200, RGB(107, 107, 107));
+    drawVLine(curMode.Xres - 101, 101, curMode.Yres - 202, RGB(107, 107, 107));
+    drawVLine(curMode.Xres - 102, 102, curMode.Yres - 204, RGB(107, 107, 107));
+
+    //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(68, 76, 82));
+    //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(182, 182, 182));
+    int row;
+    int inner_height = (curMode.Yres - 204);
+    int change_rate = inner_height / 255;
+    int shade_val = 255;
+    for(row = 0; row < inner_height; row++) {
+
+        drawHLine(102, row + 102, curMode.Xres - 204, RGB(0, 0, shade_val));
+
+        if(!(row % change_rate))
+            shade_val--;
+    }
+}
+
+
+void OLD_startGui(void) {
 
     int i;
     unsigned short mode;
@@ -445,8 +537,6 @@ void startGui(void) {
 
     for(i = 0; i < max; i++)
         wipePtr[i] = 0;
-
-    startDos();
 
     if(!(mode = getMode())) {
 
