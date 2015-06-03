@@ -1,4 +1,4 @@
-OUTPUT_FORMAT("binary")
+OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
 phys = 0x100000;
 
@@ -14,21 +14,18 @@ SECTIONS
         .text : AT(phys + (code - startup)) {
                 code = .;
                 *(.text)
-                *(.rodata)
-                
         }
         .data : AT(phys + (data - startup))
         {
                 data = .;
                 *(.data)
-                
+                *(.rodata)
+                *(.bss)
         }
         .bss : AT(phys + (bss - startup))
         {
                 bss = .;
                 *(.bss)
-                . = ALIGN(4096);
         }
         end = .;
 }
-

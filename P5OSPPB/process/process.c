@@ -11,7 +11,6 @@
 #include "../memory/paging.h"
 #include "message.h"
 
-
 unsigned char fake[6];
 unsigned char* insPtr;
 context V86Context, usrContext;

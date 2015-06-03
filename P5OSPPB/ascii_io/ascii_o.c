@@ -4,9 +4,39 @@
 #include "serial.h"
 
 
-char* screenBase;
-int cursor_x, cursor_y;
-char color_code;
+char* screenBase = 0;
+int cursor_x = 0, cursor_y = 0;
+char color_code = 0;
+
+
+void ramdump(unsigned int address, unsigned int count) {
+
+    int i = 0;
+    char* ram = (char*)address;
+    char* end = (char*)(address+count);
+
+    while(ram < end) {
+
+        pchar('\n');
+        printHexDword((int)ram);
+        pchar(':');
+        pchar(' ');
+
+        for(i = 0; i < 16 && ram < end; i++, ram++) {
+
+            printHexByte(*ram);
+            pchar(' ');
+        }
+
+        pchar('|');
+        pchar(' ');
+
+        for(i = -i; i < 0; i++)
+            pchar(ram[i]);
+    }
+
+    while(1);
+}
 
 
 unsigned char digitToHex(unsigned char digit) {

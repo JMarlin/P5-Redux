@@ -1,6 +1,7 @@
 #ifndef ASCII_O_H
 #define ASCII_O_H
 
+void ramdump(unsigned int address, unsigned int count);
 unsigned char digitToHex(unsigned char digit);
 void printHexByte(unsigned char byte);
 void printHexWord(unsigned short wd);

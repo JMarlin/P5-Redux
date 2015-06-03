@@ -24,6 +24,7 @@ char prompt[] = "P5-> ";
 char inbuf[50];
 char* usrCode = (char*)0x80000;
 
+
 int main(void) {
 
     unsigned int i, doffset, *sizes;
@@ -55,6 +56,7 @@ int main(void) {
     initGdt();
     prints("Done.\nTurning on paging...");
     init_mmu();
+    init_memory();
     prints("Done.\nSetting up keyboard...");
 
     if((key_stat = keyboard_init()) != 1) {
@@ -65,12 +67,14 @@ int main(void) {
         prints("Done.\n");
     }
 
-    //REMOVE ME
-    //Hang so we can see what the keyboard messages say
-    while(1);
+    prints("Please press enter to detect your keyboard type...");
 
-    init_memory();
     setupKeyTable();
+    while(!(tempCh = getch()));
+    if(tempCh == 'A')
+        setupKeyTable_set1();
+
+    pchar('\n');
     startProcessManagement();
     init_timer();
     timer_on();
@@ -88,11 +92,11 @@ int main(void) {
 
         doffset = 5 + ((dcount[0]-1)*4);
         for(i = 0; i < dcount[0]; i++) {
-            prints("0x");
-            printHexDword(sizes[i]);
-            prints(" byte module found at image+0x");
-            printHexDword(doffset);
-            pchar('\n');
+            //prints("0x");
+            //printHexDword(sizes[i]);
+            //prints(" byte module found at image+0x");
+            //printHexDword(doffset);
+            //pchar('\n');
             doffset += sizes[i];
         }
     }

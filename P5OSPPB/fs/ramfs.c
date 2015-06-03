@@ -33,13 +33,13 @@ unsigned char block_linear_read(block_dev* dev, int index) {
     static int loadedBlock = -1;
     int calcBlock = (index / BLOCKSZ);
     int calcIndex = (index % BLOCKSZ);
-    
+
     if(calcBlock != loadedBlock) {
-    
+
         loadedBlock = calcBlock;
         dev->load(dev->id, loadedBlock, blk_buf);
     }
-    
+
     return blk_buf[calcIndex];
 }
 
@@ -47,31 +47,31 @@ unsigned char block_linear_read(block_dev* dev, int index) {
 ramfs_file* get_ramfile_by_id(int id) {
 
     ramfs_file_node* currentNode = &open_files_root;
-    
+
     if(!currentNode->file)
         return (ramfs_file*)0;
-        
+
     while(currentNode) {
-    
+
         if(currentNode->file->id == id)
             return currentNode->file;
-        
+
         currentNode = currentNode->next;
     }
-    
+
     return (ramfs_file*)0;
 }
 
 
 //Returns directories delimited by colons
 //An empty string is a failed operation
-//A string with a single colon is an empty listing 
+//A string with a single colon is an empty listing
 void ramfs_dir_list(block_dev* dev, void* dir, void* buf) {
 
-    //Really need a way to make sure we don't 
+    //Really need a way to make sure we don't
     //overflow the user's buffer, but fuck it for now
     char* dirlist = buf;
-    
+
     if(strcmp(dir, ":")) {
         dirlist[0] = ':';
         dirlist[1] = 0;
@@ -83,55 +83,69 @@ void ramfs_dir_list(block_dev* dev, void* dir, void* buf) {
 
 //Returns directories delimited by colons
 //An empty string is a failed operation
-//A string with a single colon is an empty listing 
+//A string with a single colon is an empty listing
 void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
 
-    //Really need a way to make sure we don't 
+    //Really need a way to make sure we don't
     //overflow the user's buffer, but fuck it for now
     char* dirlist = (char*)buf;
     char* dir = (char*)vdir;
+    char temp_ch;
     int i, offset, count, listsz;
     char strlen;
-    
+
     DEBUG("\nCalled file listing for subdir '");
     DEBUG(dir);
     DEBUG("' in ramfs filesystem on device #");
     DEBUG_HD(dev->id);
     DEBUG("\n");
     listsz = 0;
-       
+
     //ramfs doesn't have directories beneath root
-    if(!strcmp(dir, ":")) {    
-        
+    if(!strcmp(dir, ":")) {
+
         dirlist[0] = 0;
         return;
     }
-    
+
     offset = 0;
     count = block_linear_read(dev, offset++);
     count |= block_linear_read(dev, offset++) << 8;
     count |= block_linear_read(dev, offset++) << 16;
     count |= block_linear_read(dev, offset++) << 24;
-    
+
+    //REMOVE
+    prints("Doing a directory reading: ");
+
     if(count) {
 
         while(count) {
-            
+
             //Skip the payload pointers
             offset += 8;
             strlen = block_linear_read(dev, offset++);
-            
-            for(i = 0; i < strlen; listsz++, i++)
-                dirlist[listsz] = block_linear_read(dev, offset++);
-                            
+
+            for(i = 0; i < strlen; listsz++, i++) {
+                temp_ch = block_linear_read(dev, offset++);
+                pchar(temp_ch); //REMOVE
+                dirlist[listsz] = temp_ch;
+            }
+
             count--;
-            if(count) dirlist[listsz++] = ':';
+            if(count) {
+
+                pchar(',');
+                dirlist[listsz++] = ':';
+             }
         }
     } else {
-        
+
         dirlist[listsz++] = ':';
     }
-    
+
+    //REMOVE
+    pchar('\n');
+
     dirlist[listsz] = 0;
 }
 
@@ -170,31 +184,31 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
 
     unsigned char *seekName, *tmpName;
     int i, count, offset, strlen, fileOffset, fileSize;
-        
+
     //Don't waste time on an empty string
     if(dir[0] == 0 || dir[1] == 0) {
-    
+
         prints("\nPath is empty\n");
         return 0;
     }
-        
+
     //Lop off the leading colon
     seekName = dir + 1;
-    
+
     if(!(tmpName = (unsigned char*)kmalloc(256))) {
-    
+
         prints("\nCouldn't allocate RAM\n");
         return 0;
     }
-        
+
     offset = 0;
     count = block_linear_read(dev, offset++);
     count |= block_linear_read(dev, offset++) << 8;
     count |= block_linear_read(dev, offset++) << 16;
     count |= block_linear_read(dev, offset++) << 24;
-    
+
     while(count) {
-            
+
             //Get the payload pointers
             fileOffset = block_linear_read(dev, offset++);
             fileOffset |= block_linear_read(dev, offset++) << 8;
@@ -205,26 +219,26 @@ int ramfs_seekFile(block_dev* dev, unsigned char* dir, ramfs_file* newRamFile) {
             fileSize |= block_linear_read(dev, offset++) << 16;
             fileSize |= block_linear_read(dev, offset++) << 24;
             strlen = block_linear_read(dev, offset++);
-            
+
             //For now, we're just cutting it off at the buffer
             //limit. I guess we could just call 256 chars the max
             //filename limit
             for(i = 0; i < strlen && i < 256; i++)
                 tmpName[i] = block_linear_read(dev, offset++);
-            
+
             tmpName[i] = 0;
-                                                
+
             if(strcmp(tmpName, seekName)) {
-                
+
                 newRamFile->offset = fileOffset;
                 newRamFile->length = fileSize;
                 kfree((void*)tmpName);
                 return 1;
-            } 
-            
+            }
+
             count--;
     }
-        
+
     kfree((void*)tmpName);
     return 0;
 }
@@ -238,21 +252,21 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
     FILE* file = (FILE*)vfile;
     ramfs_file_node* newNode;
     ramfs_file* newRamFile;
-    
+
     if(open_files_inited != 1) {
-        
+
         open_files_inited = 1;
         open_files_root.next = (ramfs_file_node*)0;
         open_files_root.file = (ramfs_file*)0;
     }
-            
+
     //prepare a ramfs_file structure
-    if(!(newRamFile = (ramfs_file*)kmalloc(sizeof(ramfs_file)))) 
+    if(!(newRamFile = (ramfs_file*)kmalloc(sizeof(ramfs_file))))
         return;
-    
+
     //Map the new ramfs_file to the OS file handle
     newRamFile->id = file->id;
-    
+
     //Look up the file
     //This populates the offset and size values
     if(!ramfs_seekFile(dev, dir, newRamFile)) {
@@ -261,34 +275,34 @@ void ramfs_file_open(block_dev* dev, void* vdir, void* vfile) {
         kfree((void*)newRamFile);
         return;
     }
-    
+
     //Reset the new ramfs_file's index to 0
-    newRamFile->index = 0;    
-        
+    newRamFile->index = 0;
+
     //If the root node is unpopulated, all we need
     //to do is insert the new ramfs_file
     if(!currentNode->file) {
-        
+
         currentNode->file = newRamFile;
         return;
     }
-        
+
     //Allocate a new node
     if(!(newNode = (ramfs_file_node*)kmalloc(sizeof(ramfs_file_node))))  {
 
         file->id = 0;
         kfree((void*)newRamFile);
         return;
-    }    
-    
+    }
+
     //Populate it
     newNode->next = (ramfs_file_node*)0;
     newNode->file = newRamFile;
-    
+
     //Fast-forward to the end of the list
     while(currentNode->next)
         currentNode = currentNode->next;
-        
+
     //Install the node
     currentNode->next = newNode;
 }
@@ -312,20 +326,20 @@ void ramfs_file_writeb(block_dev* dev, void* file, void* data, void* code) {
 void ramfs_file_readb(block_dev* dev, void* vfile, void* vdata) {
 
     int* data = (int*)vdata;
-    FILE* file = (FILE*)vfile;   
+    FILE* file = (FILE*)vfile;
     ramfs_file* ramFile = get_ramfile_by_id(file->id);
-    
+
     if(!ramFile) {
-    
+
         data[0] = EOF;
         return;
     }
-    
+
     if(ramFile->index >= ramFile->length) {
-        
+
         data[0] = EOF;
         return;
-    }    
-    
+    }
+
     data[0] = (int)block_linear_read(dev, ramFile->offset + (ramFile->index++));
 }

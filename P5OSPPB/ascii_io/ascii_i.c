@@ -3,10 +3,10 @@
 #include "keyboard.h"
 
 
-unsigned char keyTable[132];
+unsigned char keyTable[132] = "";
 
 void setupKeyTable() {
-    int i;
+    int i = 0;
 
     for(i=0;i<132;i++)
         keyTable[i] = 0;
@@ -63,7 +63,7 @@ void setupKeyTable() {
 
 
 void setupKeyTable_set1() {
-    int i;
+    int i = 0;
 
     for(i=0;i<132;i++)
         keyTable[i] = 0;
@@ -121,7 +121,7 @@ void setupKeyTable_set1() {
 
 void scans(unsigned int length, char* outstr) {
 
-    unsigned char temp_char;
+    unsigned char temp_char = '\0';
     int index = 0;
 
     for(index = 0 ; index < length-1 ; ) {
@@ -149,7 +149,7 @@ void scans(unsigned int length, char* outstr) {
 
 unsigned char getch(void) {
 
-    unsigned char tempData;
+    unsigned char tempData = '\0';
 
     //Don't block if there's nothing in the buffer
     if(!(keyboard_getStatus() & SR_OBSTAT))
