@@ -134,11 +134,11 @@ void main(void) {
 void enterMode(void) {
 
     unsigned short modenum = 0;
-    
+
     prints("What mode number?: ");
     scans(5, inbuf);
     prints("\n");
-    
+
     modenum = (((inbuf[0] > 9 && inbuf[0] < 0) ? inbuf[0] - 'a' : inbuf[0] - '0') << 12) |
               (((inbuf[1] > 9 && inbuf[1] < 0) ? inbuf[1] - 'a' : inbuf[1] - '0') << 8) |
 	      (((inbuf[2] > 9 && inbuf[2] < 0) ? inbuf[2] - 'a' : inbuf[2] - '0') << 4) |
@@ -458,6 +458,43 @@ void drawRect(int x, int y, int width, int height, unsigned int color) {
 }
 
 
+void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
+
+    unsigned char r = RVAL(color);
+    unsigned char g = GVAL(color);
+    unsigned char b = BVAL(color);
+    unsigned int light_color = RGB(r > 195 ? 255 : r + 60, g > 195 ? 255 : g + 60, b > 195 ? 255 : b + 60);
+    unsigned int shade_color = RGB(r < 60 ? 0 : r - 60, g < 60 ? 0 : g - 60, b < 60 ? 0 : b - 60);
+    unsigned int temp;
+    int i;
+
+    if(invert) {
+
+        temp = shade_color;
+        shade_color = light_color;
+        light_color = temp;
+    }
+
+    for(i = 0; i < border_width; i++) {
+
+        //Top edge
+        drawHLine(x+i, y+i, width-(2*i), light_color);
+
+        //Bottom edge
+        drawHLine(x+i, (y+height)-(i+1), width-(2*i), shade_color);
+
+        //Left edge
+        drawVLine(x+i, y+i+1, height-((i+1)*2), light_color);
+
+        //Right edge
+        drawVLine(x+width-i-1, y+i+1, height-((i+1)*2), shade_color);
+    }
+
+    //Fill
+    drawRect(x+border_width, y+border_width, width-(2*border_width), height-(2*border_width), color);
+}
+
+
 void showModes(void) {
 
     getMode();
@@ -481,7 +518,7 @@ void startGui(unsigned short mode) {
         cast_mode[i] = tmp_info[i];
 
     if(!setMode(mode)) {
-    
+
         prints("Mode number 0x");
 	printHexWord(mode);
 	prints(" unsupported.\n");
@@ -489,30 +526,16 @@ void startGui(unsigned short mode) {
     }
 
     //Backdrop
-    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(182, 182, 182));
+    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(11, 162, 193));
 
-    //Top edge
-    drawHLine(99, 99, curMode.Xres - 198, RGB(107, 107, 107));
-    drawHLine(100, 100, curMode.Xres - 200, RGB(107, 107, 107));
-    drawHLine(101, 101, curMode.Xres - 202, RGB(107, 107, 107));
+    //System Bar
+    drawPanel(curMode.Xres-60, 0, 60, curMode.Yres, RGB(200, 200, 200), 2, 0);
 
-    //Bottom edge
-    drawHLine(99, curMode.Yres - 100, curMode.Xres - 198, RGB(230, 230, 230));
-    drawHLine(100, curMode.Yres - 101, curMode.Xres - 200, RGB(230, 230, 230));
-    drawHLine(101, curMode.Yres - 102, curMode.Xres - 202, RGB(230, 230, 230));
-
-    //Left edge
-    drawVLine(99, 100, curMode.Yres - 200, RGB(230, 230, 230));
-    drawVLine(100, 101, curMode.Yres - 202, RGB(230, 230, 230));
-    drawVLine(101, 102, curMode.Yres - 204, RGB(230, 230, 230));
-
-    //Right edge
-    drawVLine(curMode.Xres - 100, 100, curMode.Yres - 200, RGB(107, 107, 107));
-    drawVLine(curMode.Xres - 101, 101, curMode.Yres - 202, RGB(107, 107, 107));
-    drawVLine(curMode.Xres - 102, 102, curMode.Yres - 204, RGB(107, 107, 107));
+    //Indent for fun
+    drawPanel(curMode.Xres-55, 5, 50, 50, RGB(200, 200, 200), 2, 1);
 
     //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(68, 76, 82));
-    //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(182, 182, 182));
+    /*
     int row;
     int inner_height = (curMode.Yres - 204);
     int change_rate = inner_height / 255;
@@ -524,114 +547,8 @@ void startGui(unsigned short mode) {
         if(!(row % change_rate))
             shade_val--;
     }
+    */
 }
-
-
-void OLD_startGui(void) {
-
-    int i;
-    unsigned short mode;
-    unsigned char *tmp_info, *cast_mode;
-    int max = sizeof(ModeInfoBlock);
-    unsigned char* wipePtr = (unsigned char*)&curMode;
-
-    for(i = 0; i < max; i++)
-        wipePtr[i] = 0;
-
-    if(!(mode = getMode())) {
-
-        prints("Could not find a valid VESA mode.\n");
-        return;
-    }
-
-    prints("Press enter to continue...\n");
-    scans(5, inbuf);
-
-    tmp_info = (unsigned char*)getModeInfo(mode);
-    cast_mode = (unsigned char*)&curMode;
-
-    for(i = 0; i < sizeof(ModeInfoBlock); i++)
-        cast_mode[i] = tmp_info[i];
-
-    prints("\nInfo block for VESA mode 0x"); printHexWord(mode); prints(":\n");
-    prints("    attributes: 0x"); printHexWord(curMode.attributes); prints("\n");
-    prints("    winA: 0x"); printHexByte(curMode.winA); prints("\n");
-    prints("    winB: 0x"); printHexByte(curMode.winB); prints("\n");
-    prints("    granularity: 0x"); printHexWord(curMode.granularity); prints("\n");
-    prints("    winsize: 0x"); printHexWord(curMode.winsize); prints("\n");
-    prints("    segmentA: 0x"); printHexWord(curMode.segmentA); prints("\n");
-    prints("    segmentB: 0x"); printHexWord(curMode.segmentB); prints("\n");
-    prints("    realFctPtrSeg: 0x"); printHexWord(curMode.realFctPtrSeg); prints("\n");
-    prints("    realFctPtrOff: 0x"); printHexWord(curMode.realFctPtrOff); prints("\n");
-    prints("    pitch: 0x"); printHexWord(curMode.pitch); prints("\n");
-    prints("    Xres: 0x"); printHexWord(curMode.Xres); prints("\n");
-    prints("    Yres: 0x"); printHexWord(curMode.Yres); prints("\n");
-    prints("    Wchar: 0x"); printHexByte(curMode.Wchar); prints("\n");
-    prints("    Ychar: 0x"); printHexByte(curMode.Ychar); prints("\n");
-    prints("    planes: 0x"); printHexByte(curMode.planes); prints("\n");
-    prints("    bpp: 0x"); printHexByte(curMode.bpp); prints("\n");
-    prints("    banks: 0x"); printHexByte(curMode.banks); prints("\n");
-    prints("    memory_model: 0x"); printHexByte(curMode.memory_model); prints("\n");
-    prints("    bank_size: 0x"); printHexByte(curMode.bank_size); prints("\n");
-    prints("Press enter to continue...\n");
-    scans(5, inbuf);
-    prints("    image_pages: 0x"); printHexByte(curMode.image_pages); prints("\n");
-    prints("    reserved0: 0x"); printHexByte(curMode.reserved0); prints("\n");
-    prints("    red_mask: 0x"); printHexByte(curMode.red_mask); prints("\n");
-    prints("    red_position: 0x"); printHexByte(curMode.red_position); prints("\n");
-    prints("    green_mask: 0x"); printHexByte(curMode.green_mask); prints("\n");
-    prints("    green_position: 0x"); printHexByte(curMode.green_position); prints("\n");
-    prints("    blue_mask: 0x"); printHexByte(curMode.blue_mask); prints("\n");
-    prints("    blue_position: 0x"); printHexByte(curMode.blue_position); prints("\n");
-    prints("    rsv_mask: 0x"); printHexByte(curMode.rsv_mask); prints("\n");
-    prints("    rsv_position: 0x"); printHexByte(curMode.rsv_position); prints("\n");
-    prints("    directcolor_attributes: 0x"); printHexByte(curMode.directcolor_attributes); prints("\n");
-    prints("    physbase: 0x"); printHexDword(curMode.physbase); prints("\n");
-    prints("    reserved1: 0x"); printHexDword(curMode.reserved1); prints("\n");
-    prints("    reserved2: 0x"); printHexWord(curMode.reserved2); prints("\n");
-    prints("Press enter to continue...\n");
-    scans(5, inbuf);
-
-    if(!setMode(mode)) return;
-
-    //Backdrop
-    drawRect(0, 0, curMode.Xres, curMode.Yres, RGB(182, 182, 182));
-
-    //Top edge
-    drawHLine(99, 99, curMode.Xres - 198, RGB(107, 107, 107));
-    drawHLine(100, 100, curMode.Xres - 200, RGB(107, 107, 107));
-    drawHLine(101, 101, curMode.Xres - 202, RGB(107, 107, 107));
-
-    //Bottom edge
-    drawHLine(99, curMode.Yres - 100, curMode.Xres - 198, RGB(230, 230, 230));
-    drawHLine(100, curMode.Yres - 101, curMode.Xres - 200, RGB(230, 230, 230));
-    drawHLine(101, curMode.Yres - 102, curMode.Xres - 202, RGB(230, 230, 230));
-
-    //Left edge
-    drawVLine(99, 100, curMode.Yres - 200, RGB(230, 230, 230));
-    drawVLine(100, 101, curMode.Yres - 202, RGB(230, 230, 230));
-    drawVLine(101, 102, curMode.Yres - 204, RGB(230, 230, 230));
-
-    //Right edge
-    drawVLine(curMode.Xres - 100, 100, curMode.Yres - 200, RGB(107, 107, 107));
-    drawVLine(curMode.Xres - 101, 101, curMode.Yres - 202, RGB(107, 107, 107));
-    drawVLine(curMode.Xres - 102, 102, curMode.Yres - 204, RGB(107, 107, 107));
-
-    //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(68, 76, 82));
-    //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(182, 182, 182));
-    int row;
-    int inner_height = (curMode.Yres - 204);
-    int change_rate = inner_height / 255;
-    int shade_val = 255;
-    for(row = 0; row < inner_height; row++) {
-
-        drawHLine(102, row + 102, curMode.Xres - 204, RGB(0, 0, shade_val));
-
-        if(!(row % change_rate))
-            shade_val--;
-    }
-}
-
 
 void sendMsg(void) {
 
