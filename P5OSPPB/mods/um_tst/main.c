@@ -1,4 +1,5 @@
 #include "../include/p5.h"
+#include "font.h" //Should eventually make this into a binary font file loadable via the filesystem
 
 #define CMD_COUNT 9
 
@@ -495,6 +496,34 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
 }
 
 
+void drawCharacter(unsigned char c, int x, int y, unsigned int color) {
+
+    int j, i;
+    unsigned char line;
+    c = c & 0x7F; //Reduce to base ASCII set
+
+    for(i = 0; i < 12; i++) {
+
+        line = font_array[i * 128 + c];
+        for(j = 0; j < 8; j++) {
+
+            if(line & 0x80) plotPixel(x + j, y + i, color);
+            line = line << 1;
+        }
+    }
+}
+
+
+void drawString(unsigned char* s, int x, int y, unsigned int color) {
+
+    while(*s) {
+
+        drawCharacter(*s++, x, y, color);
+        x += 8;
+    }
+}
+
+
 void showModes(void) {
 
     getMode();
@@ -503,7 +532,8 @@ void showModes(void) {
 
 void startGui(unsigned short mode) {
 
-    int i;
+    int i, x, y, max_chars;
+    unsigned char tmpch;
     unsigned char *tmp_info, *cast_mode;
     int max = sizeof(ModeInfoBlock);
     unsigned char* wipePtr = (unsigned char*)&curMode;
@@ -533,6 +563,48 @@ void startGui(unsigned short mode) {
 
     //Indent for fun
     drawPanel(curMode.Xres-55, 5, 50, 50, RGB(200, 200, 200), 2, 1);
+
+    //Text test
+    drawString("{Hello, world!}", 0, 0, RGB(255, 0, 0));
+
+    //body of 'window'
+    drawPanel(20, 20, curMode.Xres-100, curMode.Yres-40, RGB(200, 200, 200), 2, 0);
+
+    //'window' inner bevel
+    drawPanel(25, 25, curMode.Xres-110, curMode.Yres-50, RGB(200, 200, 200), 2, 1);
+
+    //'terminal' background
+    drawRect(27, 27, curMode.Xres-114, curMode.Yres-54, 0);
+
+    //Simple input loop
+    x = 2;
+    y = 0;
+    max_chars = (curMode.Xres-114)/8;
+
+    drawString("::", 27, 27, RGB(0, 255, 0));
+
+    while(1) {
+
+        //Wait for keypress
+        while(!(tmpch = getch()));
+
+        if(tmpch == '\n') {
+
+            drawString("::", 27, 27, RGB(0, 255, 0));
+            x = 2;
+            y++;
+        } else {
+
+            drawCharacter(tmpch, (x*8)+27, (y*12)+27, RGB(0, 255, 0));
+            x++;
+
+            if(x > max_chars) {
+
+                x = 0;
+                y++;
+            }
+        }
+    }
 
     //drawRect(102, 102, curMode.Xres - 204, curMode.Yres - 204, RGB(68, 76, 82));
     /*
