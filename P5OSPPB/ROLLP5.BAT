@@ -1,5 +1,0 @@
-cd mods
-./buildm.sh
-cd ..
-./build.sh
-./boot.sh

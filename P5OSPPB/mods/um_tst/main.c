@@ -524,15 +524,62 @@ void drawString(unsigned char* s, int x, int y, unsigned int color) {
 }
 
 
+void drawButton(unsigned char* text, int x, int y, int width, int height, unsigned int color, int border_width) {
+
+    int str_len, lines, cols, lmargin, tmargin, l, c, ocols;
+
+    for(str_len = 0; text[str_len]; str_len++);
+
+    lines = (str_len * 8) / (width - border_width*2);
+    cols = (width - border_width*2) / 8;
+    ocols = cols;
+    lmargin = (width - border_width*2 - (cols*8)) / 2;
+    tmargin = (height - border_width*2 - (lines*12)) / 2;
+
+    //Do a ceiling
+    if((str_len*8) % width)
+        lines++;
+
+    drawPanel(x, y, width, height, color, border_width, 0);
+
+    for(l = 0; l < lines; l++) {
+
+        //Recalculate values for the last lines in case it's
+        //shorter than the rest
+        if(l = (lines - 1)) {
+
+            cols = str_len - (cols * (lines - 1));
+            lmargin = (width - border_width*2 - (cols*8)) / 2;
+        }
+
+        for(c = 0; c < cols; c++) {
+
+            drawCharacter(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
+        }
+    }
+
+
+}
+
+
 void showModes(void) {
 
     getMode();
 }
 
 
+int cmd_x = 0;
+int cmd_y = 0;
+
+void cmd_putc(unsigned char c) {
+
+
+}
+
+
 void startGui(unsigned short mode) {
 
-    int i, x, y, max_chars;
+    int i, x, y, max_chars, os_build;
     unsigned char tmpch;
     unsigned char *tmp_info, *cast_mode;
     int max = sizeof(ModeInfoBlock);
@@ -562,10 +609,31 @@ void startGui(unsigned short mode) {
     drawPanel(curMode.Xres-60, 0, 60, curMode.Yres, RGB(200, 200, 200), 2, 0);
 
     //Indent for fun
-    drawPanel(curMode.Xres-55, 5, 50, 50, RGB(200, 200, 200), 2, 1);
+    drawButton("P5OS", curMode.Xres-55, 5, 50, 50, RGB(200, 200, 200), 2);
+
+    //Redundant text for shadow
+    drawString("Build #", 1, 1, 0);
+    os_build = getBuildNumber();
+    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) + 'A' : (os_build >> 28 & 0xF) + '0', 57, 1, 0);
+    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) + 'A' : (os_build >> 24 & 0xF) + '0', 65, 1, 0);
+    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) + 'A' : (os_build >> 20 & 0xF) + '0', 73, 1, 0);
+    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) + 'A' : (os_build >> 16 & 0xF) + '0', 81, 1, 0);
+    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) + 'A' : (os_build >> 12 & 0xF) + '0', 89, 1, 0);
+    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) + 'A' : (os_build >> 8 & 0xF) + '0', 97, 0, 1);
+    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) + 'A' : (os_build >> 4 & 0xF) + '0', 105, 1, 0);
+    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) + 'A' : (os_build & 0xF) + '0', 113, 1, 0);
 
     //Text test
-    drawString("{Hello, world!}", 0, 0, RGB(255, 0, 0));
+    drawString("Build #", 0, 0, RGB(255, 255, 255));
+    os_build = getBuildNumber();
+    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) + 'A' : (os_build >> 28 & 0xF) + '0', 56, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) + 'A' : (os_build >> 24 & 0xF) + '0', 64, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) + 'A' : (os_build >> 20 & 0xF) + '0', 72, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) + 'A' : (os_build >> 16 & 0xF) + '0', 80, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) + 'A' : (os_build >> 12 & 0xF) + '0', 88, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) + 'A' : (os_build >> 8 & 0xF) + '0', 96, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) + 'A' : (os_build >> 4 & 0xF) + '0', 104, 0, RGB(255, 255, 255));
+    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) + 'A' : (os_build & 0xF) + '0', 112, 0, RGB(255, 255, 255));
 
     //body of 'window'
     drawPanel(20, 20, curMode.Xres-100, curMode.Yres-40, RGB(200, 200, 200), 2, 0);
@@ -590,9 +658,9 @@ void startGui(unsigned short mode) {
 
         if(tmpch == '\n') {
 
-            drawString("::", 27, 27, RGB(0, 255, 0));
             x = 2;
             y++;
+            drawString("::", 27, (y*12)+27, RGB(0, 255, 0));
         } else {
 
             drawCharacter(tmpch, (x*8)+27, (y*12)+27, RGB(0, 255, 0));

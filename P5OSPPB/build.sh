@@ -4,6 +4,16 @@
 
 echo off
 
+#this increases the build number in the kernel header
+cd core
+buildno=$(cat kernel.h | grep "#define P5_BUILD_NUMBER " | cut -d' ' -f3)
+buildno=$(($buildno + 1))
+echo Executing P5 build \#$buildno
+sed "s\^#define P5_BUILD_NUMBER .*$\#define P5_BUILD_NUMBER $buildno\ " kernel.h > tmp_h
+rm kernel.h
+mv tmp_h kernel.h
+cd ..
+
 C_OPTS="-nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -m32" # -fno-zero-initialized-in-bss"
 
 cd core

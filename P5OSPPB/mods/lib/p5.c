@@ -5,35 +5,35 @@ message temp_msg;
 
 
 int getMessage(message* msg) {
-    
+
     _asm_get_msg();
-    
+
     if(!_retval)
         return 0;
-        
+
     msg->source = _dest;
     msg->command = _command;
-    msg->payload = _payload;    
+    msg->payload = _payload;
     return 1;
 }
 
 
 void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayload)  {
-        
+
     _dest = ldest;
     _command = lcommand;
-    _payload = lpayload;    
+    _payload = lpayload;
     _asm_send_msg();
 }
 
 void pchar(char c) {
-    
+
     postMessage(0, 1, (unsigned int)c);
 }
 
 
 void terminate(void) {
-    
+
     postMessage(0, 0, 0);
 }
 
@@ -41,11 +41,11 @@ void terminate(void) {
 unsigned char getch() {
 
     postMessage(0, 2, 0);
-    
+
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
-    
+
     return (unsigned char)(temp_msg.payload & 0xFF);
 }
 
@@ -63,7 +63,7 @@ unsigned int startProc(unsigned char* path) {
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
-    
+
     return temp_msg.payload;
 }
 
@@ -75,7 +75,7 @@ unsigned int startSuperProc(unsigned char* path) {
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
-    
+
     return temp_msg.payload;
 }
 
@@ -87,41 +87,41 @@ unsigned int startV86(unsigned char* path) {
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));
-    
+
     return temp_msg.payload;
 }
 
 
 void scans(int c, char* b) {
-    
+
     unsigned char temp_char;
     int index = 0;
-  
-    for(index = 0 ; index < c-1 ; ) {    
+
+    for(index = 0 ; index < c-1 ; ) {
         temp_char = getch();
 
-        if(temp_char != 0) {       
+        if(temp_char != 0) {
             b[index] = temp_char;
             pchar(b[index]);
-    
+
             if(b[index] == '\n') {
                 b[index] = 0;
                 break;
             }
 
             index++;
-            
+
             if(index == c-1)
-                pchar('\n');    
+                pchar('\n');
         }
     }
-    
+
     b[index+1] = 0;
 }
 
 
-void prints(char* s) {      
-    
+void prints(char* s) {
+
     int index = 0;
 
     while(s[index] != 0) {
@@ -141,7 +141,7 @@ unsigned char digitToHex(unsigned char digit) {
 
 
 void printHexByte(unsigned char byte) {
-    
+
     pchar(digitToHex((byte & 0xF0)>>4));
     pchar(digitToHex(byte & 0xF));
 }
@@ -161,3 +161,13 @@ void printHexDword(unsigned int dword) {
 }
 
 
+unsigned int getBuildNumber(void) {
+
+    postMessage(0, 8, 0);
+
+    //We should probably add a method to ignore messages
+    //we don't care about but leave them in the queue
+    while(!getMessage(&temp_msg));
+
+    return temp_msg.payload;
+}

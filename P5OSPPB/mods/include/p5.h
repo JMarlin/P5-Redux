@@ -34,5 +34,6 @@ unsigned char digitToHex(unsigned char digit);
 void printHexByte(unsigned char byte);
 void printHexWord(unsigned short wd);
 void printHexDword(unsigned int dword);
+unsigned int getBuildNumber(void);
 
 #endif //P5_H
