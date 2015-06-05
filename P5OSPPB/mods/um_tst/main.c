@@ -514,6 +514,15 @@ void drawCharacter(unsigned char c, int x, int y, unsigned int color) {
 }
 
 
+drawCharacterBold(unsigned char c, int x, int y, unsigned int color) {
+
+    drawCharacter(c, x, y, color);
+    drawCharacter(c, x+1, y, color);
+    drawCharacter(c, x, y+1, color);
+    drawCharacter(c, x+1, y+1, color);
+}
+
+
 void drawString(unsigned char* s, int x, int y, unsigned int color) {
 
     while(*s) {
@@ -531,14 +540,15 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
     for(str_len = 0; text[str_len]; str_len++);
 
     lines = (str_len * 8) / (width - border_width*2);
-    cols = (width - border_width*2) / 8;
-    ocols = cols;
-    lmargin = (width - border_width*2 - (cols*8)) / 2;
-    tmargin = (height - border_width*2 - (lines*12)) / 2;
 
     //Do a ceiling
     if((str_len*8) % width)
         lines++;
+
+    cols = (width - border_width*2) / 8;
+    ocols = cols;
+    lmargin = (width - border_width*2 - (cols*8)) / 2;
+    tmargin = (height - border_width*2 - (lines*12)) / 2;
 
     drawPanel(x, y, width, height, color, border_width, 0);
 
@@ -546,7 +556,7 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
 
         //Recalculate values for the last lines in case it's
         //shorter than the rest
-        if(l = (lines - 1)) {
+        if(l == (lines - 1)) {
 
             cols = str_len - (cols * (lines - 1));
             lmargin = (width - border_width*2 - (cols*8)) / 2;
@@ -554,7 +564,7 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
 
         for(c = 0; c < cols; c++) {
 
-            drawCharacter(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
+            drawCharacterBold(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
         }
     }
 
