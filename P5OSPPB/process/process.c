@@ -54,10 +54,13 @@ void returnToProcess(process* proc) {
 
     process* oldP = p;
 
-    //needs_swap = 1;
-    if(needs_swap) {
+    //needs_swap means that the timer is up
+    //PF_WAITMSG means that the current process has been put to sleep
+    if(needs_swap || (proc->flags & PF_WAITMSG)) {
 
-        for(++procPtr; (!procTable[procPtr].id); procPtr++);
+        //Find the next availible process, round-robin
+        //This ignores uninitialized proc entries and sleeping procs
+        for(++procPtr; (!procTable[procPtr].id) && (!(procTable[procPtr].flags & PF_WAITMSG)); procPtr++);
 
         proc = &procTable[procPtr];
         needs_swap = 0;

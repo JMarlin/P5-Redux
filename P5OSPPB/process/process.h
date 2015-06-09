@@ -6,8 +6,9 @@
 
 //Process flags
 #define PF_SUPER 1 //If the flag at bit 1 is set then the process has supervisor permissions
-#define PF_V86   2
+#define PF_V86   2 //Process is 16-bit
 #define PF_DEBUG    4 //Process will single-step
+#define PF_MSGWAIT  8 //Process is halted waiting to recieve a message
 
 typedef struct context {
     unsigned int esp;
