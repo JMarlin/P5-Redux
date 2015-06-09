@@ -52,6 +52,7 @@ void kernelDebug(void) {
 
 void returnToProcess(process* proc) {
 
+    message temp_message;
     process* oldP = p;
 
     //needs_swap means that the timer is up
@@ -60,13 +61,26 @@ void returnToProcess(process* proc) {
 
         //Find the next availible process, round-robin
         //This ignores uninitialized proc entries and sleeping procs
-        for(++procPtr; (!procTable[procPtr].id) && (!(procTable[procPtr].flags & PF_WAITMSG)); procPtr++);
+        for(++procPtr; (!procTable[procPtr].id) || (procTable[procPtr].flags & PF_WAITMSG); procPtr++);
 
         proc = &procTable[procPtr];
         needs_swap = 0;
     }
 
     p = proc;
+
+    //Send the pending message if the proc was just woken up
+    if(p->flags & PF_WOKENMSG) {
+
+        getMessage(p, &temp_message);
+        p->ctx.eax = 1; //a 1 in eax is 'message found'
+        p->ctx.ebx = temp_message.source;
+        p->ctx.ecx = temp_message.command;
+        p->ctx.edx = temp_message.payload;
+
+        //Clear the flag
+        p->flags &= ~((unsigned int)PF_WOKENMSG);
+    }
 
     //Turn off the page mapping of the last process
     if(oldP)

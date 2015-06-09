@@ -58,7 +58,14 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     //Finally, if the destination process was sleeping for a message
     //we should tap it on the shoulder and be like 'yo, buddy, wakey
     //wakey eggs and bakey. You've got a buddy at the door'
-    d_proc->flags &= ~((unsigned int)PF_WAITMSG);
+    if(d_proc->flags & PF_WAITMSG) {
+
+        //Clear wait flag
+        d_proc->flags &= ~((unsigned int)PF_WAITMSG);
+
+        //Tell the process manager to pass the message to this dude
+        d_proc->flags |= PF_WOKENMSG;
+    }
 }
 
 

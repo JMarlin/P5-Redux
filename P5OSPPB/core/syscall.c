@@ -2,6 +2,7 @@
 #include "../process/process.h"
 #include "../timer/timer.h"
 #include "../process/message.h"
+#include "../ascii_io/ascii_o.h"
 
 unsigned int gcount = 0;
 
@@ -10,9 +11,6 @@ unsigned int lineBuf;
 void syscall_exec(void) {
 
     message temp_message;
-    unsigned char* vram = (unsigned char*)0xA0000;
-    unsigned char* buf = (unsigned char*)0x50000;
-    int i, j, o, row;
 
     switch(_syscall_number) {
 
@@ -30,12 +28,13 @@ void syscall_exec(void) {
             //If there is a message in the queue, send it
             //otherwise, put the process to sleep
             if(getMessage(p, &temp_message)) {
+
                 p->ctx.eax = 1; //a 1 in eax is 'message found'
                 p->ctx.ebx = temp_message.source;
                 p->ctx.ecx = temp_message.command;
                 p->ctx.edx = temp_message.payload;
             } else {
-                //Sleep
+
                 p->flags |= PF_WAITMSG;
             }
         break;
