@@ -1,7 +1,7 @@
 cp bin/p5kern.bin ../kpkg/
 cd ../rampak/
 gcc -o rampak main.c
-./rampak p5.rd test.txt usr.mod dos.mod v86.mod
+./rampak p5.rd test.txt usr.mod registrar.mod v86.mod
 cp p5.rd ../kpkg/
 cd ../kpkg/
 gcc -o kpkg main.c
@@ -9,5 +9,3 @@ gcc -o kpkg main.c
 cp p5kern.bin ../dosload/
 cd ../dosload/
 #dosload.com
-
-
