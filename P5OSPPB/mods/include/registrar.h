@@ -1,4 +1,7 @@
 #ifndef REGISTRAR_H
+#define REGISTRAR_H
+
+#define REGISTRAR_PID 1
 
 #define REG_REGISTER   1
 #define REG_LOOKUP     2

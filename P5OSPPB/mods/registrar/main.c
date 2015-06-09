@@ -52,7 +52,7 @@ void main(void) {
         reg_table_pid[i] = reg_table_svc[i] = 0;
 
     //Start the init process
-    startSuperProc(":usr.mod");
+    startSuperProc(":init.mod");
 
     //Enter the message loop
     while(1) {
