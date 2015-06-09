@@ -4,7 +4,7 @@ cd lib
 ./build.sh
 cd ../um_tst
 ./build.sh
-cd ../dos
+cd ../registrar
 ./build.sh
 cd ../v86
 ./build.sh
