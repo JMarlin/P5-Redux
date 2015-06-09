@@ -114,9 +114,6 @@ void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
     count |= block_linear_read(dev, offset++) << 16;
     count |= block_linear_read(dev, offset++) << 24;
 
-    //REMOVE
-    prints("Doing a directory reading: ");
-
     if(count) {
 
         while(count) {
@@ -126,15 +123,14 @@ void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
             strlen = block_linear_read(dev, offset++);
 
             for(i = 0; i < strlen; listsz++, i++) {
+                
                 temp_ch = block_linear_read(dev, offset++);
-                pchar(temp_ch); //REMOVE
                 dirlist[listsz] = temp_ch;
             }
 
             count--;
             if(count) {
 
-                pchar(',');
                 dirlist[listsz++] = ':';
              }
         }
@@ -142,9 +138,6 @@ void ramfs_file_list(block_dev* dev, void* vdir, void* buf) {
 
         dirlist[listsz++] = ':';
     }
-
-    //REMOVE
-    pchar('\n');
 
     dirlist[listsz] = 0;
 }

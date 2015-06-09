@@ -79,9 +79,6 @@ int main(void) {
     init_timer();
     timer_on();
     prints("WELCOME TO P5\n");
-
-    //ksize = (unsigned int*)0x100005;
-
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
 
@@ -91,12 +88,9 @@ int main(void) {
     } else {
 
         doffset = 5 + ((dcount[0]-1)*4);
+
         for(i = 0; i < dcount[0]; i++) {
-            //prints("0x");
-            //printHexDword(sizes[i]);
-            //prints(" byte module found at image+0x");
-            //printHexDword(doffset);
-            //pchar('\n');
+
             doffset += sizes[i];
         }
     }
@@ -107,29 +101,6 @@ int main(void) {
     prints("\nSize: ");
     printHexDword(_pkgoffset);
     prints("b\n");
-
-
-    /*
-    //Test V86 mode
-    prints("Installing V86 code...");
-    usrCode[0] = 0xB8;
-    usrCode[1] = 0x13;
-    usrCode[2] = 0x00;
-    usrCode[3] = 0xCD;
-    usrCode[4] = 0x10;
-    usrCode[5] = 0xB8;
-    usrCode[6] = 0x00;
-    usrCode[7] = 0x00;
-    usrCode[8] = 0xCD;
-    usrCode[9] = 0xFF;
-    prints("Done.\n");
-    prints("Entering V86 mode\n");
-    ctx = newV86Proc();
-    setProcEntry(ctx, (void*)usrCode);
-    startProc(ctx);
-    */
-
-    prints("listBuf is at 0x"); printHexDword((unsigned int)listBuf); prints("\n");
     prints("Initializing filesystem\n");
     fs_init();
 
@@ -161,12 +132,12 @@ int main(void) {
         while(1);
     }
 
-    prints("File contents:\n\n");
+    pchar('\n');
 
     while((tempCh = file_readb(&hellofile)) != EOF)
         pchar((char)tempCh);
 
-    //__asm__ ("sti");
+    //Start the registrar and thereby the rest of the OS
     enterProc(exec_process(":registrar.mod", 1));
 
     prints("Registrar could not be started.\n");

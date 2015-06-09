@@ -645,7 +645,7 @@ unsigned int exec_v86(unsigned char* path) {
     while((tmpVal = file_readb(&exeFile2)) != EOF)
         usrBase[i++] = (char)tmpVal;
 
-    prints("Launching v86 process\n");
+    DEBUG("Launching v86 process\n");
 
     return proc->id;
 }
@@ -719,7 +719,7 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     //Restore the active process's paging
     if(p) apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
 
-    prints("Launching usermode process\n");
+    DEBUG("Launching usermode process\n");
 
     return proc->id;
 }
