@@ -72,7 +72,7 @@ void returnToProcess(process* proc) {
     //Send the pending message if the proc was just woken up
     if(p->flags & PF_WOKENMSG) {
 
-        getMessage(p, &temp_message);
+        getMessage(p, &temp_message, p->wait_pid, p->wait_cmd);
         p->ctx.eax = 1; //a 1 in eax is 'message found'
         p->ctx.ebx = temp_message.source;
         p->ctx.ecx = temp_message.command;

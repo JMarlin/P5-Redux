@@ -13,7 +13,7 @@ void VfillRect(int x, int y, int width, int height, unsigned int color);
 void drawCharacter(unsigned char c, int x, int y, unsigned int color);
 
 message temp_msg;
-unsigned int pen_color = 0;
+unsigned int pen_color = RGB(255,0,0);
 unsigned short pen_x = 0;
 unsigned short pen_y = 0;
 unsigned char mode_count = 0;
@@ -129,49 +129,41 @@ void main(void) {
             break;
 
             case GFX_SETCOLOR:
-                pen_color = temp_msg.payload;
-                postMessage(temp_msg.source, GFX_SETCOLOR, pen_color);
+                //pen_color = temp_msg.payload;
             break;
 
             case GFX_SETCURSOR:
-                pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
-                pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
-                postMessage(temp_msg.source, GFX_SETCURSOR, (pen_x << 16) | pen_y);
+                //pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
+                //pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
             break;
 
             case GFX_SETPIXEL:
-                plotPixel(pen_x, pen_y, pen_color);
-                postMessage(temp_msg.source, GFX_SETPIXEL, 1);
+                //plotPixel(pen_x, pen_y, pen_color);
             break;
 
             case GFX_DRAWHLINE:
-                VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
-                postMessage(temp_msg.source, GFX_DRAWHLINE, 1);
+                //VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWVLINE:
-                VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
-                postMessage(temp_msg.source, GFX_DRAWVLINE, 1);
+                //VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWRECT:
-                VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
-                postMessage(temp_msg.source, GFX_DRAWRECT, 1);
+                //VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
             break;
 
             case GFX_FILLRECT:
                 VfillRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
-                postMessage(temp_msg.source, GFX_FILLRECT, 1);
+                prints("Pause?");
             break;
 
             case GFX_DRAWCHAR:
-                drawCharacter(temp_msg.payload & 0xFF, pen_x, pen_y, pen_color);
-                postMessage(temp_msg.source, GFX_DRAWCHAR, 1);
+                //drawCharacter(temp_msg.payload & 0xFF, pen_x, pen_y, pen_color);
             break;
 
             case GFX_DRAWSTRING:
                 //CAN'T DO THIS UNTIL WE SOLVE SHARED MEMORY
-                postMessage(temp_msg.source, GFX_DRAWSTRING, 1);
             break;
 
             default:
@@ -186,6 +178,9 @@ void setVESABank(unsigned char bank_no) {
 
     postMessage(client_pid, 4, bank_no);
 
+    //HERE'S OUR PROBLEM!
+    //This is picking up other drawing commands in the queue
+    //instead of the response from the v86 module
     while(!getMessage(&tmp_msg));
 }
 
@@ -199,11 +194,11 @@ ModeInfoBlock* getModeInfo(unsigned short mode) {
 
     while(!getMessage(&tmp_msg));
 
-    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
 
     while(!getMessage(&tmp_msg));
 
-    seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
+    off = (unsigned short)(tmp_msg.payload & 0xFFFF);
 
     //return (ModeInfoBlock*)0x83000; //Should NOT do this
     //MAKE SURE THE BELOW VERSION WORKS

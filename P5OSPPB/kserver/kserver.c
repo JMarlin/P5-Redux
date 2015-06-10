@@ -108,7 +108,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
             break;
 
-        //Toggle debug: sets or resets the process's debug flag
+        //Get build number: Get the build number of the OS
         case 8:
             passMessage(0, source, BUILD_NUMBER, P5_BUILD_NUMBER);
             break;

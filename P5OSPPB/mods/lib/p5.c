@@ -18,6 +18,23 @@ int getMessage(message* msg) {
 }
 
 
+int getMessageFrom(message* msg, unsigned int source, unsigned int command) {
+
+    _dest = source;
+    _command = command;
+
+    _asm_get_msg_from();
+
+    if(!_retval)
+        return 0;
+
+    msg->source = _dest;
+    msg->command = _command;
+    msg->payload = _payload;
+    return 1;
+}
+
+
 void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayload)  {
 
     _dest = ldest;

@@ -18,16 +18,31 @@ _asm_send_msg:
     int $0xFF
     popa
     ret
-    
+
 .globl _asm_get_msg
 _asm_get_msg:
     pusha
     mov $0x2, %eax
+    mov $0x0, %ebx
     int $0xFF
     mov %eax, _retval
     mov %ebx, _dest
     mov %ecx, _command
     mov %edx, _payload
     popa
-    ret    
-    
+    ret
+
+.globl _asm_get_msg_from
+_asm_get_msg_from:
+    pusha
+    mov $0x2, %eax
+    mov $0xFFFFFFFF, %ebx
+    mov _dest, %ecx
+    mov _command, %edx
+    int $0xFF
+    mov %eax, _retval
+    mov %ebx, _dest
+    mov %ecx, _command
+    mov %edx, _payload
+    popa
+    ret

@@ -3,6 +3,7 @@
 
 #define KEY_RECIEVED 1
 #define PROC_STARTED 2
+#define PARAM_DONTCARE 0xFFFFFFFF
 
 typedef struct message {
 
@@ -18,8 +19,10 @@ extern unsigned int _retval;
 
 extern void _asm_get_msg(void);
 extern void _asm_send_msg(void);
+extern void _asm_get_msg_from(void);
 
 int getMessage(message* msg);
+int getMessageFrom(message* msg, unsigned int source, unsigned int command);
 void postMessage(unsigned int dest, unsigned int command, unsigned int payload);
 void pchar(char c);
 void terminate(void);

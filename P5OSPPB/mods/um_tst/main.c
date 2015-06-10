@@ -33,7 +33,6 @@ sys_command cmdFunc[CMD_COUNT] = {
 
 char inbuf[50];
 
-
 int strcmp(char* s1, char* s2) {
 
     int i;
@@ -73,10 +72,10 @@ void parse(char* cmdbuf) {
 
 void main(void) {
 
-    //if(!initGfx())
-    	//prints("\nCould not initialize GFX!\n");
+    pchar('\n');
 
-    initGfx();
+    if(!initGfx())
+        prints("\nCould not initialize GFX!\n");
 
     while(1) {
         prints("::");
@@ -287,6 +286,10 @@ void startGui(unsigned short xres, unsigned short yres) {
     int i, x, y, max_chars, os_build;
     unsigned char tmpch;
 
+    fillRect(500, 500);
+    fillRect(10, 10);
+
+/*
     //Backdrop
     setCursor(0, 0);
     setColor(RGB(11, 162, 193));
@@ -364,17 +367,18 @@ void startGui(unsigned short xres, unsigned short yres) {
     }
 
     //drawRect(102, 102, xres - 204, yres - 204, RGB(68, 76, 82));
-    /*
-    int row;
-    int inner_height = (yres - 204);
-    int change_rate = inner_height / 255;
-    int shade_val = 255;
-    for(row = 0; row < inner_height; row++) {
 
-        drawHLine(102, row + 102, xres - 204, RGB(0, 0, shade_val));
+    //int row;
+    //int inner_height = (yres - 204);
+    //int change_rate = inner_height / 255;
+    //int shade_val = 255;
+    //for(row = 0; row < inner_height; row++) {
 
-        if(!(row % change_rate))
-            shade_val--;
-    }
-    */
+        //drawHLine(102, row + 102, xres - 204, RGB(0, 0, shade_val));
+
+        //if(!(row % change_rate))
+            //shade_val--;
+    //}
+
+*/
 }

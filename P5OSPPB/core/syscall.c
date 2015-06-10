@@ -11,6 +11,8 @@ unsigned int lineBuf;
 void syscall_exec(void) {
 
     message temp_message;
+    unsigned int wait_pid;
+    unsigned int wait_cmd;
 
     switch(_syscall_number) {
 
@@ -27,7 +29,14 @@ void syscall_exec(void) {
         case 2:
             //If there is a message in the queue, send it
             //otherwise, put the process to sleep
-            if(getMessage(p, &temp_message)) {
+            if((p->ctx.ebx & 0xFFFF) == 0xFFFF) {
+                wait_pid = p->ctx.ecx;
+                wait_cmd = p->ctx.edx;
+            } else {
+                wait_pid = wait_cmd = 0xFFFFFFFF;
+            }
+
+            if(getMessage(p, &temp_message, wait_pid, wait_cmd)) {
 
                 p->ctx.eax = 1; //a 1 in eax is 'message found'
                 p->ctx.ebx = temp_message.source;
@@ -36,6 +45,8 @@ void syscall_exec(void) {
             } else {
 
                 p->flags |= PF_WAITMSG;
+                p->wait_pid = wait_pid;
+                p->wait_cmd = wait_cmd;
             }
         break;
 

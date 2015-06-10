@@ -58,7 +58,9 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     //Finally, if the destination process was sleeping for a message
     //we should tap it on the shoulder and be like 'yo, buddy, wakey
     //wakey eggs and bakey. You've got a buddy at the door'
-    if(d_proc->flags & PF_WAITMSG) {
+    if(d_proc->flags & PF_WAITMSG &&
+      (d_proc->wait_pid == 0xFFFFFFFF || d_proc->wait_pid == source) &&
+      (d_proc->wait_cmd == 0xFFFFFFFF || d_proc->wait_cmd == command)) {
 
         //Clear wait flag
         d_proc->flags &= ~((unsigned int)PF_WAITMSG);
@@ -73,21 +75,67 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
 //id procid, place its contents into the passed message structure
 //and finally release the message and shift the list by one
 //Returns a 0 if there were no messages
-int getMessage(process* proc, message* msgBuf) {
+int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned int command) {
 
     int i;
-    message* next_msg;
+    message *prev_msg, *cur_msg;
 
+    //No messages
     if(!proc->root_msg)
         return 0;
 
-    next_msg = proc->root_msg->next;
-    msgBuf->source = proc->root_msg->source;
-    msgBuf->command = proc->root_msg->command;
-    msgBuf->payload = proc->root_msg->payload;
+    //Exit early if we're not hunting for a specific message
+    //if(pid_from == 0xFFFFFFFF && command == 0xFFFFFFFF) {
+
+        //Return the matched message
+        msgBuf->source = proc->root_msg->source;
+        msgBuf->command = proc->root_msg->command;
+        msgBuf->payload = proc->root_msg->payload;
+        msgBuf->next = (message*)0;
+
+        //Snip out the matched entry
+        proc->root_msg = proc->root_msg->next;
+
+        //Free the memory it was using
+        kfree((void*)(proc->root_msg));
+        return 1;
+    //}
+
+    prev_msg = (message*)0;
+    cur_msg = proc->root_msg;
+
+    //Look through the queue from the beginning for a match
+    while(cur_msg) {
+
+        //Match the source or the command
+        if((pid_from == 0xFFFFFFFF || pid_from == cur_msg->source) &&
+           (command == 0xFFFFFFFF || command == cur_msg->command)) {
+
+               break;
+        }
+
+        prev_msg = cur_msg;
+        cur_msg = cur_msg->next;
+    }
+
+    //Didn't find any matches!
+    if(!cur_msg)
+        return 0;
+
+    //Snip out the matched entry
+    if(!prev_msg)
+        proc->root_msg = cur_msg->next;
+    else
+        prev_msg->next = cur_msg->next;
+
+    //Return the matched message
+    msgBuf->source = cur_msg->source;
+    msgBuf->command = cur_msg->command;
+    msgBuf->payload = cur_msg->payload;
     msgBuf->next = (message*)0;
-    kfree((void*)(proc->root_msg));
-    proc->root_msg = next_msg;
+
+    //Free the memory it was using
+    kfree((void*)(cur_msg));
 
     return 1;
 }
