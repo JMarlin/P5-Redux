@@ -85,7 +85,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         return 0;
 
     //Exit early if we're not hunting for a specific message
-    //if(pid_from == 0xFFFFFFFF && command == 0xFFFFFFFF) {
+    if(pid_from == 0xFFFFFFFF && command == 0xFFFFFFFF) {
 
         //Return the matched message
         msgBuf->source = proc->root_msg->source;
@@ -93,13 +93,14 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         msgBuf->payload = proc->root_msg->payload;
         msgBuf->next = (message*)0;
 
+        //Free the memory it was using
+        kfree((void*)(proc->root_msg));
+
         //Snip out the matched entry
         proc->root_msg = proc->root_msg->next;
 
-        //Free the memory it was using
-        kfree((void*)(proc->root_msg));
         return 1;
-    //}
+    }
 
     prev_msg = (message*)0;
     cur_msg = proc->root_msg;
