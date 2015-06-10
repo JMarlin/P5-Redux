@@ -73,7 +73,8 @@ void parse(char* cmdbuf) {
 
 void main(void) {
 
-    initGfx();
+    if(!initGfx())
+    	prints("\nCould not initialize GFX!\n");
 
     prints("\nEntered console\n");
     while(1) {
@@ -189,9 +190,14 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
 
 void showModes(void) {
 
-    unsigned short mode_count = enumerateModes();
+    
+    unsigned short mode_count;
     unsigned short i;
     screen_mode* mode;
+
+    prints("Enumerating modes...");
+    mode_count = enumerateModes();
+    prints("done\n");
 
     prints("\nAvailible modes:\n");
     for(i = 0; i < mode_count; i++) {

@@ -9,8 +9,16 @@ screen_mode mode_details;
 unsigned char initGfx() {
 
     //Find the GFX server
-    postMessage(REGISTRAR_PID, REG_LOOKUP, SVC_GFX);
-    getMessage(&temp_msg);
+    //Try a few times in case the service is in the middle of registering
+    int i;
+    for(i = 0; i < 100; i++) {
+    
+    	postMessage(REGISTRAR_PID, REG_LOOKUP, SVC_GFX);
+    	getMessage(&temp_msg);
+    	
+	if(temp_msg.payload)
+	    break;
+    }
     gfx_pid = temp_msg.payload;
 
     return gfx_pid != 0;
@@ -19,7 +27,9 @@ unsigned char initGfx() {
 //Simply returns the number of modes supported
 unsigned char enumerateModes() {
 
+    prints("\nSending enumeration request to gfx server\n");
     postMessage(gfx_pid, GFX_ENUMMODES, 0);
+    prints("Listening for response\n");
     getMessage(&temp_msg);
 
     return (unsigned char)(temp_msg.payload & 0xFF);

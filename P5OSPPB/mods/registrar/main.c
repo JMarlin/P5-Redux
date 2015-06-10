@@ -73,6 +73,7 @@ void main(void) {
                     if(i == 20) {
 
                         //Tell 'em we're booked up and go back to the loop
+			prints("\nRegistrar: No room!\n");
                         postMessage(temp_msg.source, REG_STATUS, 0);
                         break;
                     }
@@ -87,14 +88,19 @@ void main(void) {
                     reg_table_pid[i] = temp_msg.source;
                 }
 
+		prints("\nRegistrar: New server registered\n");
                 //Tell 'em they've been welcomed to the family
                 postMessage(temp_msg.source, REG_STATUS, 1);
             break;
 
             case REG_LOOKUP:
+	    	prints("\nRegistrar: Message is REG_LOOKUP\n");
+		
                 //Search for the passed service code
                 for(i = 0; (i < 20) && (reg_table_svc[i] != temp_msg.payload); i++);
-
+		
+		if(i == 20) prints("\nRegistrar: NO SERVICE??\n"); 
+		
                 //Give the sender the PID, or zero if we didn't find it
                 postMessage(temp_msg.source, REG_PID, i == 20 ? 0 : reg_table_pid[i]);
             break;

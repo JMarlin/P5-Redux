@@ -6,10 +6,10 @@
 void getModes(void);
 int setMode(unsigned short mode);
 void plotPixel(int x, int y, unsigned int color);
-void drawHLine(int x, int y, int length, unsigned int color);
-void drawVLine(int x, int y, int length, unsigned int color);
-void drawRect(int x, int y, int width, int height, unsigned int color);
-void fillRect(int x, int y, int width, int height, unsigned int color);
+void VdrawHLine(int x, int y, int length, unsigned int color);
+void VdrawVLine(int x, int y, int length, unsigned int color);
+void VdrawRect(int x, int y, int width, int height, unsigned int color);
+void VfillRect(int x, int y, int width, int height, unsigned int color);
 
 message temp_msg;
 unsigned int pen_color = 0;
@@ -80,7 +80,6 @@ void main(void) {
         terminate();
     }
 
-
     //Now we can start the main message loop and begin handling
     //GFX command messages
     while(1) {
@@ -99,7 +98,7 @@ void main(void) {
             break;
 
             case GFX_MODEDETAIL:
-                if(temp_msg.payload > detected_modes || !temp_msg.payload) {
+                if(temp_msg.payload > mode_count || !temp_msg.payload) {
 
                     postMessage(temp_msg.source, GFX_MODEDETAIL, 0);
                 } else {
@@ -137,19 +136,19 @@ void main(void) {
             break;
 
             case GFX_DRAWHLINE:
-                drawHLine(pen_x, pen_y, temp_message.payload, pen_color);
+                VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWVLINE:
-                drawVLine(pen_x, pen_y, temp_message.payload, pen_color);
+                VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWRECT:
-                drawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
+                VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
             break;
 
             case GFX_FILLRECT:
-                fillRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
+                VfillRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
             break;
 
             default:
@@ -185,7 +184,7 @@ ModeInfoBlock* getModeInfo(unsigned short mode) {
 
     //return (ModeInfoBlock*)0x83000; //Should NOT do this
     //MAKE SURE THE BELOW VERSION WORKS
-    return (ModeInfoBlock*)(((vinfo->modePtrSeg) << 4) + vinfo->modePtrOff);
+    return (ModeInfoBlock*)(((seg) << 4) + off);
 }
 
 
@@ -336,7 +335,7 @@ void plotPixel(int x, int y, unsigned int color) {
 }
 
 
-void drawHLine(int x, int y, int length, unsigned int color) {
+void VdrawHLine(int x, int y, int length, unsigned int color) {
 
     int i, endx;
 
@@ -346,7 +345,7 @@ void drawHLine(int x, int y, int length, unsigned int color) {
         plotPixel(i, y, color);
 }
 
-void drawVLine(int x, int y, int length, unsigned int color) {
+void VdrawVLine(int x, int y, int length, unsigned int color) {
 
     int i, endy;
 
@@ -357,16 +356,16 @@ void drawVLine(int x, int y, int length, unsigned int color) {
 }
 
 
-void drawRect(int x, int y, int width, int height, unsigned int color) {
+void VdrawRect(int x, int y, int width, int height, unsigned int color) {
 
-    drawHLine(x, y, width, color);
-    drawVLine(x, y, height, color);
-    drawHLine(x, y + height - 1, width, color);
-    drawVLine(x + width - 1, y, height, color);
+    VdrawHLine(x, y, width, color);
+    VdrawVLine(x, y, height, color);
+    VdrawHLine(x, y + height - 1, width, color);
+    VdrawVLine(x + width - 1, y, height, color);
 }
 
 
-void fillRect(int x, int y, int width, int height, unsigned int color) {
+void VfillRect(int x, int y, int width, int height, unsigned int color) {
 
     int j, i;
     int endx, endy;
