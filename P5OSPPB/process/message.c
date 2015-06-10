@@ -69,40 +69,25 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
 }
 
 
-//Find the last item in the message queue list of the process with
+//Find the first item in the message queue list of the process with
 //id procid, place its contents into the passed message structure
-//and finally release the message and truncate the list
+//and finally release the message and shift the list by one
 //Returns a 0 if there were no messages
 int getMessage(process* proc, message* msgBuf) {
 
     int i;
-    message* cur_msg;
-    message* prev_msg = (message*)0;
+    message* next_msg;
 
     if(!proc->root_msg)
         return 0;
 
-    cur_msg = proc->root_msg;
-
-    while(cur_msg->next) {
-
-        prev_msg = cur_msg;
-        cur_msg = cur_msg->next;
-    }
-
-    msgBuf->source = cur_msg->source;
-    msgBuf->command = cur_msg->command;
-    msgBuf->payload = cur_msg->payload;
+    next_msg = proc->root_msg->next;
+    msgBuf->source = proc->root_msg->source;
+    msgBuf->command = proc->root_msg->command;
+    msgBuf->payload = proc->root_msg->payload;
     msgBuf->next = (message*)0;
-    kfree((void*)cur_msg);
-
-    if(prev_msg) {
-
-        prev_msg->next = (message*)0;
-    } else {
-
-        proc->root_msg = (message*)0;
-    }
+    kfree((void*)(proc->root_msg));
+    proc->root_msg = next_msg;
 
     return 1;
 }
