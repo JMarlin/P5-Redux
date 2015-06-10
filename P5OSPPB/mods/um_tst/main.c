@@ -73,10 +73,11 @@ void parse(char* cmdbuf) {
 
 void main(void) {
 
-    if(!initGfx())
-    	prints("\nCould not initialize GFX!\n");
+    //if(!initGfx())
+    	//prints("\nCould not initialize GFX!\n");
 
-    prints("\nEntered console\n");
+    initGfx();
+
     while(1) {
         prints("::");
         scans(50, inbuf);
@@ -101,6 +102,41 @@ void consVer(void) {
 void usrExit(void) {
 
     terminate();
+}
+
+void drawCharacter(char c, int x, int y, unsigned int color) {
+
+    setCursor(x, y);
+    setColor(color);
+    drawChar(c);
+}
+
+
+void drawCharacterBold(char c, int x, int y, unsigned int color) {
+
+    setColor(color);
+    setCursor(x, y);
+    drawChar(c);
+    setCursor(x+1, y);
+    drawChar(c);
+    setCursor(x, y+1);
+    drawChar(c);
+    setCursor(x+1, y+1);
+    drawChar(c);
+}
+
+
+void drawString(char* str, int x, int y, unsigned int color) {
+
+    int i;
+
+    setColor(color);
+
+    for(i = 0; str[i]; i++) {
+
+        setCursor(x+(i*8), y);
+        drawChar(str[i]);
+    }
 }
 
 
@@ -145,7 +181,7 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
     //Fill
     setCursor(x+border_width, y+border_width);
     setColor(color);
-    drawRect(width-(2*border_width), height-(2*border_width));
+    fillRect(width-(2*border_width), height-(2*border_width));
 }
 
 
@@ -180,7 +216,7 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
 
         for(c = 0; c < cols; c++) {
 
-            //drawCharacterBold(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
+            drawCharacterBold(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
         }
     }
 
@@ -190,7 +226,7 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
 
 void showModes(void) {
 
-    
+
     unsigned short mode_count;
     unsigned short i;
     screen_mode* mode;
@@ -254,7 +290,7 @@ void startGui(unsigned short xres, unsigned short yres) {
     //Backdrop
     setCursor(0, 0);
     setColor(RGB(11, 162, 193));
-    drawRect(xres, yres);
+    fillRect(xres, yres);
 
     //System Bar
     drawPanel(xres-60, 0, 60, yres, RGB(200, 200, 200), 2, 0);
@@ -262,31 +298,29 @@ void startGui(unsigned short xres, unsigned short yres) {
     //Indent for fun
     drawButton("P5OS", xres-55, 5, 50, 50, RGB(200, 200, 200), 2);
 
-    /*
     //Redundant text for shadow
     drawString("Build #", 1, 1, 0);
     os_build = getBuildNumber();
-    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) + 'A' : (os_build >> 28 & 0xF) + '0', 57, 1, 0);
-    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) + 'A' : (os_build >> 24 & 0xF) + '0', 65, 1, 0);
-    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) + 'A' : (os_build >> 20 & 0xF) + '0', 73, 1, 0);
-    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) + 'A' : (os_build >> 16 & 0xF) + '0', 81, 1, 0);
-    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) + 'A' : (os_build >> 12 & 0xF) + '0', 89, 1, 0);
-    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) + 'A' : (os_build >> 8 & 0xF) + '0', 97, 0, 1);
-    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) + 'A' : (os_build >> 4 & 0xF) + '0', 105, 1, 0);
-    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) + 'A' : (os_build & 0xF) + '0', 113, 1, 0);
+    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) - 10 + 'A' : (os_build >> 28 & 0xF) + '0', 57, 1, 0);
+    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) - 10 + 'A' : (os_build >> 24 & 0xF) + '0', 65, 1, 0);
+    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) - 10 + 'A' : (os_build >> 20 & 0xF) + '0', 73, 1, 0);
+    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) - 10 + 'A' : (os_build >> 16 & 0xF) + '0', 81, 1, 0);
+    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) - 10 + 'A' : (os_build >> 12 & 0xF) + '0', 89, 1, 0);
+    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) - 10 + 'A' : (os_build >> 8 & 0xF) + '0', 97, 0, 1);
+    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) - 10 + 'A' : (os_build >> 4 & 0xF) + '0', 105, 1, 0);
+    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) - 10 + 'A' : (os_build & 0xF) + '0', 113, 1, 0);
 
     //Text test
     drawString("Build #", 0, 0, RGB(255, 255, 255));
     os_build = getBuildNumber();
-    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) + 'A' : (os_build >> 28 & 0xF) + '0', 56, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) + 'A' : (os_build >> 24 & 0xF) + '0', 64, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) + 'A' : (os_build >> 20 & 0xF) + '0', 72, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) + 'A' : (os_build >> 16 & 0xF) + '0', 80, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) + 'A' : (os_build >> 12 & 0xF) + '0', 88, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) + 'A' : (os_build >> 8 & 0xF) + '0', 96, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) + 'A' : (os_build >> 4 & 0xF) + '0', 104, 0, RGB(255, 255, 255));
-    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) + 'A' : (os_build & 0xF) + '0', 112, 0, RGB(255, 255, 255));
-    */
+    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) - 10 + 'A' : (os_build >> 28 & 0xF) + '0', 56, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) - 10 + 'A' : (os_build >> 24 & 0xF) + '0', 64, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) - 10 + 'A' : (os_build >> 20 & 0xF) + '0', 72, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) - 10 + 'A' : (os_build >> 16 & 0xF) + '0', 80, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) - 10 + 'A' : (os_build >> 12 & 0xF) + '0', 88, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) - 10 + 'A' : (os_build >> 8 & 0xF) + '0', 96, 0, RGB(255, 255, 255));
+    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) - 10 + 'A' : (os_build >> 4 & 0xF) + '0', 104, 0, RGB(255, 255, 255));
+    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) - 10 + 'A' : (os_build & 0xF) + '0', 112, 0, RGB(255, 255, 255));
 
     //body of 'window'
     drawPanel(20, 20, xres-100, yres-40, RGB(200, 200, 200), 2, 0);
@@ -297,14 +331,14 @@ void startGui(unsigned short xres, unsigned short yres) {
     //'terminal' background
     setCursor(27, 27);
     setColor(0);
-    drawRect(xres-114, yres-54);
+    fillRect(xres-114, yres-54);
 
     //Simple input loop
     x = 2;
     y = 0;
     max_chars = (xres-114)/8;
 
-    //drawString("::", 27, 27, RGB(0, 255, 0));
+    drawString("::", 27, 27, RGB(0, 255, 0));
 
     while(1) {
 
@@ -315,10 +349,10 @@ void startGui(unsigned short xres, unsigned short yres) {
 
             x = 2;
             y++;
-            //drawString("::", 27, (y*12)+27, RGB(0, 255, 0));
+            drawString("::", 27, (y*12)+27, RGB(0, 255, 0));
         } else {
 
-            //drawCharacter(tmpch, (x*8)+27, (y*12)+27, RGB(0, 255, 0));
+            drawCharacter(tmpch, (x*8)+27, (y*12)+27, RGB(0, 255, 0));
             x++;
 
             if(x > max_chars) {

@@ -2,16 +2,18 @@
 #define GFX_H
 
 
-#define GFX_ENUMMODES  1
-#define GFX_MODEDETAIL 2
-#define GFX_SETMODE    3
-#define GFX_SETCOLOR   4
-#define GFX_SETCURSOR  5
-#define GFX_SETPIXEL   6
-#define GFX_DRAWHLINE  7
-#define GFX_DRAWVLINE  8
-#define GFX_DRAWRECT   9
-#define GFX_FILLRECT  10
+#define GFX_ENUMMODES   1
+#define GFX_MODEDETAIL  2
+#define GFX_SETMODE     3
+#define GFX_SETCOLOR    4
+#define GFX_SETCURSOR   5
+#define GFX_SETPIXEL    6
+#define GFX_DRAWHLINE   7
+#define GFX_DRAWVLINE   8
+#define GFX_DRAWRECT    9
+#define GFX_FILLRECT   10
+#define GFX_DRAWCHAR   11
+#define GFX_DRAWSTRING 12
 
 #define SVC_GFX 1
 
@@ -38,5 +40,7 @@ void drawHLine(unsigned short length);
 void drawVLine(unsigned short length);
 void drawRect(unsigned short width, unsigned short height);
 void fillRect(unsigned short width, unsigned short height);
+void drawChar(char c);
+void drawStr(char* str);
 
 #endif //GFX_H

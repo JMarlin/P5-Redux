@@ -10,6 +10,7 @@ void VdrawHLine(int x, int y, int length, unsigned int color);
 void VdrawVLine(int x, int y, int length, unsigned int color);
 void VdrawRect(int x, int y, int width, int height, unsigned int color);
 void VfillRect(int x, int y, int width, int height, unsigned int color);
+void drawCharacter(unsigned char c, int x, int y, unsigned int color);
 
 message temp_msg;
 unsigned int pen_color = 0;
@@ -64,6 +65,11 @@ unsigned char curBank = 0;
 void main(void) {
 
     unsigned short new_mode;
+    unsigned int parent_pid;
+
+    //Get the 'here's my pid' message from init
+    getMessage(&temp_msg);
+    parent_pid = temp_msg.source;
 
     //First thing, register as a GFX service with the registrar
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
@@ -77,8 +83,11 @@ void main(void) {
     if(!temp_msg.payload || !client_pid) {
 
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_GFX);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
+
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
@@ -111,7 +120,6 @@ void main(void) {
             break;
 
             case GFX_SETMODE:
-
                 if(!temp_msg.payload)
                     new_mode = 0x000C; //Mode 0 is always textmode
                 else
@@ -121,34 +129,49 @@ void main(void) {
             break;
 
             case GFX_SETCOLOR:
-
                 pen_color = temp_msg.payload;
+                postMessage(temp_msg.source, GFX_SETCOLOR, pen_color);
             break;
 
             case GFX_SETCURSOR:
-
                 pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
                 pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
+                postMessage(temp_msg.source, GFX_SETCURSOR, (pen_x << 16) | pen_y);
             break;
 
             case GFX_SETPIXEL:
                 plotPixel(pen_x, pen_y, pen_color);
+                postMessage(temp_msg.source, GFX_SETPIXEL, 1);
             break;
 
             case GFX_DRAWHLINE:
                 VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
+                postMessage(temp_msg.source, GFX_DRAWHLINE, 1);
             break;
 
             case GFX_DRAWVLINE:
                 VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
+                postMessage(temp_msg.source, GFX_DRAWVLINE, 1);
             break;
 
             case GFX_DRAWRECT:
                 VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
+                postMessage(temp_msg.source, GFX_DRAWRECT, 1);
             break;
 
             case GFX_FILLRECT:
                 VfillRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
+                postMessage(temp_msg.source, GFX_FILLRECT, 1);
+            break;
+
+            case GFX_DRAWCHAR:
+                drawCharacter(temp_msg.payload & 0xFF, pen_x, pen_y, pen_color);
+                postMessage(temp_msg.source, GFX_DRAWCHAR, 1);
+            break;
+
+            case GFX_DRAWSTRING:
+                //CAN'T DO THIS UNTIL WE SOLVE SHARED MEMORY
+                postMessage(temp_msg.source, GFX_DRAWSTRING, 1);
             break;
 
             default:
@@ -265,6 +288,7 @@ int setMode(unsigned short mode) {
 
     //Here we should do some precalculation crap to speed
     //up pixel plotting and junk
+
 
     return 1;
 }
@@ -398,15 +422,6 @@ void drawCharacter(unsigned char c, int x, int y, unsigned int color) {
             line = line << 1;
         }
     }
-}
-
-
-drawCharacterBold(unsigned char c, int x, int y, unsigned int color) {
-
-    drawCharacter(c, x, y, color);
-    drawCharacter(c, x+1, y, color);
-    drawCharacter(c, x, y+1, color);
-    drawCharacter(c, x+1, y+1, color);
 }
 
 
