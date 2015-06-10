@@ -129,37 +129,36 @@ void main(void) {
             break;
 
             case GFX_SETCOLOR:
-                //pen_color = temp_msg.payload;
+                pen_color = temp_msg.payload;
             break;
 
             case GFX_SETCURSOR:
-                //pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
-                //pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
+                pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
+                pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
             break;
 
             case GFX_SETPIXEL:
-                //plotPixel(pen_x, pen_y, pen_color);
+                plotPixel(pen_x, pen_y, pen_color);
             break;
 
             case GFX_DRAWHLINE:
-                //VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
+                VdrawHLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWVLINE:
-                //VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
+                VdrawVLine(pen_x, pen_y, temp_msg.payload, pen_color);
             break;
 
             case GFX_DRAWRECT:
-                //VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
+                VdrawRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
             break;
 
             case GFX_FILLRECT:
                 VfillRect(pen_x, pen_y, (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16), (unsigned short)(temp_msg.payload & 0xFFFF), pen_color);
-                prints("Pause?");
             break;
 
             case GFX_DRAWCHAR:
-                //drawCharacter(temp_msg.payload & 0xFF, pen_x, pen_y, pen_color);
+                drawCharacter(temp_msg.payload & 0xFF, pen_x, pen_y, pen_color);
             break;
 
             case GFX_DRAWSTRING:
@@ -181,7 +180,7 @@ void setVESABank(unsigned char bank_no) {
     //HERE'S OUR PROBLEM!
     //This is picking up other drawing commands in the queue
     //instead of the response from the v86 module
-    while(!getMessage(&tmp_msg));
+    while(!getMessageFrom(&tmp_msg, client_pid, 0xFFFFFFFF));
 }
 
 

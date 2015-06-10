@@ -286,10 +286,6 @@ void startGui(unsigned short xres, unsigned short yres) {
     int i, x, y, max_chars, os_build;
     unsigned char tmpch;
 
-    fillRect(500, 500);
-    fillRect(10, 10);
-
-/*
     //Backdrop
     setCursor(0, 0);
     setColor(RGB(11, 162, 193));
@@ -380,5 +376,5 @@ void startGui(unsigned short xres, unsigned short yres) {
             //shade_val--;
     //}
 
-*/
+
 }
