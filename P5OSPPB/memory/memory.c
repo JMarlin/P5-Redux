@@ -1,12 +1,14 @@
 #include "memory.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
+#include "../core/syscall.h"
 
 
 extern long pkgoffset;
 unsigned long maxRAM = 0x006FFFFF;
 memblock rootBlock;
-
+void (*init_done)(void);
+memzone m_map[10];
 
 void testRAM() {
 
@@ -52,10 +54,37 @@ void printChain() {
 }
 
 
-void init_memory() {
+void return_from_v86(unsigned int ebx, unsigned int ecx, unsigned int edx);
+
+
+void init_memory(void (*cb)(void)) {
+
+    //Only one v86 proc can exist at a time and
+    //they're all loaded into 0x80000
+    char* usrCode = (char*)0x80000;
+
+    init_done = cb;
+    set_call_zero_cb(&return_from_v86);
+
+    prints("Jumping to v86 ramtest process\n");
+
+    //Write our shite to low ram
+    usrCode[0] = 0x66; // -|
+    usrCode[1] = 0x31; //  |
+    usrCode[2] = 0xC0; // -\_xor ax, ax
+    usrCode[3] = 0xCD; // -|
+    usrCode[4] = 0xFF; // -\_int 0xff
+
+    enterProc(exec_loaded_v86(100));
+}
+
+
+void return_from_v86(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 
     void* ram_a;
     void* ram_b;
+
+    prints("Got back from v86 ramtest process\n");
 
     //Start of kernel
     rootBlock.base = (void*)0x100000;
@@ -102,7 +131,7 @@ void init_memory() {
     }
 
     //printChain();
-
+    init_done(); //Return to kernel startup
 }
 
 

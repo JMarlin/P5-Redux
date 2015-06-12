@@ -5,19 +5,45 @@
 #include "../ascii_io/ascii_o.h"
 
 unsigned int gcount = 0;
-
 unsigned int lineBuf;
+void (*call_zero_callback)(unsigned int, unsigned int, unsigned int);
+
+void set_call_zero_cb(void (*cb)(unsigned int, unsigned int, unsigned int)) {
+
+    call_zero_callback = cb;
+}
+
 
 void syscall_exec(void) {
 
     message temp_message;
     unsigned int wait_pid;
     unsigned int wait_cmd;
+    unsigned int tmp_ebx;
+    unsigned int tmp_ecx;
+    unsigned int tmp_edx;
 
     switch(_syscall_number) {
 
-        //Legacy for V86
+        //Return to kernel
+        //used for early start-up kernel processes to execute
+        //and then return control to the section of kernel which
+        //started it. One major use case is v86 helper code, as in
+        //the memory system. We need to map the memory before the
+        //system is booted, but the only way to use the bios
+        //memory maps commands is to start a v86 process. So the
+        //memory initialization code writes some temp code to low
+        //memory, installs its callback function to be called when
+        //the process exits using syscall 0 and continues the
+        //execution from there
         case 0:
+            tmp_ebx = p->ctx.ebx;
+            tmp_ecx = p->ctx.ecx;
+            tmp_edx = p->ctx.edx;
+            deleteProc(p); //We do this instead of endProc because endProc
+                           //attempts to reenter the scheduler and we never
+                           //flow through to the next line
+            call_zero_callback(tmp_ebx, tmp_ecx, tmp_edx);
         break;
 
         //Process post message

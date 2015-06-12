@@ -22,19 +22,12 @@ extern long _pkgoffset;
 extern char _imagename;
 char prompt[] = "P5-> ";
 char inbuf[50];
-char* usrCode = (char*)0x80000;
+
+
+void kernel_finish_startup(void);
 
 
 int main(void) {
-
-    unsigned int i, doffset, *sizes;
-    unsigned char *dcount;
-    context* ctx;
-    block_dev* ram0;
-    FILE hellofile;
-    unsigned char listBuf[256];
-    int tempCh = 0;
-    int key_stat;
 
     __asm__ ("cli");
 
@@ -54,9 +47,27 @@ int main(void) {
     installExceptionHandlers();
     prints("Done.\nSetting up the GDT...");
     initGdt();
+    prints("Done.\nInitializing process mgmt...");
+    startProcessManagement();
+    init_timer();
+    timer_on();
     prints("Done.\nTurning on paging...");
     init_mmu();
-    init_memory();
+    init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
+                                         //has to jump into a v86 process and back.
+}
+
+void kernel_finish_startup(void) {
+
+    unsigned int i, doffset, *sizes;
+    unsigned char *dcount;
+    context* ctx;
+    block_dev* ram0;
+    FILE hellofile;
+    unsigned char listBuf[256];
+    int tempCh = 0;
+    int key_stat;
+
     prints("Done.\nSetting up keyboard...");
 
     if((key_stat = keyboard_init()) != 1) {
@@ -75,9 +86,6 @@ int main(void) {
         setupKeyTable_set1();
 
     pchar('\n');
-    startProcessManagement();
-    init_timer();
-    timer_on();
     prints("WELCOME TO P5\n");
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);

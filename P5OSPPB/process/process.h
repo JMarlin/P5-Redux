@@ -84,13 +84,16 @@ process* procTable;
 
 void startProcessManagement();
 void endProc(process* proc);
+void deleteProc(process* proc);
 void kernelEntry(void);
 process* newUserProc();
 process* newSuperProc();
 //process* newV86Proc();
 void setProcEntry(process* proc, void* entryPoint);
 void enterProc(unsigned int pid);
+unsigned int exec_loaded_v86(unsigned int app_size);
 unsigned int exec_process(unsigned char* path, char isSuper);
+unsigned int exec_v86(unsigned char* path);
 int request_new_page(process* proc);
 void next_process();
 void prep_next_process();

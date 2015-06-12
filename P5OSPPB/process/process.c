@@ -417,15 +417,24 @@ void kernelEntry(void) {
 
 void endProc(process* proc) {
 
-    disable_page_range(0xB00000, proc->root_page);
-    del_page_tree(proc->root_page);
-    proc->root_page = (pageRange*)0;
-    proc->id = 0;
+    deleteProc(proc);
 
     if(proc == p)
         needs_swap = 1;
 
     returnToProcess(p);
+}
+
+
+void deleteProc(process* proc) {
+
+    if(!(proc->flags & PF_V86)) {
+        disable_page_range(0xB00000, proc->root_page);
+        del_page_tree(proc->root_page);
+        proc->root_page = (pageRange*)0;
+    }
+
+    proc->id = 0;
 }
 
 
@@ -602,6 +611,19 @@ int request_new_page(process* proc) {
         return proc->size = newSize;
     else
         return newSize;
+}
+
+
+//Assumes code has already been loaded at 0x80000
+unsigned int exec_loaded_v86(unsigned int app_size) {
+
+    process* proc;
+
+    if(!(proc = newV86Proc()))
+        return 0;
+
+    proc->size = app_size;
+    return proc->id;
 }
 
 
