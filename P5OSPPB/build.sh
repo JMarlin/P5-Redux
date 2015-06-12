@@ -22,8 +22,6 @@ as -o ../build/syscalls.o syscall.s --32
 gcc -c -o ../build/syscall.o syscall.c $C_OPTS
 as -o ../build/init.o init.s --32
 gcc -c -o ../build/kernel.o kernel.c $C_OPTS
-gcc -c -o ../build/cicomp.o cicomp.c $C_OPTS
-gcc -c -o ../build/commands.o commands.c $C_OPTS
 gcc -c -o ../build/util.o util.c -nostdlib -m32
 gcc -c -o ../build/int.o int.c $C_OPTS
 as -o ../build/expt.o expt.s --32

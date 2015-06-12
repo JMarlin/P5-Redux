@@ -1,5 +1,4 @@
 #include "ascii_o.h"
-#include "../core/commands.h"
 #include "../core/util.h"
 #include "serial.h"
 
@@ -36,6 +35,19 @@ void ramdump(unsigned int address, unsigned int count) {
     }
 
     while(1);
+}
+
+
+void clear(void) {
+
+    int i;
+
+    setCursor(0, 0);
+
+    for(i = 0; i < 2000; i++)
+        pchar(0);
+
+    setCursor(0, 0);
 }
 
 

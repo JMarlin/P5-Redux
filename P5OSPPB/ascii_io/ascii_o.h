@@ -11,5 +11,6 @@ void prints(char* _str);
 void initScreen();
 void setCursor(int x, int y);
 void setColor(char newCode);
+void clear(void);
 
 #endif //ASCII_O_H

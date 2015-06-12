@@ -1,11 +1,9 @@
 INPUT(
     syscall.o
     syscalls.o
-    expt.o 
-    init.o 
+    expt.o
+    init.o
     kernel.o 
-    commands.o 
-    cicomp.o 
     util.o
     int.o
     ascii_i.o
@@ -30,4 +28,3 @@ INPUT(
     message.o
     kserver.o
 )
-

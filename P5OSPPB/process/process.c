@@ -175,7 +175,7 @@ void V86Entry(void) {
                     //prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
                     //prints(" -> "); printHexWord(seg);
                     //prints(":"); printHexWord(off);
-                    prints(")");
+                    //prints(")");
                     //kernelDebug();
     		        //scans(5, fake);
                     p->ctx.cs = seg;
