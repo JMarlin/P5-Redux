@@ -18,25 +18,28 @@ db 0x03, 0x00            ;Number of reserved sectors
 db 2                     ;Copies of the FAT
 db 0xE0, 0x00            ;Number of root directory entries
 db 0x40, 0x0b            ;Number of total sectors on disk
-db 0xF0                  ;Type of disk (F0h = 1.44m floppy)
+db 0xF0                  ;Type of disk (F0h = 1.44m floppy, F8h = hard disk)
 db 0x09, 0x00            ;sectors per FAT
 db 0x12, 0x00            ;SPT
 db 0x02, 0x00            ;Number of heads
 dw 0                     ;Number of hidden sectors
-db 0xE0, 0x00, 0x00, 0x00;total sectors 2 
+db 0xE0, 0x00, 0x00, 0x00;total sectors 2
 
 ;End of FAT12 data
 
 yes db 'P5KERN.BIN found!', 0
 no db 'P5KERN.BIN was not found on this disk.', 0
+tststr db 'BS Loaded', 0
+failstr db 'FAIL', 0
 entrycount dd 0             ;the counter of entries in the root directory that aren't P5KERN.BIN.
-datapointer dd 0x500        ;the pointer for reading disk data starting at a base of 0x500, where the root directory data will be read to. 
+datapointer dd 0x500        ;the pointer for reading disk data starting at a base of 0x500, where the root directory data will be read to.
 activesector db 4          ;the last sector to have bee read; track 2 sector 4 is the first sector of the root directory on this floppy
+bdrive db 0
 ce1 dw 0
 ce2 dw 0
 highbyte dw 0
 midbyte dw 0
-lowbyte dw 0 
+lowbyte dw 0
 midbytelow dw 0
 midbytehigh dw 0
 ttrack db 0
@@ -66,14 +69,34 @@ mov ch, 0
 mov cl, [activesector]
 mov bx, 0x500
 mov dh, 1
-xor dl, dl
-int 0x13 
+mov dl, [bdrive]
+int 0x13
+jc ufukd
 mov cl, [activesector]
 add cl, 1
 mov [activesector], cl
 ret
 
+printstra:
+printstarta:
+mov bh, 0x0F
+mov al, [edx]
+mov ah, 0x0E
+mov bl, 0
+int 0x10
+add edx, 1
+cmp byte [edx], 0
+je printenda
+jmp printstarta
+printenda:
+ret
+
 boot:
+
+mov [bdrive], dl
+
+mov edx, tststr
+call printstra
 
 mov ax, 0
 mov es, ax
@@ -87,13 +110,20 @@ xor ch, ch
 mov cl, 2
 mov bx, 0x7e00
 xor dh, dh
-xor dl, dl
-int 0x13 
- 
-jmp 0x7e00 
- 
+mov dl, [bdrive]
+int 0x13
+jc ufukd ;disk read failed
 
-times 510-($-$$) db 0x0 
+jmp 0x7e00
+
+
+ufukd:
+mov edx, failstr
+call printstra
+hurr:
+jmp hurr
+
+times 510-($-$$) db 0x0
 dw 0xAA55             ;Boot signature
 
 ;reserved sectors 2 and 3
@@ -119,15 +149,15 @@ temp dw 0
 clustertocsh:
   mov edx, 0
   add ax, 34
-  
+
   ;mov edx, gbd
   ;call printstr
-  
+
   div word [spt]
-  
+
   ;mov edx, gpd
   ;call printstr
-  
+
   mov [tracknum], ax
   inc dx
   mov [tsector], dl
@@ -145,11 +175,11 @@ clustertocsh:
   mov dh, [thead]
   mov cl, [tsector]
   mov ch, [ttrack]
-  ret 
-  
+  ret
+
   gbd db 10,13,' got to just before first divide',0
   gpd db 10,13,' passed first divide',0
-  
+
 cmpname:
 mov edx, [datapointer]
 cmp byte [edx], 'P'
@@ -251,7 +281,7 @@ mov edx, 0
 div cx
 mov cx, dx
 jcxz clusterone
-jmp clustertwo 
+jmp clustertwo
 clusterone:
 mov ax, [ce1]
 mov [cluster], ax
@@ -260,7 +290,7 @@ clustertwo:
 mov ax, [ce2]
 mov [cluster], ax
 toout:
-ret 
+ret
 
 prclusternum:
 mov ax, [cluster]
@@ -333,7 +363,7 @@ nextsector:
 mov dword [datapointer], 0x500
 call readsec
 jmp top
-mainfail: 
+mainfail:
 mov edx, no
 call printstr
 jmp hold
@@ -360,7 +390,7 @@ mov cl, 4
 mov bx, 0x500
 xor dh, dh
 xor dl, dl
-int 0x13 
+int 0x13
 
 nextcluster:
 mov ax, [cluster]
@@ -391,7 +421,7 @@ jmp nextcluster
 
 hold jmp hold
 
-done: 
+done:
 mov edx, vertop
 call printstr
 mov edx, 0x170C
@@ -524,7 +554,7 @@ dw 0
 dw 0
 dw 0
 db 0x02, 0x00
-db 0x0E, 0x01, 0x00, 0x00 
+db 0x0E, 0x01, 0x00, 0x00
 
 times (512*14)-64 db 0
 
@@ -533,8 +563,3 @@ times (512*14)-64 db 0
 db 'If you are reading this file it means that this floppy disk has been successfully set up as a PBOOT floppy. Place the kernel into the root directory of this floppy with the name P5KERN.BIN and boot from this floppy to run your kernel code.'
 
 times (512*2880)-($-$$) db 0
-
-
-
-
-

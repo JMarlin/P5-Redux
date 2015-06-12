@@ -17,13 +17,14 @@ move_msg: DB "MOVING IMAGE TO LOW MEMORY...", 0xA, 0xD, "$"
 kernel_handle: DB 0x00, 0x00
 byte_buf: DB 0x00
 byte_counter: DW 0x00
+seg_counter: DW 0x00
 ksize: DW 0x0000
 
 main:
-mov DX, 0xF000
+mov DX, 0x170
 mov ES, DX              ;We will be using the extra segment
                         ;to access the location the kernel will
-                        ;be written to [0x0:0x1700]
+                        ;be written to [0x170:0x0]
 
 mov ah, 0x9
 mov dx, start_msg
@@ -43,7 +44,7 @@ mov [kernel_handle], AX ;We're assuming this worked and
 mov dx, cs
 mov ds, dx
 
-readbyte:        
+readbyte:
 mov BX, [kernel_handle] ;Dos needs the handle in BX for this bit
 mov AH, 0x3F            ;Dos INT 0x21 API - Read file
 mov CX, 0x1             ;We're going to do this a byte at a time
@@ -57,11 +58,22 @@ JE boot
 
 MOV AL, [byte_buf]      ;Otherwise, retrieve the read byte
 MOV SI, [byte_counter]  ;Get the offset
-MOV [0x1700+SI], AL  ;Store the byte into the boot area
+MOV [ES:SI], AL  ;Store the byte into the boot area
 INC SI                  ;Increase the offset
 MOV [byte_counter], SI  ;And store it
+CMP SI, 0
+JE count_seg           ;If we wrapped, we need to up our segment
 
 JMP readbyte            ;Keep doing it until we've read the whole file
+
+count_seg:
+MOV dx, [seg_counter]  ;Increase the counter that's in ram
+INC dx
+MOV [seg_counter], dx
+MOV dx, es              ;Increase the current data segment
+ADD dx, 0x1000
+MOV es, dx
+JMP readbyte
 
 boot:
 mov ah, 0x9
@@ -82,17 +94,18 @@ inc si
 cmp si, 0x200 ;Rough guess, I don't know the actual size of the code.
 jne code_trans
 
+;SHOULDN'T NEED TO DO THIS ANYMORE
 ;Move the kernel from segment memory to linear memory
-xor ax, ax
-mov es, ax
-xor si, si
-trans:
-mov al, [0x1700+SI]
-mov [ES:0x1700+SI], al
-inc si
-mov ax, [byte_counter]
-cmp ax, si
-jne trans
+;xor ax, ax
+;mov es, ax
+;xor si, si
+;trans:
+;mov al, [0x1700+SI]
+;mov [ES:0x1700+SI], al
+;inc si
+;mov ax, [byte_counter]
+;cmp ax, si
+;jne trans
 
 
 ;here we will set up the GDT and jump into protected mode before
@@ -105,7 +118,7 @@ mov al, [gdtr+si]
 mov [ES:0x600+si], al
 inc si
 cmp si, 31
-jne mv_gdt 
+jne mv_gdt
 
 lgdt [ES:0x600]     ;Load the GDT
 
@@ -290,4 +303,3 @@ jmp quit
 quit:
 mov ah, 0x4C
 int 0x21
-
