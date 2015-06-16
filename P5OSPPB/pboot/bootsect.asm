@@ -11,7 +11,7 @@ dw SECTORSZ              ;Bytes per sector
 db SECTPERCLUSTER        ;Sectors per cluster
 dw RESSECT+1             ;Number of reserved sectors
 db FATCOPIES             ;Copies of the FAT
-dw ROOTCLUSTERS          ;Number of clusters in the root directory entry
+dw ROOTENTRIES         ;Number of clusters in the root directory entry
 dw TOTALSECT             ;Number of total sectors on disk
 db 0xF0                  ;Type of disk (F0h = 1.44m floppy, F8h = hard disk)
 dw SECTPERFAT            ;sectors per FAT (192 is large, but allows for 32-meg worth of clusters)

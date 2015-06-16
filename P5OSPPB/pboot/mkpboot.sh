@@ -4,17 +4,29 @@
 #sectors per FAT based on the overall size of the image
 #NOTE Currently does not support images over 32MB (would require conditionally
 #writing to the extended size area at the end of the BPB)
-
+#NOTE: Some day, we should totally make this support FAT16/32
 #NOTE: Input is size of final image in megabytes
-TOTALSECT=(($1))
-((TOTALSECT *= 2048))
+
+#Supress output
+exec > /dev/null 2>&1
+
+#The success message which will be placed into the SUCCESS.TXT
+MESSAGE="Please place the P5 kernel, labeled P5KERN.BIN, into the root of this drive."
 
 #Image params
 SECTORSZ=$((512))
-FATCOPIES=$((2))
-ROOTCLUSTERS=$((14))
-SECTPERFAT=$((#CALCULATEME))
 SECTPERCLUSTER=$((1))
+#S2_SIZE, number of reserved sectors
+FATCOPIES=$((2))
+ROOTENTRIES=$((16)) #this *32 should be and exact multiple of sector size
+TOTALSECT="$1"
+TOTALSECT=$((TOTALSECT * 2048))
+SECTPERFAT=$((TOTALSECT / 1024))
+if [ $((TOTALSECT % 1024)) -gt 0 ] ; then
+    ((SECTPERFAT += 1))
+fi
+((SECTPERFAT *= 3))
+#For FAT12, every 1024 clusters takes up 3 512b sectors
 
 #build the second stage bootloader sectors
 nasm -o stage2.bin stage2.asm -fbin
@@ -23,13 +35,13 @@ nasm -o stage2.bin stage2.asm -fbin
 S2_SIZE=$((`cat stage2.bin | wc -c`))
 S2_SECTORS=$((S2_SIZE / SECTORSZ))
 S2_PAD=$((S2_SIZE % SECTORSZ))
-if [ $S2_PAD -gt 0 ]
-then
+if [ $S2_PAD -gt 0 ]; then
     ((S2_SECTORS += 1))
 fi
+S2_PAD=$((512 - S2_PAD))
 
 #build the bootsector based on the calculated sizes
-nasm -o bootsect.bin bootsect.asm -dTOTALSECT=$TOTALSECT -dRESSECTORS=$S2_SECTORS -dSECTORSZ=$SECTORSZ -dFATCOPIES=$FATCOPIES -dROOTCLUSTERS=$ROOTCLUSTERS -dSECTPERFAT=$SECTPERFAT -dSECTPERCLUSTER=$SECTPERCLUSTER -fbin
+nasm -o bootsect.bin bootsect.asm -dTOTALSECT=$TOTALSECT -dRESSECT=$S2_SECTORS -dSECTORSZ=$SECTORSZ -dFATCOPIES=$FATCOPIES -dROOTENTRIES=$ROOTENTRIES -dSECTPERFAT=$SECTPERFAT -dSECTPERCLUSTER=$SECTPERCLUSTER -fbin
 
 #concatinate the bootsector and the stage2 sectors
 cat bootsect.bin stage2.bin > pboot.img
@@ -37,13 +49,44 @@ cat bootsect.bin stage2.bin > pboot.img
 #append enough bytes to the end of the second stage blob to align to sector boundaries
 dd if=/dev/zero bs=1 count=$S2_PAD >> pboot.img
 
-#write the first set of reserved clusters for the first FAT, pad to sector size,
-#then pad with remaining empty fat sectors
-echo -n -e '\xF0\xFF\xFF' >> pboot.img
-dd if=/dev/zero bs=1 count=509 >> pboot.img
-dd if=/dev/zero bs=512 count=191 >> pboot.img
+#Write as many FATs as specified
+for ((findex=0; findex<FATCOPIES; findex++)); do
 
-#do the same for the second FAT
-echo -n -e '\xF0\xFF\xFF' >> pboot.img
-dd if=/dev/zero bs=1 count=509 >> pboot.img
-dd if=/dev/zero bs=512 count=191 >> pboot.img
+    #write the first set of reserved clusters for the FAT, pad to sector size,
+    #then pad with remaining empty fat sectors
+    #NOTE: The first three bytes are the default cluster0 and cluster1 values
+    #cluster0 value indicating that this is an unpartitioned superfloppy and
+    #cluster1 indicating end-of-chain. The next three are an end-of-chain for
+    #the default file and the next clear cluster
+    echo -n -e '\xF0\xFF\xFF\xFF\x0F\x00' >> pboot.img
+    dd if=/dev/zero bs=1 count=$((SECTORSZ - 6)) >> pboot.img
+    dd if=/dev/zero bs=$SECTORSZ count=$((SECTPERFAT - 1)) >> pboot.img
+done
+
+#Write the root directory entry starting with the volume label
+#each entry is 32 bytes of info
+echo -n 'PBOOT_R2   ' >> pboot.img         #Text for volume label
+echo -n -e '\x08' >> pboot.img             #Attributes: 0x08 is volume label
+dd if=/dev/zero bs=1 count=20 >> pboot.img #The rest of the entry should be null
+
+#Now the entry for the default file we include baked in
+echo -n 'SUCCESS TXT' >> pboot.img          #8.3 file name
+dd if=/dev/zero bs=1 count=15 >> pboot.img  #Don't need any of these 15 bytes
+echo -n -e '\x02\x00' >> pboot.img          #Start cluster, little-endian
+echo -n -e '\x00\x02\x00\x00' >> pboot.img  #Filesize, little-endian (one sect)
+
+#Now fill out the rest of the directory entry
+dd if=/dev/zero bs=32 count=$((ROOTENTRIES - 2)) >> pboot.img
+
+#Write the first cluster (cluster 2) with the message info
+echo -n $MESSAGE >> pboot.img
+
+#Pad the rest of the sector
+TXTPAD=$((`echo -n $MESSAGE | wc -c`))
+TXTPAD=$((SECTORSZ - TXTPAD))
+dd if=/dev/zero bs=1 count=$TXTPAD >> pboot.img
+
+#And finally write enough empty sectors to hit the image size
+#Bootsect + stage2 + fats + rootdir + cluster2
+echo $((TOTALSECT - (1 + S2_SECTORS + (SECTPERFAT * FATCOPIES) + 1))) leftover
+dd if=/dev/zero bs=$((SECTORSZ)) count=$((TOTALSECT - (S2_SECTORS + (SECTPERFAT * FATCOPIES) + 3))) >> pboot.img
