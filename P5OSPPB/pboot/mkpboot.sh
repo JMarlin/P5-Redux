@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#NOTE: Would be nice to be able to have this script autocalculate the number of
-#sectors per FAT based on the overall size of the image
 #NOTE Currently does not support images over 32MB (would require conditionally
 #writing to the extended size area at the end of the BPB)
 #NOTE: Some day, we should totally make this support FAT16/32
