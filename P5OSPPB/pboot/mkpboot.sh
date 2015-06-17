@@ -6,10 +6,10 @@
 #NOTE: Input is size of final image in megabytes
 
 #Supress output
-exec > /dev/null 2>&1
+#exec > /dev/null 2>&1
 
 #The success message which will be placed into the SUCCESS.TXT
-MESSAGE="123456789!"
+MESSAGE="This is a fresh PBoot boot image. To make this a functional P5OS boot volume, place a valid P5 kernel image into the root of this image with the filename 'P5KERN.BIN'"
 
 #Image params
 SECTORSZ=$((512))
@@ -19,11 +19,11 @@ FATCOPIES=$((2))
 ROOTENTRIES=$((16)) #this *32 should be and exact multiple of sector size
 TOTALSECT="$1"
 TOTALSECT=$((TOTALSECT * 2048))
-SECTPERFAT=$((TOTALSECT / 256))
+SECTPERFAT=$((TOTALSECT / (SECTORSZ / 2)))
 if [ $((TOTALSECT % 256)) -gt 0 ] ; then
     ((SECTPERFAT += 1))
 fi
-#For FAT12, every 1024 clusters takes up 3 512b sectors
+#For FAT16, every 256 clusters takes up 1 512b sector
 
 #build the second stage bootloader sectors
 nasm -o stage2.bin stage2.asm -fbin
