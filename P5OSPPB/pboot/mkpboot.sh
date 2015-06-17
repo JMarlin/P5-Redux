@@ -9,7 +9,7 @@
 exec > /dev/null 2>&1
 
 #The success message which will be placed into the SUCCESS.TXT
-MESSAGE="Please place the P5 kernel, labeled P5KERN.BIN, into the root of this drive."
+MESSAGE="123456789!"
 
 #Image params
 SECTORSZ=$((512))
