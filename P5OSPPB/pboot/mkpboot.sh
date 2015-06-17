@@ -21,11 +21,10 @@ FATCOPIES=$((2))
 ROOTENTRIES=$((16)) #this *32 should be and exact multiple of sector size
 TOTALSECT="$1"
 TOTALSECT=$((TOTALSECT * 2048))
-SECTPERFAT=$((TOTALSECT / 1024))
-if [ $((TOTALSECT % 1024)) -gt 0 ] ; then
+SECTPERFAT=$((TOTALSECT / 256))
+if [ $((TOTALSECT % 256)) -gt 0 ] ; then
     ((SECTPERFAT += 1))
 fi
-((SECTPERFAT *= 3))
 #For FAT12, every 1024 clusters takes up 3 512b sectors
 
 #build the second stage bootloader sectors
@@ -38,7 +37,7 @@ S2_PAD=$((S2_SIZE % SECTORSZ))
 if [ $S2_PAD -gt 0 ]; then
     ((S2_SECTORS += 1))
 fi
-S2_PAD=$((512 - S2_PAD))
+S2_PAD=$((SECTORSZ - S2_PAD))
 
 #build the bootsector based on the calculated sizes
 nasm -o bootsect.bin bootsect.asm -dTOTALSECT=$TOTALSECT -dRESSECT=$S2_SECTORS -dSECTORSZ=$SECTORSZ -dFATCOPIES=$FATCOPIES -dROOTENTRIES=$ROOTENTRIES -dSECTPERFAT=$SECTPERFAT -dSECTPERCLUSTER=$SECTPERCLUSTER -fbin
@@ -58,7 +57,7 @@ for ((findex=0; findex<FATCOPIES; findex++)); do
     #cluster0 value indicating that this is an unpartitioned superfloppy and
     #cluster1 indicating end-of-chain. The next three are an end-of-chain for
     #the default file and the next clear cluster
-    echo -n -e '\xF0\xFF\xFF\xFF\x0F\x00' >> pboot.img
+    echo -n -e '\xF0\xFF\xFF\xFF\xFF\xFF' >> pboot.img
     dd if=/dev/zero bs=1 count=$((SECTORSZ - 6)) >> pboot.img
     dd if=/dev/zero bs=$SECTORSZ count=$((SECTPERFAT - 1)) >> pboot.img
 done
