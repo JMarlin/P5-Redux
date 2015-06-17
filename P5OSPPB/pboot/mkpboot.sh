@@ -69,10 +69,12 @@ echo -n -e '\x08' >> pboot.img             #Attributes: 0x08 is volume label
 dd if=/dev/zero bs=1 count=20 >> pboot.img #The rest of the entry should be null
 
 #Now the entry for the default file we include baked in
+TXTLEN=$((`echo -n $MESSAGE | wc -c`))      #calculate the length of the text
+TXLENS=`printf "%04x" $TXTLEN`              #turn it into a 2-byte hex string
 echo -n 'SUCCESS TXT' >> pboot.img          #8.3 file name
 dd if=/dev/zero bs=1 count=15 >> pboot.img  #Don't need any of these 15 bytes
 echo -n -e '\x02\x00' >> pboot.img          #Start cluster, little-endian
-echo -n -e '\x00\x02\x00\x00' >> pboot.img  #Filesize, little-endian (one sect)
+echo -n -e `echo \\\x${TXLENS:2:2}\\\x${TXLENS:0:2}\\\x00\\\x00` >> pboot.img  #Filesize, little-endian (one sect)
 
 #Now fill out the rest of the directory entry
 dd if=/dev/zero bs=32 count=$((ROOTENTRIES - 2)) >> pboot.img
@@ -81,8 +83,7 @@ dd if=/dev/zero bs=32 count=$((ROOTENTRIES - 2)) >> pboot.img
 echo -n $MESSAGE >> pboot.img
 
 #Pad the rest of the sector
-TXTPAD=$((`echo -n $MESSAGE | wc -c`))
-TXTPAD=$((SECTORSZ - TXTPAD))
+TXTPAD=$((SECTORSZ - TXTLEN))
 dd if=/dev/zero bs=1 count=$TXTPAD >> pboot.img
 
 #And finally write enough empty sectors to hit the image size
