@@ -21,21 +21,25 @@ dw SECTPERFAT            ;sectors per FAT (192 is large, but allows for 32-meg w
 ;================= FAT16 data ===================
 
 ;;A couple of debug strings
-tststr db `Bootsector Loaded.\n`, 0
+tststr db 'Bootsector Loaded.', 0
 failstr db `FAIL`, 0
 
 ;;Simple string print routine
 printstr:
-        pusha             ;Save the registers
+        
+    pusha             ;Save the registers
+    mov si, dx
+            
+    .top:
         mov bh, 0x0F
-        mov al, [edx]
+        mov al, [si]
         mov ah, 0x0E      ;Int 0x10, function 0xE: print char
         mov bl, 0
         int 0x10
-        add edx, 1        ;Get the next char and repeat if it wasn't 0
-        cmp byte [edx], 0
+        inc si            ;Get the next char and repeat if it wasn't 0
+        cmp byte [si], 0
         je .done
-        jmp printstr
+        jmp .top
     .done:
         popa              ;Restore the registers
         ret
@@ -50,7 +54,7 @@ boot:
 
     ;;Set up the stack at 0x7BFF (0x500 to 0x7FFFF is guaranteed RAM)
     ;;This will grow DOWN towards the vectors and BIOS memory
-    mov ax, 0x500
+    mov ax, 0x7BFF
     mov sp, ax
     mov bp, ax
 
@@ -69,7 +73,7 @@ boot:
     cs_set:
 
     ;;Now that the basics are set up, print a confirmation
-    mov edx, tststr
+    mov dx, tststr
     call printstr
 
     ;;Then all we really need to do, as the stage1, is read the stage2 from the
@@ -81,7 +85,7 @@ boot:
     mov cx, 0x02     ;Cylinder 0 [7:6][15:8], sector 2 [5:0]
     mov bx, 0x7e00   ;Start of buffer (specifically es:bx)
     xor dh, dh       ;Head 0
-    mov dl, [bdrive] ;Drive number from the BIOS
+    mov dl, [0x7e02] ;Drive number from the BIOS
     int 0x13
     jc failure       ;If carry is set, disk read failed
 

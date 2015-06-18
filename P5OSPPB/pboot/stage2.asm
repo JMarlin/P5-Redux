@@ -18,34 +18,41 @@ main:
     ;;Set up for 32-bit protected mode
 
     ;;With all of that set up, go ahead and jump to the kernel loading code
-    jmp 0x08:main_32
+;    jmp 0x08:main_32
 
-[bits 32]
-main_32:
+;[bits 32]
+;main_32:
 
     ;;Tell the world we got to stage2
-    mov edx, loaded
+    mov dx, loaded
     call printstr
+
+    mov al, 0xED
+    call print_hex_char
+    
+    mov al, '-'
+    call print_hex_char
+
+    mov ax, 0xDEAF
+    call print_hex_word
 
     ;;Get the CHS parameters of our boot drive
     call get_drive_params
 
     ;;Load the root directory sector and get the cluster # of P5KERN.BIN
-    call get_kern_cluster
+    ;call get_kern_cluster
 
     ;;With the cluster number in ax, execute
-    call load_from_cluster
+    ;call load_from_cluster
 
-    .hang jmp hang
+    .hang jmp .hang
 
 ;===============================================================================
 ; LBA2CHS
 ;===============================================================================
 ;;This function converts the LBA address passed via bx into CHS, formatted
-into the registers as int 0x13 ah=2 expects
+;;into the registers as int 0x13 ah=2 expects
 lba2chs:
-
-;===============================================================================
 
 
 ;===============================================================================
@@ -55,10 +62,10 @@ lba2chs:
 ;;nicely stores them for later use
 get_drive_params:
 
-    jmp start
+    jmp .start
 
     ;;Constant data used by this function
-    .fail_message: `ERROR: Could not detect drive parameters.\n`
+    .fail_message: db `ERROR: Could not detect drive parameters.\n`
 
     .start:
         pusha                         ;Save the registers
@@ -68,7 +75,7 @@ get_drive_params:
         mov dl, [boot_drive_number]   ;Get the drive passed by stage1
         xor di, di                    ;Apparently this screws with some BIOSes
         int 0x13
-        jc failure                    ;A carry indicates failure
+        jc .failure                    ;A carry indicates failure
 
         ;;Format the returned data into our local variables
         ;;Store head count
@@ -96,13 +103,109 @@ get_drive_params:
 
     ;;On failure, display the failure message and hang
     .failure:
-        mov edx, fail_message
+        mov edx, .fail_message
         call printstr
-        .hang: jmp hang
+        .hang: jmp .hang
+
+
+;===============================================================================
+; PRINTCHAR
+;===============================================================================
+;;Prints the char in al
+printchar:
+    
+    push bx
+    push ax
+    mov bh, 0x0F
+    mov ah, 0x0E
+    mov bl, 0
+    int 0x10
+    pop ax
+    pop bx
+    ret
+
+
+;===============================================================================
+; PRINTSTR
+;===============================================================================
+;;Prints the ASCIIZ string pointed to by edx
+printstr:
+    
+    push ax
+    mov si, dx
+    
+    .top:
+        mov al, [si]
+        call printchar
+        inc si
+        cmp byte [si], 0
+        je .end
+        jmp .top
+    
+    .end:
+        pop ax
+        ret
+
+;===============================================================================
+; HEX2CHAR
+;===============================================================================
+;; Converts the low nybble in al to its corresponding ASCII character and
+;; returns that value in al
+hex2char:
+
+    ;;See if the value is over ten
+    and al, 0xF    ;Isolate the low nybble
+    cmp al, 0xA
+    jl .under_ten   
+    
+    ;;If the value is over nine, subtract ten, add 'A' and return
+    sub al, 0xA
+    add al, 'A'
+    ret
+    
+    ;;If the value is under ten, simply add '0' and return
+    .under_ten:
+        add al, '0'
+        ret
+ 
+        
+;===============================================================================
+; PRINT_HEX_CHAR
+;===============================================================================
+;; Takes a value in al and prints its hex value to the screen
+print_hex_char:
+
+    push ax
+    push ax
+    shr al, 4
+    call hex2char
+    call printchar
+    pop ax
+    call hex2char
+    call printchar
+    pop ax
+    ret
+    
+    
+;===============================================================================
+; PRINT_HEX_WORD
+;===============================================================================
+;; Takes a value in ax and prints its hex value to the screen
+print_hex_word:
+
+    push ax
+    push ax
+    mov al, ah
+    call print_hex_char
+    pop ax
+    call print_hex_char
+    pop ax
+    ret
+    
 ;===============================================================================
 
 ;;Static data is stashed here
-loaded db 'Jumped to second stage code', 0
+loaded db `Jumped to second stage code\n`, 0
 yes db 'P5KERN.BIN found!', 0
 no db 'P5KERN.BIN was not found on this disk.', 0
 entrycount dd 0             ;the counter of entries in the root directory that aren't P5KERN.BIN.
@@ -149,19 +252,6 @@ int 0x13
 mov cl, [activesector]
 add cl, 1
 mov [activesector], cl
-ret
-
-printstr:
-mov bh, 0x0F
-mov al, [edx]
-mov ah, 0x0E
-mov bl, 0
-int 0x10
-add edx, 1
-cmp byte [edx], 0
-je printend
-jmp printstr
-printend:
 ret
 
 times 3301 db 0
