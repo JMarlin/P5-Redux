@@ -1,13 +1,28 @@
 [org 0x7e00]
 [bits 16]
 
-jmp main
+;;Jump into the stage2 boot code
+;;The 'short' forces this to be a 2-byte instruction, which we need so that the
+;;following address is always at 0x7e02 where the stage1 code expects it to be
+jmp short main
 
+;;This is where the stage1 code will stash our drive number
+boot_drive_number db 0
+
+;;And finally, we have the entry of the core of the boot code
+main:
+mov edx, loaded
+call printstr
+
+hang:
+jmp hang
+
+;;Static data is stashed here
 loaded db 'Jumped to second stage code', 0
 yes db 'P5KERN.BIN found!', 0
 no db 'P5KERN.BIN was not found on this disk.', 0
 entrycount dd 0             ;the counter of entries in the root directory that aren't P5KERN.BIN.
-datapointer dd 0x500        ;the pointer for reading disk data starting at a base of 0x500, where the root directory data will be read to.
+datapointer dd 0x500        ;the pointer for reading disk data starting at a base of 0x500, where the root directory data will be read to. Important to make sure that this does NOT get overwritten by the stack
 activesector db 4          ;the last sector to have bee read; track 2 sector 4 is the first sector of the root directory on this floppy
 bdrive db 0
 ce1 dw 0
@@ -64,12 +79,5 @@ je printend
 jmp printstr
 printend:
 ret
-
-main:
-mov edx, loaded
-call printstr
-
-hang:
-jmp hang
 
 times 3301 db 0
