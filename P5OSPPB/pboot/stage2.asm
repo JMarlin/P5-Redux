@@ -34,7 +34,7 @@ main:
     ;;Drive number
     mov dx, drive_num_str
     call printstr
-    mov al, [0x7e02]
+    mov al, [boot_drive_number]
     call print_hex_char
 
     ;;Head count

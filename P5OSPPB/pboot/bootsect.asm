@@ -16,20 +16,21 @@ dw RESSECT+1             ;Number of reserved sectors
 db FATCOPIES             ;Copies of the FAT
 dw ROOTENTRIES           ;Number of clusters in the root directory entry
 dw TOTALSECT             ;Number of total sectors on disk
-db 0xF0                  ;Type of disk (F0h = 1.44m floppy, F8h = hard disk)
+db 0xF8                  ;Type of disk (F0h = 1.44m floppy, F8h = hard disk)
 dw SECTPERFAT            ;sectors per FAT (192 is large, but allows for 32-meg worth of clusters)
 ;================= FAT16 data ===================
 
 ;;A couple of debug strings
 tststr db 'Bootsector Loaded.', 0
 failstr db `FAIL`, 0
+boot_drive db 0
 
 ;;Simple string print routine
 printstr:
-        
+
     pusha             ;Save the registers
     mov si, dx
-            
+
     .top:
         mov bh, 0x0F
         mov al, [si]
@@ -50,7 +51,7 @@ boot:
     ;;Capture the drive number we're booting on from the BIOS
     ;;NOTE: 0x7e02 will be a location at the beginning of the stage 2 code
     ;;where that code will be expecting to find this data
-    mov [0x7e02], dl
+    mov [boot_drive], dl
 
     ;;Set up the stack at 0x7BFF (0x500 to 0x7FFFF is guaranteed RAM)
     ;;This will grow DOWN towards the vectors and BIOS memory
@@ -85,11 +86,14 @@ boot:
     mov cx, 0x02     ;Cylinder 0 [7:6][15:8], sector 2 [5:0]
     mov bx, 0x7e00   ;Start of buffer (specifically es:bx)
     xor dh, dh       ;Head 0
-    mov dl, [0x7e02] ;Drive number from the BIOS
+    mov dl, [boot_drive] ;Drive number from the BIOS
     int 0x13
     jc failure       ;If carry is set, disk read failed
 
     ;;If we got here, the sectors were read and we can jump into them
+    ;;But first, pass the boot drive number
+    mov dl, [boot_drive]
+    mov [0x7e02], dl
     jmp 0x7e00
 
     ;;On any failure, print failed message and hang
