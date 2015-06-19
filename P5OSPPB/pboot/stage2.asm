@@ -27,17 +27,33 @@ main:
     mov dx, loaded
     call printstr
 
-    mov al, 0xED
-    call print_hex_char
-    
-    mov al, '-'
-    call print_hex_char
-
-    mov ax, 0xDEAF
-    call print_hex_word
-
     ;;Get the CHS parameters of our boot drive
     call get_drive_params
+
+    ;;Display the drive parameters
+    ;;Drive number
+    mov dx, drive_num_str
+    call printstr
+    mov al, [0x7e02]
+    call print_hex_char
+
+    ;;Head count
+    mov dx, head_count_str
+    call printstr
+    mov al, [drive_head_count]
+    call print_hex_char
+
+    ;;Cylinder count
+    mov dx, cylinder_count_str
+    call printstr
+    mov ax, [drive_cylinder_count]
+    call print_hex_word
+
+    ;;Sector count
+    mov dx, sector_count_str
+    call printstr
+    mov al, [drive_sector_count]
+    call print_hex_char
 
     ;;Load the root directory sector and get the cluster # of P5KERN.BIN
     ;call get_kern_cluster
@@ -113,7 +129,7 @@ get_drive_params:
 ;===============================================================================
 ;;Prints the char in al
 printchar:
-    
+
     push bx
     push ax
     mov bh, 0x0F
@@ -130,10 +146,10 @@ printchar:
 ;===============================================================================
 ;;Prints the ASCIIZ string pointed to by edx
 printstr:
-    
+
     push ax
     mov si, dx
-    
+
     .top:
         mov al, [si]
         call printchar
@@ -141,7 +157,7 @@ printstr:
         cmp byte [si], 0
         je .end
         jmp .top
-    
+
     .end:
         pop ax
         ret
@@ -156,19 +172,19 @@ hex2char:
     ;;See if the value is over ten
     and al, 0xF    ;Isolate the low nybble
     cmp al, 0xA
-    jl .under_ten   
-    
+    jl .under_ten
+
     ;;If the value is over nine, subtract ten, add 'A' and return
     sub al, 0xA
     add al, 'A'
     ret
-    
+
     ;;If the value is under ten, simply add '0' and return
     .under_ten:
         add al, '0'
         ret
- 
-        
+
+
 ;===============================================================================
 ; PRINT_HEX_CHAR
 ;===============================================================================
@@ -185,8 +201,8 @@ print_hex_char:
     call printchar
     pop ax
     ret
-    
-    
+
+
 ;===============================================================================
 ; PRINT_HEX_WORD
 ;===============================================================================
@@ -201,11 +217,15 @@ print_hex_word:
     call print_hex_char
     pop ax
     ret
-    
+
 ;===============================================================================
 
 ;;Static data is stashed here
-loaded db `Jumped to second stage code\n`, 0
+loaded db `Jumped to second stage code`, 0
+drive_num_str db `\r\nBoot drive number: 0x`, 0
+head_count_str db `\r\nHead count: 0x`, 0
+cylinder_count_str db `\r\nCylinder count: 0x`, 0
+sector_count_str db `\r\nSectors per track: 0x`, 0
 yes db 'P5KERN.BIN found!', 0
 no db 'P5KERN.BIN was not found on this disk.', 0
 entrycount dd 0             ;the counter of entries in the root directory that aren't P5KERN.BIN.
