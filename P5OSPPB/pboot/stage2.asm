@@ -63,13 +63,6 @@ main:
 
     .hang jmp .hang
 
-;===============================================================================
-; LBA2CHS
-;===============================================================================
-;;This function converts the LBA address passed via bx into CHS, formatted
-;;into the registers as int 0x13 ah=2 expects
-lba2chs:
-
 
 ;===============================================================================
 ; GET_DRIVE_PARAMS
@@ -218,6 +211,152 @@ print_hex_word:
     pop ax
     ret
 
+;===============================================================================
+
+
+;===============================================================================
+; CLUSTER_TO_CSH
+;===============================================================================
+;; Takes a cluster number and convert it into csh values formatted for
+;;read_sector
+cluster_to_csh:
+  
+  mov edx, 0
+  add ax, 34
+
+  ;mov edx, gbd
+  ;call printstr
+
+  div word [spt]
+
+  ;mov edx, gpd
+  ;call printstr
+
+  mov [tracknum], ax
+  inc dx
+  mov [tsector], dl
+  mov dl, [tsector]
+  sub dl, 2
+  mov [tsector], dl
+  mov edx, 0
+  mov ax, [tracknum]
+  div word [headnum]
+  mov [ttrack], al
+  mov [thead], dl
+  mov cl, [tsector]
+  inc cl
+  mov [tsector], cl
+  mov dh, [thead]
+  mov cl, [tsector]
+  mov ch, [ttrack]
+  ret
+
+  gbd db 10,13,' got to just before first divide',0
+  gpd db 10,13,' passed first divide',0
+;===============================================================================
+
+
+;===============================================================================
+; GET_CLUSTER_FAT_ENTRY
+;===============================================================================
+;; Gets a cluster number and finds its next-value FAT entry value
+get_cluster_fat_entry:
+
+    mov ax, [clusternum]
+    add ax, 2
+    mov cx, 2
+    mov edx, 0
+    div cx
+    sub ax, 1
+    mov bx, ax
+    add ax, bx
+    add ax, bx
+    mov [phys_offset], ax
+    mov bx, [phys_offset]
+    mov ah, 0
+    mov al, [bx+0x500]
+    mov [lowbyte], ax
+    mov bx, [phys_offset]
+    mov ah, 0
+    mov al, [bx+0x501]
+    mov [midbyte], ax
+    mov bx, [phys_offset]
+    mov ah, 0
+    mov al, [bx+0x502]
+    mov [highbyte], ax
+    mov ax, [midbyte]
+    and ax, 0x000f
+    mov [midbytelow], ax
+    mov ax, [midbyte]
+    and ax, 0x00f0
+    mov [midbytehigh], ax
+    mov ax, [highbyte]
+    shl ax, 8
+    mov [highbyte], ax
+    mov ax, [midbytelow]
+    shl ax, 8
+    mov [midbytelow], ax
+    mov ax, [highbyte]
+    mov bx, [midbytehigh]
+    add ax, bx
+    shr ax, 4
+    mov [ce2], ax
+    mov ax, [lowbyte]
+    mov bx, [midbytelow]
+    add ax, bx
+    mov [ce1], ax
+    mov ax, [clusternum]
+    mov cx, 2
+    mov edx, 0
+    div cx
+    mov cx, dx
+    jcxz clusterone
+    jmp clustertwo
+    
+    .clusterone:
+        mov ax, [ce1]
+        mov [cluster], ax
+        jmp toout
+    
+    .clustertwo:
+        mov ax, [ce2]
+        mov [cluster], ax
+        
+    .toout:
+        ret
+;===============================================================================
+
+
+;===============================================================================
+; READ_CLUSTER
+;===============================================================================
+;; MAKE THIS WORK
+;; Should take a cluster number, translate it to CHS, and then run it through
+;; read_sector
+;===============================================================================
+
+
+;===============================================================================
+; READ_SECTOR
+;===============================================================================
+;; Gets a CHS value and a buffer address and reads a sector there
+read_sector:
+
+    mov ah, 0x0
+    int 0x13
+    mov ah, 0x02
+    mov al, 1
+    mov ch, 0
+    mov cl, [activesector]
+    mov bx, 0x500
+    mov dh, 1
+    mov dl, [bdrive]
+    int 0x13
+    jc .error
+    mov cl, [activesector]
+    add cl, 1
+    mov [activesector], cl
+    ret
 ;===============================================================================
 
 ;;Static data is stashed here
