@@ -217,42 +217,25 @@ print_hex_word:
 ;===============================================================================
 ; CLUSTER_TO_CSH
 ;===============================================================================
-;; Takes a cluster number and convert it into csh values formatted for
-;;read_sector
+;; Takes a cluster number in ax and convert it into csh values formatted for
+;;read_sector (sector# in al, head# in ah, and cylinder number in bx
+;;LBA numbering starts with all sectors in a cylinder, then switches heads and
+;;resets sectors from zero, then switches cylinders and resets heads and
+;;sectors. Eg: Cluster number 53 with 16spt, 2 heads will be:
+;;Calculate: 
+;;           lba = (cluster_no * sectors_per_cluster)              
+;;               + reserved_sectors   
+;;               + fat_count*fat_sz
+;;               + ceil((dir_ent*32)/512)
+;;               - 2
+;;           sector_no = (lba % spt) + 1 ((53%16)+1 = 6)
+;;           cylinder_no = lba / (spt * head_count) (53/32 = 1)
+;;           head_no = (lba / spt) % head_count ((53/16)%2 = 1)
+;;     CHS = 1, 1, 6
 cluster_to_csh:
   
-  mov edx, 0
-  add ax, 34
-
-  ;mov edx, gbd
-  ;call printstr
-
-  div word [spt]
-
-  ;mov edx, gpd
-  ;call printstr
-
-  mov [tracknum], ax
-  inc dx
-  mov [tsector], dl
-  mov dl, [tsector]
-  sub dl, 2
-  mov [tsector], dl
-  mov edx, 0
-  mov ax, [tracknum]
-  div word [headnum]
-  mov [ttrack], al
-  mov [thead], dl
-  mov cl, [tsector]
-  inc cl
-  mov [tsector], cl
-  mov dh, [thead]
-  mov cl, [tsector]
-  mov ch, [ttrack]
+  
   ret
-
-  gbd db 10,13,' got to just before first divide',0
-  gpd db 10,13,' passed first divide',0
 ;===============================================================================
 
 
