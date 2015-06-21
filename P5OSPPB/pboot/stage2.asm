@@ -1,3 +1,13 @@
+;;Define the addresses of some external variables
+;;Most of these are values from the FAT header
+%define V_SECTORSZ 0x7c08         ;word
+%define V_SECTPERCLUSTER 0x7c0a   ;byte
+%define V_RESSECT 0x7c0b          ;word
+%define V_FATCOPIES 0x7c0d        ;byte
+%define V_ROOTENTRIES 0x7c0e      ;word
+%define V_TOTALSECT 0x7c10        ;word
+%define V_SECTPERFAT 0x7c12       ;word
+
 [org 0x7e00]
 [bits 16]
 
@@ -236,9 +246,32 @@ print_hex_word:
 cluster_to_csh:
   
   ;;Push clobbered regs
+  push dx
+  push bx
   
   ;;Calculate LBA from clusternum
-  
+  push ax
+  mov dl, [V_SECTPERCLUSTER]
+  mul ax, dl
+  mov dx, [V_RESSECT]
+  add ax, dx
+  mov dx, [V_FATCOPIES]
+  mov bx, [V_SECTPERFAT]
+  mul dx, bx
+  add ax, dx
+  mov dx, [V_ROOTENTRIES]
+  mul dx, 32
+  push ax
+  mov ax, dx
+  xor dx, dx
+  div 512
+  cmp dx, 0
+  jne .noadd
+  inc ax
+  .noadd:
+  mov dx, ax
+  pop ax
+  sub ax, 3 ;;AX now contains the LBA calculation from above 
   
   ret
 ;===============================================================================

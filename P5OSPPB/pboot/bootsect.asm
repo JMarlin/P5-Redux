@@ -1,5 +1,8 @@
-[ORG 0x7c00]
-[BITS 16]
+;;Define the addresses of some external memory locations
+%define V_BOOT_DRIVE 0x7e02
+
+[org 0x7c00]
+[bits 16]
 
 ;;Floppy boot header opens with a jump into the bootloader code and an extra
 ;;padding byte (which allows for a 16-bit jump vs 8)
@@ -17,7 +20,7 @@ db FATCOPIES             ;Copies of the FAT
 dw ROOTENTRIES           ;Number of clusters in the root directory entry
 dw TOTALSECT             ;Number of total sectors on disk
 db 0xF8                  ;Type of disk (F0h = 1.44m floppy, F8h = hard disk)
-dw SECTPERFAT            ;sectors per FAT (192 is large, but allows for 32-meg worth of clusters)
+dw SECTPERFAT            ;sectors per FAT
 ;================= FAT16 data ===================
 
 ;;A couple of debug strings
@@ -93,7 +96,7 @@ boot:
     ;;If we got here, the sectors were read and we can jump into them
     ;;But first, pass the boot drive number
     mov dl, [boot_drive]
-    mov [0x7e02], dl
+    mov [V_BOOT_DRIVE], dl
     jmp 0x7e00
 
     ;;On any failure, print failed message and hang
