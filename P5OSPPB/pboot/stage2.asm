@@ -227,12 +227,17 @@ print_hex_word:
 ;;               + reserved_sectors   
 ;;               + fat_count*fat_sz
 ;;               + ceil((dir_ent*32)/512)
-;;               - 2
+;;               - 2 //sectors 0 and 1 reserved
+;;               - 1 //lba is 0 indexed
 ;;           sector_no = (lba % spt) + 1 ((53%16)+1 = 6)
 ;;           cylinder_no = lba / (spt * head_count) (53/32 = 1)
 ;;           head_no = (lba / spt) % head_count ((53/16)%2 = 1)
 ;;     CHS = 1, 1, 6
 cluster_to_csh:
+  
+  ;;Push clobbered regs
+  
+  ;;Calculate LBA from clusternum
   
   
   ret
