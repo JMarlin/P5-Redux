@@ -55,9 +55,9 @@ main:
     call print_hex_char
 
     ;;Print a return
-    mov al, '\r'
+    mov al, 0xA
     call printchar
-    mov al, '\n'
+    mov al, 0xD
     call printchar
 
     ;;Load the root directory sector and get the cluster # of P5KERN.BIN
@@ -85,7 +85,10 @@ main:
     mov dx, .found_str
     call printstr
     ;;With cluster number in ax, load it starting at 0x1000:0x0000 (0x10000)
-    mov es, 0x1000     ;Start address is at es:0x0
+    push ax
+    mov ax, 0x1000
+    mov es, ax     ;Start address is at es:0x0
+    pop ax
     call load_from_cluster
 
     ;;File is loaded, now we can focus on setting up protected mode
@@ -279,15 +282,18 @@ lba_to_csh:
 
     push ax    ;Save the LBA number to the stack because it's gonna be clobbered
     xor dx, dx
-    div [drive_sector_count]
+    mov bx, [drive_sector_count]
+    div bx
     inc dx
     mov bl, dl ;Save the low 8 bits of the remainder for output
 
     ;;Calculate the cylinder number
+    mov ax, [drive_sector_count]
+    mov bx, [drive_head_count]
+    mul bx   
+    mov bx, ax                  ;bx = spt * heads
     pop ax     ;Restore the LBA value from the stack
     push ax    ;And dupe it again as it's about to get clobbered again
-    mov bx, [drive_sector_count]
-    mul bx, [drive_head_count]   ;bx = spt * heads
     xor dx, dx
     div bx
     mov bx, ax                  ;bx = lba / (spt*heads)
@@ -295,9 +301,9 @@ lba_to_csh:
     ;;Calculate the head number
     pop ax     ;Restore LBA again
     xor dx, dx
-    div [drive_sector_count] ;ax = lba/spt
+    div word [drive_sector_count] ;ax = lba/spt
     xor dx, dx ;Clear any remainder
-    div [drive_head_count] ;dx = (lba/spt) % head_count
+    div word [drive_head_count] ;dx = (lba/spt) % head_count
 
     ;;Finally, repackage the registers as expected, pop clobbered values, return
     mov ah, dl ;ah = head
@@ -306,6 +312,7 @@ lba_to_csh:
     pop dx
     ret
 ;===============================================================================
+
 
 ;===============================================================================
 ; CLUSTER_TO_CSH
@@ -333,26 +340,27 @@ cluster_to_csh:
   push cx
 
   ;;Calculate LBA from clusternum
-  mov dl, [V_SECTPERCLUSTER]
-  mul ax, dl
+  xor cx, cx
+  mov cl, [V_SECTPERCLUSTER]
+  mul cx
   mov dx, [V_RESSECT]
   add ax, dx
-  mov dx, [V_FATCOPIES]
+  push ax    ;store res + cluster_secs
+  mov ax, [V_FATCOPIES]
   mov bx, [V_SECTPERFAT]
-  mul dx, bx
-  add ax, dx
-  mov dx, [V_ROOTENTRIES]
-  mul dx, 32
-  push ax
-  mov ax, dx
+  mul bx
+  pop bx     ;restore res + cluster_secs
+  add ax, bx ; res + cluster_secs + fat_secs
+  mov bx, ax
+  mov ax, [V_ROOTENTRIES]
   xor dx, dx
-  div 512
+  mov cx, 16
+  div cx     ;512 per sect / 32 per entry = 16
   cmp dx, 0
   jne .noadd
   inc ax
   .noadd:
-  mov dx, ax
-  pop ax
+  add ax, bx ;bx still res + cluster_secs + fat_secs
   sub ax, 3 ;AX now contains the LBA calculation from above
 
   ;;Convert the calculated lba into CSH values
@@ -415,7 +423,7 @@ read_sector:
 ;===============================================================================
 ;;Does some math to figure out where the FAT root directory sector is and then
 ;;read that sector into RAM starting at 0x500
-get_root_sector:
+read_root_sector:
 
     pusha
 
@@ -423,12 +431,13 @@ get_root_sector:
     mov ax, [V_SECTPERFAT]
     xor bx, bx
     mov bl, [V_FATCOPIES]
-    mul ax, bx
+    mul bx
     add ax, [V_RESSECT]
 
     ;;Convert the LBA sector to a CHS value for read_sector, then read it
-    call lba_to_chs
-    xor es, es         ;Store at es:dx
+    call lba_to_csh
+    xor bx, bx
+    mov es, bx      ;Store at es:dx
     mov dx, 0x500
     call read_sector
 
@@ -456,7 +465,7 @@ get_kern_cluster:
     xor bx, bx ;Gonna use bx as our index into the root entries
 
     ;;Loop through the entries
-    .entry_loop
+    .entry_loop:
 
         cmp bx, 0x200 ;ie 512 ie the size of a sector
         je .entry_break ;wend
@@ -524,16 +533,18 @@ load_from_cluster:
 
         ;Read cluster ax into es:dx
         push ax
-        call cluster_to_chs
+        call cluster_to_csh
         call read_sector
 
         ;Increase our pointers
         add dx, 0x200 ;Read 512 bytes so scoot forward as many
         jnc .proceed  ;Unless there was no overflow, we move to the next seg
-        add es, 0x1000
-        xor dx, dx    ;just to be safe
+        mov dx, es
+        add dx, 0x1000
+        mov es, dx
+        xor dx, dx  
 
-        .proceed
+        .proceed:
             ;Get the next cluster number
             pop ax    ;restore the current cluster number
             call get_next_cluster ;Puts the new number in ax
@@ -556,14 +567,16 @@ get_next_cluster:
 
     push dx
     push di
+    push bx
 
     ;;Calculate the FAT sector in which our cluster resides
-    push ax       ;back up the original cluster number
-    div 0x100     ;divide the cluster by the number of cluster entries per sec
+    mov bx, 0x100
+    div bx        ;divide the cluster by the number of cluster entries per sec
     push dx       ;back up the remainder value
     add ax, [V_RESSECT]  ;Offset that value by the number of reserved sectors
     call lba_to_csh  ;Convert block address to CSH
-    xor es, es
+    xor dx, dx
+    mov es, dx
     mov dx, 0x500        ;Read into 0x0:0x500
     call read_sector
 
@@ -572,6 +585,7 @@ get_next_cluster:
     xor di, di
     mov ax, [bx+di+0x500] ;read the value at the offset
 
+    push bx
     push di
     pop dx
     ret
