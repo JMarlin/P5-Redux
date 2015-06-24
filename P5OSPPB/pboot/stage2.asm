@@ -1,12 +1,12 @@
 ;;Define the addresses of some external variables
 ;;Most of these are values from the FAT header
-%define V_SECTORSZ 0x7c08         ;word
-%define V_SECTPERCLUSTER 0x7c0a   ;byte
-%define V_RESSECT 0x7c0b          ;word
-%define V_FATCOPIES 0x7c0d        ;byte
-%define V_ROOTENTRIES 0x7c0e      ;word
-%define V_TOTALSECT 0x7c10        ;word
-%define V_SECTPERFAT 0x7c12       ;word
+%define V_SECTORSZ 0x7c0b         ;word
+%define V_SECTPERCLUSTER 0x7c0d   ;byte
+%define V_RESSECT 0x7c0e          ;word
+%define V_FATCOPIES 0x7c10        ;byte
+%define V_ROOTENTRIES 0x7c11      ;word
+%define V_TOTALSECT 0x7c13        ;word
+%define V_SECTPERFAT 0x7c16       ;word
 
 [org 0x7e00]
 [bits 16]
@@ -150,7 +150,7 @@ get_drive_params:
 
         ;;Store cylinder count
         push cx                       ;Store CX while we decode the content
-        mov cx, bx                    ;dupe it
+        mov bx, cx                    ;dupe it
         shr cx, 8                     ;Decode last cyl index at [7:6][15:8], +1
         and bx, 0xC0
         shl bx, 2
@@ -279,36 +279,44 @@ print_hex_word:
 lba_to_csh:
 
     push dx
+    push cx
 
     push ax    ;Save the LBA number to the stack because it's gonna be clobbered
     xor dx, dx
-    mov bx, [drive_sector_count]
+    xor bx, bx
+    mov bl, [drive_sector_count]
     div bx
     inc dx
-    mov bl, dl ;Save the low 8 bits of the remainder for output
+    mov cl, dl ;Save the low 8 bits of the remainder for output
+
+    ;;Calculate the head number
+    pop ax     ;Restore LBA again
+    push ax    ;And dupe it again as it's about to get clobbered again
+    xor bx, bx
+    mov bl, [drive_sector_count]
+    xor dx, dx
+    div bx ;ax = lba/spt
+    xor dx, dx ;Clear any remainder
+    xor bx, bx
+    mov bl, [drive_head_count]
+    div bx ;dx = (lba/spt) % head_count
+    mov ch, dl
 
     ;;Calculate the cylinder number
-    mov ax, [drive_sector_count]
-    mov bx, [drive_head_count]
-    mul bx   
+    xor ax, ax
+    mov al, [drive_sector_count]
+    xor bx, bx
+    mov bl, [drive_head_count]
+    mul bx
     mov bx, ax                  ;bx = spt * heads
     pop ax     ;Restore the LBA value from the stack
-    push ax    ;And dupe it again as it's about to get clobbered again
     xor dx, dx
     div bx
     mov bx, ax                  ;bx = lba / (spt*heads)
 
-    ;;Calculate the head number
-    pop ax     ;Restore LBA again
-    xor dx, dx
-    div word [drive_sector_count] ;ax = lba/spt
-    xor dx, dx ;Clear any remainder
-    div word [drive_head_count] ;dx = (lba/spt) % head_count
-
     ;;Finally, repackage the registers as expected, pop clobbered values, return
-    mov ah, dl ;ah = head
-    mov al, bl ;al = sect
-    mov bx, cx ;bx = cyl
+    mov ax, cx ;ah = head, al = sect, bx = cyl
+    pop cx
     pop dx
     ret
 ;===============================================================================
@@ -441,6 +449,20 @@ read_root_sector:
     mov dx, 0x500
     call read_sector
 
+    xor di, di
+    mov bx, 0x500
+    .dumpsect: ;;Temp doe to see if we're reading the right sector
+        cmp di, 0x200
+        je .end_dumpsect
+
+        mov al, [bx+di]
+        call print_hex_char
+        mov al, 0x20
+        call printchar
+        inc di
+        jmp .dumpsect
+    .end_dumpsect: jmpe .end_dumpsect
+
     ;;Sector is in memory, clean up and exit
     popa
     ret
@@ -542,7 +564,7 @@ load_from_cluster:
         mov dx, es
         add dx, 0x1000
         mov es, dx
-        xor dx, dx  
+        xor dx, dx
 
         .proceed:
             ;Get the next cluster number
