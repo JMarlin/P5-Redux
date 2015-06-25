@@ -84,8 +84,11 @@ main:
     .cnt_load_file:
     mov dx, .found_str
     call printstr
-    ;;With cluster number in ax, load it starting at 0x1000:0x0000 (0x10000)
     push ax
+    call print_hex_word
+    mov dx, .loading_str
+    call printstr
+    ;;With cluster number in ax, load it starting at 0x1000:0x0000 (0x10000)
     mov ax, 0x1000
     mov es, ax     ;Start address is at es:0x0
     pop ax
@@ -105,7 +108,8 @@ main:
 
     ;;Local constants
     .read_str db `loaded.\r\nBooting.`, 0
-    .found_str db `found\r\nLoading into low memory...`,0
+    .found_str db `found at cluster #0x`, 0
+    .loading_str db `\r\nLoading into low memory...`,0
     .searching_str db `Searching for kernel image...`,0
     .not_found_str db `Kernel not found on the boot disk.`, 0
     .too_big_str db `kernel exceeds 450kb.`, 0
@@ -347,6 +351,12 @@ cluster_to_csh:
   push dx
   push cx
 
+  mov dx, .string1
+  call printstr
+  push ax
+  call print_hex_word
+  pop ax
+
   ;;Calculate LBA from clusternum
   xor cx, cx
   mov cl, [V_SECTPERCLUSTER]
@@ -371,12 +381,26 @@ cluster_to_csh:
   add ax, bx ;bx still res + cluster_secs + fat_secs
   sub ax, 3 ;AX now contains the LBA calculation from above
 
+  mov dx, .string2
+  call printstr
+  push ax
+  call print_hex_word
+  mov al, 0xA
+  call printchar
+  mov al, 0xD
+  call printchar
+  pop ax
+
+
   ;;Convert the calculated lba into CSH values
   call lba_to_csh
 
   pop cx
   pop dx
   ret
+
+  .string1: db 'Cluster #0x', 0
+  .string2: db ' -> LBA 0x', 0
 ;===============================================================================
 
 
@@ -427,6 +451,30 @@ read_sector:
 
 
 ;===============================================================================
+; dumpsect
+;===============================================================================
+;; Debug function for checking the content of the sector loaded at 0x500
+dumpsect: ;;Temp doe to see if we're reading the right sector
+
+    xor di, di
+    mov bx, 0x500
+
+    .dump_next:
+        cmp di, 0x200
+        je .end_dumpsect
+
+        mov al, [bx+di]
+        call print_hex_char
+        mov al, 0x20
+        call printchar
+        inc di
+        jmp .dump_next
+
+    .end_dumpsect: jmpe .end_dumpsect
+;===============================================================================
+
+
+;===============================================================================
 ; READ_ROOT_SECTOR
 ;===============================================================================
 ;;Does some math to figure out where the FAT root directory sector is and then
@@ -448,20 +496,6 @@ read_root_sector:
     mov es, bx      ;Store at es:dx
     mov dx, 0x500
     call read_sector
-
-    xor di, di
-    mov bx, 0x500
-    .dumpsect: ;;Temp doe to see if we're reading the right sector
-        cmp di, 0x200
-        je .end_dumpsect
-
-        mov al, [bx+di]
-        call print_hex_char
-        mov al, 0x20
-        call printchar
-        inc di
-        jmp .dumpsect
-    .end_dumpsect: jmpe .end_dumpsect
 
     ;;Sector is in memory, clean up and exit
     popa
@@ -509,10 +543,10 @@ get_kern_cluster:
 
             ;;We found it! now we just need to get the cluster in AX and ret
             xor di, di            ;don't need the index anymore
-            mov ax, [bx+di+0x1A]  ;Cluster number is at offset 0x1A in entry
-            mov dx, [bx+di+0x1C]  ;File size starts after it
-            mov cx, [bx+di+0x1E]
-            call .done
+            mov ax, [bx+di+0x51A]  ;Cluster number is at offset 0x1A in entry
+            mov dx, [bx+di+0x51C]  ;File size starts after it
+            mov cx, [bx+di+0x51E]
+            jmp .done
         .string_break:
 
         pop bx       ;switch back to the incrementing base
@@ -543,15 +577,26 @@ get_kern_cluster:
 ;;file starting at that cluster into memory
 load_from_cluster:
 
-    pusha
+    push dx
 
     xor dx, dx ;Always starts on a segment boundary
 
     .sector_read_loop:
 
         ;Exit if cluster number is EOF
-        cmp ax, 0xFFEF
-        jg .sector_read_loop_exit
+        push ax
+        mov al, '&'
+        call printchar
+        pop ax
+        push ax
+        call print_hex_word
+        pop ax
+        push ax
+        and ax, 0xFFF0
+        not ax
+        cmp ax, 0
+        je .sector_read_loop_exit
+        pop ax
 
         ;Read cluster ax into es:dx
         push ax
@@ -573,7 +618,7 @@ load_from_cluster:
 
     .sector_read_loop_exit:
 
-    popa
+    pop dx
     ret
 ;===============================================================================
 
