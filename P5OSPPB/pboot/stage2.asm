@@ -585,13 +585,6 @@ load_from_cluster:
 
         ;Exit if cluster number is EOF
         push ax
-        mov al, '&'
-        call printchar
-        pop ax
-        push ax
-        call print_hex_word
-        pop ax
-        push ax
         and ax, 0xFFF0
         not ax
         cmp ax, 0
