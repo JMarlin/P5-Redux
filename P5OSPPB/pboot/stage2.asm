@@ -76,12 +76,16 @@ main:
     ;;Check to see if the file is too big (can be max 7 segments, about 450k)
     ;;(most significant word of filesize is in cx)
     cmp cx, 7
-    jl .cnt_load_file
+    jl .cont_load_file
     mov dx, .too_big_str
     call printstr
     jmp .hang
 
-    .cnt_load_file:
+    .cont_load_file:
+    ;;Stash the kernel size for later
+    mov [kernel_size_hi], cx   ;Make sure to store them backwards for proper endianness
+    mov [kernel_size_lo], dx
+    ;;Print the 'kernel found' message and continue
     mov dx, .found_str
     call printstr
     push ax
@@ -99,9 +103,63 @@ main:
     call printstr
 
     ;;Set up for 32-bit protected mode
+    ;here we will set up the GDT and jump into protected mode before
+    ;leaping blindly and wildly into our loaded kernel (which should then
+    ;be 32-bit)
 
-    ;;With all of that set up, go ahead and jump to the kernel loading code
-;    jmp 0x08:main_32
+    ;;Make sure es is set up right for our data transfers
+    ;;And that no interrupts are going to screw up our entry into 32-bit
+    cli
+    xor ax, ax
+    mov es, ax
+
+    xor si, si
+    .mv_gdt:
+        mov al, [.gdtr+si]
+        mov [0x600+si], al
+        inc si
+        cmp si, 31
+        jne .mv_gdt
+
+    lgdt [0x600]     ;Load the GDT
+
+    ;Programmatically insert the IDT (It's too big to fit in the sector)
+    ;Manually insert an IRET at the expected memory location
+    mov al, 0xCF
+    mov [0x670], al
+
+    xor si, si    ;We'll loop 255 times
+    .idt_load_top:
+        mov ax, 0x670
+        mov [0x700+si], ax
+        mov ax, 0x8
+        mov [0x702+si], ax
+        mov ax, 0x8E00
+        mov [0x704+si], ax
+        mov ax, 0x00
+        mov [0x706+si], ax
+
+        add si, 8
+        cmp si, 0x800
+        jne .idt_load_top
+
+    xor si, si
+    .mv_idt:
+        mov al, [.idtr+si]
+        mov [0x650+si], al
+        inc si
+        cmp si, 10
+        jne .mv_idt
+
+    lidt [ES:0x650]     ;Load the dummy blank IDT
+
+    mov eax, cr0    ;Load the value in cr0
+    or ax, 0x0001   ;Set the PE bit, bit 0
+    mov cr0, eax    ;Update cr0 with the new value
+
+    ;long-jump into the loaded kernel, specifying that it should
+    ;run in the code-segment
+    jmp 0x08:main_32
 
     ;;Hang loop
     .hang jmp .hang
@@ -118,12 +176,135 @@ main:
     .head_count_str db `\r\nHead count: 0x`, 0
     .cylinder_count_str db `\r\nCylinder count: 0x`, 0
     .sector_count_str db `\r\nSectors per track: 0x`, 0
-;[bits 32]
-;main_32:
 
-    ;;Enable A20
-    ;;Move kernel to high memory
-    ;;Do dat bootin
+    ;;IDT and GDT data
+    .idtr:
+            .idt_size: DW 0x800         ;We're going to initialize all of them
+            .idt_location: DD 0x700     ;Start of the table
+
+    .gdtr:   ;The gdt descriptor which gives the GDT size and location
+            .gdt_limit: DW .gdt_end - .gdt_start - 1 ;Count of GDT entries
+            .gdt_location: DD 0x600 + (.gdt_start - .gdtr) ;Pointer to the table itself
+
+    .gdt_start:
+
+            .null_segment:
+            DD 0x0
+            DD 0x0
+
+            .code_segment:   ;Segment 0x0008
+            DB 0xFF, 0xFF    ;Limit 0:15
+            DB 0x00, 0x00    ;Base 0:15
+            DB 0x00         ;Base 16:23
+            DB 0x9A         ;Access byte (Code segment, ring 0)
+            DB 0xCF         ;Flags(0100b) and limit 16:19 (0xF)
+            DB 0x00         ;Base 24:31
+
+            .data_segment:   ;Segment 0x0010
+            DB 0xFF, 0xFF    ;Limit 0:15
+            DB 0x00, 0x00    ;Base 0:15
+            DB 0x00         ;Base 16:23
+            DB 0x92         ;Access byte (Data segment, ring 0)
+            DB 0xCF         ;Flags(0100b) and limit 16:19 (0xF)
+            DB 0x00         ;Base 24:31
+
+    .gdt_end:
+
+    ;;Kernel size value shared between 16 and 32 bit code
+    kernel_size: ;For addressing as a dword
+        kernel_size_lo: dw 0x0
+        kernel_size_hi: dw 0x0
+
+;;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 32-BIT REGION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[bits 32]
+main_32:
+
+    ;;Set up all of the segments to the new protected data seg
+    mov eax, 0x10
+    mov ds, eax
+    mov es, eax
+    mov ss, eax
+    mov esp, 0x2FFFFF
+
+    ;Enable A20
+    call wait_kbc
+    mov dx, 0x64
+    mov al, 0xAD
+    out dx, al
+    call wait_kbc
+    mov al, 0xD0
+    out dx, al
+    call wait_kbc2
+    mov dx, 0x60
+    in al, dx
+    mov bl, al
+    call wait_kbc
+    mov dx, 0x64
+    mov al, 0xD1
+    out dx, al
+    call wait_kbc
+    mov dx, 0x60
+    mov al, bl
+    or al, 0x2
+    out dx, al
+    call wait_kbc
+    mov al, 0xAE
+    mov dx, 0x64
+    out dx, al
+
+    testa20:
+    xor eax, eax
+    mov [0x101600], eax
+    mov eax, 0xFFFFFFFF
+    mov [0x1600], eax
+    mov ebx, [0x101600]
+    cmp ebx, eax
+    jne testdone
+    jmp testa20
+    testdone:
+
+    ;one more round of kernel move
+    ;now that we have high memory enabled, let's move the kernel there
+    xor esi, esi
+    trans2:
+    mov al, [0x10000+esi]
+    mov [0x100000+esi], al
+    inc esi
+    mov eax, [kernel_size]
+    cmp eax, esi
+    jne trans2
+
+    ;Dive into the kernel code that was loaded from the drive
+    jmp 0x08:0x100000
+
+    wait_kbc:
+    push dx
+    push ax
+    mov dx, 0x64
+    waitloop:
+    in al, dx
+    and al, 0x2
+    cmp al, 0
+    jne waitloop
+    pop ax
+    pop dx
+    ret
+
+    wait_kbc2:
+    push dx
+    push ax
+    mov dx, 0x64
+    waitloop2:
+    in al, dx
+    and al, 0x1
+    cmp al, 0x1
+    jne waitloop2
+    pop ax
+    pop dx
+    ret
+
+[bits 16]
+;;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 32-BIT REGION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ;===============================================================================
 ; GET_DRIVE_PARAMS
