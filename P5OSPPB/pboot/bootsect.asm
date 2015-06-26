@@ -83,6 +83,7 @@ boot:
     ;;Then all we really need to do, as the stage1, is read the stage2 from the
     ;;following sectors on the 'floppy'
     mov ah, 0x0      ;Reset drive
+    mov dl, [boot_drive]
     int 0x13
     mov ah, 0x02     ;Int 0x13, function 2: read sectors
     mov al, RESSECT  ;Number of sectors to read. Need all of the stage2 sectors

@@ -202,6 +202,7 @@ printchar:
 printstr:
 
     push ax
+    push si
     mov si, dx
 
     .top:
@@ -213,6 +214,7 @@ printstr:
         jmp .top
 
     .end:
+        pop si
         pop ax
         ret
 
@@ -351,12 +353,6 @@ cluster_to_csh:
   push dx
   push cx
 
-  mov dx, .string1
-  call printstr
-  push ax
-  call print_hex_word
-  pop ax
-
   ;;Calculate LBA from clusternum
   xor cx, cx
   mov cl, [V_SECTPERCLUSTER]
@@ -381,26 +377,12 @@ cluster_to_csh:
   add ax, bx ;bx still res + cluster_secs + fat_secs
   sub ax, 3 ;AX now contains the LBA calculation from above
 
-  mov dx, .string2
-  call printstr
-  push ax
-  call print_hex_word
-  mov al, 0xA
-  call printchar
-  mov al, 0xD
-  call printchar
-  pop ax
-
-
   ;;Convert the calculated lba into CSH values
   call lba_to_csh
 
   pop cx
   pop dx
   ret
-
-  .string1: db 'Cluster #0x', 0
-  .string2: db ' -> LBA 0x', 0
 ;===============================================================================
 
 
@@ -414,6 +396,17 @@ read_sector:
     ;;Save clobbered registers
     push cx
     push dx
+
+    ;;Save important regs and reset the drive
+    push ax
+    push bx
+    push dx
+    mov dl, [boot_drive_number]
+    xor ah, ah
+    int 0x13
+    pop dx
+    pop bx
+    pop ax
 
     ;;Package heads into CX in odd BIOS 76543210|98xxxxxx format
     mov cx, bx
@@ -492,8 +485,10 @@ read_root_sector:
 
     ;;Convert the LBA sector to a CHS value for read_sector, then read it
     call lba_to_csh
+    push bx
     xor bx, bx
     mov es, bx      ;Store at es:dx
+    pop bx
     mov dx, 0x500
     call read_sector
 
@@ -571,6 +566,50 @@ get_kern_cluster:
 
 
 ;===============================================================================
+; GET_NEXT_CLUSTER
+;===============================================================================
+;;Takes a cluster number in ax and returns the next-cluster value found at that
+;;location in the FAT in ax
+;;This could be made faster by treating the sector load location as a cache
+;;and only re-reading it if the cached sector number does not match the request
+get_next_cluster:
+
+    push dx
+    push di
+    push bx
+    push es
+
+    ;;Calculate the FAT sector in which our cluster resides
+    mov bx, 0x100
+    xor dx, dx    ;DIVs divide the value dx:ax
+    div bx        ;divide the cluster by the number of cluster entries per sec
+    push dx       ;back up the remainder value
+    add ax, [V_RESSECT]  ;Offset that value by the number of reserved sectors
+
+    call lba_to_csh  ;Convert block address to CSH
+
+    xor dx, dx
+    mov es, dx
+    mov dx, 0x500        ;Read into 0x0:0x500
+
+    call read_sector
+
+    ;;Now that the sector is read, get the entry within the sector
+    pop bx       ;restore the remainder of the division
+    shl bx, 1    ;Multiply by two since we're indexing 16-bit values
+    xor di, di
+    mov ax, [bx+di+0x500] ;read the value at the offset
+
+    pop es
+    pop bx
+    pop di
+    pop dx
+    ret
+
+;===============================================================================
+
+
+;===============================================================================
 ; LOAD_FROM_CLUSTER
 ;===============================================================================
 ;;Takes a cluster number in ax and a starting address in es:bx and reads the
@@ -585,9 +624,10 @@ load_from_cluster:
 
         ;Exit if cluster number is EOF
         push ax
-        and ax, 0xFFF0
-        not ax
         cmp ax, 0
+        je .sector_read_loop_exit ;This should never happen...
+        and ax, 0xFFF0
+        cmp ax, 0xFFF0
         je .sector_read_loop_exit
         pop ax
 
@@ -598,7 +638,7 @@ load_from_cluster:
 
         ;Increase our pointers
         add dx, 0x200 ;Read 512 bytes so scoot forward as many
-        jnc .proceed  ;Unless there was no overflow, we move to the next seg
+        jno .proceed  ;Unless there was no overflow, we move to the next seg
         mov dx, es
         add dx, 0x1000
         mov es, dx
@@ -608,48 +648,18 @@ load_from_cluster:
             ;Get the next cluster number
             pop ax    ;restore the current cluster number
             call get_next_cluster ;Puts the new number in ax
+            jmp .sector_read_loop
 
     .sector_read_loop_exit:
 
+    pop ax
     pop dx
     ret
-;===============================================================================
-
 
 ;===============================================================================
-; GET_NEXT_CLUSTER
-;===============================================================================
-;;Takes a cluster number in ax and returns the next-cluster value found at that
-;;location in the FAT in ax
-;;This could be made faster by treating the sector load location as a cache
-;;and only re-reading it if the cached sector number does not match the request
-get_next_cluster:
 
-    push dx
-    push di
-    push bx
 
-    ;;Calculate the FAT sector in which our cluster resides
-    mov bx, 0x100
-    div bx        ;divide the cluster by the number of cluster entries per sec
-    push dx       ;back up the remainder value
-    add ax, [V_RESSECT]  ;Offset that value by the number of reserved sectors
-    call lba_to_csh  ;Convert block address to CSH
-    xor dx, dx
-    mov es, dx
-    mov dx, 0x500        ;Read into 0x0:0x500
-    call read_sector
 
-    ;;Now that the sector is read, get the entry within the sector
-    pop bx       ;restore the remainder of the division
-    xor di, di
-    mov ax, [bx+di+0x500] ;read the value at the offset
-
-    push bx
-    push di
-    pop dx
-    ret
-;===============================================================================
 
 
 ;;Static data is stashed here
