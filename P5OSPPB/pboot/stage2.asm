@@ -814,7 +814,24 @@ load_from_cluster:
 
         ;Read cluster ax into es:dx
         push ax
+        
+        ;;DEBUG
+        pusha
+        mov dx, .readstr1
+        call printstr
+        call print_hex_word
+        popa
+        
         call cluster_to_csh
+        
+        ;;DEBUG
+        pusha ;;WORKING HERE
+        push ax
+        mov dx, .readstr2
+        call printstr
+        call print_hex_word
+        popa
+        
         call read_sector
 
         ;Increase our pointers
@@ -837,6 +854,8 @@ load_from_cluster:
     pop dx
     ret
 
+    .readstr1: db `Reading LBA 0x`, 0
+    .readstr2: db ` [`, 0
 ;===============================================================================
 
 
