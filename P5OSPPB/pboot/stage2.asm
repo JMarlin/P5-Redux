@@ -814,29 +814,52 @@ load_from_cluster:
 
         ;Read cluster ax into es:dx
         push ax
-        
+
         ;;DEBUG
         pusha
         mov dx, .readstr1
         call printstr
         call print_hex_word
         popa
-        
+
         call cluster_to_csh
-        
+
         ;;DEBUG
-        pusha ;;WORKING HERE
+        pusha
+        push dx
         push ax
         mov dx, .readstr2
         call printstr
+        mov ax, bx
         call print_hex_word
+        mov dx, .readstr3
+        call printstr
+        pop ax
+        mov bx, ax
+        mov al, ah
+        call print_hex_char
+        call printstr
+        mov al, bl
+        call print_hex_char
+        mov dx, .readstr4
+        call printstr
+        mov ax, es
+        call print_hex_word
+        mov al, ':'
+        call printchar
+        pop ax ;;This was the value in dx
+        call print_hex_word
+        mov al, 0xA
+        call printchar
+        mov al, 0xD
+        call printchar
         popa
-        
+
         call read_sector
 
         ;Increase our pointers
         add dx, 0x200 ;Read 512 bytes so scoot forward as many
-        jno .proceed  ;Unless there was no overflow, we move to the next seg
+        jnz .proceed  ;Unless there was no overflow, we move to the next seg
         mov dx, es
         add dx, 0x1000
         mov es, dx
@@ -856,6 +879,8 @@ load_from_cluster:
 
     .readstr1: db `Reading LBA 0x`, 0
     .readstr2: db ` [`, 0
+    .readstr3: db `, `, 0
+    .readstr4: db `] into 0x`, 0
 ;===============================================================================
 
 
