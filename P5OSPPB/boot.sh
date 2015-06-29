@@ -1,8 +1,7 @@
 cp bin/p5kern.bin ../kpkg/
 cd ../rampak/
 gcc -o rampak main.c
-./rampak p5.rd test.txt
-#usr.mod init.mod registrar.mod vesa.mod v86.mod
+./rampak p5.rd test.txt usr.mod init.mod registrar.mod vesa.mod v86.mod
 cp p5.rd ../kpkg/
 cd ../kpkg/
 gcc -o kpkg main.c

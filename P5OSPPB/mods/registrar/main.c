@@ -66,6 +66,8 @@ void main(void) {
     for(i = 0; i < 20; i++)
         reg_table_pid[i] = reg_table_svc[i] = 0;
 
+    prints("[registrar] Starting init process...\n");
+
     //Start the init process
     startSuperProc(":init.mod");
 

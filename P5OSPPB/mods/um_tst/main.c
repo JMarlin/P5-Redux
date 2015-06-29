@@ -72,6 +72,8 @@ void parse(char* cmdbuf) {
 
 void main(void) {
 
+    prints("\nUser console for P5 build #0x");
+    printHexDword(getBuildNumber());
     pchar('\n');
 
     if(!initGfx())

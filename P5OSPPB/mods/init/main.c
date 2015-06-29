@@ -5,9 +5,12 @@ void startAndWait(char* file);
 void main(void) {
 
     //Start up all of the initial-boot servers
+    prints("[init] Starting VESA server...");
     startAndWait(":vesa.mod");
+    prints("Done.\n");
 
     //Finally, start up the user 'login' process
+    prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
 
     //And exit
