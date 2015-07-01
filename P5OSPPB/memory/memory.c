@@ -288,51 +288,16 @@ void finish_mem_config() {
     //Reset the state changes made by creating all of those v86 procs
     resetProcessCounter();
 
-    //Start of kernel
+    //Create a block which the rest of the kmalloc chain will
+    //hang off of and which just happens to contain our kernel image
     rootBlock.base = (void*)0x100000;
     rootBlock.size = 0x200000;
     rootBlock.next = (memblock*)0;
 
-
-    //testRAM();
     prints("Top of RAM: 0x");
     printHexDword(maxRAM);
-    prints("\nAllocating 1k of RAM to ram_a.\n");
-    ram_a = kmalloc(1024);
+    pchar('\n')
 
-    if(ram_a == (void*)0) {
-        prints("Allocation failed.\n");
-        return;
-    }
-
-    //printChain();
-    prints("Allocating 1k of RAM to ram_b.\n");
-    ram_b = kmalloc(1024);
-
-    if(ram_b == (void*)0) {
-        prints("Allocation failed.\n");
-        return;
-    }
-
-    //printChain();
-    prints("Freeing ram_a.\n");
-    ram_a = kfree(ram_a);
-
-    if(ram_a != (void*)0) {
-        prints("Free failed.\n");
-        return;
-    }
-
-    //printChain();
-    prints("Freeing ram_b.\n");
-    ram_b = kfree(ram_b);
-
-    if(ram_b != (void*)0) {
-        prints("Free failed.\n");
-        return;
-    }
-
-    //printChain();
     init_done(); //Return to kernel startup
 }
 
