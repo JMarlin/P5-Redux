@@ -1,18 +1,21 @@
 #include "memory.h"
+#include "paging.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
 #include "../core/syscall.h"
 
 #define MAX_MMAPS 30
 
-
 extern long pkgoffset;
-unsigned long maxRAM = 0x006FFFFF;
+unsigned long maxRAM;
 memblock rootBlock;
 void (*init_done)(void);
 memzone m_map[MAX_MMAPS];
 static char mmap_index = 0;
+unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
+//NEVER USE THIS
+//It's CRAZY slow. Also could fuck with mem mapped IO
 void testRAM() {
 
     int i = 0xB00000;
@@ -162,12 +165,38 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 }
 
 
+//Ensure that all pages in the given memory range are either marked special or clear for use
+void mark_pages_status(unsigned int base_address, unsigned int range_size, unsigned char is_special) {
+
+    unsigned int base_page, page_count, i;
+
+    //Don't screw with kernel-reserved memory below 0xB00000
+    if(base_address < 0xB00000)
+        return;
+
+    //Snap provided values to encapsulating page boundaries
+    base_page = base_address >> 12;
+    //Round up the page count if the memory size is not a multiple of 4k
+    page_count = (range_size >> 12) + ((range_size & 0xFFF) == 0 ? 0 : 1);
+
+    //Finally, set the required bits in the page table entry
+    for(i = 0; i < page_count; i++) {
+
+        if(is_special)
+            pageTable[base_page+i] |= 0x400; //Set the os-special bit
+        else
+            pageTable[base_page+i] &= ~((unsigned int)0xE00); //clear os bits
+    }
+}
+
+
 void finish_mem_config() {
 
     void* ram_a;
     void* ram_b;
     int i;
     unsigned long long end;
+    unsigned long long biggest_end = 0;
 
     for(i = 0; i < mmap_index; i++) {
 
@@ -181,31 +210,80 @@ void finish_mem_config() {
         printHexDword((unsigned int)(end & 0xFFFFFFFF));
         prints(" is ");
 
+        //Use this to find the top of usable memory
+        if(end > biggest_end)
+            biggest_end = end;
+
         switch(m_map[i].type) {
 
             case 1:
                 prints("free space\n");
+
+                //Make sure that this is not marked special and that it is not
+                //allocated (unless it falls within the pre-allocated kernel
+                //areas)
+                mark_pages_status(
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    false
+                );
             break;
 
             case 3:
                 prints("ACPI reclaimable\n");
+
+                //Mark it special, but we will make sure, if and when we
+                //implement ACPI, to unmark this range once we've used the
+                //ACPI data
+                mark_pages_status(
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    true
+                );
             break;
 
             case 4:
                 prints("ACPI NVS\n");
+
+                //Mark it special, make sure that it never gets unmarked because
+                //this cannot be written to
+                mark_pages_status(
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    true
+                );
             break;
 
             case 5:
                 prints("bad memory\n");
+
+                //Mark it special and make sure it's never unmarked
+                mark_pages_status(
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    true
+                );
             break;
 
             default:
                 prints("reserved\n");
+
+                //Mark it special and make sure it's never unmarked
+                mark_pages_status(
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    true
+                );
             break;
         }
-        //printHexDword(ebx);
-        //pchar('\n');
     }
+
+    //We're only going to be running 32-bit for now, so we're going to truncate
+    //the RAM ceiling if it is above 0xFFFFFFFF
+    if(biggest_end > 0xFFFFFFFF)
+        biggest_end = 0xFFFFFFFF;
+
+    maxRAM = (unsigned int)(biggest_end & 0xFFFFFFFF);
 
     //Reset the state changes made by creating all of those v86 procs
     resetProcessCounter();
@@ -273,22 +351,22 @@ memblock* nextMBByAddress(void* baseAddr) {
 
     memblock* nextBlock = &rootBlock;
     memblock* returnBlock;
-    void* nextBase = (void*)maxRAM;
+    void* nextBase = (void*)MAX_KERNEL_HEAP;
     int blockFound = 0;
 
     while(1) {
-        //DEBUG("Checking address "); //DEBUG_HD((unsigned long)baseAddr);
-        //DEBUG(" against block "); //DEBUG_HD((unsigned long)nextBlock->base);
-        //DEBUG("-"); //DEBUG_HD((unsigned long)nextBlock->base + nextBlock->size);
-        //DEBUG("...");
+        DEBUG("Checking address "); DEBUG_HD((unsigned long)baseAddr);
+        DEBUG(" against block "); DEBUG_HD((unsigned long)nextBlock->base);
+        DEBUG("-"); DEBUG_HD((unsigned long)nextBlock->base + nextBlock->size);
+        DEBUG("...");
 
         if(nextBlock->base >= baseAddr && nextBlock->base < nextBase) {
             returnBlock = nextBlock;
             nextBase = returnBlock->base;
             blockFound = 1;
-            //DEBUG("match.\n");
+            DEBUG("match.\n");
         } else {
-            //DEBUG("no match.\n");
+            DEBUG("no match.\n");
         }
 
         if(nextBlock->next)
@@ -317,7 +395,7 @@ int MBCollision(void* base, unsigned long size) {
         if((ibase >= nbase && ibase < nbase + nsize) ||
            (ibase + isize >= nbase && ibase + isize < nbase + nsize) ||
            (ibase <= nbase && ibase + isize > nbase + nsize) ||
-           (ibase + isize > maxRAM))
+           (ibase + isize > MAX_KERNEL_HEAP))
                 return 1;
 
         if(nextBlock->next)
@@ -334,9 +412,8 @@ void* kmalloc(unsigned int size) {
     memblock* nextBlock;
     memblock* newBlock;
 
-    //This needs to be fixed when we start playing with
-    //actual packages as allocations will clobber the packages
-    void* rambase = (void*)(0x00300000); //User RAM starts at 3MB
+
+    void* rambase = (void*)(0x00300000); //Kernel heap 0x00300000 -> 0x006FFFFF
 
     while(1) {
 
@@ -364,21 +441,21 @@ void* kfree(void* base) {
     memblock* prevBlock = &rootBlock;
     void* realBase = base - sizeof(memblock);
 
-    //DEBUG("Free base: "); //DEBUG_HD((unsigned long)base);
-    //DEBUG("\nReal base: "); //DEBUG_HD((unsigned long)realBase);
-    //DEBUG("\n");
+    DEBUG("Free base: "); DEBUG_HD((unsigned long)base);
+    DEBUG("\nReal base: "); DEBUG_HD((unsigned long)realBase);
+    DEBUG("\n");
 
     while(1) {
-        //DEBUG("   Matches ");
-        //DEBUG_HD((unsigned long)nextBlock->base);
-        //DEBUG("?...");
+        DEBUG("   Matches ");
+        DEBUG_HD((unsigned long)nextBlock->base);
+        DEBUG("?...");
 
         if(nextBlock->base == realBase) {
-            //DEBUG("yes\n");
+            DEBUG("yes\n");
             prevBlock->next = nextBlock->next;
             return (void*)0;
         } else {
-            //DEBUG("no\n");
+            DEBUG("no\n");
         }
 
         if(nextBlock->next) {

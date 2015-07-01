@@ -1,6 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#define MAX_KERNEL_HEAP 0x006FFFFF
 
 typedef struct memblock {
     void* base;

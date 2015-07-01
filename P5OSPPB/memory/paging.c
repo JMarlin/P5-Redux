@@ -7,8 +7,16 @@
 extern void _loadPageDirectory(unsigned int*);
 extern void _enablePaging();
 unsigned int *pageDirectory = (unsigned int*)0x200000;
-unsigned int *pageTable = (unsigned int*)0x700000;
+unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
+/*
+    Bits 9-11 of each pageTable entry are used by the OS to keep track of
+    certain memory details. Bit 11 (0x800) is used to indicate that the memory
+    has been claimed for use by the OS. Bit 10 (0x400) is used to indicate that
+    the memory has been marked 'special' by the OS, meaning that it is a special
+    memory area or perhaps a zone for memory mapped IO and should NOT be used
+    for general memory allocation
+*/
 
 void init_page_system() {
 
@@ -27,7 +35,7 @@ void init_page_system() {
             pageTable[(i * 1024) + j] = 0x00000002;
         }
     }
-}
+}f
 
 
 void free_pages(unsigned int physBase, unsigned int size) {
@@ -37,8 +45,8 @@ void free_pages(unsigned int physBase, unsigned int size) {
 
     for( ; i < max; i++) {
 
-        //Make sure to preserve the page-reserved bit
-        pageTable[i] &= 0x00000800;
+        //Make sure to preserve the OS-status bits
+        pageTable[i] &= 0x00000E00;
         pageTable[i] |= 0x00000002;
     }
 }
@@ -60,8 +68,8 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         //Some day, we'll figure this out. Some day.
         prints("\0");
 
-        //Make sure to preserve the page-reserved bit
-        pageTable[i] &= 0x00000800;
+        //Make sure to preserve the OS-status bits
+        pageTable[i] &= 0x00000E00;
         pageTable[i] |= (physBase & 0xFFFFF000) | (flags & 0x1FF);
     }
 }
@@ -116,6 +124,7 @@ void del_page_tree(pageRange* root_page) {
             current_pr = current_pr->next;
         }
 
+        //Unmark the page-in-use bit for each claimed page
         for(j = current_pr->base_page; j < current_pr->base_page + current_pr->count; j++)
             pageTable[j] &= 0xFFFFF7FF;
 
@@ -169,6 +178,8 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base, char super) {
 //This ends the search of the page table at 0x2000
 //as opposed to 0x100000 because we're just assuming our
 //system has 32 megs of memory for now
+//Note: This will be updated to reflect real memory
+//availibility via #37
 int append_page(pageRange* pr_base) {
 
     unsigned total_count = 0;
@@ -188,7 +199,8 @@ int append_page(pageRange* pr_base) {
 
         for(i = 0xB00; i < 0x2000; i++) {
 
-            if(!(pageTable[i] & 0x800))
+            //Check to make sure the page is not already alocated and/or special
+            if(!(pageTable[i] & 0xC00))
                 break;
         }
 
@@ -207,7 +219,8 @@ int append_page(pageRange* pr_base) {
     //allocated page is free, so we can go ahead and
     //just mark the memory as used and ratchet up the
     //count of this contiguous block
-    if(!(pageTable[offset] & 0x800)) {
+    //Check to make sure the page is not already alocated and/or special
+    if(!(pageTable[offset] & 0xC00)) {
 
         //Bit 0x800, which is available to the OS,
         //indicates physical page availability.
@@ -226,18 +239,24 @@ int append_page(pageRange* pr_base) {
         return 0;
     }
 
+    //And then search for the next availible page to assign it to
     for(i = 0xB00; i < 0x2000; i++) {
 
-        if(!(pageTable[i] & 0x800))
+        //Check to make sure the page is not already alocated and/or special
+        if(!(pageTable[i] & 0xC00))
             break;
     }
 
+    //If we hit the top of memory, we append a null page range node and
+    //return failure to the caller
     if(i == 0x2000) {
 
         pr_current->next = (pageRange*)0x0;
         return 0;
     }
 
+    //Otherwise, we were able to successfully find a free page, so we
+    //store its page number and mark it allocated
     pr_current->count++;
     pr_current->base_page = i;
     pageTable[i] |= 0x00000800;

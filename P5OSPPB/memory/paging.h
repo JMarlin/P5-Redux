@@ -1,6 +1,8 @@
 #ifndef PAGING_H
 #define PAGING_H
 
+#define PAGE_TABLE_ADDRESS 0x700000
+
 typedef struct pageRange {
     int base_page;
     int count;
