@@ -4,7 +4,7 @@
 #include "../core/global.h"
 #include "../core/syscall.h"
 
-#define MAX_MMAPS 30
+#define MAX_MMAPS 40
 
 extern long pkgoffset;
 unsigned long maxRAM;
@@ -170,10 +170,6 @@ void mark_pages_status(unsigned int base_address, unsigned int range_size, unsig
     unsigned int base_page, page_count, i;
     unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
-    //Don't screw with kernel-reserved memory below 0xB00000
-    if(base_address < 0xB00000)
-        return;
-
     //Snap provided values to encapsulating page boundaries
     base_page = base_address >> 12;
     //Round up the page count if the memory size is not a multiple of 4k
@@ -182,10 +178,14 @@ void mark_pages_status(unsigned int base_address, unsigned int range_size, unsig
     //Finally, set the required bits in the page table entry
     for(i = 0; i < page_count; i++) {
 
+        //Don't screw with kernel-reserved memory below 0xB00000
+        if(base_page+i < 0xB00)
+            continue;
+
         if(is_special)
             pageTable[base_page+i] |= 0x400; //Set the os-special bit
         else
-            pageTable[base_page+i] &= ~((unsigned int)0xE00); //clear os bits
+            pageTable[base_page+i] &= ~((unsigned int)0xC00); //clear os bits
     }
 }
 
@@ -224,7 +224,7 @@ void finish_mem_config() {
                 //areas)
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].length & 0xFFFFFFFF),
                     0
                 );
             break;
@@ -237,7 +237,7 @@ void finish_mem_config() {
                 //ACPI data
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].length & 0xFFFFFFFF),
                     1
                 );
             break;
@@ -249,7 +249,7 @@ void finish_mem_config() {
                 //this cannot be written to
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].length & 0xFFFFFFFF),
                     1
                 );
             break;
@@ -260,7 +260,7 @@ void finish_mem_config() {
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].length & 0xFFFFFFFF),
                     1
                 );
             break;
@@ -271,7 +271,7 @@ void finish_mem_config() {
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    (unsigned int)(m_map[i].base & 0xFFFFFFFF),
+                    (unsigned int)(m_map[i].length & 0xFFFFFFFF),
                     1
                 );
             break;
