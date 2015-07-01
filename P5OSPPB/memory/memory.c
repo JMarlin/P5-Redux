@@ -26,7 +26,7 @@ void testRAM() {
         sysram[i] = ~prev;
 
         if(sysram[i] == prev)
-            break;f
+            break;
 
         sysram[i] = prev;
         printHexDword(i);
