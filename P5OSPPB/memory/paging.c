@@ -6,6 +6,7 @@
 
 extern void _loadPageDirectory(unsigned int*);
 extern void _enablePaging();
+extern unsigned long maxRAM; //Defined in memory.c
 unsigned int *pageDirectory = (unsigned int*)0x200000;
 unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
@@ -185,6 +186,7 @@ int append_page(pageRange* pr_base) {
     unsigned total_count = 0;
     pageRange* pr_current = pr_base;
     unsigned int offset;
+    unsigned long maxPages = maxRAM >> 12;
     int i;
 
     //Get to the end of the list
@@ -197,14 +199,14 @@ int append_page(pageRange* pr_base) {
     //ahead and find the first free phys page
     if(!pr_current->count) {
 
-        for(i = 0xB00; i < 0x2000; i++) {
+        for(i = 0xB00; i < maxPages; i++) {
 
             //Check to make sure the page is not already alocated and/or special
             if(!(pageTable[i] & 0xC00))
                 break;
         }
 
-        if(i == 0x2000)
+        if(i == maxPages)
             return 0;
 
         pr_current->count++;
@@ -240,7 +242,7 @@ int append_page(pageRange* pr_base) {
     }
 
     //And then search for the next availible page to assign it to
-    for(i = 0xB00; i < 0x2000; i++) {
+    for(i = 0xB00; i < maxPages; i++) {
 
         //Check to make sure the page is not already alocated and/or special
         if(!(pageTable[i] & 0xC00))
@@ -249,7 +251,7 @@ int append_page(pageRange* pr_base) {
 
     //If we hit the top of memory, we append a null page range node and
     //return failure to the caller
-    if(i == 0x2000) {
+    if(i == maxPages) {
 
         pr_current->next = (pageRange*)0x0;
         return 0;

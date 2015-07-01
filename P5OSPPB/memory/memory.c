@@ -4,7 +4,7 @@
 #include "../core/global.h"
 #include "../core/syscall.h"
 
-#define MAX_MMAPS 40
+#define MAX_MMAPS 30
 
 extern long pkgoffset;
 unsigned long maxRAM;
@@ -26,7 +26,7 @@ void testRAM() {
         sysram[i] = ~prev;
 
         if(sysram[i] == prev)
-            break;
+            break;f
 
         sysram[i] = prev;
         printHexDword(i);
@@ -185,7 +185,7 @@ void mark_pages_status(unsigned int base_address, unsigned int range_size, unsig
         if(is_special)
             pageTable[base_page+i] |= 0x400; //Set the os-special bit
         else
-            pageTable[base_page+i] &= ~((unsigned int)0xC00); //clear os bits
+            pageTable[base_page+i] &= ~((unsigned int)0xE00); //clear os bits
     }
 }
 
@@ -202,13 +202,13 @@ void finish_mem_config() {
 
         end = m_map[i].base + m_map[i].length;
 
-        prints("0x");
-        printHexDword((unsigned int)((m_map[i].base & 0xFFFFFFFF00000000) >> 32));
-        printHexDword((unsigned int)(m_map[i].base & 0xFFFFFFFF));
-        prints(" to 0x");
-        printHexDword((unsigned int)((end & 0xFFFFFFFF00000000) >> 32));
-        printHexDword((unsigned int)(end & 0xFFFFFFFF));
-        prints(" is ");
+        DEBUG("0x");
+        DEBUG_HD((unsigned int)((m_map[i].base & 0xFFFFFFFF00000000) >> 32));
+        DEBUG_HD((unsigned int)(m_map[i].base & 0xFFFFFFFF));
+        DEBUG(" to 0x");
+        DEBUG_HD((unsigned int)((end & 0xFFFFFFFF00000000) >> 32));
+        DEBUG_HD((unsigned int)(end & 0xFFFFFFFF));
+        DEBUG(" is ");
 
         //Use this to find the top of usable memory
         if(end > biggest_end)
@@ -217,7 +217,7 @@ void finish_mem_config() {
         switch(m_map[i].type) {
 
             case 1:
-                prints("free space\n");
+                DEBUG("free space\n");
 
                 //Make sure that this is not marked special and that it is not
                 //allocated (unless it falls within the pre-allocated kernel
@@ -230,7 +230,7 @@ void finish_mem_config() {
             break;
 
             case 3:
-                prints("ACPI reclaimable\n");
+                DEBUG("ACPI reclaimable\n");
 
                 //Mark it special, but we will make sure, if and when we
                 //implement ACPI, to unmark this range once we've used the
@@ -243,7 +243,7 @@ void finish_mem_config() {
             break;
 
             case 4:
-                prints("ACPI NVS\n");
+                DEBUG("ACPI NVS\n");
 
                 //Mark it special, make sure that it never gets unmarked because
                 //this cannot be written to
@@ -255,7 +255,7 @@ void finish_mem_config() {
             break;
 
             case 5:
-                prints("bad memory\n");
+                DEBUG("bad memory\n");
 
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(
@@ -266,7 +266,7 @@ void finish_mem_config() {
             break;
 
             default:
-                prints("reserved\n");
+                DEBUG("reserved\n");
 
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(
