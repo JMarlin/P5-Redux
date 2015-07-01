@@ -1,7 +1,7 @@
 #include "../include/p5.h"
 #include "../include/gfx.h"
 
-#define CMD_COUNT 5
+#define CMD_COUNT 3
 
 //Function declarations
 void usrClear(void);
@@ -10,6 +10,9 @@ void usrExit(void);
 void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
+void cmd_pchar(unsigned char c);
+void cmd_prints(unsigned char* s);
+void cmd_clear();
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -18,17 +21,13 @@ typedef void (*sys_command)(void);
 char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
-    "EXIT",
-    "MODES",
-    "SET"
+    "EXIT"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
-    (sys_command)&usrExit,
-    (sys_command)&showModes,
-    (sys_command)&enterMode
+    (sys_command)&usrExit
 };
 
 char inbuf[50];
@@ -64,39 +63,36 @@ void parse(char* cmdbuf) {
 
     if(!found) {
 
-        prints("Unknown command ");
-        prints(cmdbuf);
-        prints("\n");
+        cmd_prints("Unknown command ");
+        cmd_prints(cmdbuf);
+        cmd_prints("\n");
     }
 }
 
 void main(void) {
 
-    prints("\nUser console for P5 build #0x");
+    prints("\nUser environment for P5 build #0x");
     printHexDword(getBuildNumber());
     pchar('\n');
 
     if(!initGfx())
         prints("\nCould not initialize GFX!\n");
 
-    while(1) {
-        prints("::");
-        scans(50, inbuf);
-        parse(inbuf);
-    }
+    showModes();
+    enterMode();
 }
 
 
 void usrClear(void) {
 
-    clearScreen();
+    cmd_clear();
 }
 
 
 void consVer(void) {
 
-    prints("P5 usermode console build 1\n");
-    prints("P5 build [need fmt print and P5 build number hook]\n");
+    cmd_prints("P5 usermode console build 1\n");
+    cmd_prints("P5 build [need fmt print and P5 build number hook]\n");
 }
 
 
@@ -259,7 +255,7 @@ void enterMode(void) {
     unsigned short num;
 
     prints("mode: ");
-    scans(3, inbuf);
+    scans(2, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
 
     if(!setScreenMode(num)) {
@@ -274,18 +270,90 @@ void enterMode(void) {
 }
 
 
-int cmd_x = 0;
-int cmd_y = 0;
+int cmd_x;
+int cmd_y;
+int cmd_width;
+int cmd_height;
+int cmd_max_chars;
 
-void cmd_putc(unsigned char c) {
+void cmd_pchar(unsigned char c) {
 
+    if(c == '\n') {
 
+        cmd_x = 2;
+        cmd_y++;
+    } else {
+
+        drawCharacter(c, (cmd_x*8)+27, (cmd_y*12)+27, RGB(0, 255, 0));
+        cmd_x++;
+
+        if(cmd_x > cmd_max_chars) {
+
+            cmd_x = 0;
+            cmd_y++;
+        }
+    }
 }
+
+
+void cmd_prints(unsigned char* s) {
+
+    while(s)
+        cmd_pchar(*s++);
+}
+
+void cmd_clear() {
+
+    setCursor(27, 27);
+    setColor(0);
+    fillRect(cmd_width, cmd_height);
+    cmd_x = 0;
+    cmd_y = 0;
+}
+
+
+void cmd_scans(int c, char* b) {
+
+    unsigned char temp_char;
+    int index = 0;
+
+    for(index = 0 ; index < c-1 ; ) {
+        temp_char = getch();
+
+        if(temp_char != 0) {
+            b[index] = temp_char;
+            cmd_pchar(b[index]);
+
+            if(b[index] == '\n') {
+                b[index] = 0;
+                break;
+            }
+
+            index++;
+
+            if(index == c-1)
+                cmd_pchar('\n');
+        }
+    }
+
+    b[index+1] = 0;
+}
+
+
+void cmd_init(unsigned short xres, unsigned short yres) {
+
+    cmd_x = 0;
+    cmd_y = 0;
+    cmd_width = xres-114;
+    cmd_height = yres-54;
+    cmd_max_chars = (cmd_width/8) - 1;
+}
+
 
 
 void startGui(unsigned short xres, unsigned short yres) {
 
-    int i, x, y, max_chars, os_build;
+    int i, os_build;
     unsigned char tmpch;
 
     //Backdrop
@@ -335,34 +403,15 @@ void startGui(unsigned short xres, unsigned short yres) {
     fillRect(xres-114, yres-54);
 
     //Simple input loop
-    x = 2;
-    y = 0;
-    max_chars = (xres-114)/8;
+    cmd_init(xres, yres);
 
-    drawString("::", 27, 27, RGB(0, 255, 0));
-
+    //Wait for keypress
     while(1) {
-
-        //Wait for keypress
-        while(!(tmpch = getch()));
-
-        if(tmpch == '\n') {
-
-            x = 2;
-            y++;
-            drawString("::", 27, (y*12)+27, RGB(0, 255, 0));
-        } else {
-
-            drawCharacter(tmpch, (x*8)+27, (y*12)+27, RGB(0, 255, 0));
-            x++;
-
-            if(x > max_chars) {
-
-                x = 0;
-                y++;
-            }
-        }
+        cmd_prints("::");
+        cmd_scans(50, inbuf);
+        parse(inbuf);
     }
+
 
     //drawRect(102, 102, xres - 204, yres - 204, RGB(68, 76, 82));
 
