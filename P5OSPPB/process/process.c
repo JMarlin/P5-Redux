@@ -448,6 +448,13 @@ void clearContext(context* ctx) {
 }
 
 
+//ONLY TO BE USED IN VERY SPECIFIC SCENARIOS
+void resetProcessCounter() {
+
+    nextProc = 1;
+}
+
+
 process* newProcess() {
 
     process* proc;

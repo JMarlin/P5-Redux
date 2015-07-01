@@ -73,7 +73,7 @@ void main(void) {
 
     //Enter the message loop
     while(1) {
-        while(!getMessage(&temp_msg)); //Putting this in a loop shouldn't actually matter now since the OS sleeps procs waiting for a message
+        getMessage(&temp_msg); //Putting this in a loop shouldn't actually matter now since the OS sleeps procs waiting for a message
 
         switch(temp_msg.command) {
 

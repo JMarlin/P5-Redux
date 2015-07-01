@@ -125,9 +125,9 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
     usrCode[7] = 0x66; // --------------------------------|
     usrCode[8] = 0xBB; //                                 |
     usrCode[9] = (unsigned char)((ebx >> 24) & 0xFF); //  |
-    usrCode[10] = (unsigned char)((ebx >> 16) & 0xFF); //  |
-    usrCode[11] = (unsigned char)((ebx >> 8) & 0xFF);  //  |
-    usrCode[12] = (unsigned char)(ebx & 0xFF);         // -\_mov ebx, <the actual ebx arg>
+    usrCode[10] = (unsigned char)((ebx >> 16) & 0xFF); // |
+    usrCode[11] = (unsigned char)((ebx >> 8) & 0xFF);  // |
+    usrCode[12] = (unsigned char)(ebx & 0xFF);         //-\_mov ebx, <the actual ebx arg>
     usrCode[13] = 0x66; // -|
     usrCode[14] = 0xBA; //  |
     usrCode[15] = 0x50; //  |
@@ -206,6 +206,9 @@ void finish_mem_config() {
         //printHexDword(ebx);
         //pchar('\n');
     }
+
+    //Reset the state changes made by creating all of those v86 procs
+    resetProcessCounter();
 
     //Start of kernel
     rootBlock.base = (void*)0x100000;

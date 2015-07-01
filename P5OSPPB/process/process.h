@@ -86,6 +86,7 @@ void startProcessManagement();
 void endProc(process* proc);
 void deleteProc(process* proc);
 void kernelEntry(void);
+void resetProcessCounter(); 
 process* newUserProc();
 process* newSuperProc();
 //process* newV86Proc();

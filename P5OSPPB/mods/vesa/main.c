@@ -70,18 +70,22 @@ void main(void) {
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
+    prints("\n[VESA] Starting GFX services.\n");
 
     //First thing, register as a GFX service with the registrar
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
     getMessage(&temp_msg);
 
+    prints("[VESA] starting v86 helper...");
     //Then start the v86 helper thread
     client_pid = startV86(":v86.mod");
+    prints("started.\n");
 
     //For now, because we haven't really implemented exit()
     //we'll just go ahead and sleep as much as possible
     if(!temp_msg.payload || !client_pid) {
 
+        prints("\n[VESA] failed to register or start v86 thread.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_GFX);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
