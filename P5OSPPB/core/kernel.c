@@ -1,5 +1,6 @@
 #include "../process/process.h"
 #include "kernel.h"
+#include "global.h"
 #include "../ascii_io/ascii_i.h"
 #include "../ascii_io/ascii_o.h"
 #include "../fat12/hiinter.h"

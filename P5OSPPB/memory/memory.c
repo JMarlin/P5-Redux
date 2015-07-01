@@ -12,7 +12,6 @@ memblock rootBlock;
 void (*init_done)(void);
 memzone m_map[MAX_MMAPS];
 static char mmap_index = 0;
-unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
 //NEVER USE THIS
 //It's CRAZY slow. Also could fuck with mem mapped IO
@@ -169,6 +168,7 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 void mark_pages_status(unsigned int base_address, unsigned int range_size, unsigned char is_special) {
 
     unsigned int base_page, page_count, i;
+    unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
     //Don't screw with kernel-reserved memory below 0xB00000
     if(base_address < 0xB00000)
@@ -225,7 +225,7 @@ void finish_mem_config() {
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    false
+                    0
                 );
             break;
 
@@ -238,7 +238,7 @@ void finish_mem_config() {
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    true
+                    1
                 );
             break;
 
@@ -250,7 +250,7 @@ void finish_mem_config() {
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    true
+                    1
                 );
             break;
 
@@ -261,7 +261,7 @@ void finish_mem_config() {
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    true
+                    1
                 );
             break;
 
@@ -272,7 +272,7 @@ void finish_mem_config() {
                 mark_pages_status(
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
                     (unsigned int)(m_map[i].base & 0xFFFFFFFF),
-                    true
+                    1
                 );
             break;
         }
@@ -296,7 +296,7 @@ void finish_mem_config() {
 
     prints("Top of RAM: 0x");
     printHexDword(maxRAM);
-    pchar('\n')
+    pchar('\n');
 
     init_done(); //Return to kernel startup
 }

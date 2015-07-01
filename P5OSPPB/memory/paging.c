@@ -35,7 +35,7 @@ void init_page_system() {
             pageTable[(i * 1024) + j] = 0x00000002;
         }
     }
-}f
+}
 
 
 void free_pages(unsigned int physBase, unsigned int size) {
