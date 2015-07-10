@@ -14,6 +14,7 @@ void timer_off();
 void init_timer();
 void timer_int_ack();
 void c_spurious_handler();
+void c_timer_handler();
 void irq_enter_kernel();
 
 extern void _timer_handler(void);

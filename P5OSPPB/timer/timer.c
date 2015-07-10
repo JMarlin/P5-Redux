@@ -33,6 +33,12 @@ void timer_int_ack() {
 }
 
 
+void c_timer_handler() {
+
+    prints("TIMER YO\n");
+    timer_int_ack();
+}
+
 //If and when we open up IRQ7 this will have to
 //be updated to actually check the PIC
 void c_spurious_handler() {

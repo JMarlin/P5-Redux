@@ -1,6 +1,7 @@
 .extern _kernelEntry
 .extern _except_num
 .extern _c_spurious_handler
+.extern c_timer_handler
 .extern _timer_int_ack
 .extern t_counter
 .extern _in_kernel
@@ -30,7 +31,10 @@ _pending_eoi: .byte 0x0
 
 .globl _timer_handler
 _timer_handler:
-
+/*TEST CODE*/
+    call c_timer_handler
+    iret
+/*REAL CODE BELOW*/
     push %ds
     push %eax
     mov $0x10, %ax

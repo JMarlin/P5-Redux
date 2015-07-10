@@ -1,9 +1,19 @@
+#include "../process/process.h"
 #include "kernel.h"
 #include "global.h"
-#include "../memory/gdt.h"
 #include "../ascii_io/ascii_i.h"
 #include "../ascii_io/ascii_o.h"
+#include "../fat12/hiinter.h"
+#include "util.h"
 #include "int.h"
+#include "../ascii_io/keyboard.h"
+#include "../memory/memory.h"
+#include "../memory/paging.h"
+#include "../memory/gdt.h"
+#include "../fs/fs.h"
+#include "../fs/ramfs.h"
+#include "../block/block.h"
+#include "../block/ramdisk.h"
 #include "../timer/timer.h"
 
 
@@ -26,10 +36,11 @@ int main(void) {
     DEBUG("Done.\nSetting up the GDT...");
     initGdt();
     DEBUG("Done.\nSetting up the timer...");
-    init_timer();
-    timer_on();
+    init_timer(); //Mask all PIC channels
+    __asm__ ("sti");
+    timer_on(); //Unmask timer channel
     DEBUG("Done.\n");
-    
+
     while(1);
 }
 
