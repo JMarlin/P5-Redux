@@ -38,6 +38,7 @@ int main(void) {
     init_timer(); //Mask all PIC channels
     __asm__ ("sti");
     timer_on(); //Unmask timer channel
+    init_mmu(); 
     DEBUG("Done.\n");
 
     while(1);
