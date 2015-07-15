@@ -37,6 +37,7 @@ void syscall_exec(void) {
         //the process exits using syscall 0 and continues the
         //execution from there
         case 0:
+            prints("Returning from a call zero\n") //REMOVE ME
             tmp_ebx = p->ctx.ebx;
             tmp_ecx = p->ctx.ecx;
             tmp_edx = p->ctx.edx;
