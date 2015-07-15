@@ -29,18 +29,18 @@ int main(void) {
     initScreen();
     setColor(0x1F);
     clear();
-    DEBUG("Setting up interrupt table...");
+    prints("Setting up interrupt table...");
     initIDT();
     installExceptionHandlers();
-    DEBUG("Done.\nSetting up the GDT...");
+    prints("Done.\nSetting up the GDT...");
     initGdt();
-    DEBUG("Done.\nInitializing process mgmt...");
+    prints("Done.\nInitializing process mgmt...");
     startProcessManagement();
-    DEBUG("Done.\nSetting up the timer...");
+    prints("Done.\nSetting up the timer...");
     init_timer(); //Mask all PIC channels
     //__asm__ ("sti");
     timer_on(); //Unmask timer channel
-    DEBUG("Done.\nTurning on paging...");
+    prints("Done.\nTurning on paging...");
     init_mmu();
     init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
                                          //has to jump into a v86 process and back.
@@ -56,14 +56,14 @@ void kernel_finish_startup(void) {
     int key_stat;
 
 /*
-    DEBUG("Done.\nSetting up keyboard...");
+    prints("Done.\nSetting up keyboard...");
 
     if((key_stat = keyboard_init()) != 1) {
-        DEBUG("Failed (");
-        DEBUG_HB((unsigned char)(key_stat & 0xFF));
-        DEBUG(")\n[P5]: No input device availible.\n");
+        prints("Failed (");
+        prints_HB((unsigned char)(key_stat & 0xFF));
+        prints(")\n[P5]: No input device availible.\n");
     } else {
-        DEBUG("Done.\n");
+        prints("Done.\n");
     }
 
     prints("WELCOME TO P5\n");
@@ -91,23 +91,23 @@ void kernel_finish_startup(void) {
     }
 
     //Print kernel size and version
-    DEBUG("Image: ");
-    DEBUG(&_imagename);
-    DEBUG("\nSize: ");
-    DEBUG_HD(_pkgoffset);
-    DEBUG("b\n");
-    DEBUG("Initializing filesystem\n");
+    prints("Image: ");
+    prints(&_imagename);
+    prints("\nSize: ");
+    printHexDword(_pkgoffset);
+    prints("b\n");
+    prints("Initializing filesystem\n");
     fs_init();
 
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
-    DEBUG("Calculating offset to ramdisk\n");
+    prints("Calculating offset to ramdisk\n");
     doffset = 0x100005 + _pkgoffset;
-    DEBUG("Creating new ramdisk block device ram0...");
+    prints("Creating new ramdisk block device ram0...");
     ram0 = blk_ram_new(doffset, sizes[0]);
-    DEBUG("Done\nInstalling ramfs filesystem driver...");
+    prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
-    DEBUG("Done\nAttaching ramfs filesystem on ram0...");
+    prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, ram0, ":");
 
     //Start the registrar and thereby the rest of the OS
