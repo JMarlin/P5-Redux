@@ -368,6 +368,7 @@ void kernelEntry(void) {
         //Switch to the V86 monitor if the thread was a V86 thread
             if(p->flags & PF_V86) {
 
+                prints("V86 monitor call\n");
                 V86Entry();
             } else {
 

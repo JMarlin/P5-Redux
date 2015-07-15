@@ -62,10 +62,65 @@ void printChain() {
 void finish_mem_config(void);
 void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx);
 
-
+unsigned int v86_pid;
 void init_memory(void (*cb)(void)) {
 
+    char* usrCode = (char*)0x80000;
+
     init_done = cb;
+    set_call_zero_cb(&get_next_memzone); //Make the interrupt out enter the func
+
+    //Write the initial body of the memory detection code
+    //Do INT 0x15
+    usrCode[0]  = 0x8C; // -|
+    usrCode[1]  = 0xC8; // -\_mov ax, cs
+    usrCode[2]  = 0x8E; // -|
+    usrCode[3]  = 0xC0; // -\_mov es, ax
+    usrCode[4]  = 0xBF; // -|
+    usrCode[5]  = 0x00; //  |
+    usrCode[6]  = 0x10; // -\_mov di, 0x1000
+    usrCode[7] = 0x66; // --|
+    usrCode[8] = 0xBB; //   |
+    usrCode[9] = 0; //      |
+    usrCode[10] = 0; //     |
+    usrCode[11] = 0; //     |
+    usrCode[12] = 0; //-----\_mov ebx, <the actual ebx arg>
+    usrCode[13] = 0x66; // -|
+    usrCode[14] = 0xBA; //  |
+    usrCode[15] = 0x50; //  |
+    usrCode[16] = 0x41; //  |
+    usrCode[17] = 0x4D; //  |
+    usrCode[18] = 0x53; // -\_mov edx, 0x534D4150
+    usrCode[19] = 0x66; // -|
+    usrCode[20] = 0xB9; //  |
+    usrCode[21] = 0x00; //  |
+    usrCode[22] = 0x00; //  |
+    usrCode[23] = 0x00; //  |
+    usrCode[24] = 0x24; // -\_mov ecx, 0x00000024
+    usrCode[25] = 0x66; // -|
+    usrCode[26] = 0xB8; //  |
+    usrCode[27] = 0x20; //  |
+    usrCode[28] = 0xE8; //  |
+    usrCode[29] = 0x00; //  |
+    usrCode[30] = 0x00; // -\_mov eax, 0x0000E820
+    usrCode[31] = 0xCD; // -|
+    usrCode[32] = 0x15; // -\_int 0xff
+    //Do INT 0xFF #0, return to kernel init
+    usrCode[33] = 0x66; // -|
+    usrCode[34] = 0x89; //  |
+    usrCode[35] = 0xC1; // -\_mov ecx, eax
+    usrCode[36] = 0x66; // -|
+    usrCode[37] = 0x31; //  |
+    usrCode[38] = 0xC0; // -\_xor eax, eax
+    usrCode[39] = 0xCD; // -|
+    usrCode[40] = 0xFF; // -\_int 0xff
+    usrCode[41] = 0xFF; // -|
+    usrCode[42] = 0x00; //  |
+    usrCode[43] = 0x00; //  |
+    usrCode[44] = 0x08; //  |
+    usrCode[45] = 0x00; // -\_jmp 0x00080000 (loop)
+
+    v86_pid = exec_loaded_v86(100);
 
     prints("\nStarted memory init.\n");
     get_next_memzone(0, 0, 0);
@@ -83,8 +138,6 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 
     //We'll use this to figure out if we're done or not
     static char in_list = 0;
-
-    set_call_zero_cb(&get_next_memzone); //Make this shit recursive
 
     //If we're in the list, we have a valid entry and should store it
     if(in_list) {
@@ -118,52 +171,13 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
         }
     }
 
-    //Write our shite to low ram
-    //Do INT 0x15
-    usrCode[0]  = 0x8C; // -|
-    usrCode[1]  = 0xC8; // -\_mov ax, cs
-    usrCode[2]  = 0x8E; // -|
-    usrCode[3]  = 0xC0; // -\_mov es, ax
-    usrCode[4]  = 0xBF; // -|
-    usrCode[5]  = 0x00; //  |
-    usrCode[6]  = 0x10; // -\_mov di, 0x1000
-    usrCode[7] = 0x66; // --------------------------------|
-    usrCode[8] = 0xBB; //                                 |
+    //Update the code to insert the updated ebx value
     usrCode[9] = (unsigned char)((ebx >> 24) & 0xFF); //  |
     usrCode[10] = (unsigned char)((ebx >> 16) & 0xFF); // |
     usrCode[11] = (unsigned char)((ebx >> 8) & 0xFF);  // |
     usrCode[12] = (unsigned char)(ebx & 0xFF);         //-\_mov ebx, <the actual ebx arg>
-    usrCode[13] = 0x66; // -|
-    usrCode[14] = 0xBA; //  |
-    usrCode[15] = 0x50; //  |
-    usrCode[16] = 0x41; //  |
-    usrCode[17] = 0x4D; //  |
-    usrCode[18] = 0x53; // -\_mov edx, 0x534D4150
-    usrCode[19] = 0x66; // -|
-    usrCode[20] = 0xB9; //  |
-    usrCode[21] = 0x00; //  |
-    usrCode[22] = 0x00; //  |
-    usrCode[23] = 0x00; //  |
-    usrCode[24] = 0x24; // -\_mov ecx, 0x00000024
-    usrCode[25] = 0x66; // -|
-    usrCode[26] = 0xB8; //  |
-    usrCode[27] = 0x20; //  |
-    usrCode[28] = 0xE8; //  |
-    usrCode[29] = 0x00; //  |
-    usrCode[30] = 0x00; // -\_mov eax, 0x0000E820
-    usrCode[31] = 0xCD; // -|
-    usrCode[32] = 0x15; // -\_int 0xff
-    //Do INT 0xFF #0, return to kernel init
-    usrCode[33] = 0x66; // -|
-    usrCode[34] = 0x89; //  |
-    usrCode[35] = 0xC1; // -\_mov ecx, eax
-    usrCode[36] = 0x66; // -|
-    usrCode[37] = 0x31; //  |
-    usrCode[38] = 0xC0; // -\_xor eax, eax
-    usrCode[39] = 0xCD; // -|
-    usrCode[40] = 0xFF; // -\_int 0xff
 
-    enterProc(exec_loaded_v86(100));
+    enterProc(v86_pid); //Re-enter the process
 }
 
 
