@@ -546,14 +546,14 @@ process* newV86Proc() {
     //Set the v86 mode bit
     newP->flags |= PF_V86;
 
-    newP->base = 0xB00000;
+    newP->base = 0x80000;
     newP->size = 0x0;
 
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0x1000;
-    newP->ctx.ss = 0x9000;
-    newP->ctx.ds = 0x9000;
-    newP->ctx.cs = 0x8000;
+    newP->ctx.ss = 0x0009;
+    newP->ctx.ds = 0x0008;
+    newP->ctx.cs = 0x0008;
     newP->ctx.eip = 0x0;
 
     //Interrupts enabled by default
