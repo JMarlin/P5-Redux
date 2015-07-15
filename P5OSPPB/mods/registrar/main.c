@@ -62,6 +62,9 @@ void main(void) {
     message temp_msg;
     int i;
 
+    prints("\nRegistrar entered.\n")
+    while(1); //TEMPHANG
+
     //Make sure reg table is cleared
     for(i = 0; i < 20; i++)
         reg_table_pid[i] = reg_table_svc[i] = 0;

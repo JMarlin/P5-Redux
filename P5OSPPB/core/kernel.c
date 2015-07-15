@@ -38,7 +38,7 @@ int main(void) {
     startProcessManagement();
     DEBUG("Done.\nSetting up the timer...");
     init_timer(); //Mask all PIC channels
-    __asm__ ("sti");
+    //__asm__ ("sti");
     timer_on(); //Unmask timer channel
     DEBUG("Done.\nTurning on paging...");
     init_mmu();
@@ -55,8 +55,8 @@ void kernel_finish_startup(void) {
     int tempCh = 0;
     int key_stat;
 
+/*
     DEBUG("Done.\nSetting up keyboard...");
-    while(1); //TEMPHANG
 
     if((key_stat = keyboard_init()) != 1) {
         DEBUG("Failed (");
@@ -72,7 +72,7 @@ void kernel_finish_startup(void) {
     while(!(tempCh = getch()));
     if(tempCh == 'A')
         setupKeyTable_set1();
-
+*/
     pchar('\n');
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
