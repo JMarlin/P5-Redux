@@ -93,10 +93,10 @@ void init_memory(void (*cb)(void)) {
     usrCode[18] = 0x53; // -\_mov edx, 0x534D4150
     usrCode[19] = 0x66; // -|
     usrCode[20] = 0xB9; //  |
-    usrCode[21] = 0x00; //  |
+    usrCode[21] = 0x24; //  |
     usrCode[22] = 0x00; //  |
     usrCode[23] = 0x00; //  |
-    usrCode[24] = 0x24; // -\_mov ecx, 0x00000024
+    usrCode[24] = 0x00; // -\_mov ecx, 0x00000024
     usrCode[25] = 0x66; // -|
     usrCode[26] = 0xB8; //  |
     usrCode[27] = 0x20; //  |
@@ -104,7 +104,7 @@ void init_memory(void (*cb)(void)) {
     usrCode[29] = 0x00; //  |
     usrCode[30] = 0x00; // -\_mov eax, 0x0000E820
     usrCode[31] = 0xCD; // -|
-    usrCode[32] = 0x15; // -\_int 0xff
+    usrCode[32] = 0x15; // -\_int 0x15
     //Do INT 0xFF #0, return to kernel init
     usrCode[33] = 0x66; // -|
     usrCode[34] = 0x89; //  |
@@ -115,8 +115,8 @@ void init_memory(void (*cb)(void)) {
     usrCode[39] = 0xCD; // -|
     usrCode[40] = 0xFF; // -\_int 0xff
     usrCode[41] = 0xE9; // -|
-    usrCode[42] = 0xFF; //  |
-    usrCode[43] = 0xD5; // -\_jmp 0x0000 (loop)
+    usrCode[42] = 0xD4; //  |
+    usrCode[43] = 0xFF; // -\_jmp 0x0000 (loop)
 
     v86_pid = exec_loaded_v86(100);
 
