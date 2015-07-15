@@ -40,7 +40,10 @@ int main(void) {
     init_timer(); //Mask all PIC channels
     __asm__ ("sti");
     timer_on(); //Unmask timer channel
+    DEBUG("Done.\nTurning on paging...");
     init_mmu();
+    init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
+                                         //has to jump into a v86 process and back.
     DEBUG("Done.\n");
 
     while(1);
