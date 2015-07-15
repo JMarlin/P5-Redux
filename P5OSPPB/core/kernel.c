@@ -44,9 +44,6 @@ int main(void) {
     init_mmu();
     init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
                                          //has to jump into a v86 process and back.
-    DEBUG("Done.\n");
-
-    while(1);
 }
 
 void kernel_finish_startup(void) {
@@ -59,6 +56,7 @@ void kernel_finish_startup(void) {
     int key_stat;
 
     DEBUG("Done.\nSetting up keyboard...");
+    while(1); //TEMPHANG
 
     if((key_stat = keyboard_init()) != 1) {
         DEBUG("Failed (");
