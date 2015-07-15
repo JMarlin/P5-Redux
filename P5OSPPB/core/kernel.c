@@ -34,11 +34,13 @@ int main(void) {
     installExceptionHandlers();
     DEBUG("Done.\nSetting up the GDT...");
     initGdt();
+    DEBUG("Done.\nInitializing process mgmt...");
+    startProcessManagement();
     DEBUG("Done.\nSetting up the timer...");
     init_timer(); //Mask all PIC channels
     __asm__ ("sti");
     timer_on(); //Unmask timer channel
-    init_mmu(); 
+    init_mmu();
     DEBUG("Done.\n");
 
     while(1);
