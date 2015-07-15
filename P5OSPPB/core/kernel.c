@@ -55,6 +55,8 @@ void kernel_finish_startup(void) {
     int tempCh = 0;
     int key_stat;
 
+    prints("Done.");
+
 /*
     prints("Done.\nSetting up keyboard...");
 
