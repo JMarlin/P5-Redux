@@ -359,6 +359,9 @@ void kernelEntry(void) {
     p->ctx.gs = _old_gs;
     p->ctx.err = _old_err;
 
+    //BIG ISSUE: Interrupts can put us here while we're still in the middle of a process,
+    //so we need to make sure we do a check to see if we're in an interrupt first here
+    //or, even better, figure out why interrupts put us here and keep that from happening
     if(p->flags & PF_V86)
         insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)p->ctx.eip) &0xFFFF));
     else

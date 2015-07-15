@@ -114,11 +114,9 @@ void init_memory(void (*cb)(void)) {
     usrCode[38] = 0xC0; // -\_xor eax, eax
     usrCode[39] = 0xCD; // -|
     usrCode[40] = 0xFF; // -\_int 0xff
-    usrCode[41] = 0xFF; // -|
+    usrCode[41] = 0xEA; // -|
     usrCode[42] = 0x00; //  |
-    usrCode[43] = 0x00; //  |
-    usrCode[44] = 0x08; //  |
-    usrCode[45] = 0x00; // -\_jmp 0x00080000 (loop)
+    usrCode[43] = 0x00; // -\_jmp 0x0000 (loop)
 
     v86_pid = exec_loaded_v86(100);
 
