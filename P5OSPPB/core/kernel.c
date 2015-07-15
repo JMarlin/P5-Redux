@@ -39,7 +39,6 @@ int main(void) {
     prints("Done.\nSetting up the timer...");
     init_timer(); //Mask all PIC channels
     //__asm__ ("sti");
-    timer_on(); //Unmask timer channel
     prints("Done.\nTurning on paging...");
     init_mmu();
     init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
@@ -56,6 +55,7 @@ void kernel_finish_startup(void) {
     int key_stat;
 
     prints("Done.");
+    timer_on(); //Unmask timer channel
 
 /*
     prints("Done.\nSetting up keyboard...");
