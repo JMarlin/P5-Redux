@@ -546,7 +546,7 @@ process* newV86Proc() {
     //Set the v86 mode bit
     newP->flags |= PF_V86;
 
-    newP->base = 0x800000;
+    newP->base = 0x80000;
     newP->size = 0x0;
 
     clearContext(&(newP->ctx));
