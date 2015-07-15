@@ -62,7 +62,7 @@ void main(void) {
     message temp_msg;
     int i;
 
-    prints("\nRegistrar entered.\n")
+    prints("\nRegistrar entered.\n");
     while(1); //TEMPHANG
 
     //Make sure reg table is cleared
