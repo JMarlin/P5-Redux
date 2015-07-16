@@ -49,9 +49,17 @@ void free_pages(unsigned int physBase, unsigned int size) {
         //Make sure to preserve the OS-status bits
         pageTable[i] &= 0x00000E00;
         pageTable[i] |= 0x00000002;
+
+        //And invalidate the page
+        invlpg(void* i << 12);
     }
 }
 
+static inline void invlpg(void* address)
+{
+
+    asm volatile ( "invlpg (%0)" : : "b"(address) : "memory" );
+}
 
 void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
 
@@ -72,6 +80,9 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         //Make sure to preserve the OS-status bits
         pageTable[i] &= 0x00000E00;
         pageTable[i] |= (physBase & 0xFFFFF000) | (flags & 0x1FF);
+
+        //And invalidate the page
+        invlpg(void* i << 12);
     }
 }
 
@@ -172,7 +183,7 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base, char super) {
         pr_current = pr_current->next;
     }
 
-    _loadPageDirectory(pageDirectory);
+    //_loadPageDirectory(pageDirectory);
 }
 
 
