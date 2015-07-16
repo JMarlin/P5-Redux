@@ -38,6 +38,11 @@ void init_page_system() {
     }
 }
 
+static inline void invlpg(void* address)
+{
+
+    asm volatile ( "invlpg (%0)" : : "b"(address) : "memory" );
+}
 
 void free_pages(unsigned int physBase, unsigned int size) {
 
@@ -53,12 +58,6 @@ void free_pages(unsigned int physBase, unsigned int size) {
         //And invalidate the page
         invlpg((void*)(i << 12));
     }
-}
-
-static inline void invlpg(void* address)
-{
-
-    asm volatile ( "invlpg (%0)" : : "b"(address) : "memory" );
 }
 
 void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, unsigned short flags) {
