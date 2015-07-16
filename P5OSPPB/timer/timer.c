@@ -35,7 +35,18 @@ void timer_int_ack() {
 
 void c_timer_handler() {
 
-    prints("TIMER YO\n");
+    static unsigned char tick_count = 0;
+
+    //Put a write to kernel memory here to see if it causes
+    //a GPF. If it does, we know that this code is being run
+    //at ring 3 instead of ring 0
+
+    if(++tick_count > 500) {
+
+        tick_count = 0;
+        pchar("#");
+    }
+
     timer_int_ack();
 }
 
