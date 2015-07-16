@@ -325,7 +325,7 @@ void V86Entry(void) {
                 break;
 
             default:
-                //prints("(!!0x"); printHexByte(insPtr[0]); prints("!!)");
+                prints("(!!0x"); printHexByte(insPtr[0]); prints("!!)");
                 while(1);
                 break;
         }

@@ -177,8 +177,6 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base, char super) {
     while(pr_current) {
 
         //Map the page with kernel privilege if super is set, user if not
-        printHexDword(pr_current->base_page << 12);
-
         map_pages(pr_current->base_page << 12, v_addr, pr_current->count << 12, super ? 3 : 7);
         v_addr += (pr_current->count << 12);
         pr_current = pr_current->next;
