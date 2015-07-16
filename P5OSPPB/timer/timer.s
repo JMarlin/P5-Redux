@@ -41,18 +41,19 @@ _timer_handler:
     mov %ss, %ax
     push %eax */
     mov $0x10, %ax
-    mov %ax, %ds
-    mov $0x10, %ax
     mov %ax, %ss
+
+    xor %eax, %eax
+    mov %ds, %ax
+    push %eax
+    mov $0x10, %ax
+    mov %ax, %ds
 
     call c_timer_handler
 
-    /* restore the ring0 DS
-    pop %eax
-    mov %ax, %ss
+    /* restore the ring0 DS */
     pop %eax
     mov %ax, %ds
-    */
 
     /* popa */
     iret
