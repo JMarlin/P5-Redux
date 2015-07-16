@@ -39,21 +39,15 @@ void c_timer_handler() {
 
     static unsigned int tick_count = 0;
 
-    timer_off();
-    timer_int_ack();
-
-    pchar('.');
-
     if(++tick_count > 500) {
-
-        pchar('#');
 
         //Force kernel entry
         tick_count = 0;
-        //needs_swap = 1;
-        //__asm__ ("int $0xFE");
+        needs_swap = 1;
+        __asm__ ("int $0xFE");
     }
-    timer_on();
+
+    timer_int_ack();
 }
 
 //If and when we open up IRQ7 this will have to
