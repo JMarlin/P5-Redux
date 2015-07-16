@@ -40,6 +40,7 @@ void c_timer_handler() {
     static unsigned int tick_count = 0;
 
     timer_off();
+    timer_int_ack();
 
     pchar('.');
 
@@ -52,8 +53,6 @@ void c_timer_handler() {
         //needs_swap = 1;
         //__asm__ ("int $0xFE");
     }
-
-    timer_int_ack();
     timer_on();
 }
 
