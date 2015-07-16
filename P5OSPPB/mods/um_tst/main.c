@@ -255,7 +255,7 @@ void enterMode(void) {
     unsigned short num;
 
     prints("mode: ");
-    scans(2, inbuf);
+    scans(10, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
 
     if(!setScreenMode(num)) {
