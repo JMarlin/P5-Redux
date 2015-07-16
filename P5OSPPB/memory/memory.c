@@ -127,8 +127,8 @@ void init_memory(void (*cb)(void)) {
 
 void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 
-    prints("Making a memory detection pass\n")
-;
+    prints("Making a memory detection pass\n");
+
     //Only one v86 proc can exist at a time and
     //they're all loaded into 0x80000
     char* usrCode = (char*)0x80000;
@@ -301,6 +301,10 @@ void finish_mem_config() {
         biggest_end = 0xFFFFFFFF;
 
     maxRAM = (unsigned int)(biggest_end & 0xFFFFFFFF);
+
+    //We expect a minimum of 32M ram
+    if(maxRAM < 0x1FFFFFF)
+        maxRAM = 0x1FFFFFF;
 
     //Reset the state changes made by creating all of those v86 procs
     prints("Resetting process management\n");

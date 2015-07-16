@@ -112,6 +112,6 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &_timer_handler, 3);
+    installInterrupt(TIMER_INT_NUM, &_timer_handler, 3); 
     installInterrupt(0xE7, &_spurious_handler, 3);
 }
