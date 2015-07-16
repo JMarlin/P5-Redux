@@ -38,12 +38,17 @@ _timer_handler:
     xor %eax, %eax
     mov %ds, %ax
     push %eax
+    mov %ss, %ax
+    push %eax
     mov $0x10, %ax
     mov %ax, %ds
+    mov %ax, %ss
 
     call c_timer_handler
 
     /* restore the ring0 DS */
+    pop %eax
+    mov %ax, %ss
     pop %eax
     mov %ax, %ds
 
