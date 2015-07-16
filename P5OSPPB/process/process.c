@@ -377,7 +377,6 @@ void kernelEntry(void) {
                 //this is actually just a force-swap by the timer
                 if(!needs_swap) {
 
-                    prints("V86 monitor call\n");
                     V86Entry();
                 }
             } else {
