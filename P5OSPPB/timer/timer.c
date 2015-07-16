@@ -48,7 +48,7 @@ void c_timer_handler() {
         //Force kernel entry
         tick_count = 0;
         needs_swap = 1;
-        __asm__ ("int 0xFE");
+        __asm__ ("int $0xFE");
 
         pchar('#');
     }
