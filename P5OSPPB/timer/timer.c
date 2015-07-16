@@ -41,8 +41,6 @@ void c_timer_handler() {
 
     pchar('.');
 
-    //I Think the issue here is that we're completely clobbering the process's
-    //context when we do this, and that ain't no good
     if(++tick_count > 500) {
 
         pchar('#');
