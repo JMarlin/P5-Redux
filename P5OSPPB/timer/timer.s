@@ -33,7 +33,7 @@ _pending_eoi: .byte 0x0
 _timer_handler:
 /*TEST CODE*/
     pusha
-    mov %cs, %ax
+    mov $0x10, %ax
     mov %ax, %ss
     mov %ax, %ds
     call c_timer_handler
