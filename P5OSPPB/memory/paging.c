@@ -51,7 +51,7 @@ void free_pages(unsigned int physBase, unsigned int size) {
         pageTable[i] |= 0x00000002;
 
         //And invalidate the page
-        invlpg(void* i << 12);
+        invlpg(i << 12);
     }
 }
 
@@ -82,7 +82,7 @@ void map_pages(unsigned int physBase, unsigned int virtBase, unsigned int size, 
         pageTable[i] |= (physBase & 0xFFFFF000) | (flags & 0x1FF);
 
         //And invalidate the page
-        invlpg(void* i << 12);
+        invlpg(i << 12);
     }
 }
 
