@@ -325,7 +325,8 @@ void V86Entry(void) {
                 break;
 
             default:
-                prints("(!!0x"); printHexByte(insPtr[0]); prints("!!)");
+                prints("Unrecognized v86 command:\n");
+                kernelDebug();
                 while(1);
                 break;
         }
