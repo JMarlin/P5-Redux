@@ -372,8 +372,13 @@ void kernelEntry(void) {
         //Switch to the V86 monitor if the thread was a V86 thread
             if(p->flags & PF_V86) {
 
-                prints("V86 monitor call\n");
-                V86Entry();
+                //In the case that needs_swap IS set, we know that
+                //this is actually just a force-swap by the timer
+                if(!needs_swap) {
+
+                    prints("V86 monitor call\n");
+                    V86Entry();
+                }
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
