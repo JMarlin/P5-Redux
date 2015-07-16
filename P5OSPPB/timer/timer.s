@@ -33,10 +33,20 @@ _pending_eoi: .byte 0x0
 _timer_handler:
 /*TEST CODE*/
     pusha
+
+    /* stash the old DS from the interrupted code and install the ring0 DS */
+    xor %eax, %eax
+    mov %ds, %ax
+    push %eax
     mov $0x10, %ax
-    mov %ax, %ss
     mov %ax, %ds
+
     call c_timer_handler
+
+    /* restore the ring0 DS */
+    pop %eax
+    mov %ax, %ds
+
     popa
     iret
 /*REAL CODE BELOW*/
