@@ -138,8 +138,6 @@ void V86Entry(void) {
     unsigned int* stack32 = (unsigned int*)stack;
     char op32 = 0;
 
-    kernelDebug();
-
     while(1) {
 
         switch(insPtr[0]) {
@@ -400,6 +398,8 @@ void kernelEntry(void) {
         case FORCE_ENTER:
             //We don't want to do anything here, this is just
             //so that we get an entry into and an exit from the kernel
+            prints("\nA forceenter was requested\n");
+            kernelDebug();
             break;
 
         case EX_DEBUGCALL:

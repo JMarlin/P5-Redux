@@ -41,14 +41,16 @@ void c_timer_handler() {
 
     pchar('.');
 
+    //I Think the issue here is that we're completely clobbering the process's
+    //context when we do this, and that ain't no good
     if(++tick_count > 500) {
+
+        pchar('#');
 
         //Force kernel entry
         tick_count = 0;
         needs_swap = 1;
         __asm__ ("int $0xFE");
-
-        pchar('#');
     }
 
     timer_int_ack();
