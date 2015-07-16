@@ -39,9 +39,7 @@ void c_timer_handler() {
 
     static unsigned int tick_count = 0;
 
-    //Put a write to kernel memory here to see if it causes
-    //a GPF. If it does, we know that this code is being run
-    //at ring 3 instead of ring 0
+    pchar('.');
 
     if(++tick_count > 500) {
 
