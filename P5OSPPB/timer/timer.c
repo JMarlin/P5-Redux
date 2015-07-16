@@ -39,7 +39,7 @@ void c_timer_handler() {
 
     //static unsigned int tick_count = 0;
 
-    pchar('.');
+    //pchar('.');
 
     //if(++tick_count > 500) {
 
