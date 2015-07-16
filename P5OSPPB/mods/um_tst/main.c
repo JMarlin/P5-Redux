@@ -255,6 +255,7 @@ void enterMode(void) {
     unsigned short num;
 
     prints("mode: ");
+    while(1); //Test to see whuttup
     scans(10, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
 
