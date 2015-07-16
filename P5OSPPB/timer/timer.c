@@ -35,7 +35,9 @@ void timer_int_ack() {
 
 void c_timer_handler() {
 
-    static unsigned int tick_count = 0;
+    static unsigned int tick_count = 0, tick_two = 0;
+    unsigned char *illegal_memory = (unsigned char*)0x100000; //Incidentally the
+    //initial jump into the kernel startup code
 
     //Put a write to kernel memory here to see if it causes
     //a GPF. If it does, we know that this code is being run
@@ -44,6 +46,15 @@ void c_timer_handler() {
     if(++tick_count > 500) {
 
         tick_count = 0;
+        if(++tick_two == 10) {
+
+            //Attempt to write to kernel space
+            illegal_memory[0] = 0;
+            prints("\nWe were able to touch kernel memory without crashing\n");
+            //If in kernel, iret
+            //If not in kernel, do a force-kernel-entry interrupt and THEN iret
+        }
+
         pchar('#');
     }
 

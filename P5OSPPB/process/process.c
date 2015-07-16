@@ -137,8 +137,6 @@ void V86Entry(void) {
     unsigned int* stack32 = (unsigned int*)stack;
     char op32 = 0;
 
-    kernelDebug(); //REMOVE
-
     while(1) {
 
         switch(insPtr[0]) {
