@@ -32,7 +32,7 @@ _pending_eoi: .byte 0x0
 .globl _timer_handler
 _timer_handler:
 /*TEST CODE*/
-    call c_timer_handler
+    /*call c_timer_handler*/
     iret
 /*REAL CODE BELOW*/
     push %ds

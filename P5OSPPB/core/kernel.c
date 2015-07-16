@@ -55,7 +55,7 @@ void kernel_finish_startup(void) {
     int key_stat;
 
     prints("Done.");
-    //timer_on(); //Unmask timer channel
+    timer_on(); //Unmask timer channel
 
 /*
     prints("Done.\nSetting up keyboard...");
