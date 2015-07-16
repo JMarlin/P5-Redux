@@ -3,6 +3,8 @@
 #include "../process/process.h"
 #include "timer.h"
 
+extern unsigned char _in_kernel;
+extern unsigned char needs_swap;
 
 void timer_on() {
 
@@ -35,9 +37,7 @@ void timer_int_ack() {
 
 void c_timer_handler() {
 
-    static unsigned int tick_count = 0, tick_two = 0;
-    unsigned char *illegal_memory = (unsigned char*)0x100000; //Incidentally the
-    //initial jump into the kernel startup code
+    static unsigned int tick_count = 0;
 
     //Put a write to kernel memory here to see if it causes
     //a GPF. If it does, we know that this code is being run
@@ -45,15 +45,10 @@ void c_timer_handler() {
 
     if(++tick_count > 500) {
 
+        //Force kernel entry
         tick_count = 0;
-        if(++tick_two == 10) {
-
-            //Attempt to write to kernel space
-            illegal_memory[0] = 0;
-            prints("\nWe were able to touch kernel memory without crashing\n");
-            //If in kernel, iret
-            //If not in kernel, do a force-kernel-entry interrupt and THEN iret
-        }
+        needs_swap = 1;
+        __asm__ ("int 0xFE");
 
         pchar('#');
     }

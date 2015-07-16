@@ -72,8 +72,6 @@ extern int _old_err;
 extern unsigned char _in_kernel;
 extern unsigned char _prc_is_super;
 
-unsigned char needs_swap;
-
 typedef struct ivector {
     unsigned short offset;
     unsigned short segment;
@@ -86,7 +84,7 @@ void startProcessManagement();
 void endProc(process* proc);
 void deleteProc(process* proc);
 void kernelEntry(void);
-void resetProcessCounter(); 
+void resetProcessCounter();
 process* newUserProc();
 process* newSuperProc();
 //process* newV86Proc();

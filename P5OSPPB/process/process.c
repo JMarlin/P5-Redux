@@ -18,6 +18,7 @@ int intVect = 0;
 int nextProc = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
+unsigned char needs_swap = 0;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
