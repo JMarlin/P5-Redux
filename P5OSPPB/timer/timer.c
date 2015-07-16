@@ -41,11 +41,11 @@ void c_timer_handler() {
     //a GPF. If it does, we know that this code is being run
     //at ring 3 instead of ring 0
 
-    if(++tick_count > 500) {
+    //if(++tick_count > 500) {
 
-        tick_count = 0;
+    //    tick_count = 0;
         pchar("#");
-    }
+    //}
 
     timer_int_ack();
 }
