@@ -61,7 +61,9 @@ unsigned char getch() {
 
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
+    prints("waiting for key message...")
     while(!getMessage(&temp_msg));
+    prints("got key message\n");
 
     return (unsigned char)(temp_msg.payload & 0xFF);
 }
