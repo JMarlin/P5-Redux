@@ -2,6 +2,9 @@
 .extern _in_kernel
 .extern _except_num
 
+.globl _pending_eoi
+_pending_eoi: .byte 0x0
+
 .globl _spurious_handler
 _spurious_handler:
     pusha
