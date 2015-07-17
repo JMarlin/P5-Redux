@@ -1,6 +1,7 @@
 .extern _switchToKernel
 .extern _in_kernel
 .extern _except_num
+.extern _temp_eax
 
 .globl _pending_eoi
 .globl _was_spurious
@@ -9,10 +10,10 @@ _pending_eoi: .byte 0x0
 
 .globl _spurious_handler
 _spurious_handler:
-    incb %ss:_in_kernel
+    incb $0x0010:_in_kernel
     push %eax
     mov $0xFE, %al
-    mov %al, %ss:_except_num
+    mov %al, $0x0010:_except_num
     mov $0x01, %al
     mov %al, _was_spurious
     pop %eax
@@ -20,11 +21,11 @@ _spurious_handler:
 
 .globl _handle_timerInt
 _handle_timerInt:
-    incb %ss:_in_kernel
-    push %eax
+    incb $0x0010:_in_kernel
+    mov %eax, $0x0010:_temp_eax
     mov $0xFE, %al
-    mov %al, %ss:_except_num
+    mov %al, $0010:_except_num
     xor %al, %al
     mov %al, _was_spurious
-    pop %eax
+    mov $0x0010:_temp_eax, %eax
     call _switchToKernel
