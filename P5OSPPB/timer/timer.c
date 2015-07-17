@@ -44,7 +44,6 @@ void c_timer_handler() {
         //Force kernel entry
         tick_count = 0;
         needs_swap = 1;
-        __asm__ ("int $0xFE");
     }
 
     timer_int_ack();
@@ -112,6 +111,6 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &_timer_handler, 3); 
+    installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3);
     installInterrupt(0xE7, &_spurious_handler, 3);
 }

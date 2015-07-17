@@ -17,7 +17,7 @@ void c_spurious_handler();
 void c_timer_handler();
 void irq_enter_kernel();
 
-extern void _timer_handler(void);
+extern void _handle_timerInt(void);
 extern void _spurious_handler(void);
 
 unsigned int t_counter;

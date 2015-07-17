@@ -399,7 +399,8 @@ void kernelEntry(void) {
             //We don't want to do anything here, this is just
             //so that we get an entry into and an exit from the kernel
             prints("\nA forceenter was requested\n");
-            kernelDebug();
+            c_timer_handler();
+            //kernelDebug();
             break;
 
         case EX_DEBUGCALL:
