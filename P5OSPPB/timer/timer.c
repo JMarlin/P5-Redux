@@ -6,6 +6,7 @@
 
 extern unsigned char _in_kernel;
 extern unsigned char needs_swap;
+extern unsigned char _was_spurious;
 
 void timer_on() {
 
@@ -56,6 +57,7 @@ void c_spurious_handler() {
 
     DEBUG("SPURIOUS INTERRUPT\n");
     timer_int_ack();
+    _was_spurious = 0;
 }
 
 
