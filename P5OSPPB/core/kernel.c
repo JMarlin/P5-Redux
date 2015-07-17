@@ -61,7 +61,7 @@ void kernel_finish_startup(void) {
 
     if((key_stat = keyboard_init()) != 1) {
         prints("Failed (");
-        printHexChar((unsigned char)(key_stat & 0xFF));
+        printHexByte((unsigned char)(key_stat & 0xFF));
         prints(")\n[P5]: No input device availible.\n");
     } else {
         prints("Done.\n");
