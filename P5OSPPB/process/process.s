@@ -54,9 +54,6 @@ _super_esp: .int 0x0
 
 _switchToKernel:
 
-    /* debug breakpoint */
-    mov %eax, %ss:0x1000
-
     /* Make sure the ESP gets restored regardless */
     /* of what the previous privilege level was */
     /* NOTE: This isn't good enough. When we switch */
@@ -187,9 +184,6 @@ _switchToKernel:
 
 _returnToProc:
 
-    /* debug breakpoint */
-    mov %eax, (0x1001)
-
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
@@ -228,8 +222,6 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
-
-    mov %eax, (0x1000)
 
     jmp kernreturn
 
