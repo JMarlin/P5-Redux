@@ -1,5 +1,6 @@
 #include "../core/util.h"
 #include "../core/int.h"
+#include "../core/global.h"
 #include "../process/process.h"
 #include "timer.h"
 
