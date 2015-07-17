@@ -57,7 +57,6 @@ void kernel_finish_startup(void) {
     prints("Done.");
     timer_on(); //Unmask timer channel
 
-/*
     prints("Done.\nSetting up keyboard...");
 
     if((key_stat = keyboard_init()) != 1) {
@@ -74,7 +73,7 @@ void kernel_finish_startup(void) {
     while(!(tempCh = getch()));
     if(tempCh == 'A')
         setupKeyTable_set1();
-*/
+
     pchar('\n');
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);

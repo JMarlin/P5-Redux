@@ -1,7 +1,7 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#define P5_BUILD_NUMBER 266
+#define P5_BUILD_NUMBER 267
 
 void sys_console(void);
 
