@@ -9,6 +9,7 @@
 
 .globl _in_kernel
 .globl _prc_is_super
+.globl _prc_is_v86
 
 .globl _old_esp
 .globl _old_cr3
@@ -50,6 +51,7 @@ _old_err: .int 0x0
 
 _in_kernel: .byte 0x0
 _prc_is_super: .byte 0x0
+_prc_is_v86: .byte 0x0
 _super_esp: .int 0x0
 
 _switchToKernel:
@@ -153,9 +155,14 @@ _switchToKernel:
 
  notsuper_cont:
     /* check to see if we have anything else on the stack */
+    /* decided to use a flag from the last entered proc as if we're entering
+       from an IRQ handler we don't nessicarily get the eflags properly
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
+    */
+    mov _prc_is_v86, %eax
+    cmp $0x0, %eax
     jne k_continue
 
  v86_enter:
