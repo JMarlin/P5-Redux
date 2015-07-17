@@ -20,6 +20,8 @@ unsigned char procPtr = 0;
 unsigned int t_count = 0;
 unsigned char needs_swap = 0;
 
+extern unsigned char _was_spurious;
+
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
 
@@ -398,9 +400,16 @@ void kernelEntry(void) {
         case FORCE_ENTER:
             //We don't want to do anything here, this is just
             //so that we get an entry into and an exit from the kernel
-            DEBUG("\nA forceenter was requested\n");
-            c_timer_handler();
-            //kernelDebug();
+            if(_was_spurious) {
+
+                DEBUG("\nA forceenter was requested\n");
+                c_timer_handler();
+                //kernelDebug();
+            } else {
+
+                c_spurious_handler();
+            }
+
             break;
 
         case EX_DEBUGCALL:
