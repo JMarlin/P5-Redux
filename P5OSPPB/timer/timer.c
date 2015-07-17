@@ -53,7 +53,7 @@ void c_timer_handler() {
 //be updated to actually check the PIC
 void c_spurious_handler() {
 
-    prints("SPURIOUS INTERRUPT\n");
+    DEBUG("SPURIOUS INTERRUPT\n");
     timer_int_ack();
 }
 
