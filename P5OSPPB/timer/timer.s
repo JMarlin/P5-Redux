@@ -9,7 +9,7 @@ _pending_eoi: .byte 0x0
 
 .globl _spurious_handler
 _spurious_handler:
-    incb $:_in_kernel
+    incb %ss:_in_kernel
     push %eax
     mov $0xFE, %al
     mov %al, %ss:_except_num
