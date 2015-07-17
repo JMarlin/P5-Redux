@@ -16,7 +16,7 @@ _spurious_handler:
 _handle_timerInt:
     incb %ss:_in_kernel
     push %eax
-    mov $FE, %al
+    mov $0xFE, %al
     mov %al, %ss:_except_num
     pop %eax
     call _switchToKernel
