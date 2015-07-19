@@ -20,7 +20,7 @@ unsigned char procPtr = 0;
 unsigned int t_count = 0;
 unsigned char needs_swap = 0;
 
-extern unsigned char _prc_is_v86;
+//extern unsigned char _prc_is_v86;
 extern unsigned char _was_spurious;
 
 //We'll ACTUALLY use this in the future
@@ -91,8 +91,8 @@ void returnToProcess(process* proc) {
         if(oldP->root_page)
             disable_page_range(oldP->base, oldP->root_page);
 
-    prints("Entering process #"); printHexDword(p->id); prints("\n");
-    prints("Applying process paging:\n");
+    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
+    DEBUG("Applying process paging:\n");
 
     if(p->root_page)
         apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
@@ -107,7 +107,7 @@ void returnToProcess(process* proc) {
     //    p->ctx.eflags |= 0x3000;
 
     _prc_is_super = (p->flags & PF_SUPER) ? 1 : 0;
-    _prc_is_v86 = (p->flags & PF_V86) ? 1 : 0;
+    //_prc_is_v86 = (p->flags & PF_V86) ? 1 : 0;
 
     //Restore the running context
     _old_esp = p->ctx.esp;
@@ -328,9 +328,12 @@ void V86Entry(void) {
                 break;
 
             default:
-                prints("Unrecognized v86 command:\n");
-                kernelDebug();
-                while(1);
+                //for now, assume that we didn't have an
+                //execption but rather just a hardware interrupt or something
+                //prints("Unrecognized v86 command:\n");
+                //kernelDebug();
+                //while(1);
+                return;
                 break;
         }
     }

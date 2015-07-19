@@ -9,7 +9,6 @@
 
 .globl _in_kernel
 .globl _prc_is_super
-.globl _prc_is_v86
 
 .globl _old_esp
 .globl _old_cr3
@@ -51,11 +50,12 @@ _old_err: .int 0x0
 
 _in_kernel: .byte 0x0
 _prc_is_super: .byte 0x0
-_prc_is_v86: .byte 0x0
 _super_esp: .int 0x0
 
-.globl _switchToKernel
 _switchToKernel:
+
+    /* debug breakpoint */
+    mov %eax, %ss:0x1000
 
     /* Make sure the ESP gets restored regardless */
     /* of what the previous privilege level was */
@@ -156,16 +156,10 @@ _switchToKernel:
 
  notsuper_cont:
     /* check to see if we have anything else on the stack */
-    /* decided to use a flag from the last entered proc as if we're entering
-       from an IRQ handler we don't nessicarily get the eflags properly 
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    */
-    mov _prc_is_v86, %eax
-    cmp $0x0, %eax
-    
-    je k_continue
+    jne k_continue
 
  v86_enter:
     pop %eax
@@ -192,13 +186,13 @@ _switchToKernel:
 
 
 _returnToProc:
-    /*
+
+    /* debug breakpoint */
+    mov %eax, (0x1001)
+
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    */
-    mov _prc_is_v86, %eax
-    cmp $0x0, %eax
     jne user
 
     xor %esp, %esp
@@ -234,6 +228,8 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
+
+    mov %eax, (0x1000)
 
     jmp kernreturn
 
@@ -275,15 +271,13 @@ _returnToProc:
     push %eax
     mov _pending_eoi, %eax
     cmp $0, %eax
-    pop %eax    
     jne kretfinish
 
-    push %eax
     mov $0x20, %al
     out %al, $0x20
-    pop %eax
     decb _pending_eoi
 
  kretfinish:
+    pop %eax
     decb _in_kernel
     iret
