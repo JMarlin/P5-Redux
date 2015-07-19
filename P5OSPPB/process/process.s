@@ -156,13 +156,14 @@ _switchToKernel:
  notsuper_cont:
     /* check to see if we have anything else on the stack */
     /* decided to use a flag from the last entered proc as if we're entering
-       from an IRQ handler we don't nessicarily get the eflags properly
+       from an IRQ handler we don't nessicarily get the eflags properly */
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    */
+    
     mov _prc_is_v86, %eax
     cmp $0x0, %eax
+    */
     jne k_continue
 
  v86_enter:

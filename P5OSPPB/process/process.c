@@ -107,7 +107,7 @@ void returnToProcess(process* proc) {
     //    p->ctx.eflags |= 0x3000;
 
     _prc_is_super = p->flags & PF_SUPER ? 1 : 0;
-    _prc_is_v86 = p->flags & PF_V86 ? 1 : 0;
+    //_prc_is_v86 = p->flags & PF_V86 ? 1 : 0;
 
     //Restore the running context
     _old_esp = p->ctx.esp;
@@ -419,7 +419,7 @@ void kernelEntry(void) {
             prints("Stack:\n");
         	prints("   0: 0x"); printHexWord(stack[0]); prints("\n");
         	prints("   1: 0x"); printHexWord(stack[1]); prints("\n");
-        	prints("   2: 0x"); printHexWord(stack[2]); prints("\n");
+        	prints("   2: 0x"); printHexWord(stack[2]); prints("\n"); 
             prints("   3: 0x"); printHexWord(stack[3]); prints("\n");
         	prints("   4: 0x"); printHexWord(stack[4]); prints("\n");
         	prints("   5: 0x"); printHexWord(stack[5]); prints("\n");
