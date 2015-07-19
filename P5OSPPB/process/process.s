@@ -160,7 +160,7 @@ _switchToKernel:
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    
+    /*
     mov _prc_is_v86, %eax
     cmp $0x0, %eax
     */
