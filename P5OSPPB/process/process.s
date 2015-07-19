@@ -165,7 +165,7 @@ _switchToKernel:
     mov _prc_is_v86, %eax
     cmp $0x0, %eax
     
-    jne k_continue
+    je k_continue
 
  v86_enter:
     pop %eax
@@ -275,13 +275,15 @@ _returnToProc:
     push %eax
     mov _pending_eoi, %eax
     cmp $0, %eax
+    pop %eax    
     jne kretfinish
 
+    push %eax
     mov $0x20, %al
     out %al, $0x20
+    pop %eax
     decb _pending_eoi
 
  kretfinish:
-    pop %eax
     decb _in_kernel
     iret

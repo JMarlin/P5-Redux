@@ -91,8 +91,8 @@ void returnToProcess(process* proc) {
         if(oldP->root_page)
             disable_page_range(oldP->base, oldP->root_page);
 
-    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
-    DEBUG("Applying process paging:\n");
+    prints("Entering process #"); printHexDword(p->id); prints("\n");
+    prints("Applying process paging:\n");
 
     if(p->root_page)
         apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
@@ -106,8 +106,8 @@ void returnToProcess(process* proc) {
     //if(p->flags & PF_V86)
     //    p->ctx.eflags |= 0x3000;
 
-    _prc_is_super = p->flags & PF_SUPER ? 1 : 0;
-    //_prc_is_v86 = p->flags & PF_V86 ? 1 : 0;
+    _prc_is_super = (p->flags & PF_SUPER) ? 1 : 0;
+    _prc_is_v86 = (p->flags & PF_V86) ? 1 : 0;
 
     //Restore the running context
     _old_esp = p->ctx.esp;
