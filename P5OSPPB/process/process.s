@@ -48,14 +48,14 @@ _old_fs: .short 0x0
 _old_gs: .short 0x0
 _old_err: .int 0x0
 
-_in_kernel: .byte 0x0
+.globl _has_error_code
+
+_in_kernel: .byte 0x1 /*system always starts out in kernel*/
 _prc_is_super: .byte 0x0
+_has_error_code: .byte 0x0
 _super_esp: .int 0x0
 
 _switchToKernel:
-
-    /* debug breakpoint */
-    mov %eax, %ss:0x1000
 
     /* Make sure the ESP gets restored regardless */
     /* of what the previous privilege level was */
