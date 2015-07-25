@@ -171,7 +171,7 @@ _switchToKernel:
     mov %ax, %fs
     mov %ax, %ds
     mov %ax, %es
-    jmp $0x8,the_end /* make extra sure we have the right CS */
+    jmpl $0x8,the_end /* make extra sure we have the right CS */
     the_end: call kernelEntry
 
 
