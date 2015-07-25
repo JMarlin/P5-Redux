@@ -111,7 +111,7 @@ _switchToKernel:
     mov _has_error_code, %eax
     cmp $0, %eax
     je pop_err
-    mov $0, _old_err
+    movd $0, _old_err
     jmp res_kentry
 
  pop_err:
