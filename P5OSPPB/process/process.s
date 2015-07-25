@@ -102,25 +102,16 @@ _switchToKernel:
     /* Discard the calling entry point's return */
     /* address from the top of the stack. We    */
     /* won't be going back that way             */
-    pop %eax
+    /* pop %eax */
 
     /* check the interrupt number to see if */
     /* we need to pop the error code or not */
     /* NOTE: for now, we're only going to */
     /* check for gpf */
-    mov _except_num, %ax
-    cmp $0x8, %ax
+    mov _has_error_code, %eax
+    cmp $0, %eax
     je pop_err
-    cmp $0xA, %ax
-    je pop_err
-    cmp $0xB, %ax
-    je pop_err
-    cmp $0xC, %ax
-    je pop_err
-    cmp $0xD, %ax
-    je pop_err
-    cmp $0x11, %ax
-    je pop_err
+    mov $0, _old_err
     jmp res_kentry
 
  pop_err:
@@ -149,8 +140,6 @@ _switchToKernel:
     jmp notsuper_cont
 
  super_cont:
-    pop %eax /* this is a test to see if it's cool if we just discard these values */
-    pop %eax /* update: we can, but that's because they're ESP and SS, dumbass. */
     mov %esp, _old_esp
     mov %ss, _old_ss
 
@@ -182,13 +171,12 @@ _switchToKernel:
     mov %ax, %fs
     mov %ax, %ds
     mov %ax, %es
+    mov $0x8, %ax
+    mov %ax, %cs  /* make extra sure we have the right CS */
     call kernelEntry
 
 
 _returnToProc:
-
-    /* debug breakpoint */
-    mov %eax, (0x1001)
 
     mov _old_eflags, %eax
     and $0x20000, %eax
@@ -228,8 +216,6 @@ _returnToProc:
     mov _old_ebp, %ebp
     mov _old_esi, %esi
     mov _old_edi, %edi
-
-    mov %eax, (0x1000)
 
     jmp kernreturn
 
