@@ -171,8 +171,7 @@ _switchToKernel:
     mov %ax, %fs
     mov %ax, %ds
     mov %ax, %es
-    ljmp $0x8, the_end /* make extra sure we have the right CS */
-    the_end: call kernelEntry
+    call kernelEntry
 
 
 _returnToProc: /* we need to check here to see if we're setting the stack back up exactly as it was when the proc was interrupted */
