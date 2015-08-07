@@ -179,13 +179,15 @@ _returnToProc: /* we need to check here to see if we're setting the stack back u
     mov _old_eflags, %eax
     and $0x20000, %eax
     cmp $0x20000, %eax
-    jne user
+    jne normal_entry
 
-    xor %esp, %esp
-    mov _old_ss, %sp
-    shl $4, %esp
-    add _old_esp, %esp
-    mov $0x0, %eax
+    mov $0, %eax       /*update ESP to point at the location of the user stack*/
+    mov _old_ss, %ax
+    shl $4, %eax
+    add _old_esp, %eax
+    mov %eax, %esp
+
+    mov $0x0, %eax       /*make sure top-half of eax is empty */
     mov _old_gs, %ax
     push %eax
     mov _old_fs, %ax
@@ -201,10 +203,11 @@ _returnToProc: /* we need to check here to see if we're setting the stack back u
     mov _old_eflags, %eax
     push %eax
     mov $0x0, %eax
-    mov _old_cs, %eax
+    mov _old_cs, %ax
     push %eax
     mov _old_eip, %eax
     push %eax
+
     mov %eax, _old_cr3
     mov %cr3, %eax
     mov _old_eax, %eax
@@ -218,8 +221,8 @@ _returnToProc: /* we need to check here to see if we're setting the stack back u
     jmp kernreturn
 
 
- user:
-    mov _old_esp, %esp
+normal_entry:
+    mov _old_esp, %esp     /*need to make sure we cover the case of priv chg*/
     mov _old_ds, %ax
     mov %ax, %ds
     mov _old_es, %ax
@@ -228,11 +231,18 @@ _returnToProc: /* we need to check here to see if we're setting the stack back u
     mov %ax, %fs
     mov _old_gs, %ax
     mov %ax, %gs
+
+    mov _prc_is_super, %eax /*if no priv change, skip pushing stack info*/
+    cmp $0x0, %eax
+    jne super_ent
+
     xor %eax, %eax
     mov _old_ss, %ax
     push %eax
     mov _old_esp, %eax
     push %eax
+
+super_ent:
     mov _old_eflags, %eax
     push %eax
     xor %eax, %eax
@@ -252,16 +262,5 @@ _returnToProc: /* we need to check here to see if we're setting the stack back u
 
  kernreturn:
 
-    push %eax
-    mov _pending_eoi, %eax
-    cmp $0, %eax
-    jne kretfinish
-
-    mov $0x20, %al
-    out %al, $0x20
-    decb _pending_eoi
-
- kretfinish:
-    pop %eax
     decb _in_kernel
     iret
