@@ -34,6 +34,15 @@ int main(void) {
     installExceptionHandlers();
     prints("Done.\nSetting up the GDT...");
     initGdt();
+    prints("Done.\nSetting up keyboard...");
+
+    if((key_stat = keyboard_init()) != 1) {
+        prints("Failed (");
+        printHexByte((unsigned char)(key_stat & 0xFF));
+        prints(")\n[P5]: No input device availible.\n");
+    } else {
+        prints("Done.\n");
+    }
     prints("Done.\nInitializing process mgmt...");
     startProcessManagement();
     prints("Done.\nSetting up the timer...");
@@ -56,16 +65,6 @@ void kernel_finish_startup(void) {
 
     prints("Done.");
     timer_on(); //Unmask timer channel
-
-    prints("Done.\nSetting up keyboard...");
-
-    if((key_stat = keyboard_init()) != 1) {
-        prints("Failed (");
-        printHexByte((unsigned char)(key_stat & 0xFF));
-        prints(")\n[P5]: No input device availible.\n");
-    } else {
-        prints("Done.\n");
-    }
 
     prints("WELCOME TO P5\n");
     prints("Please press enter to detect your keyboard type...");
