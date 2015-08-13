@@ -26,6 +26,33 @@ extern unsigned char _was_spurious;
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
 
+void entry_debug(void) {
+
+    //Kernel debug, should be moved to its own function
+    prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
+    prints("Previous State:\n");
+    prints("eax: 0x"); printHexDword(_old_eax); prints("  ebx: 0x"); printHexDword(_old_ebx); prints("\n");
+    prints("ecx: 0x"); printHexDword(_old_ecx); prints("  edx: 0x"); printHexDword(_old_edx); prints("\n");
+    prints("esp: 0x"); printHexDword(_old_esp); prints("  ebp: 0x"); printHexDword(_old_ebp); prints("\n");
+    prints("esi: 0x"); printHexDword(_old_esi); prints("  edi: 0x"); printHexDword(_old_edi); prints("\n");
+    prints("cr3: 0x"); printHexDword(_old_cr3); prints("  eip: 0x"); printHexDword(_old_eip); prints("\n");
+    prints("eflags: 0x"); printHexDword(_old_eflags); prints("\n");
+    prints("es: 0x"); printHexWord(_old_es); prints("  cs: 0x"); printHexWord(_old_cs); prints("\n");
+    prints("ss: 0x"); printHexWord(_old_ss); prints("  ds: 0x"); printHexWord(_old_ds); prints("\n");
+    prints("fs: 0x"); printHexWord(_old_fs); prints("  gs: 0x"); printHexWord(_old_gs); prints("\n");
+
+    //Get the error code
+    prints("Error code: 0x"); printHexDword(_old_err); prints("\n");
+
+    //Get the command byte that the processor failed on:
+    prints("Current instructions (0x"); printHexDword((unsigned int)insPtr); prints("): 0x"); printHexByte(insPtr[0]);
+    prints(", 0x"); printHexByte(insPtr[1]);
+    prints(", 0x"); printHexByte(insPtr[2]);
+    prints(", 0x"); printHexByte(insPtr[3]);
+    prints(", 0x"); printHexByte(insPtr[4]);
+    prints("\n");
+}
+
 void kernelDebug(void) {
 
     //Kernel debug, should be moved to its own function
@@ -128,6 +155,8 @@ void returnToProcess(process* proc) {
     _old_fs = p->ctx.fs;
     _old_gs = p->ctx.gs;
     _old_err = p->ctx.err;
+
+    entry_debug();
 
     _returnToProc();
 }
@@ -422,7 +451,7 @@ void kernelEntry(void) {
             prints("Stack:\n");
         	prints("   0: 0x"); printHexWord(stack[0]); prints("\n");
         	prints("   1: 0x"); printHexWord(stack[1]); prints("\n");
-        	prints("   2: 0x"); printHexWord(stack[2]); prints("\n"); 
+        	prints("   2: 0x"); printHexWord(stack[2]); prints("\n");
             prints("   3: 0x"); printHexWord(stack[3]); prints("\n");
         	prints("   4: 0x"); printHexWord(stack[4]); prints("\n");
         	prints("   5: 0x"); printHexWord(stack[5]); prints("\n");

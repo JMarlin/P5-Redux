@@ -131,7 +131,7 @@ _switchToKernel:
     /* proper kernel ESP instead of hijacking the process stack, but whatev */
     mov _prc_is_super, %eax
     cmp $0x0, %eax
-    jne super_cont
+    jne super_contf
 
     pop %eax
     mov %eax, _old_esp
