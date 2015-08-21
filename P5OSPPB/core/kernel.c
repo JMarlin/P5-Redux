@@ -73,7 +73,7 @@ void kernel_finish_startup(void) {
     block_dev* ram0;
 
     prints("Done.");
-    //timer_on(); //Unmask timer channel
+    timer_on(); //Unmask timer channel
 
     prints("WELCOME TO P5\n");
 
