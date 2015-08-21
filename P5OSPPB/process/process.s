@@ -109,7 +109,7 @@ _switchToKernel:
     /* NOTE: for now, we're only going to */
     /* check for gpf */
     mov _has_error_code, %eax
-    cmp $0, %eax
+    cmp $1, %eax
     je pop_err
     movw $0, _old_err
     jmp res_kentry
