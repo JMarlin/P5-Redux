@@ -111,7 +111,7 @@ _switchToKernel:
     mov %eax, _old_err
 
  res_kentry:
-    pop %eax
+    pop %eaxd
     mov %eax, _old_eip
     pop %eax
     mov %ax, _old_cs
