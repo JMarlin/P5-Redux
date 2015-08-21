@@ -13,7 +13,7 @@ _expt_zeroDivide:
     mov $0, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_debugCall
@@ -24,7 +24,7 @@ _expt_debugCall:
     mov $1, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_NMI
@@ -35,7 +35,7 @@ _expt_NMI:
     mov $2, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_breakpoint
@@ -46,7 +46,7 @@ _expt_breakpoint:
     mov $3, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_overflow
@@ -57,7 +57,7 @@ _expt_overflow:
     mov $4, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_outOfBound
@@ -68,7 +68,7 @@ _expt_outOfBound:
     mov $5, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_illegalOpcode
@@ -79,7 +79,7 @@ _expt_illegalOpcode:
     mov $6, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_noCoprocessor
@@ -90,7 +90,7 @@ _expt_noCoprocessor:
     mov $7, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_doubleFault
@@ -101,7 +101,7 @@ _expt_doubleFault:
     mov $8, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_invalidTSS
@@ -112,7 +112,7 @@ _expt_invalidTSS:
     mov $10, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_segNotPresent
@@ -123,7 +123,7 @@ _expt_segNotPresent:
     mov $11, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_stackFault
@@ -134,7 +134,7 @@ _expt_stackFault:
     mov $12, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_generalProtection
@@ -145,7 +145,7 @@ _expt_generalProtection:
     mov $13, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_pageFault
@@ -156,7 +156,7 @@ _expt_pageFault:
     mov $14, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_mathFault
@@ -167,7 +167,7 @@ _expt_mathFault:
     mov $16, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_alignCheck
@@ -178,7 +178,7 @@ _expt_alignCheck:
     mov $17, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_machineCheck
@@ -189,7 +189,7 @@ _expt_machineCheck:
     mov $18, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_simdFailure
@@ -200,7 +200,7 @@ _expt_simdFailure:
     mov $19, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_syscall
@@ -211,7 +211,7 @@ _expt_syscall:
     mov $0xFF, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
 
 
 .globl _expt_forceenter
@@ -222,4 +222,4 @@ _expt_forceenter:
     mov $0xFE, %al
     mov %al, %ss:_except_num
     pop %eax
-    call _switchToKernel
+    jmp _switchToKernel
