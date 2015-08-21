@@ -73,7 +73,7 @@ void kernel_finish_startup(void) {
     block_dev* ram0;
 
     prints("Done.");
-    timer_on(); //Unmask timer channel
+    //timer_on(); //Unmask timer channel
 
     prints("WELCOME TO P5\n");
 
@@ -114,7 +114,7 @@ void kernel_finish_startup(void) {
     fs_attach(FS_RAMFS, ram0, ":");
 
     //Start the registrar and thereby the rest of the OS
-    //enterProc(exec_process(":registrar.mod", 1));
+    enterProc(exec_process(":registrar.mod", 1));
 
     prints("PANIC: Registrar could not be started.\n");
     while(1);
