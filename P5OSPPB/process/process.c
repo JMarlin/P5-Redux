@@ -78,7 +78,7 @@ void kernelDebug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
-    scans(5, fake);
+    while(1);
 }
 
 
