@@ -99,15 +99,7 @@ _switchToKernel:
     mov %edi, %eax
     mov %eax, _old_edi
 
-    /* Discard the calling entry point's return */
-    /* address from the top of the stack. We    */
-    /* won't be going back that way             */
-    /* pop %eax */
-
-    /* check the interrupt number to see if */
-    /* we need to pop the error code or not */
-    /* NOTE: for now, we're only going to */
-    /* check for gpf */
+    /* check to see if we need to pop an error code */
     mov _has_error_code, %eax
     cmp $1, %eax
     je pop_err
@@ -129,8 +121,8 @@ _switchToKernel:
     /* Check _prc_is_super and, if it was set, don't get the esp or ss */
     /* In the future, it would probably be a great idea to retrieve the */
     /* proper kernel ESP instead of hijacking the process stack, but whatev */
-    mov _prc_is_super, %eax
-    cmp $0x0, %eax
+    mov _prc_is_super, %al
+    cmp $0x0, %al
     jne super_cont
 
     pop %eax
