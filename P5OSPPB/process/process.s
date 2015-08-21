@@ -224,8 +224,8 @@ normal_entry:
     mov _old_gs, %ax
     mov %ax, %gs
 
-    mov _prc_is_super, %eax /*if no priv change, skip pushing stack info*/
-    cmp $0x0, %eax
+    mov _prc_is_super, %al /*if no priv change, skip pushing stack info*/
+    cmp $0x0, %al
     jne super_ent
 
     xor %eax, %eax

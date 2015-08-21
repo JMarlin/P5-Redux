@@ -157,8 +157,8 @@ void returnToProcess(process* proc) {
     _old_gs = p->ctx.gs;
     _old_err = p->ctx.err;
 
-    if(!(_prc_is_super || (_old_eflags & 0x20000)))
-        entry_debug();
+    //if(!(_prc_is_super || (_old_eflags & 0x20000)))
+        //entry_debug();
 
     _returnToProc();
 }
