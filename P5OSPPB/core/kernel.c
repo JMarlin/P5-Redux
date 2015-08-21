@@ -25,6 +25,7 @@ void kernel_finish_startup(void);
 int main(void) {
 
     int key_stat;
+    int tempCh = 0;
 
     __asm__ ("cli");
 
@@ -70,7 +71,6 @@ void kernel_finish_startup(void) {
     unsigned char *dcount;
     context* ctx;
     block_dev* ram0;
-    int tempCh = 0;
 
     prints("Done.");
     timer_on(); //Unmask timer channel

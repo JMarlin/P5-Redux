@@ -51,7 +51,7 @@ void entry_debug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
-    scans(fake, 5);
+    scans(5, fake);
 }
 
 void kernelDebug(void) {
