@@ -157,7 +157,7 @@ void returnToProcess(process* proc) {
     _old_gs = p->ctx.gs;
     _old_err = p->ctx.err;
 
-    entry_debug();
+    //entry_debug();
 
     _returnToProc();
 }
