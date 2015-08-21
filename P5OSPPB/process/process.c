@@ -135,7 +135,7 @@ void returnToProcess(process* proc) {
     //    p->ctx.eflags |= 0x3000;
 
     _prc_is_super = (p->flags & PF_SUPER) ? 1 : 0;
-    _prc_is_v86 = (p->flags & PF_V86) ? 1 : 0;
+    //_prc_is_v86 = (p->flags & PF_V86) ? 1 : 0;
 
     //Restore the running context
     _old_esp = p->ctx.esp;
@@ -157,7 +157,7 @@ void returnToProcess(process* proc) {
     _old_gs = p->ctx.gs;
     _old_err = p->ctx.err;
 
-    if(!(_prc_is_super || _prc_is_v86))
+    if(!(_prc_is_super || (_old_eflags & 0x20000)))
         entry_debug();
 
     _returnToProc();
