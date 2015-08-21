@@ -123,7 +123,7 @@ void init_memory(void (*cb)(void)) {
 
     prints("\nStarted memory init.\n");
     get_next_memzone(0, 0, 0);
-}f
+}
 
 
 void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
