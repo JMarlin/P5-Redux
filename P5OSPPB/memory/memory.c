@@ -4,36 +4,6 @@
 #include "../core/global.h"
 #include "../core/syscall.h"
 
-unsigned char test_bin[] = {
-  0XA3, 0X72, 0X00, 0X89, 0X1E, 0X74, 0X00, 0X89, 0X0E, 0X76, 0X00, 0X89,
-  0X16, 0X78, 0X00, 0XE8, 0XD0, 0X00, 0XA3, 0X8E, 0X00, 0X8C, 0XD0, 0XA3,
-  0X7A, 0X00, 0X8C, 0XD8, 0XA3, 0X7C, 0X00, 0X8C, 0XC8, 0XA3, 0X7E, 0X00,
-  0X8C, 0XC0, 0XA3, 0X80, 0X00, 0X8C, 0XE0, 0XA3, 0X82, 0X00, 0X8C, 0XE8,
-  0XA3, 0X84, 0X00, 0X89, 0XE0, 0XA3, 0X86, 0X00, 0X89, 0XF0, 0XA3, 0X88,
-  0X00, 0X89, 0XE8, 0XA3, 0X8A, 0X00, 0X89, 0XF8, 0XA3, 0X8C, 0X00, 0X9C,
-  0X61, 0XA3, 0X90, 0X00, 0XBE, 0X72, 0X00, 0XBF, 0X92, 0X00, 0XB9, 0X72,
-  0X00, 0X83, 0XC1, 0X10, 0XD1, 0XE1, 0X8B, 0X15, 0XE8, 0X95, 0X00, 0X8B,
-  0X04, 0XE8, 0XC6, 0X00, 0X83, 0XC7, 0X05, 0X83, 0XC6, 0X02, 0X39, 0XCE,
-  0X74, 0X02, 0XEB, 0XEA, 0XEB, 0XFE, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00,
-  0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00,
-  0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00,
-  0X00, 0X00, 0X20, 0X61, 0X78, 0X3A, 0X00, 0X20, 0X62, 0X78, 0X3A, 0X00,
-  0X20, 0X63, 0X78, 0X3A, 0X00, 0X20, 0X64, 0X78, 0X3A, 0X00, 0X20, 0X73,
-  0X73, 0X3A, 0X00, 0X20, 0X64, 0X73, 0X3A, 0X00, 0X20, 0X63, 0X73, 0X3A,
-  0X00, 0X20, 0X65, 0X73, 0X3A, 0X00, 0X20, 0X66, 0X73, 0X3A, 0X00, 0X20,
-  0X67, 0X73, 0X3A, 0X00, 0X20, 0X73, 0X70, 0X3A, 0X00, 0X20, 0X73, 0X69,
-  0X3A, 0X00, 0X20, 0X62, 0X70, 0X3A, 0X00, 0X20, 0X64, 0X69, 0X3A, 0X00,
-  0X20, 0X69, 0X70, 0X3A, 0X00, 0X20, 0X66, 0X6C, 0X3A, 0X00, 0X89, 0XE3,
-  0X8B, 0X07, 0XC3, 0X53, 0X50, 0XB7, 0X0F, 0XB4, 0X0E, 0XB3, 0X00, 0XCD,
-  0X10, 0X58, 0X5B, 0XC3, 0X50, 0X56, 0X89, 0XD6, 0X8A, 0X04, 0XE8, 0XEA,
-  0XFF, 0X46, 0X80, 0X3C, 0X00, 0X74, 0X02, 0XEB, 0XF3, 0X5E, 0X58, 0XC3,
-  0X24, 0X0F, 0X3C, 0X0A, 0X7C, 0X05, 0X2C, 0X0A, 0X04, 0X41, 0XC3, 0X04,
-  0X30, 0XC3, 0X50, 0X50, 0XC0, 0XE8, 0X04, 0XE8, 0XEA, 0XFF, 0XE8, 0XC6,
-  0XFF, 0X58, 0XE8, 0XE3, 0XFF, 0XE8, 0XBF, 0XFF, 0X58, 0XC3, 0X50, 0X50,
-  0X88, 0XE0, 0XE8, 0XE5, 0XFF, 0X58, 0XE8, 0XE1, 0XFF, 0X58, 0XC3
-};
-unsigned int test_bin_len = 311;
-
 #define MAX_MMAPS 30
 
 extern long pkgoffset;
@@ -101,11 +71,6 @@ void init_memory(void (*cb)(void)) {
     init_done = cb;
     set_call_zero_cb(&get_next_memzone); //Make the interrupt out enter the func
 
-    //Insert the test code
-    for(i = 0; i < test_bin_len; i++)
-        usrCode[i] = test_bin[i];
-
-/*
     //Write the initial body of the memory detection code
     //Do INT 0x15
     usrCode[0]  = 0x8C; // -|
@@ -153,12 +118,12 @@ void init_memory(void (*cb)(void)) {
     usrCode[41] = 0xE9; // -|
     usrCode[42] = 0xD4; //  |
     usrCode[43] = 0xFF; // -\_jmp 0x0000 (loop)
-*/
+
     v86_pid = exec_loaded_v86(100);
 
     prints("\nStarted memory init.\n");
     get_next_memzone(0, 0, 0);
-}
+}f
 
 
 void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
