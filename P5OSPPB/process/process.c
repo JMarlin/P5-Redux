@@ -78,6 +78,7 @@ void kernelDebug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
+    scans(5, fake);
 }
 
 
@@ -410,10 +411,10 @@ void kernelEntry(void) {
 
                 //In the case that needs_swap IS set, we know that
                 //this is actually just a force-swap by the timer
-                if(!needs_swap) {
+                //if(!needs_swap) {
 
                     V86Entry();
-                }
+                //}
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
