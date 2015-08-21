@@ -29,7 +29,7 @@ process* p = (process*)0;
 void entry_debug(void) {
 
     //Kernel debug, should be moved to its own function
-    prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
+    prints("ABOUT TO ENTER PROCESS\n");
     prints("Previous State:\n");
     prints("eax: 0x"); printHexDword(_old_eax); prints("  ebx: 0x"); printHexDword(_old_ebx); prints("\n");
     prints("ecx: 0x"); printHexDword(_old_ecx); prints("  edx: 0x"); printHexDword(_old_edx); prints("\n");
@@ -51,6 +51,7 @@ void entry_debug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
+    scans(fake, 5);
 }
 
 void kernelDebug(void) {
@@ -78,7 +79,6 @@ void kernelDebug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
-    while(1);
 }
 
 

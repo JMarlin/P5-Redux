@@ -45,7 +45,15 @@ int main(void) {
     } else {
         prints("Done.\n");
     }
-    prints("Done.\nInitializing process mgmt...");
+
+    prints("Please press enter to detect your keyboard type...");
+    setupKeyTable();
+    while(!(tempCh = getch()));
+    if(tempCh == 'A')
+        setupKeyTable_set1();
+
+    pchar('\n');
+    prints("\nInitializing process mgmt...");
     startProcessManagement();
     prints("Done.\nSetting up the timer...");
     init_timer(); //Mask all PIC channels
@@ -68,13 +76,7 @@ void kernel_finish_startup(void) {
     timer_on(); //Unmask timer channel
 
     prints("WELCOME TO P5\n");
-    prints("Please press enter to detect your keyboard type...");
-    setupKeyTable();
-    while(!(tempCh = getch()));
-    if(tempCh == 'A')
-        setupKeyTable_set1();
 
-    pchar('\n');
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
 
