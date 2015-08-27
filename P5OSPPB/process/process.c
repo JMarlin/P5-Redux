@@ -1,4 +1,5 @@
 #include "../core/kernel.h"
+#include "../core/irq.h"
 #include "process.h"
 #include "../ascii_io/ascii_o.h"
 #include "../ascii_io/ascii_i.h"
@@ -460,6 +461,28 @@ void kernelEntry(void) {
             kernelDebug();
             scans(5, fake);
             break;
+
+        //IRQs
+        case 0xE1:
+        case 0xE2:
+        case 0xE3:
+        case 0xE4:
+        case 0xE5:
+        case 0xE6:
+        case 0xE7:
+        case 0xE8:
+        case 0xE9:
+        case 0xEA:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xEE:
+        case 0xEF:
+            irq_handle(_except_num);
+            //no break here as the above function will redirect to
+            //returnToProcess of its own accord if the handler is found and
+            //if it fails because there's no registered irq handler then we
+            //can go ahead and just flow through to default
 
         default:
             prints("Interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");

@@ -2,6 +2,8 @@
 #include "int.h"
 #include "util.h"
 #include "../process/process.h"
+#include "../process/message.h"
+#include "../kserver/kserver.h"
 
 //Tables which will keep track of IRQ registration
 process* irq_process[15] = {
@@ -64,6 +66,20 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
 
     //For now, we can't really fail so we just return OK
     return 1;
+}
+
+//This is the magic sauce which forces a message back to the registered proc
+void irq_handle(unsigned char irq_number) {
+
+    irq_number -= 0xE1;
+
+    //Get the heck out of here if the irq isn't registered
+    if(!irq_process[irq_number])
+        return;
+
+    //Otherwise, write a message to the handling process and enter it
+    passMessage(0, irq_process[irq_number]->id, KS_REG_IRQ_1 + irq_number, 0);
+    returnToProcess(irq_process[irq_number]);
 }
 
 void enable_irq(unsigned char channel) {
