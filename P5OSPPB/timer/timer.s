@@ -23,7 +23,7 @@ _spurious_handler:
 
 .globl _handle_timerInt
 _handle_timerInt:
-    incb %ss:_in_kernel 
+    incb %ss:_in_kernel
     push %eax
     movb $0, %ss:_has_error_code /*Has no error code*/
     mov $0xFE, %al
@@ -40,7 +40,7 @@ _calc_mips:
     jmp c_calc_mips
 
 .globl _mips_counter
-_mips_counter: .int 0x0     
+_mips_counter: .int 0x0
 .globl _mips_loop
 _mips_loop:
     mov $0, %eax
@@ -51,4 +51,3 @@ _mips_loop:
         mov %eax, _mips_counter
         xchg %eax, %eax /* NOP */
         jmp mips_top
-    

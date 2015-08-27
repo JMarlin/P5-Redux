@@ -3,6 +3,7 @@
 #include "../ascii_io/ascii_i.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/kernel.h"
+#include "../core/irq.h"
 #include "kserver.h"
 
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
@@ -15,7 +16,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //message 0: terminate
         //look up the process ID for the calling process
         //and unload that process from the system
-        case 0:
+        case KS_QUIT:
 
             for(i = 0; i < 256 && (procTable[i].id != source); i++)
 
@@ -28,7 +29,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
         //message 1: pchar
         //Print the character in payload to the screen
-        case 1:
+        case KS_PCHAR:
             pchar((unsigned int)(payload & 0xFF));
             break;
 
@@ -41,13 +42,13 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //for simplicity's sake, but in the future we'll queue
         //this shit up and only send a KEY_RECIEVED message
         //when a keypress is finally registered
-        case 2:
+        case KS_GETCH:
             passMessage(0, source, KEY_RECIEVED, (unsigned int)getch());
             break;
 
         //message 3: clear
         //Clear the screen
-        case 3:
+        case KS_CLEAR_SCREEN:
             clear();
             break;
 
@@ -56,7 +57,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //and use it to start a process from the executable at
         //that path, then send a PROC_STARTED message with
         //the ID of the new process in the payload
-        case 4:
+        case KS_EXEC:
             passMessage(0, source, PROC_STARTED, exec_process((unsigned char*)payload, 0));
             break;
 
@@ -67,7 +68,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //from userprocs because that would defeat the purpose. Once we
         //have users set up we will be able to start a superproc if the
         //owning user is a superuser, but that's down the road
-        case 5:
+        case KS_EXEC_SUPER:
             for(i = 0; i < 256 && (procTable[i].id != source); i++)
 
             if(i == 256)
@@ -81,7 +82,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             break;
 
         //Same as exec superproc call but starts a v86 process
-        case 6:
+        case KS_EXEC_V86:
             for(i = 0; i < 256 && (procTable[i].id != source); i++)
 
             if(i == 256)
@@ -95,7 +96,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             break;
 
         //Toggle debug: sets or resets the process's debug flag
-        case 7:
+        case KS_TOGGLE_DEBUG:
             for(i = 0; i < 256 && (procTable[i].id != source); i++)
 
             if(i == 256)
@@ -109,8 +110,43 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             break;
 
         //Get build number: Get the build number of the OS
-        case 8:
+        case KS_GET_BUILD_NO:
             passMessage(0, source, BUILD_NUMBER, P5_BUILD_NUMBER);
+            break;
+
+        case KS_REG_IRQ_1:
+        case KS_REG_IRQ_2:
+        case KS_REG_IRQ_3:
+        case KS_REG_IRQ_4:
+        case KS_REG_IRQ_5:
+        case KS_REG_IRQ_6:
+        case KS_REG_IRQ_7:
+        case KS_REG_IRQ_8:
+        case KS_REG_IRQ_9:
+        case KS_REG_IRQ_A:
+        case KS_REG_IRQ_B:
+        case KS_REG_IRQ_C:
+        case KS_REG_IRQ_D:
+        case KS_REG_IRQ_E:
+        case KS_REG_IRQ_F:
+
+            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+
+            if(!(procTable[i].flags & PF_SUPER)) {
+
+                //If the process doesn't have super rights then tell it
+                //registration failed
+                passMessage(0, source, command, 0);
+                return;
+            }
+
+            //Attempt to register the IRQ with the process and tell the
+            //requester whether or not we succeeded
+            passMessage(0, source, command, irq_register(command - REG_IRQ_1, &procTable[i]));
             break;
 
         default:

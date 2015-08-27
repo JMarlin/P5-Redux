@@ -1,10 +1,6 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#define PIC1_COMMAND   0x20
-#define PIC1_DATA	   0x21
-#define PIC2_COMMAND   0xA0
-#define PIC2_DATA	   0xA1
 #define TIMER0_DATA    0x40
 #define TIMER_COMMAND  0x43
 #define TIMER_INT_NUM  0xE0
@@ -18,7 +14,7 @@ void c_spurious_handler();
 void c_timer_handler();
 void c_calc_mips();
 void irq_enter_kernel();
- 
+
 extern void _handle_timerInt(void);
 extern void _spurious_handler(void);
 extern void _calc_mips(void);

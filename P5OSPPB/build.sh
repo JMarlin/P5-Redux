@@ -25,6 +25,8 @@ gcc -c -o ../build/kernel.o kernel.c $C_OPTS
 gcc -c -o ../build/util.o util.c -nostdlib -m32
 gcc -c -o ../build/int.o int.c $C_OPTS
 as -o ../build/expt.o expt.s --32
+as -o ../build/irqs.o irq.s --32
+gcc -c -o ../build/irq.o irq.c $C_OPTS
 
 cd ../memory
 echo Starting memory build...
