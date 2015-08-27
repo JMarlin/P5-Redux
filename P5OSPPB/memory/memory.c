@@ -121,14 +121,14 @@ void init_memory(void (*cb)(void)) {
 
     v86_pid = exec_loaded_v86(100);
 
-    prints("\nStarted memory init.\n");
+    //prints("\nStarted memory init.\n");
     get_next_memzone(0, 0, 0);
 }
 
 
 void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
 
-    prints("Making a memory detection pass\n");
+    //prints("Making a memory detection pass\n");
 
     //Only one v86 proc can exist at a time and
     //they're all loaded into 0x80000
@@ -216,7 +216,7 @@ void finish_mem_config() {
     unsigned long long end;
     unsigned long long biggest_end = 0;
 
-    prints("Done processing memory maps\n");
+    //prints("Done processing memory maps\n");
 
     for(i = 0; i < mmap_index; i++) {
 
@@ -310,7 +310,7 @@ void finish_mem_config() {
         maxRAM = 0x1FFFFFF;
 
     //Reset the state changes made by creating all of those v86 procs
-    prints("Resetting process management\n");
+    //prints("Resetting process management\n");
     resetProcessCounter();
 
     //Create a block which the rest of the kmalloc chain will
@@ -323,7 +323,7 @@ void finish_mem_config() {
     printHexDword(maxRAM);
     pchar('\n');
 
-    prints("Returning to rest of kernel startup.\n");
+    //prints("Returning to rest of kernel startup.\n");
     init_done(); //Return to kernel startup
 }
 

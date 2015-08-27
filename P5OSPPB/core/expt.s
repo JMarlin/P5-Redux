@@ -1,5 +1,6 @@
 .extern _switchToKernel
 .extern _in_kernel
+.extern _has_error_code
 .globl _except_num
 
 _except_num:

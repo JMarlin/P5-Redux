@@ -160,7 +160,7 @@ void returnToProcess(process* proc) {
     //if(!(_prc_is_super || (_old_eflags & 0x20000)))
         //entry_debug();
 
-    _returnToProc();
+    __asm__ volatile ("jmp _returnToProc\n");
 }
 
 
@@ -412,10 +412,10 @@ void kernelEntry(void) {
 
                 //In the case that needs_swap IS set, we know that
                 //this is actually just a force-swap by the timer
-                //if(!needs_swap) {
+                if(!needs_swap) {
 
                     V86Entry();
-                //}
+                }
             } else {
 
                 //Otherwise, for now we just dump the system state and move on
@@ -435,7 +435,7 @@ void kernelEntry(void) {
         case FORCE_ENTER:
             //We don't want to do anything here, this is just
             //so that we get an entry into and an exit from the kernel
-            if(_was_spurious) {
+            if(!_was_spurious) {
 
                 DEBUG("\nA forceenter was requested\n");
                 c_timer_handler();

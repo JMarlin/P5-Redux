@@ -11,7 +11,7 @@
 #include "../memory/paging.h"
 #include "../memory/gdt.h"
 #include "../fs/fs.h"
-#include "../fs/ramfs.h"
+#include "../fs/ramfs.h" 
 #include "../block/block.h"
 #include "../block/ramdisk.h"
 #include "../timer/timer.h"
@@ -65,17 +65,26 @@ int main(void) {
                                          //has to jump into a v86 process and back.
 }
 
+void kernel_resume_from_mips_calc(unsigned int mips);
 void kernel_finish_startup(void) {
 
+    prints("Done.\n");
+    timer_on(); //Unmask timer channel
+    do_mips_calc(&kernel_resume_from_mips_calc); //Will do mips calculation and return to the below function
+}
+
+void kernel_resume_from_mips_calc(unsigned int mips) {
+    
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
     context* ctx;
     block_dev* ram0;
 
-    prints("Done.");
-    timer_on(); //Unmask timer channel
-
     prints("WELCOME TO P5\n");
+    prints("Calculated IPS: 0x");
+    printHexDword(mips);
+    prints(".\n");
+    throttle_timer(mips/4000); //update timer to give us 4,000 instruction time slices
 
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
@@ -104,14 +113,12 @@ void kernel_finish_startup(void) {
 
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
-    prints("Calculating offset to ramdisk\n");
+    prints("Setting up ramdisk...\n");
     doffset = 0x100005 + _pkgoffset;
-    prints("Creating new ramdisk block device ram0...");
     ram0 = blk_ram_new(doffset, sizes[0]);
-    prints("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
-    prints("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, ram0, ":");
+    prints("Done.\nStarting registrar.\n");
 
     //Start the registrar and thereby the rest of the OS
     enterProc(exec_process(":registrar.mod", 1));

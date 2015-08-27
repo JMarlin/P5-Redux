@@ -109,13 +109,13 @@ int enableA20() {
 }
 
 
-inline void outb(unsigned short _port, unsigned char _data) {
+ void outb(unsigned short _port, unsigned char _data) {
     
     asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
 }
 
 
-inline unsigned char inb(unsigned short _port) {
+ unsigned char inb(unsigned short _port) {
     
     unsigned char data;
     
@@ -124,7 +124,7 @@ inline unsigned char inb(unsigned short _port) {
 }
 
 
-inline void outw(unsigned short _port, unsigned short _data) {
+ void outw(unsigned short _port, unsigned short _data) {
 
     asm volatile ( 
         "push %%ax \n"
@@ -141,7 +141,7 @@ inline void outw(unsigned short _port, unsigned short _data) {
 }
 
 
-inline unsigned short inw(unsigned short _port) {
+ unsigned short inw(unsigned short _port) {
 
 
     unsigned short data;
@@ -162,13 +162,13 @@ inline unsigned short inw(unsigned short _port) {
 }
 
 
-inline void outd(unsigned short _port, unsigned int _data) {
+ void outd(unsigned short _port, unsigned int _data) {
 
     asm volatile ( "outl %0, %1" : "=a"(_data) : "Nd"(_port) );
 }
 
 
-inline unsigned int ind(unsigned short _port) {
+ unsigned int ind(unsigned short _port) {
 
 
     unsigned int data;

@@ -41,11 +41,12 @@ void c_timer_handler() {
 
     static unsigned int tick_count = 0;
 
-    if(++tick_count > 500) {
+    if(++tick_count >= TICK_THRESHOLD) {
 
         //Force kernel entry
         tick_count = 0;
         needs_swap = 1;
+	//pchar('.'); //For making sure the timer is actually firing
     }
 
     timer_int_ack();
@@ -107,13 +108,52 @@ void init_time_chip(unsigned int freq) {
     outb(TIMER0_DATA, reload >> 8);
 }
 
+//Stop the timer, update the frequency, and turn it back on
+void throttle_timer(unsigned int freq) {
+    
+    timer_off();
+    init_time_chip(freq); //Full throttle is 596591
+    timer_on(); 
+    installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3); //Make sure the normal handler is installed
+}
+
+void (*reentry_call)(unsigned int);
+unsigned int state;
+void do_mips_calc(void (*cb)(unsigned int)) {
+    
+    reentry_call = cb;
+    state = 1;
+    __asm__ ("jmp _mips_loop\n");
+}
+
+void c_calc_mips() {
+    
+    static unsigned int state = 1;
+    
+    //Acknowledge the timer interrupt
+    timer_int_ack();
+        
+    if(state) {
+        
+        //We're starting up, so update the state and
+        //re-enter the MIPS loop
+        state = 0;
+        __asm__ ("jmp _mips_loop\n");
+    } else {
+        
+        //Do MIPS calculation from counter and return to
+        //kernel startup process
+        _mips_counter = _mips_counter * 400; //4 instructions in the loop and 100Hz sample window
+        (*reentry_call)(_mips_counter);
+    }
+}
 
 void init_timer() {
 
     t_counter = 0;
 
     init_pic();
-    init_time_chip(1000);
-    installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3);
+    init_time_chip(100); //We use this initial low speed for MIPS calc
+    installInterrupt(TIMER_INT_NUM, &_calc_mips, 3); //Initially, this interrupt will be trapped by the MIPS calculator
     installInterrupt(0xE7, &_spurious_handler, 3);
 }

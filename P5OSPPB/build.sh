@@ -14,7 +14,7 @@ rm kernel.h
 mv tmp_h kernel.h
 cd ..
 
-C_OPTS="-nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -m32" # -fno-zero-initialized-in-bss"
+C_OPTS="-nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -m32 -g" # -fno-zero-initialized-in-bss"
 
 cd core
 echo Starting core build...
