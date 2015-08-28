@@ -15,8 +15,8 @@ void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
 void cmd_printHexByte(unsigned char byte);
-void cmd_printHexWord(unsigned char wd);
-void cmd_printHexDword(unsigned char dword);  
+void cmd_printHexWord(unsigned short wd);
+void cmd_printHexDword(unsigned int dword);  
 
 //Typedefs
 typedef void (*sys_command)(void);

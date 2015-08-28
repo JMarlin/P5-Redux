@@ -43,9 +43,9 @@ void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayloa
     _asm_send_msg();
 }
 
-unsigned int getCurrentPid(void) {
+unsigned int getCurrentPid() {
     
-    postMessage(0, KS_GET_PID, pid);
+    postMessage(0, KS_GET_PID, 0);
     getMessageFrom(&temp_msg, 0, KS_GET_PID);
     
     return temp_msg.payload;
