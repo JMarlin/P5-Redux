@@ -14,12 +14,12 @@ void main(void) {
 	//Try to register the IRQ
 	if(!registerIRQ(1)) {
 		
-		prints("Failed.");
+		prints("Failed.\n");
 		postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
     	terminate();
 	}
 	
-	prints("Done.");
+	prints("Done.\n");
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 	
 	//Now that everything is set up, we can loop waiting for interrupts
