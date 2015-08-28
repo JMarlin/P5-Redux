@@ -405,6 +405,8 @@ void startGui(unsigned short xres, unsigned short yres) {
     //Simple input loop
     cmd_init(xres, yres);
 
+    cmd_prints("----| Welcome to P5 |----\n::_");
+
     //Wait for keypress
     //NOTE: BIG ISSUE HERE IS THAT THIS LOOP IS FILLING UP THE KERNEL HEAP
     //SPACE WITH MESSAGE REQUESTS AND SLOWING DOWN EVERYTHING ELSE ON THE
