@@ -61,7 +61,7 @@ unsigned char getch() {
 
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
-    while(!getMessage(&temp_msg));
+    while(!getMessageFrom(&temp_msg, 0, KS_GETCH));
 
     return (unsigned char)(temp_msg.payload & 0xFF);
 }
@@ -76,7 +76,6 @@ void clearScreen() {
 unsigned int startProc(unsigned char* path) {
 
     postMessage(0, 4, (unsigned int)path);
-
     //We should probably add a method to ignore messages
     //we don't care about but leave them in the queue
     while(!getMessage(&temp_msg));

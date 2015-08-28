@@ -4,11 +4,14 @@
 #include "../process/process.h"
 #include "../process/message.h"
 #include "../kserver/kserver.h"
+#include "../mods/include/p5.h"
 
 //Tables which will keep track of IRQ registration
 process* irq_process[15] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
+
+typedef void (*handler)(void);
 
 extern void irq_handler_1(void);
 extern void irq_handler_2(void);
@@ -26,7 +29,7 @@ extern void irq_handler_13(void);
 extern void irq_handler_14(void);
 extern void irq_handler_15(void);
 
-void (*irq_handler)(void)[15] = {
+handler irq_handler[15] = {
     &irq_handler_1,
     &irq_handler_2,
     &irq_handler_3,
