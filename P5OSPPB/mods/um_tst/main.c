@@ -1,18 +1,22 @@
 #include "../include/p5.h"
 #include "../include/gfx.h"
 
-#define CMD_COUNT 3
+#define CMD_COUNT 4
 
 //Function declarations
 void usrClear(void);
 void consVer(void);
 void usrExit(void);
+void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
+void cmd_printHexByte(unsigned char byte);
+void cmd_printHexWord(unsigned char wd);
+void cmd_printHexDword(unsigned char dword);  
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -21,13 +25,15 @@ typedef void (*sys_command)(void);
 char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
-    "EXIT"
+    "EXIT",
+    "CPU"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
-    (sys_command)&usrExit
+    (sys_command)&usrExit,
+    (sys_command)&cpuUsage
 };
 
 char inbuf[50];
@@ -82,6 +88,16 @@ void main(void) {
     enterMode();
 }
 
+void cpuUsage(void) {
+    
+    unsigned int my_pid = getCurrentPid();
+    
+    cmd_prints("Usage percent of current proc (");
+    cmd_printHexDword(my_pid);
+    cmd_prints("): ");
+    cmd_printHexByte((unsigned char)(getProcessCPUUsage(my_pid) & 0xFF));
+    cmd_pchar('\n');
+}
 
 void usrClear(void) {
 
@@ -311,6 +327,25 @@ void cmd_clear() {
     cmd_y = 0;
 }
 
+void cmd_printHexByte(unsigned char byte) {
+
+    cmd_pchar(digitToHex((byte & 0xF0)>>4));
+    cmd_pchar(digitToHex(byte & 0xF));
+}
+
+
+void cmd_printHexWord(unsigned short wd) {
+
+    cmd_printHexByte((unsigned char)((wd & 0xFF00)>>8));
+    cmd_printHexByte((unsigned char)(wd & 0xFF));
+}
+
+
+void cmd_printHexDword(unsigned int dword) {
+
+    cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    cmd_printHexWord((unsigned short)(dword & 0xFFFF));
+}
 
 void cmd_scans(int c, char* b) {
 

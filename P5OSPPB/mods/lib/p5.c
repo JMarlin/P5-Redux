@@ -43,6 +43,22 @@ void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayloa
     _asm_send_msg();
 }
 
+unsigned int getCurrentPid(void) {
+    
+    postMessage(0, KS_GET_PID, pid);
+    getMessageFrom(&temp_msg, 0, KS_GET_PID);
+    
+    return temp_msg.payload;
+}
+
+unsigned int getProcessCPUUsage(unsigned int pid) {
+    
+    postMessage(0, KS_GET_PROC_CPU_PCT, pid);
+    getMessageFrom(&temp_msg, 0, KS_GET_PROC_CPU_PCT);
+    
+    return temp_msg.payload;
+}
+
 unsigned int registerIRQ(unsigned int irq_number) {
     
     //Post a request to register the IRQ

@@ -22,6 +22,8 @@ extern void _asm_get_msg_from(void);
 int getMessage(message* msg);
 int getMessageFrom(message* msg, unsigned int source, unsigned int command);
 void postMessage(unsigned int dest, unsigned int command, unsigned int payload);
+unsigned int getCurrentPid(void);
+unsigned int getProcessCPUUsage(unsigned int pid);
 unsigned int registerIRQ(unsigned int irq_number);
 void waitForIRQ(unsigned int irq_number);
 void pchar(char c);
