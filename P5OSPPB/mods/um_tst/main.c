@@ -280,7 +280,7 @@ void cmd_pchar(unsigned char c) {
 
     if(c == '\n') {
 
-        cmd_x = 2;
+        cmd_x = 0;
         cmd_y++;
     } else {
 
@@ -421,9 +421,9 @@ void startGui(unsigned short xres, unsigned short yres) {
     //MESSAGE AND THE PROCESS WILL BE BYPASSED BY THE SCHEDULER UNTIL THE KERNEL
     //HAS A KEYPRESS READY TO SEND BACK
     while(1) {
-        //cmd_prints("::");
-        //cmd_scans(50, inbuf);
-        //parse(inbuf);
+        cmd_prints("::");
+        cmd_scans(50, inbuf);
+        parse(inbuf);
     }
 
 
