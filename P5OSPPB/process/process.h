@@ -48,6 +48,7 @@ typedef struct process {
     unsigned int flags;
     unsigned int wait_pid;
     unsigned int wait_cmd;
+    unsigned int called_count;
 } process;
 
 extern int _old_esp;
