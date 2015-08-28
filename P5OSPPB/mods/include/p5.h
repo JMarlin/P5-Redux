@@ -22,7 +22,7 @@ extern void _asm_get_msg_from(void);
 int getMessage(message* msg);
 int getMessageFrom(message* msg, unsigned int source, unsigned int command);
 void postMessage(unsigned int dest, unsigned int command, unsigned int payload);
-void registerIRQ(unsigned int irq_number);
+unsigned int registerIRQ(unsigned int irq_number);
 void waitForIRQ(unsigned int irq_number);
 void pchar(char c);
 void terminate(void);

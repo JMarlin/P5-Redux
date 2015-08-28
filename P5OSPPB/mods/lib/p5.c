@@ -46,10 +46,10 @@ void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayloa
 unsigned int registerIRQ(unsigned int irq_number) {
     
     //Post a request to register the IRQ
-    postMessage(0, KS_REG_IRQ1 + (irq_number - 1), 0);
+    postMessage(0, KS_REG_IRQ_1 + (irq_number - 1), 0);
     
     //Wait for the reply from the kernel
-    getMessageFrom(&temp_msg, 0, KS_REG_IRQ1 + irq_number - 1);
+    getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + irq_number - 1);
     
     //Tell the requester whether or not the registration succeeded
     return temp_msg.payload;
@@ -58,7 +58,7 @@ unsigned int registerIRQ(unsigned int irq_number) {
 //Sleep the process until the kernel passes it an interrupt message
 void waitForIRQ(unsigned int irq_number) {
     
-    getMessageFrom(&temp_msg, 0, KS_REG_IRQ1 + (irq_number - 1));
+    getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + (irq_number - 1));
 }
 
 void pchar(char c) {
