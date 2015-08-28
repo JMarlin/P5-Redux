@@ -298,7 +298,7 @@ void cmd_pchar(unsigned char c) {
 
 void cmd_prints(unsigned char* s) {
 
-    while(s)
+    while(*s)
         cmd_pchar(*s++);
 }
 
