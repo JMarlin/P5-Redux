@@ -18,7 +18,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //and unload that process from the system
         case KS_QUIT:
 
-            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
 
             if(i == 256)
                 return;
@@ -69,7 +69,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //have users set up we will be able to start a superproc if the
         //owning user is a superuser, but that's down the road
         case KS_EXEC_SUPER:
-            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
 
             if(i == 256)
                 return;
@@ -83,7 +83,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
         //Same as exec superproc call but starts a v86 process
         case KS_EXEC_V86:
-            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
 
             if(i == 256)
                 return;
@@ -97,7 +97,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
         //Toggle debug: sets or resets the process's debug flag
         case KS_TOGGLE_DEBUG:
-            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
 
             if(i == 256)
                 return;
@@ -130,7 +130,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         case KS_REG_IRQ_E:
         case KS_REG_IRQ_F:
 
-            for(i = 0; i < 256 && (procTable[i].id != source); i++)
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
 
             //Fail if the calling process doesn't exist anymore
             if(i == 256)
