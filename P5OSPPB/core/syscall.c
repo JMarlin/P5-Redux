@@ -3,7 +3,6 @@
 #include "../timer/timer.h"
 #include "../process/message.h"
 #include "../ascii_io/ascii_o.h"
-#include "../mods/include/p5.h"
 
 unsigned int gcount = 0;
 unsigned int lineBuf;

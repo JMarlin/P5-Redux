@@ -3,7 +3,6 @@
 #include "../kserver/kserver.h"
 #include "message.h"
 #include "../ascii_io/ascii_o.h"
-#include "../mods/include/p5.h"
 
 //Append a message with the given params to the end of the destination
 //process's message queue

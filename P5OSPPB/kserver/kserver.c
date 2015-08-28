@@ -5,7 +5,6 @@
 #include "../core/kernel.h"
 #include "../core/irq.h"
 #include "kserver.h"
-#include "../mods/include/p5.h"
 
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
 
@@ -147,7 +146,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
             //Attempt to register the IRQ with the process and tell the
             //requester whether or not we succeeded
-            passMessage(0, source, command, irq_register(command - REG_IRQ_1, &procTable[i]));
+            passMessage(0, source, command, irq_register(command - KS_REG_IRQ_1, &procTable[i]));
             break;
 
         default:

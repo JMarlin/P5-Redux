@@ -1,6 +1,8 @@
 #ifndef KSERVER_H
 #define KSERVER_H
 
+#include "../mods/include/kscommands.h"
+
 //Commands to send back to requesters
 #define KEY_RECIEVED 1
 #define PROC_STARTED 2

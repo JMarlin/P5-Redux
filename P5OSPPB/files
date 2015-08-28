@@ -6,6 +6,8 @@ INPUT(
     kernel.o 
     util.o
     int.o
+    irq.o
+    irqs.o
     ascii_i.o
     ascii_o.o
     keyboard.o
