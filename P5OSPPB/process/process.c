@@ -17,6 +17,7 @@ unsigned char* insPtr;
 context V86Context, usrContext;
 int intVect = 0;
 int nextProc = 0;
+unsigned int swap_count = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
 unsigned char needs_swap = 0;
@@ -82,6 +83,27 @@ void kernelDebug(void) {
     prints("\n");
 }
 
+void analyzeProcUsage(process* proc) {
+    
+    int i;
+    
+    proc->called_count++;
+    swap_count++;
+    
+    if(swap_count == 100) {
+        
+        swap_count = 0;
+        
+        for(i = 0; i < 255; i++) {
+            
+            if(!procTable[i].id)
+                continue;
+                
+            procTable[i].cpu_pct = procTable[i].called_count;
+            procTable[i].called_count = 0;
+        }
+    }
+}
 
 void returnToProcess(process* proc) {
 
@@ -158,12 +180,11 @@ void returnToProcess(process* proc) {
     _old_gs = p->ctx.gs;
     _old_err = p->ctx.err;
 
-    //if(!(_prc_is_super || (_old_eflags & 0x20000)))
-        //entry_debug();
+    //Do process accounting
+    analyzeProcUsage(p);
 
     __asm__ volatile ("jmp _returnToProc\n");
 }
-
 
 //This needs to be moved to its own module eventually
 void V86Entry(void) {
@@ -532,6 +553,7 @@ void clearContext(context* ctx) {
 void resetProcessCounter() {
 
     nextProc = 1;
+    swap_count = 0;
 }
 
 
@@ -552,6 +574,8 @@ process* newProcess() {
     proc->root_page = (pageRange*)0x0;
     proc->root_msg = (message*)0x0;
     proc->flags = 0;
+    proc->cpu_pct = 0;
+    proc->called_count = 0;
     return proc;
 }
 
@@ -686,6 +710,7 @@ void startProcessManagement() {
 
     nextProc = 1;
     procPtr = 0;
+    swap_count = 0;
 }
 
 

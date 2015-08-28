@@ -170,13 +170,11 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
         }
     }
 
-/*
     //Update the code to insert the updated ebx value
     usrCode[9] = (unsigned char)((ebx >> 24) & 0xFF); //  |
     usrCode[10] = (unsigned char)((ebx >> 16) & 0xFF); // |
     usrCode[11] = (unsigned char)((ebx >> 8) & 0xFF);  // |
     usrCode[12] = (unsigned char)(ebx & 0xFF);         //-\_mov ebx, <the actual ebx arg>
-*/
 
     enterProc(v86_pid); //Re-enter the process
 }
