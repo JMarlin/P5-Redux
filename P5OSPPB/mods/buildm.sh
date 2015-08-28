@@ -12,4 +12,7 @@ cd ../init
 ./build.sh
 cd ../v86
 ./build.sh
+cd ../key
+./build.sh
 cd ..
+
