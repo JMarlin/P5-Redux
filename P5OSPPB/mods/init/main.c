@@ -10,8 +10,8 @@ void main(void) {
     
     //Start up the keyboard driver
     //(at the moment, this is basically just a test of the IRQ registration system)
-    //prints("[init] Starting keyboard server...\n");
-    //startAndWait(":key.mod");
+    prints("[init] Starting keyboard server...\n");
+    startAndWait(":key.mod");
 
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
