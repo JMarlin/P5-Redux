@@ -451,7 +451,7 @@ void cpuUsage(void) {
     //Get all active PIDs
     while(1) {
 
-        if(!(current_pid = getNextPid())
+        if(!(current_pid = getNextPid()))
             break;
 
         pd[i].pid = current_pid;
@@ -461,7 +461,7 @@ void cpuUsage(void) {
 
     for(i = 0; i < proc_count; i++) {
 
-        cmd_printHexDword(my_pid);
+        cmd_printHexDword(pd[i].pid);
         cmd_prints(": ");
         cmd_getCursor(&(pd[i].x), &(pd[i].y));
         cmd_prints("   \n");
