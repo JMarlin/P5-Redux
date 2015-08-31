@@ -310,11 +310,37 @@ void cmd_pchar(unsigned char c) {
     }
 }
 
+void cmd_clchar(unsigned char c) {
+
+    if(c == '\n') {
+
+        cmd_x = 0;
+        cmd_y++;
+    } else {
+
+        drawCharacter(c, (cmd_x*8)+27, (cmd_y*12)+27, RGB(0, 0, 0));
+        cmd_x++;
+
+        if(cmd_x > cmd_max_chars) {
+
+            cmd_x = 0;
+            cmd_y++;
+        }
+    }
+}
 
 void cmd_prints(unsigned char* s) {
 
     while(*s)
         cmd_pchar(*s++);
+}
+
+void cmd_printClear(int count) {
+
+    setCursor((cmd_x*8) + 27, (cmd_y*12) + 27);
+    setColor(0);
+    fillRect(8*count, 12);
+    cmd_x += count;
 }
 
 void cmd_clear() {
@@ -425,6 +451,9 @@ void cpuUsage(void) {
         cmd_putCursor(x, y);
 
         for(i = 0; i < 1000; i++);
+
+        cmd_printClear(10);
+        cmd_putCursor(x, y);
     }
 }
 
