@@ -1,7 +1,7 @@
 #include "../include/p5.h"
 #include "../include/gfx.h"
 
-#define CMD_COUNT 5
+#define CMD_COUNT 4
 
 //Function declarations
 void usrClear(void);
@@ -11,7 +11,6 @@ void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
-void testDecimal(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
@@ -20,6 +19,7 @@ void cmd_putCursor(unsigned char x, unsigned char y);
 void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
 void cmd_printHexDword(unsigned int dword);
+void cmd_printDecimal(unsigned int dword);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -29,16 +29,14 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
-    "CPU",
-    "DEC"
+    "CPU"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&usrExit,
-    (sys_command)&cpuUsage,
-    (sys_command)&testDecimal
+    (sys_command)&cpuUsage
 };
 
 char inbuf[50];
@@ -100,8 +98,8 @@ void cpuUsage(void) {
     cmd_prints("Usage percent of current proc (");
     cmd_printHexDword(my_pid);
     cmd_prints("): ");
-    cmd_printHexByte((unsigned char)(getProcessCPUUsage(my_pid) & 0xFF));
-    cmd_pchar('\n');
+    cmd_printDecimal(getProcessCPUUsage(my_pid) & 0xFF);
+    cmd_prints("%\n");
 }
 
 void usrClear(void) {
@@ -349,8 +347,6 @@ void cmd_printDecimal(unsigned int dword) {
     unsigned char digit[12];
     int i, j;
 
-    cmd_pchar('{');
-
     i = 0;
     while(1) {
 
@@ -364,11 +360,7 @@ void cmd_printDecimal(unsigned int dword) {
 
         digit[i++] = dword % 10;
         dword /= 10;
-
-        cmd_pchar('.');
     }
-
-    cmd_pchar('}');
 
     for(j = i - 1; j >= 0; j--)
         cmd_pchar(digit[j] + '0');
@@ -392,13 +384,6 @@ void cmd_printHexDword(unsigned int dword) {
 
     cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
     cmd_printHexWord((unsigned short)(dword & 0xFFFF));
-}
-
-void testDecimal(void) {
-
-    cmd_prints("The value is: ");
-    cmd_printDecimal(1234567890);
-    cmd_pchar('\n');
 }
 
 void cmd_scans(int c, char* b) {
