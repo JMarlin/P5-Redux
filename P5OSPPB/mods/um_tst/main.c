@@ -356,7 +356,7 @@ void cmd_printDecimal(unsigned int dword) {
 
         if(!dword) {
 
-            if(i = 0)
+            if(i == 0)
                 digit[i++] = 0;
 
             break;
@@ -371,7 +371,7 @@ void cmd_printDecimal(unsigned int dword) {
     cmd_pchar('}');
 
     for(j = i - 1; j >= 0; j--)
-        cmd_pchar((unsigned char)j + '0');
+        cmd_pchar(digit[j] + '0');
 }
 
 void cmd_printHexByte(unsigned char byte) {
