@@ -450,7 +450,7 @@ void cpuUsage(void) {
         cmd_prints("% ");
         cmd_putCursor(x, y);
 
-        for(i = 0; i < 0xFFFFFFFF; i++);
+        for(i = 0; i < 0xFFFFFF; i++);
 
         cmd_printClear(10);
         cmd_putCursor(x, y);
