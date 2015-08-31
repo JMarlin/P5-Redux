@@ -91,17 +91,6 @@ void main(void) {
     enterMode();
 }
 
-void cpuUsage(void) {
-
-    unsigned int my_pid = getCurrentPid();
-
-    cmd_prints("Usage percent of current proc (");
-    cmd_printHexDword(my_pid);
-    cmd_prints("): ");
-    cmd_printDecimal(getProcessCPUUsage(my_pid) & 0xFF);
-    cmd_prints("%\n");
-}
-
 void usrClear(void) {
 
     cmd_clear();
@@ -337,11 +326,6 @@ void cmd_clear() {
     cmd_y = 0;
 }
 
-unsigned int x_to_y(unsigned int x, unsigned int y) {
-
-    return (y <= 0) ? 1 : (x * x_to_y(x, y - 1));
-}
-
 void cmd_printDecimal(unsigned int dword) {
 
     unsigned char digit[12];
@@ -423,7 +407,26 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_chars = (cmd_width/8) - 1;
 }
 
+void cpuUsage(void) {
 
+    unsigned char x, y;
+    int i;
+    unsigned int my_pid = getCurrentPid();
+
+    cmd_prints("Usage percent of current proc (");
+    cmd_printHexDword(my_pid);
+    cmd_prints("): ");
+    cmd_getCursor(&x, &y);
+
+    while(1) {
+
+        cmd_printDecimal(getProcessCPUUsage(my_pid));
+        cmd_prints("% ");
+        cmd_putCursor(x, y);
+
+        for(i = 0; i < 1000; i++);
+    }
+}
 
 void startGui(unsigned short xres, unsigned short yres) {
 
