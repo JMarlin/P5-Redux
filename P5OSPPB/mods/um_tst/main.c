@@ -347,7 +347,6 @@ unsigned int x_to_y(unsigned int x, unsigned int y) {
 void cmd_printDecimal(unsigned int dword) {
 
     unsigned char digit[12];
-    unsigned int r;
     int i, j;
 
     cmd_pchar('{');
@@ -355,11 +354,16 @@ void cmd_printDecimal(unsigned int dword) {
     i = 0;
     while(1) {
 
-        r = dword % x_to_y(10, i + 1);
+        if(!dword) {
 
-        if(r == 0) break;
+            if(i = 0)
+                digit[i++] = 0;
 
-        digit[i++] = r / x_to_y(10, i);
+            break;
+        }
+
+        digit[i++] = dword % 10;
+        dword /= 10;
 
         cmd_pchar('.');
     }
