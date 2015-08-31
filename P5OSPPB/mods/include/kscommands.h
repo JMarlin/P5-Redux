@@ -32,5 +32,6 @@
 #define KS_REG_IRQ_F 23
 #define KS_GET_PROC_CPU_PCT 24
 #define KS_GET_PID 25
+#define KS_PID_FROM_SLOT 26
 
 #endif //KSCOMMANDS_H

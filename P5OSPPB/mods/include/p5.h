@@ -40,5 +40,7 @@ void printHexByte(unsigned char byte);
 void printHexWord(unsigned short wd);
 void printHexDword(unsigned int dword);
 unsigned int getBuildNumber(void);
+unsigned int getNextPid();
+void resetPidSearch();
 
 #endif //P5_H

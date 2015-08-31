@@ -43,37 +43,75 @@ void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayloa
     _asm_send_msg();
 }
 
+unsigned int current_process = 0;
+void resetPidSearch() {
+
+    current_process = 0;
+}
+
+unsigned int getNextPid() {
+
+    unsigned int return_pid = 0;
+
+    if(current_process == 256)
+        return 0;
+
+    while(!return_pid) {
+
+        postMessage(0, KS_PID_FROM_SLOT, current_process);
+        getMessageFrom(&temp_msg, 0, KS_PID_FROM_SLOT);
+        return_pid = temp_msg.payload;
+
+        if(current_process == 255) {
+
+            if(return_pid) {
+
+                break;
+            } else {
+
+                current_process++;
+                return 0;
+            }
+        } else {
+
+            current_process++;
+        }
+    }
+
+    return return_pid;
+}
+
 unsigned int getCurrentPid() {
-    
+
     postMessage(0, KS_GET_PID, 0);
     getMessageFrom(&temp_msg, 0, KS_GET_PID);
-    
+
     return temp_msg.payload;
 }
 
 unsigned int getProcessCPUUsage(unsigned int pid) {
-    
+
     postMessage(0, KS_GET_PROC_CPU_PCT, pid);
     getMessageFrom(&temp_msg, 0, KS_GET_PROC_CPU_PCT);
-    
+
     return temp_msg.payload;
 }
 
 unsigned int registerIRQ(unsigned int irq_number) {
-    
+
     //Post a request to register the IRQ
     postMessage(0, KS_REG_IRQ_1 + (irq_number - 1), 0);
-    
+
     //Wait for the reply from the kernel
     getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + irq_number - 1);
-    
+
     //Tell the requester whether or not the registration succeeded
     return temp_msg.payload;
 }
 
 //Sleep the process until the kernel passes it an interrupt message
 void waitForIRQ(unsigned int irq_number) {
-    
+
     getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + (irq_number - 1));
 }
 

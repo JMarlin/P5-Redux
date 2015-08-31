@@ -118,17 +118,21 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             for(i = 0; i < 256 && (procTable[i].id != payload); i++);
 
             if(i == 256) {
-                
+
                 passMessage(0, source, KS_GET_PROC_CPU_PCT, 0x0);
                 return;
             }
-            
+
 
             passMessage(0, source, KS_GET_PROC_CPU_PCT, procTable[i].cpu_pct);
             break;
 
         case KS_GET_PID:
             passMessage(0, source, KS_GET_PID, source);
+            break;
+
+        case KS_PID_FROM_SLOT:
+            passMessage(0, source, KS_PID_FROM_SLOT, procTable[payload].id);
             break;
 
         case KS_REG_IRQ_1:

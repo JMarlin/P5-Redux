@@ -433,27 +433,56 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_chars = (cmd_width/8) - 1;
 }
 
+typedef struct proc_details {
+    unsigned char x;
+    unsigned char y;
+    unsigned int pid;
+} proc_details;
 void cpuUsage(void) {
 
     unsigned char x, y;
-    int i;
-    unsigned int my_pid = getCurrentPid();
+    int i, proc_count;
+    unsigned int current_pid;
+    proc_details pd[256];
 
-    cmd_prints("Usage percent of current proc (");
-    cmd_printHexDword(my_pid);
-    cmd_prints("): ");
-    cmd_getCursor(&x, &y);
+    resetPidSearch();
+    i = 0;
+
+    //Get all active PIDs
+    while(1) {
+
+        if(!(current_pid = getNextPid())
+            break;
+
+        pd[i].pid = current_pid;
+    }
+
+    proc_count = i;
+
+    for(i = 0; i < proc_count; i++) {
+
+        cmd_printHexDword(my_pid);
+        cmd_prints(": ");
+        cmd_getCursor(&(pd[i].x), &(pd[i].y));
+        cmd_prints("   \n");
+    }
 
     while(1) {
 
-        cmd_printDecimal(getProcessCPUUsage(my_pid));
-        cmd_prints("% ");
-        cmd_putCursor(x, y);
+        for(i = 0; i < proc_count; i++) {
 
-        for(i = 0; i < 0xFFFFFF; i++);
+            cmd_putCursor(pd[i].x, pd[i].y);
+            cmd_printDecimal(getProcessCPUUsage(pd[i].pid));
+            cmd_prints("% ");
+        }
 
-        cmd_printClear(10);
-        cmd_putCursor(x, y);
+        for(i = 0; i < 0x1000000; i++);
+
+        for(i = 0; i < proc_count; i++) {
+
+            cmd_putCursor(pd[i].x, pd[i].y);
+            cmd_printClear(10);
+        }
     }
 }
 
