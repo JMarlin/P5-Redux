@@ -11,12 +11,15 @@ void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
+void testDecimal(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
+void cmd_getCursor(unsigned char *x, unsigned char *y);
+void cmd_putCursor(unsigned char x, unsigned char y);
 void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
-void cmd_printHexDword(unsigned int dword);  
+void cmd_printHexDword(unsigned int dword);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -26,14 +29,16 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
-    "CPU"
+    "CPU",
+    "DEC"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&usrExit,
-    (sys_command)&cpuUsage
+    (sys_command)&cpuUsage,
+    (sys_command)&testDecimal
 };
 
 char inbuf[50];
@@ -89,9 +94,9 @@ void main(void) {
 }
 
 void cpuUsage(void) {
-    
+
     unsigned int my_pid = getCurrentPid();
-    
+
     cmd_prints("Usage percent of current proc (");
     cmd_printHexDword(my_pid);
     cmd_prints("): ");
@@ -232,10 +237,7 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
             drawCharacterBold(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
         }
     }
-
-
 }
-
 
 void showModes(void) {
 
@@ -264,7 +266,6 @@ void showModes(void) {
     }
 }
 
-
 void enterMode(void) {
 
     screen_mode* mode;
@@ -285,12 +286,23 @@ void enterMode(void) {
     startGui(mode->width, mode->height);
 }
 
-
-int cmd_x;
-int cmd_y;
+unsigned char cmd_x;
+unsigned char cmd_y;
 int cmd_width;
 int cmd_height;
 int cmd_max_chars;
+
+void cmd_getCursor(unsigned char *x, unsigned char *y) {
+
+    *x = cmd_x;
+    *y = cmd_y;
+}
+
+void cmd_putCursor(unsigned char x, unsigned char y) {
+
+    cmd_x = x;
+    cmd_y = y;
+}
 
 void cmd_pchar(unsigned char c) {
 
@@ -327,6 +339,30 @@ void cmd_clear() {
     cmd_y = 0;
 }
 
+unsigned int x_to_y(unsigned int x, unsigned int y) {
+
+    return y <= 0 ? 1 : x * x_to_y(x, y - 1);
+}
+
+void cmd_printDecimal(unsigned int dword) {
+
+    unsigned char digit[12];
+    unsigned int r, i, j;
+
+    i = 0;
+    while(1) {
+
+        r = dword % x_to_y(10, i + 1);
+
+        if(!r) break;
+
+        digit[i++] = r / x_to_y(10, i);
+    }
+
+    for(j = 0; j < i; j++)
+        cmd_pchar(j + '0');
+}
+
 void cmd_printHexByte(unsigned char byte) {
 
     cmd_pchar(digitToHex((byte & 0xF0)>>4));
@@ -345,6 +381,13 @@ void cmd_printHexDword(unsigned int dword) {
 
     cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
     cmd_printHexWord((unsigned short)(dword & 0xFFFF));
+}
+
+void testDecimal(void) {
+
+    cmd_prints("The value is: ");
+    cmd_printDecimal(12345678901);
+    cmd_pchar('\n');
 }
 
 void cmd_scans(int c, char* b) {
@@ -449,7 +492,7 @@ void startGui(unsigned short xres, unsigned short yres) {
     //THIS IS ALSO A PROBLEM THAT NEEDS TO BE ADDRESSED WITH THE CURRENT
     //KMALLOC IMPLEMENTATION BEING CRAZY SLOW WHICH NEEDS TO BE ADDRESSED
     //(PROBABLY BY SWITCHING TO ALLOCATING PAGES AND KEEPING A TREE OF PAGES
-    //WHICH CAN THEN BE SUBDIVIDED ON FUTURE ALLOCATIONS) 
+    //WHICH CAN THEN BE SUBDIVIDED ON FUTURE ALLOCATIONS)
     //BUT THE FIRST, FASTEST THING WE CAN DO FOR NOW IS TO USE THE SLEEP-FOR
     //-MESSAGE CAPABILITY OF MESSAGING WE HAVE NOW TO CHANGE SCANS FROM A POLLING
     //TO A WAKE-ON-EVENT TYPE OF COMMAND. THIS WAY WE'LL ONLY SPAWN A SINGLE
