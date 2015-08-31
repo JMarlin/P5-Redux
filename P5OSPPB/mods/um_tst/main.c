@@ -341,26 +341,33 @@ void cmd_clear() {
 
 unsigned int x_to_y(unsigned int x, unsigned int y) {
 
-    return y <= 0 ? 1 : x * x_to_y(x, y - 1);
+    return (y <= 0) ? 1 : (x * x_to_y(x, y - 1));
 }
 
 void cmd_printDecimal(unsigned int dword) {
 
     unsigned char digit[12];
-    unsigned int r, i, j;
+    unsigned int r;
+    int i, j;
+
+    cmd_pchar('{');
 
     i = 0;
     while(1) {
 
         r = dword % x_to_y(10, i + 1);
 
-        if(!r) break;
+        if(r == 0) break;
 
         digit[i++] = r / x_to_y(10, i);
+
+        cmd_pchar('.');
     }
 
-    for(j = 0; j < i; j++)
-        cmd_pchar(j + '0');
+    cmd_pchar('}');
+
+    for(j = i - 1; j >= 0; j--)
+        cmd_pchar((unsigned char)j + '0');
 }
 
 void cmd_printHexByte(unsigned char byte) {
@@ -386,7 +393,7 @@ void cmd_printHexDword(unsigned int dword) {
 void testDecimal(void) {
 
     cmd_prints("The value is: ");
-    cmd_printDecimal(12345678901);
+    cmd_printDecimal(1234567890);
     cmd_pchar('\n');
 }
 
