@@ -501,7 +501,7 @@ void cpuUsage(void) {
                 pd[i].last_ten[9] = getProcessCPUUsage(pd[i].pid);
             } else {
 
-                pd[i].last_ten[proc_count[i].avg_count] = getProcessCPUUsage(pd[i].pid);
+                pd[i].last_ten[pd[i].avg_count] = getProcessCPUUsage(pd[i].pid);
                 pd[i].avg_count++;
             }
 
@@ -510,7 +510,7 @@ void cpuUsage(void) {
             for(j = 0; j < pd[i].avg_count; j ++)
                 pd[i].average += pd[i].last_ten[j];
 
-            proc_count[i].average /= pd[i].avg_count;
+            pd[i].average /= pd[i].avg_count;
             cmd_printDecimal(pd[i].average);
             cmd_prints("% ");
         }
