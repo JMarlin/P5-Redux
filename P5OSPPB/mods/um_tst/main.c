@@ -437,13 +437,24 @@ typedef struct proc_details {
     unsigned char x;
     unsigned char y;
     unsigned int pid;
+    unsigned int average;
+    unsigned int last_ten[10];
+    unsigned int avg_count;
 } proc_details;
 void cpuUsage(void) {
 
     unsigned char x, y;
-    int i, proc_count;
+    int i, j, proc_count;
     unsigned int current_pid;
     proc_details pd[256];
+
+    for(i = 0; i < 256; i++) {
+
+        for(j = 0; j < 10; j++)
+            proc_details[i].last_ten[j] = 0;
+
+        proc_details[i].avg_count = proc_details[i].average = 0;
+    }
 
     resetPidSearch();
     i = 0;
@@ -479,7 +490,28 @@ void cpuUsage(void) {
         for(i = 0; i < proc_count; i++) {
 
             cmd_putCursor(pd[i].x, pd[i].y);
-            cmd_printDecimal(getProcessCPUUsage(pd[i].pid));
+
+            //Process rolling average
+            if(proc_count[i].avg_count == 10) {
+
+                //Rotate the buffer to the left
+                for(j = 0; j < 9; j++)
+                    proc_count[i].last_ten[j] = proc_count[i].last_ten[j+1];
+
+                proc_count[i].last_ten[9] = getProcessCPUUsage(pd[i].pid);
+            } else {
+
+                proc_count[i].last_ten[proc_count[i].avg_count] = getProcessCPUUsage(pd[i].pid);
+                proc_count[i].avg_count++;
+            }
+
+            proc_count[i].average = 0;
+
+            for(j = 0; j < proc_count[i].avg_count; j ++)
+                proc_count[i].average += proc_count[i].last_ten[j];
+
+            proc_count[i].average /= proc_count[i].avg_count;
+            cmd_printDecimal(proc_count[i].average);
             cmd_prints("% ");
         }
 
