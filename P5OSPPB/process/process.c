@@ -94,7 +94,6 @@ void analyzeProcUsage(process* proc) {
     if(swap_count == 2000) {
 
         swap_count = 0;
-        entry_count++;
 
         for(i = 0; i < 255; i++) {
 
@@ -104,6 +103,8 @@ void analyzeProcUsage(process* proc) {
             procTable[i].cpu_pct = procTable[i].called_count / entry_count;
             procTable[i].called_count = 0;
         }
+
+        entry_count = 0;
     }
 }
 
