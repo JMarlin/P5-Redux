@@ -459,7 +459,7 @@ void cpuUsage(void) {
     }
 
     cmd_prints("(Found ");
-    cmd_printDecimal(proc_count);
+    cmd_printDecimal(i);
     cmd_prints(")\n");
     proc_count = i;
 
