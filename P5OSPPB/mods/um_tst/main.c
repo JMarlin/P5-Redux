@@ -451,9 +451,9 @@ void cpuUsage(void) {
     for(i = 0; i < 256; i++) {
 
         for(j = 0; j < 10; j++)
-            proc_details[i].last_ten[j] = 0;
+            pd[i].last_ten[j] = 0;
 
-        proc_details[i].avg_count = proc_details[i].average = 0;
+        pd[i].avg_count = pd[i].average = 0;
     }
 
     resetPidSearch();
@@ -492,29 +492,30 @@ void cpuUsage(void) {
             cmd_putCursor(pd[i].x, pd[i].y);
 
             //Process rolling average
-            if(proc_count[i].avg_count == 10) {
+            if(pd[i].avg_count == 10) {
 
                 //Rotate the buffer to the left
                 for(j = 0; j < 9; j++)
-                    proc_count[i].last_ten[j] = proc_count[i].last_ten[j+1];
+                    pd[i].last_ten[j] = pd[i].last_ten[j+1];
 
-                proc_count[i].last_ten[9] = getProcessCPUUsage(pd[i].pid);
+                pd[i].last_ten[9] = getProcessCPUUsage(pd[i].pid);
             } else {
 
-                proc_count[i].last_ten[proc_count[i].avg_count] = getProcessCPUUsage(pd[i].pid);
-                proc_count[i].avg_count++;
+                pd[i].last_ten[proc_count[i].avg_count] = getProcessCPUUsage(pd[i].pid);
+                pd[i].avg_count++;
             }
 
-            proc_count[i].average = 0;
+            pd[i].average = 0;
 
-            for(j = 0; j < proc_count[i].avg_count; j ++)
-                proc_count[i].average += proc_count[i].last_ten[j];
+            for(j = 0; j < pd[i].avg_count; j ++)
+                pd[i].average += pd[i].last_ten[j];
 
-            proc_count[i].average /= proc_count[i].avg_count;
-            cmd_printDecimal(proc_count[i].average);
+            proc_count[i].average /= pd[i].avg_count;
+            cmd_printDecimal(pd[i].average);
             cmd_prints("% ");
         }
 
+        //Busyloop
         for(i = 0; i < 0x1000000; i++);
 
         for(i = 0; i < proc_count; i++) {
