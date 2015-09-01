@@ -18,6 +18,7 @@ context V86Context, usrContext;
 int intVect = 0;
 int nextProc = 0;
 unsigned int swap_count = 0;
+unsigned int entry_count = 0;
 unsigned char procPtr = 0;
 unsigned int t_count = 0;
 unsigned char needs_swap = 0;
@@ -84,22 +85,23 @@ void kernelDebug(void) {
 }
 
 void analyzeProcUsage(process* proc) {
-    
+
     int i;
-    
+
     proc->called_count++;
-    swap_count++;
-    
-    if(swap_count == 100) {
-        
+    entry_count++;
+
+    if(swap_count == 2000) {
+
         swap_count = 0;
-        
+        entry_count++;
+
         for(i = 0; i < 255; i++) {
-            
+
             if(!procTable[i].id)
                 continue;
-                
-            procTable[i].cpu_pct = procTable[i].called_count;
+
+            procTable[i].cpu_pct = procTable[i].called_count / entry_count;
             procTable[i].called_count = 0;
         }
     }
@@ -109,6 +111,9 @@ void returnToProcess(process* proc) {
 
     message temp_message;
     process* oldP = p;
+
+    if(needs_swap) //EG: The timer fired
+        swap_count++;
 
     //needs_swap means that the timer is up
     //PF_WAITMSG means that the current process has been put to sleep
