@@ -449,15 +449,22 @@ void cpuUsage(void) {
     i = 0;
 
     //Get all active PIDs
+    cmd_prints("Enumerating PIDs...");
     while(1) {
 
         if(!(current_pid = getNextPid()))
             break;
 
-        pd[i].pid = current_pid;
+        pd[i++].pid = current_pid;
     }
 
+    cmd_prints("(Found ");
+    cmd_printDecimal(proc_count);
+    cmd_prints(")\n");
     proc_count = i;
+
+    if(proc_count == 0)
+        return;
 
     for(i = 0; i < proc_count; i++) {
 
@@ -540,7 +547,7 @@ void startGui(unsigned short xres, unsigned short yres) {
     //Simple input loop
     cmd_init(xres, yres);
 
-    cmd_prints("----| Welcome to P5 |----\n::_");
+    cmd_prints("----| Welcome to P5 |----\n");
 
     //Wait for keypress
     //NOTE: BIG ISSUE HERE IS THAT THIS LOOP IS FILLING UP THE KERNEL HEAP
@@ -556,6 +563,7 @@ void startGui(unsigned short xres, unsigned short yres) {
     //MESSAGE AND THE PROCESS WILL BE BYPASSED BY THE SCHEDULER UNTIL THE KERNEL
     //HAS A KEYPRESS READY TO SEND BACK
     while(1) {
+
         cmd_prints("::");
         cmd_scans(50, inbuf);
         parse(inbuf);
