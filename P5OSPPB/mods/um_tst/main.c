@@ -438,7 +438,7 @@ typedef struct proc_details {
     unsigned char y;
     unsigned int pid;
     unsigned int average;
-    unsigned int last_ten[10];
+    unsigned int last_ten[50];
     unsigned int avg_count;
 } proc_details;
 void cpuUsage(void) {
@@ -451,7 +451,7 @@ void cpuUsage(void) {
     cmd_prints("Clearing and initializing");
     for(i = 0; i < 10; i++) {
 
-        for(j = 0; j < 10; j++)
+        for(j = 0; j < 50; j++)
             pd[i].last_ten[j] = 0;
 
         pd[i].avg_count = pd[i].average = 0;
@@ -495,13 +495,13 @@ void cpuUsage(void) {
             cmd_putCursor(pd[i].x, pd[i].y);
 
             //Process rolling average
-            if(pd[i].avg_count == 10) {
+            if(pd[i].avg_count == 50) {
 
                 //Rotate the buffer to the left
-                for(j = 0; j < 9; j++)
+                for(j = 0; j < 49; j++)
                     pd[i].last_ten[j] = pd[i].last_ten[j+1];
 
-                pd[i].last_ten[9] = getProcessCPUUsage(pd[i].pid);
+                pd[i].last_ten[49] = getProcessCPUUsage(pd[i].pid);
             } else {
 
                 pd[i].last_ten[pd[i].avg_count] = getProcessCPUUsage(pd[i].pid);
