@@ -91,7 +91,7 @@ void analyzeProcUsage(process* proc) {
     proc->called_count++;
     entry_count++;
 
-    if(entry_count == 2000) {
+    if(swap_count == 10000) {
 
         swap_count = 0;
 
