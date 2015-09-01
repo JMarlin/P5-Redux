@@ -485,7 +485,7 @@ void cpuUsage(void) {
         cmd_printHexDword(pd[i].pid);
         cmd_prints(": ");
         cmd_getCursor(&(pd[i].x), &(pd[i].y));
-        cmd_prints("   \n");f
+        cmd_prints("   \n");
     }
 
     while(1) {
