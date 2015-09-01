@@ -449,8 +449,6 @@ void cpuUsage(void) {
     proc_details pd[10];
 
     cmd_prints("Clearing and initializing");
-    return;
-
     for(i = 0; i < 10; i++) {
 
         for(j = 0; j < 10; j++)
@@ -466,7 +464,7 @@ void cpuUsage(void) {
 
     //Get all active PIDs
     cmd_prints("Enumerating PIDs...");
-    while(1) {
+    while(i < 10) {
 
         if(!(current_pid = getNextPid()))
             break;
