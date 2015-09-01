@@ -449,6 +449,8 @@ void cpuUsage(void) {
     proc_details pd[256];
 
     cmd_prints("Clearing and initializing");
+    return;
+    
     for(i = 0; i < 256; i++) {
 
         for(j = 0; j < 10; j++)
