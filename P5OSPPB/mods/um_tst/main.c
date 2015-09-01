@@ -485,10 +485,12 @@ void cpuUsage(void) {
         cmd_printHexDword(pd[i].pid);
         cmd_prints(": ");
         cmd_getCursor(&(pd[i].x), &(pd[i].y));
-        cmd_prints("   \n");
+        cmd_prints("   \n");f
     }
 
     while(1) {
+
+        setColor(RGB(0, 255, 0));
 
         for(i = 0; i < proc_count; i++) {
 
@@ -514,16 +516,22 @@ void cpuUsage(void) {
                 pd[i].average += pd[i].last_ten[j];
 
             pd[i].average /= pd[i].avg_count;
-            cmd_printDecimal(pd[i].average);
-            cmd_prints("% ");
+
+            setCursor((pd[i].x * 8) + 27, (pd[i].y * 12) + 28);
+            fillRect((200 * pd[i].average) / 100, 10);
+            //cmd_printDecimal(pd[i].average);
+            //cmd_prints("% ");
         }
 
         //Busyloop
         for(i = 0; i < 0x1000000; i++);
 
+        setColor(RGB(0, 0, 0));
+
         for(i = 0; i < proc_count; i++) {
 
-            cmd_putCursor(pd[i].x, pd[i].y);
+            setCursor((pd[i].x * 8) + 27, (pd[i].y * 12) + 28);
+            fillRect(200, 10);
             cmd_printClear(10);
         }
     }
