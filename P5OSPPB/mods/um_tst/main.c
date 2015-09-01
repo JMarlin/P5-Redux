@@ -448,14 +448,17 @@ void cpuUsage(void) {
     unsigned int current_pid;
     proc_details pd[256];
 
+    cmd_prints("Clearing and initializing");
     for(i = 0; i < 256; i++) {
 
         for(j = 0; j < 10; j++)
             pd[i].last_ten[j] = 0;
 
         pd[i].avg_count = pd[i].average = 0;
+        cmd_pchar('.');
     }
 
+    cmd_prints("Done.\n");
     resetPidSearch();
     i = 0;
 
