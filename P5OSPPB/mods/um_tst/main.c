@@ -446,12 +446,12 @@ void cpuUsage(void) {
     unsigned char x, y;
     int i, j, proc_count;
     unsigned int current_pid;
-    proc_details pd[256];
+    proc_details pd[10];
 
     cmd_prints("Clearing and initializing");
     return;
-    
-    for(i = 0; i < 256; i++) {
+
+    for(i = 0; i < 10; i++) {
 
         for(j = 0; j < 10; j++)
             pd[i].last_ten[j] = 0;
