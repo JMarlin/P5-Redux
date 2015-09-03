@@ -79,12 +79,6 @@ unsigned char inb(unsigned short _port) {
 	return data;
 }
 
-void keyboard_sendCommand(unsigned char command) {
-
-    keyboard_inputWait();
-    outb(KBC_CREG, command);
-}
-
 unsigned char keyboard_getStatus() {
 
     return inb(KBC_SREG);
@@ -110,6 +104,12 @@ void keyboard_sendData(unsigned char data) {
 
     keyboard_inputWait();
     outb(KBC_DREG, data);
+}
+
+void keyboard_sendCommand(unsigned char command) {
+
+    keyboard_inputWait();
+    outb(KBC_CREG, command);
 }
 
 void main(void) {
@@ -138,7 +138,7 @@ void main(void) {
     keyboard_sendCommand(KBC_WRITE_CCB);
     keyboard_sendData(current_creg | CCB_PORT1_INT | CCB_PORT2_INT);
 
-	prints("Done.\n")
+	prints("Done.\n");
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
 	//Now that everything is set up, we can loop waiting for interrupts
