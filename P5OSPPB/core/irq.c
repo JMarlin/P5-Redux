@@ -1,6 +1,7 @@
 #include "irq.h"
 #include "int.h"
 #include "util.h"
+#include "../ascii_io/ascii_o.h"
 #include "../process/process.h"
 #include "../process/message.h"
 #include "../kserver/kserver.h"
@@ -57,6 +58,10 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
         return 0;
 
     //map the process
+    prints("\nRegistered IRQ slot #\n");
+    printHexDword(irq_number);
+    prints("/interrupt 0x");
+    printHexDword(irq_number + 0xE1);
     irq_process[irq_number] = requesting_proc;
 
     //map the handler into the right interrupt vector, assuming it's not
@@ -64,7 +69,7 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
     installInterrupt(irq_number + 0xE1, irq_handler[irq_number], 3);
 
     //Open up the associated PIC channel
-
+    enable_irq(irq_number);
 
     //For now, we can't really fail so we just return OK
     return 1;
