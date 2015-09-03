@@ -80,6 +80,10 @@ int keyboard_init() {
     //Enable and reset the device (when we start using the IRQs, we'll
     //want to enable those in the CCB here as well
     DEBUG("[keyboard_init()]: Enabling and resetting PS/2 device.\n");
+    keyboard_sendCommand(KBC_READ_CCB);
+    ccbValue = keyboard_getData();
+    keyboard_sendCommand(KBC_WRITE_CCB);
+    keyboard_sendData(ccbValue | CCB_PORT1_INT | CCB_PORT2_INT);
     keyboard_sendCommand(KBC_EN_PORT1);
     keyboard_sendData(PS2_RESET);
 

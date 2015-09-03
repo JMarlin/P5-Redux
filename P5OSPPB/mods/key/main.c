@@ -130,7 +130,7 @@ void main(void) {
 		postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
     	terminate();
 	}
-
+/*
 	//Enable interrupts on the keyboard controller
 	prints("Done.\n[key] Enabling keyboard interrupts...");
 	keyboard_sendCommand(KBC_READ_CCB);
@@ -139,6 +139,7 @@ void main(void) {
     keyboard_sendData(current_creg | CCB_PORT1_INT | CCB_PORT2_INT);
 
 	prints("Done.\n");
+*/
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
 	//Now that everything is set up, we can loop waiting for interrupts
