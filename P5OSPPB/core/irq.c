@@ -58,10 +58,11 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
         return 0;
 
     //map the process
-    prints("\nRegistered IRQ slot #\n");
+    prints("\nRegistered IRQ slot #");
     printHexDword(irq_number);
     prints("/interrupt 0x");
     printHexDword(irq_number + 0xE1);
+    pchar('\n');
     irq_process[irq_number] = requesting_proc;
 
     //map the handler into the right interrupt vector, assuming it's not
@@ -77,6 +78,10 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
 
 //This is the magic sauce which forces a message back to the registered proc
 void irq_handle(unsigned char irq_number) {
+
+    prints("\nIRQ ");
+    printHexDword(irq_number);
+    prints(" triggered\n");
 
     irq_number -= 0xE1;
 
