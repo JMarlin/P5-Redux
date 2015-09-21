@@ -144,6 +144,7 @@ void main(void) {
 
 	//Enable interrupts on the keyboard controller
 	prints("Done.\n[key] Enabling keyboard interrupts...");
+	keyboard_clearBuffer();
 	keyboard_sendCommand(KBC_READ_CCB);
 	current_creg = keyboard_getData();
     keyboard_sendCommand(KBC_WRITE_CCB);
