@@ -139,7 +139,7 @@ void printPCIConfig(unsigned char bus, unsigned char device, unsigned char funct
 	pci_config* pci_dev = readPCIConfig(bus, device, function);
 
 	prints("[pci] Configuration block for PCI device "); printHexByte(bus);
-	prints(", "); printHexByte(device); prints(", ") printHexByte(function); pchar('\n');
+	prints(", "); printHexByte(device); prints(", "); printHexByte(function); pchar('\n');
 	prints("    VendorID: "); printHexWord(pci_dev->vendor_id);
 	prints("    DeviceID: "); printHexWord(pci_dev->device_id); pchar('\n');
 	prints("    Command: "); printHexWord(pci_dev->command);
