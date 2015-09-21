@@ -12,7 +12,6 @@ cd ../init
 ./build.sh
 cd ../v86
 ./build.sh
-cd ../key
+cd ../pci
 ./build.sh
 cd ..
-

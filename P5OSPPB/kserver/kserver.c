@@ -43,7 +43,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
         //this shit up and only send a KEY_RECIEVED message
         //when a keypress is finally registered
         case KS_GETCH:
-            passMessage(0, source, KS_GETCH, 0); //(unsigned int)getch());
+            passMessage(0, source, KS_GETCH, (unsigned int)getch());
             break;
 
         //message 3: clear

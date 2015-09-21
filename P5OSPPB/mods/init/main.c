@@ -7,11 +7,10 @@ void main(void) {
     //Start up all of the initial-boot servers
     prints("[init] Starting VESA server...\n");
     startAndWait(":vesa.mod");
-    
-    //Start up the keyboard driver
-    //(at the moment, this is basically just a test of the IRQ registration system)
-    prints("[init] Starting keyboard server...\n");
-    startAndWait(":key.mod");
+
+    //Start PCI server
+    prints("[init] Starting pci server...\n");
+    startAndWait(":pci.mod");
 
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
