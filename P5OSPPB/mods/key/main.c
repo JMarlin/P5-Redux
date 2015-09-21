@@ -112,6 +112,15 @@ void keyboard_sendCommand(unsigned char command) {
     outb(KBC_CREG, command);
 }
 
+void keyboard_clearBuffer() {
+
+	while((keyboard_getStatus() & SR_OBSTAT)) {
+
+		//Read bits into space
+		inb(KBC_DREG);
+	}
+}
+
 void main(void) {
 
 	message temp_msg;
@@ -145,6 +154,8 @@ void main(void) {
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
 
+		//Clear the keyboard buffer
+		keyboard_clearBuffer();
 		waitForIRQ(1);
 		prints("\n[KEY PRESSED]\n");
 	}

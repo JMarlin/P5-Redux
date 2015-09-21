@@ -94,6 +94,7 @@ void irq_handle(unsigned char irq_number) {
     returnToProcess(irq_process[irq_number]);
 }
 
+//NEED TO UPDATE THESE TO HANDLE IRQs ABOVE 7
 void enable_irq(unsigned char channel) {
 
     outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
