@@ -44,14 +44,14 @@ void main(void) {
         if((pciGetDeviceClass((pci_address)i) & 0xFFFFFF00) == 0x0C030000) {
 
             prints("   [uhci] Found UHCI device at PCI address ");
-            cmd_pchar('(');
-            cmd_printHexByte((unsigned char)pciGetBus((pci_address)i));
-            cmd_pchar(',');
-            cmd_printHexByte((unsigned char)pciGetDevice((pci_address)i));
-            cmd_pchar(',');
-            cmd_printHexByte((unsigned char)pciGetFunction((pci_address)i));
-            cmd_pchar(')');
-            cmd_pchar('\n');
+            pchar('(');
+            printHexByte((unsigned char)pciGetBus((pci_address)i));
+            pchar(',');
+            printHexByte((unsigned char)pciGetDevice((pci_address)i));
+            pchar(',');
+            printHexByte((unsigned char)pciGetFunction((pci_address)i));
+            pchar(')');
+            pchar('\n');
         }
     }
 
