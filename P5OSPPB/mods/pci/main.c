@@ -124,7 +124,7 @@ pci_config* readPCIConfig(unsigned char bus, unsigned char device, unsigned char
 	int i;
 	unsigned int* int_array = (unsigned int*)&current_config;
 
-	if((bus != current_bus && device != current_device && function != current_function) || !pci_read_initialized) {
+	if(bus != current_bus || device != current_device || function != current_function || !pci_read_initialized) {
 
 		pci_read_initialized = 1;
 		current_bus = bus;
