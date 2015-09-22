@@ -14,4 +14,6 @@ cd ../v86
 ./build.sh
 cd ../pci
 ./build.sh
+cd ../uhci
+./build.sh
 cd ..

@@ -2,6 +2,7 @@
 
 void startAndWait(char* file);
 
+//Update this in the future to read the boot module names from a text file
 void main(void) {
 
     //Start up all of the initial-boot servers
@@ -11,6 +12,10 @@ void main(void) {
     //Start PCI server
     prints("[init] Starting pci server...\n");
     startAndWait(":pci.mod");
+
+    //Start UHCI server
+    prints("[init] Starting UHCI server...\n");
+    startAndWait(":uhci.mod");
 
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
