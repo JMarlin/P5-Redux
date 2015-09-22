@@ -319,7 +319,7 @@ void finish_mem_config() {
 
     prints("Top of RAM: 0x");
     printHexDword(maxRAM);
-    pchar('\n');
+    prints('...');
 
     //prints("Returning to rest of kernel startup.\n");
     init_done(); //Return to kernel startup

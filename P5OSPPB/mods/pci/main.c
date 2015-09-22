@@ -181,8 +181,8 @@ void main(void) {
         terminate();
     }
 
-	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 	prints("Done.\n");
+	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
 	//Scan the PCI bus and generate the device entries
 	PCIClearEntries();

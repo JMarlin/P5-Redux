@@ -83,7 +83,7 @@ void init_time_chip(unsigned int freq) {
     //Channel 0 mode 2
     outb(TIMER_COMMAND, 0x34);
 
-    prints("Setting up timer with divisor 0x"); printHexWord(reload); prints("\n");
+    //prints("Setting up timer with divisor 0x"); printHexWord(reload); prints("\n");
 
     //Load reload count
     outb(TIMER0_DATA, reload & 0xFF);

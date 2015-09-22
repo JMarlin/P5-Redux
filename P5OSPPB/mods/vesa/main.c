@@ -70,7 +70,7 @@ void main(void) {
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
-    prints("\n[VESA] Starting GFX services.\n");
+    prints("[VESA] Starting GFX services.\n");
 
     //First thing, register as a GFX service with the registrar
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);

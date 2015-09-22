@@ -11,7 +11,7 @@
 #include "../memory/paging.h"
 #include "../memory/gdt.h"
 #include "../fs/fs.h"
-#include "../fs/ramfs.h" 
+#include "../fs/ramfs.h"
 #include "../block/block.h"
 #include "../block/ramdisk.h"
 #include "../timer/timer.h"
@@ -74,7 +74,7 @@ void kernel_finish_startup(void) {
 }
 
 void kernel_resume_from_mips_calc(unsigned int mips) {
-    
+
     unsigned int i, doffset, *sizes;
     unsigned char *dcount;
     context* ctx;
@@ -113,7 +113,7 @@ void kernel_resume_from_mips_calc(unsigned int mips) {
 
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
-    prints("Setting up ramdisk...\n");
+    prints("Setting up ramdisk...");
     doffset = 0x100005 + _pkgoffset;
     ram0 = blk_ram_new(doffset, sizes[0]);
     fs_install_driver(get_ramfs_driver());
