@@ -59,7 +59,7 @@ void main(void) {
             prints("[uhci]      I/O Base Address: 0x");
             printHexDword(pciReadField((pci_address)i, 0x8));
             prints("\n[uhci]      USB Revision: ");
-            rev = (unsigned char)(pciReadField((pci_address)i, 0x18) & 0xFF);
+            rev = (unsigned char)((pciReadField((pci_address)i, 0x18) & 0xFF000000) >> 24);
 
             switch(rev) {
 
