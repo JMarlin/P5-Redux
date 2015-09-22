@@ -81,8 +81,6 @@ void main(void) {
     client_pid = startV86(":v86.mod");
     prints("started.\n");
 
-    //For now, because we haven't really implemented exit()
-    //we'll just go ahead and sleep as much as possible
     if(!temp_msg.payload || !client_pid) {
 
         prints("\n[VESA] failed to register or start v86 thread.\n");

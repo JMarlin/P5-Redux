@@ -1,98 +1,33 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
+#include "../include/pci.h"
 
 #define PCI_CONFIG_ADDRESS 0xCF8
 #define PCI_CONFIG_DATA 0xCFC
 
+#define PCI_ADDRESS(b, d, f, r)              \
+    ((((unsigned int) (b)) << 16) |          \
+    (((unsigned int) ((d) & 0x1F)) << 11 ) | \
+    (((unsigned int) ((f) & 0x7)) << 8 ) |   \
+    ((unsigned int) ((r) << 2) & 0xFC)) |    \
+    (unsigned int) 0x80000000);
+
 #define IS_MULTIFUNCTION(x) (((x)->header_type & 0x80) != 0)
 #define IS_BRIDGE(x) (((x)->header_type & 0x7F) == 0x01)
 #define BRIDGE_GET_BUS_NUMBER(x) (unsigned char)(((x)->bar_2 >> 8) && 0xFF)
+#define PCI_PACK_ADDR(b, d, f) ((unsigned int)((((unsigned int)(b)) << 16) | (((unsigned int)(d)) << 8) | ((unsigned int)(f))))
+#define PCI_ADDR_BUS(x) ((unsigned char)(((x) >> 16) & 0xFF))
+#define PCI_ADDR_DEV(x) ((unsigned char)(((x) >> 8) & 0xFF))
+#define PCI_ADDR_FUNC(x) ((unsigned char)((x) & 0xFF))
 
 unsigned char current_bus = 0;
 unsigned char current_device = 0;
 unsigned char current_function = 0;
 
-typedef struct  __attribute__((__packed__)) pci_config {
-	unsigned short vendor_id;
-	unsigned short device_id;
-	unsigned short command;
-	unsigned short status;
-	unsigned char revision_id;
-	unsigned char prog_if;
-	unsigned char subclass;
-	unsigned char class_code;
-	unsigned char cache_line_size;
-	unsigned char latency_timer;
-	unsigned char header_type;
-	unsigned char bist;
-	unsigned int bar_0;
-	unsigned int bar_1;
-	unsigned int bar_2;
-	unsigned int bar_3;
-	unsigned int bar_4;
-	unsigned int bar_5;
-	unsigned int cardbus_cis_ptr;
-	unsigned short subsys_vendor_id;
-	unsigned short subsys_id;
-	unsigned int rom_base;
-	unsigned char capabilities_ptr;
-	unsigned char reserved[7];
-	unsigned char interrupt_line;
-	unsigned char interrupt_pin;
-	unsigned char min_grant;
-	unsigned char max_latency;
-} pci_config;
-
 pci_config current_config;
 unsigned char pci_read_initialized = 0;
-
-void outb(unsigned short _port, unsigned char _data) {
-
-	asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
-}
-
-unsigned char inb(unsigned short _port) {
-
-	unsigned char data;
-
-	asm volatile ( "inb %1, %0" : "=a"(data) : "Nd"(_port) );
-	return data;
-}
-
-void outw(unsigned short _port, unsigned short _data) {
-
-	asm volatile (
-		"push %%ax \n"
-		"push %%dx \n"
-		"mov %1, %%ax \n"
-		"mov %0, %%dx \n"
-		"out %%ax, %%dx \n"
-		"pop %%dx \n"
-		"pop %%ax \n"
-		:
-		: "r" (_port), "r" (_data)
-		:
-	);
-}
-
-unsigned short inw(unsigned short _port) {
-
-	unsigned short data;
-
-		asm volatile (
-		"push %%ax \n"
-		"push %%dx \n"
-		"mov %1, %%dx \n"
-		"in %%dx, %%ax \n"
-		"mov %%ax, %0 \n"
-		"pop %%dx \n"
-		"pop %%ax \n"
-		: "=r" (data)
-		: "r" (_port)
-		:
-	);
-	return data;
-}
+unsigned int device_count = 0;
+unsigned int pci_device[50];
 
 void outd(unsigned short _port, unsigned int _data) {
 
@@ -109,12 +44,7 @@ unsigned int ind(unsigned short _port) {
 
 unsigned int readPCIConfigReg(unsigned char bus, unsigned char device, unsigned char function, unsigned char reg) {
 
-	unsigned int pci_address = (((unsigned int) bus) << 16) |
-							   (((unsigned int) (device & 0x1F)) << 11 ) |
-							   (((unsigned int) (function & 0x7)) << 8 ) |
-							   ((unsigned int) (reg & 0xFC)) |
-							   (unsigned int) 0x80000000;
-
+	unsigned int pci_address = PCI_ADDRESS(bus, device, function, reg);
 	outd(PCI_CONFIG_ADDRESS, pci_address);
 	return ind(PCI_CONFIG_DATA);
 }
@@ -132,50 +62,38 @@ pci_config* readPCIConfig(unsigned char bus, unsigned char device, unsigned char
 		current_function = function;
 
 		for(i = 0; i < 16; i ++)
-			int_array[i] = readPCIConfigReg(bus, device, function, i << 2);
+			int_array[i] = readPCIConfigReg(bus, device, function, i);
 	}
 
 	return &current_config;
 }
 
-void PCIPrintConfig(unsigned char bus, unsigned char dev, unsigned char func, pci_config* config, unsigned char indent) {
+void PCIClearEntries() {
 
 	int i;
 
-	//Indent the line
-	for(i = 0; i < indent; i++)
-		pchar(' ');
+	for(i = 0; i < 50; i++)
+		pci_device[i] = 0xFFFFFFFF;
 
-	//Print the PCI address
-	pchar('(');
-	printHexByte(bus);
-	pchar(',');
-	printHexByte(dev);
-	pchar(',');
-	printHexByte(func);
-	pchar(')');
-
-	//Print the device summary
-	prints(" VID: ");
-	printHexWord(config->vendor_id);
-	prints(", DID: ");
-	printHexWord(config->device_id);
-	prints(", CC: ");
-	printHexByte(config->class_code);
-	prints(", SC: ");
-	printHexByte(config->subclass);
-	prints(", PIF: ");
-	printHexByte(config->prog_if);
-	prints(", REV: ");
-	printHexByte(config->revision_id);
-	pchar('\n');
+	device_count = 0;
 }
 
-void PCIScanBus(unsigned char bus, unsigned char indent) {
+unsigned char address_exists(unsigned int test_addr) {
+
+	int i;
+
+	for(i = 0; i < device_count; i++)
+		if(pci_device[i] == test_addr) return 1;
+
+	return 0;
+}
+
+void PCIEnumerateBus(unsigned char bus) {
 
 		pci_config* temp_config;
 		unsigned char i, j;
 		unsigned char multifunction = 0;
+		unsigned int cur_addr;
 
 		for(i = 0; i < 0x20; i++) {
 
@@ -187,26 +105,23 @@ void PCIScanBus(unsigned char bus, unsigned char indent) {
 				if(temp_config->vendor_id == 0xFFFF)
 					break;
 
+				//Add the device if it hasn't already been
+				cur_addr = PCI_PACK_ADDR(bus, i, j);
+				if(!address_exists(cur_addr) && device_count < 50)
+					pci_device[device_count++] = cur_addr;
+
 				//Have to do this ahead of time as our config data
 				//will get overwritten if we end up scanning another bus
 				multifunction = IS_MULTIFUNCTION(temp_config);
 
-				//Print this config of the current device
-				PCIPrintConfig(bus, i, j, temp_config, indent);
-
 				//If the device is a bridge, scan the bridged bus
 				if(IS_BRIDGE(temp_config))
-					PCIScanBus(BRIDGE_GET_BUS_NUMBER(temp_config), indent + 1);
+					PCIScanBus(BRIDGE_GET_BUS_NUMBER(temp_config));
 
 				if(!multifunction)
 					break;
 			}
 		}
-}
-
-void PCIEnumerateBus(unsigned char bus) {
-
-	PCIScanBus(bus, 0);
 }
 
 void printPCIConfig(unsigned char bus, unsigned char device, unsigned char function) {
@@ -247,7 +162,6 @@ void printPCIConfig(unsigned char bus, unsigned char device, unsigned char funct
 void main(void) {
 
 	message temp_msg;
-	unsigned char current_creg;
 	unsigned int parent_pid;
 
 	//Get the 'here's my pid' message from init
@@ -255,13 +169,24 @@ void main(void) {
     parent_pid = temp_msg.source;
 	prints("[pci] Starting PCI server...");
 
-	//For debug purposes, just dump the first PCI entry and hang the system
-	pchar('\n');
-	PCIEnumerateBus(0);
-	while(1);
+	//Register ourself with the registrar
+	postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
+	getMessage(&temp_msg);
+
+	if(!temp_msg.payload || !client_pid) {
+
+        prints("Failed.\n");
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_GFX);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        terminate();
+    }
 
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 	prints("Done.\n");
+
+	//Scan the PCI bus and generate the device entries
+	PCIClearEntries();
+	PCIEnumerateBus(0);
 
 	//Now that everything is set up, we can loop waiting for requests
 	while(1) {
@@ -270,7 +195,62 @@ void main(void) {
 
 		switch(temp_msg.command) {
 
+			case PCI_DEVCOUNT:
+				postMessage(temp_msg.source, PCI_DEVCOUNT, device_count);
+			break;
 
+			case PCI_READREG_0:
+			case PCI_READREG_1:
+			case PCI_READREG_2:
+			case PCI_READREG_3:
+			case PCI_READREG_4:
+			case PCI_READREG_5:
+			case PCI_READREG_6:
+			case PCI_READREG_7:
+			case PCI_READREG_8:
+			case PCI_READREG_9:
+			case PCI_READREG_A:
+			case PCI_READREG_B:
+			case PCI_READREG_C:
+			case PCI_READREG_D:
+			case PCI_READREG_E:
+			case PCI_READREG_F:
+				if(temp_msg.payload < 50 && pci_device[temp_msg.payload] != 0xFFFFFFFF)
+					postMessage(temp_msg.source, temp_msg.command,
+						readPCIConfigReg(
+							PCI_ADDR_BUS(pci_device[temp_msg.payload]),
+							PCI_ADDR_DEV(pci_device[temp_msg.payload]),
+							PCI_ADDR_FUNC(pci_device[temp_msg.payload]),
+							temp_msg.command - PCI_READREG
+						)
+					);
+				else
+					postMessage(temp_msg.source, temp_msg.command, 0xFFFFFFFF);
+			break;
+
+			case PCI_GETBUS:
+				if(temp_msg.payload < 50 && pci_device[temp_msg.payload] != 0xFFFFFFFF)
+					postMessage(temp_msg.source, PCI_GETBUS, (unsigned int)PCI_ADDR_BUS(pci_device[temp_msg.payload]));
+				else
+					postMessage(temp_msg.source, PCI_GETBUS, 0xFFFFFFFF);
+			break;
+
+			case PCI_GETDEV:
+				if(temp_msg.payload < 50 && pci_device[temp_msg.payload] != 0xFFFFFFFF)
+					postMessage(temp_msg.source, PCI_GETDEV, (unsigned int)PCI_ADDR_DEV(pci_device[temp_msg.payload]));
+				else
+					postMessage(temp_msg.source, PCI_GETDEV, 0xFFFFFFFF);
+			break;
+
+			case PCI_GETFUNC:
+				if(temp_msg.payload < 50 && pci_device[temp_msg.payload] != 0xFFFFFFFF)
+					postMessage(temp_msg.source, PCI_GETFUNC, (unsigned int)PCI_ADDR_FUNC(pci_device[temp_msg.payload]));
+				else
+					postMessage(temp_msg.source, PCI_GETFUNC, 0xFFFFFFFF);
+			break;
+
+			default:
+			break;
 		}
 	}
 }

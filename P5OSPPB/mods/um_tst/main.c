@@ -1,7 +1,8 @@
 #include "../include/p5.h"
 #include "../include/gfx.h"
+#include "../include/pci.h"
 
-#define CMD_COUNT 4
+#define CMD_COUNT 5
 
 //Function declarations
 void usrClear(void);
@@ -11,6 +12,7 @@ void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
+void pciList(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
@@ -29,14 +31,16 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
-    "CPU"
+    "CPU",
+    "PCI"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&usrExit,
-    (sys_command)&cpuUsage
+    (sys_command)&cpuUsage,
+    (sys_command)&pciList
 };
 
 char inbuf[50];
@@ -535,6 +539,53 @@ void cpuUsage(void) {
             cmd_printClear(10);
         }
     }
+}
+
+void PCIPrintConfig(pci_address device) {
+
+    pci_config config = pciGetDeviceConfig(device);
+
+	//Print the PCI address
+	pchar('(');
+	printHexByte((unsigned char)pciGetBus(device));
+	pchar(',');
+	printHexByte((unsigned char)pciGetDevice(device));
+	pchar(',');
+	printHexByte((unsigned char)pciGetFunction(device));
+	pchar(')');
+
+	//Print the device summary
+	prints(" VID: ");
+	printHexWord(config.vendor_id);
+	prints(", DID: ");
+	printHexWord(config.device_id);
+	prints(", CC: ");
+	printHexByte(config.class_code);
+	prints(", SC: ");
+	printHexByte(config.subclass);
+	prints(", PIF: ");
+	printHexByte(config.prog_if);
+	prints(", REV: ");
+	printHexByte(config.revision_id);
+	pchar('\n');
+}
+
+void pciList(void) {
+
+    unsigned int i, devcount;
+
+    if(!pciInit()) {
+
+        cmd_prints("Could not open PCI subsystem.\n")
+    }
+
+    cmd_prints("\nDetected the following PCI devices: \n");
+    devcount = pciDeviceCount();
+
+    for(i = 0; i < devcount; i++)
+        PCIPrintConfig((pci_address)i);
+
+    pchar('\n');
 }
 
 void startGui(unsigned short xres, unsigned short yres) {
