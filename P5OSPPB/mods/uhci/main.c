@@ -61,7 +61,7 @@ void main(void) {
             prints("\n[uhci]      USB Revision: ");
             rev = (unsigned char)(pciReadField((pci_address)i, 0x18) & 0xFF);
 
-            switch() {
+            switch(rev) {
 
                 case 0x00:
                     prints("Pre-1.0");
