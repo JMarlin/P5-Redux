@@ -30,7 +30,7 @@ void main(void) {
     //Init the PCI interface and scan for UHCI devices
     if(!pciInit()) {
 
-        cmd_prints("Could not open PCI subsystem.\n");
+        prints("Could not open PCI subsystem.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_USB);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
