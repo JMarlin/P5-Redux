@@ -39,6 +39,7 @@ unsigned int pciGetDeviceClass(pci_address address) {
 //Scrape the entirety of the device's configuration ram
 pci_config pciGetDeviceConfig(pci_address address) {
 
+    int i;
     pci_config return_config;
     unsigned int *int_array = (unsigned int*)&return_config;
 

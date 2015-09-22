@@ -9,7 +9,7 @@
     ((((unsigned int) (b)) << 16) |          \
     (((unsigned int) ((d) & 0x1F)) << 11 ) | \
     (((unsigned int) ((f) & 0x7)) << 8 ) |   \
-    ((unsigned int) ((r) << 2) & 0xFC)) |    \
+    ((unsigned int) (((r) << 2) & 0xFC)) |    \
     (unsigned int) 0x80000000);
 
 #define IS_MULTIFUNCTION(x) (((x)->header_type & 0x80) != 0)
@@ -170,13 +170,13 @@ void main(void) {
 	prints("[pci] Starting PCI server...");
 
 	//Register ourself with the registrar
-	postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
+	postMessage(REGISTRAR_PID, REG_REGISTER, SVC_PCI);
 	getMessage(&temp_msg);
 
-	if(!temp_msg.payload || !client_pid) {
+	if(!temp_msg.payload) {
 
         prints("Failed.\n");
-        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_GFX);
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_PCI);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }

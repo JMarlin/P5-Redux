@@ -576,7 +576,8 @@ void pciList(void) {
 
     if(!pciInit()) {
 
-        cmd_prints("Could not open PCI subsystem.\n")
+        cmd_prints("Could not open PCI subsystem.\n");
+        return;
     }
 
     cmd_prints("\nDetected the following PCI devices: \n");
