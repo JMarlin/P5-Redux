@@ -7,6 +7,7 @@ void main(void) {
 
     unsigned int i;
 	message temp_msg;
+    unsigned char rev;
     unsigned int devcount;
 	unsigned int parent_pid;
 
@@ -43,7 +44,8 @@ void main(void) {
 
         if((pciGetDeviceClass((pci_address)i) & 0xFFFFFF00) == 0x0C030000) {
 
-            prints("   [uhci] Found UHCI device at PCI address ");
+            //Print device banner
+            prints("[uhci]    Found UHCI device at PCI address ");
             pchar('(');
             printHexByte((unsigned char)pciGetBus((pci_address)i));
             pchar(',');
@@ -51,6 +53,31 @@ void main(void) {
             pchar(',');
             printHexByte((unsigned char)pciGetFunction((pci_address)i));
             pchar(')');
+            pchar('\n');
+
+            //Print PCI register values
+            prints("[uhci]      I/O Base Address: 0x");
+            printHexDword(pciReadField((pci_address)i, 0x8));
+            prints("\n[uhci]      USB Revision: ");
+            rev = (unsigned char)(pciReadField((pci_address)i, 0x18) & 0xFF);
+
+            switch() {
+
+                case 0x00:
+                    prints("Pre-1.0");
+                break;
+
+                case 0x10:
+                    prints("1.0");
+                break;
+
+                default:
+                    pchar('\'');
+                    printHexByte(rev);
+                    pchar('\'');
+                break;
+            }
+
             pchar('\n');
         }
     }
