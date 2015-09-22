@@ -116,7 +116,7 @@ void PCIEnumerateBus(unsigned char bus) {
 
 				//If the device is a bridge, scan the bridged bus
 				if(IS_BRIDGE(temp_config))
-					PCIScanBus(BRIDGE_GET_BUS_NUMBER(temp_config));
+					PCIEnumerateBus(BRIDGE_GET_BUS_NUMBER(temp_config));
 
 				if(!multifunction)
 					break;
