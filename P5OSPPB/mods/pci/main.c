@@ -4,6 +4,10 @@
 #define PCI_CONFIG_ADDRESS 0xCF8
 #define PCI_CONFIG_DATA 0xCFC
 
+#define IS_MULTIFUNCTION(x) (((x)->header_type & 0x80) != 0)
+#define IS_BRIDGE(x) (((x)->header_type & 0x7F) == 0x01)
+#define BRIDGE_GET_BUS_NUMBER(x) (unsigned char)(((x)->bar_2 >> 8) && 0xFF)
+
 unsigned char current_bus = 0;
 unsigned char current_device = 0;
 unsigned char current_function = 0;
@@ -134,6 +138,77 @@ pci_config* readPCIConfig(unsigned char bus, unsigned char device, unsigned char
 	return &current_config;
 }
 
+void PCIPrintConfig(unsigned char bus, unsigned char dev, unsigned char func, pci_config* config, unsigned char indent) {
+
+	int i;
+
+	//Indent the line
+	for(i = 0; i < indent; i++)
+		pchar(' ');
+
+	//Print the PCI address
+	pchar('(');
+	printHexByte(bus);
+	pchar(',');
+	printHexByte(dev);
+	pchar(',');
+	printHexByte(func);
+	pchar(')');
+
+	//Print the device summary
+	prints(" VID: ");
+	printHexWord(config->vendor_id);
+	prints(", DID: ");
+	printHexWord(config->device_id);
+	prints(", CC: ");
+	printHexByte(config->class_code);
+	prints(", SC: ");
+	printHexByte(config->subclass);
+	prints(", PIF: ");
+	printHexByte(config->prog_if);
+	prints(", REV: ");
+	printHexByte(config->revision_id);
+	pchar('\n');
+}
+
+void PCIScanBus(unsigned char bus, unsigned char indent) {
+
+		pci_config* temp_config;
+		unsigned char i, j;
+		unsigned char multifunction = 0;
+
+		for(i = 0; i < 0x20; i++) {
+
+			for(j = 0; j < 8; j++) {
+
+				temp_config = readPCIConfig(bus, i, j);
+
+				//Ignore blank slots
+				if(temp_config->vendor_id == 0xFFFF)
+					break;
+
+				//Have to do this ahead of time as our config data
+				//will get overwritten if we end up scanning another bus
+				multifunction = IS_MULTIFUNCTION(temp_config);
+
+				//Print this config of the current device
+				PCIPrintConfig(bus, i, j, temp_config, indent);
+
+				//If the device is a bridge, scan the bridged bus
+				if(IS_BRIDGE(temp_config))
+					PCIScanBus(BRIDGE_GET_BUS_NUMBER(temp_config), indent + 1);
+
+				if(!multifunction)
+					break;
+			}
+		}
+}
+
+void PCIEnumerateBus(unsigned char bus) {
+
+	PCIScanBus(bus, 0);
+}
+
 void printPCIConfig(unsigned char bus, unsigned char device, unsigned char function) {
 
 	pci_config* pci_dev = readPCIConfig(bus, device, function);
@@ -182,7 +257,7 @@ void main(void) {
 
 	//For debug purposes, just dump the first PCI entry and hang the system
 	pchar('\n');
-	printPCIConfig(0, 0, 0);
+	PCIEnumerateBus(0);
 	while(1);
 
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
