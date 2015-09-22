@@ -546,28 +546,28 @@ void PCIPrintConfig(pci_address device) {
     pci_config config = pciGetDeviceConfig(device);
 
 	//Print the PCI address
-	pchar('(');
-	printHexByte((unsigned char)pciGetBus(device));
-	pchar(',');
-	printHexByte((unsigned char)pciGetDevice(device));
-	pchar(',');
-	printHexByte((unsigned char)pciGetFunction(device));
-	pchar(')');
+    cmd_pchar('(');
+    cmd_printHexByte((unsigned char)pciGetBus(device));
+    cmd_pchar(',');
+    cmd_printHexByte((unsigned char)pciGetDevice(device));
+    cmd_pchar(',');
+    cmd_printHexByte((unsigned char)pciGetFunction(device));
+    cmd_pchar(')');
 
 	//Print the device summary
-	prints(" VID: ");
-	printHexWord(config.vendor_id);
-	prints(", DID: ");
-	printHexWord(config.device_id);
-	prints(", CC: ");
-	printHexByte(config.class_code);
-	prints(", SC: ");
-	printHexByte(config.subclass);
-	prints(", PIF: ");
-	printHexByte(config.prog_if);
-	prints(", REV: ");
-	printHexByte(config.revision_id);
-	pchar('\n');
+    cmd_prints(" VID: ");
+    cmd_printHexWord(config.vendor_id);
+    cmd_prints(", DID: ");
+    cmd_printHexWord(config.device_id);
+    cmd_prints(", CC: ");
+    cmd_printHexByte(config.class_code);
+    cmd_prints(", SC: ");
+    cmd_printHexByte(config.subclass);
+    cmd_prints(", PIF: ");
+    cmd_printHexByte(config.prog_if);
+    cmd_prints(", REV: ");
+    cmd_printHexByte(config.revision_id);
+    cmd_pchar('\n');
 }
 
 void pciList(void) {
@@ -586,7 +586,7 @@ void pciList(void) {
     for(i = 0; i < devcount; i++)
         PCIPrintConfig((pci_address)i);
 
-    pchar('\n');
+    cmd_pchar('\n');
 }
 
 void startGui(unsigned short xres, unsigned short yres) {
