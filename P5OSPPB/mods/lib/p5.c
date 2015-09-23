@@ -266,7 +266,7 @@ void* allocatePhysical(void* base_address, unsigned int byte_count) {
     unsigned int page_count = (byte_count >> 12) + ((byte_count & 0xFFF) ? 1 : 0);
     unsigned int alloc_address;
 
-    base_address = base_address & (void*)0xFFFFF000;
+    base_address = (void *)((unsigned int)base_address & 0xFFFFF000);
     alloc_address = (unsigned int)base_address;
 
     for(i = 0; i < page_count; i++, alloc_address += 0x1000) {
@@ -290,8 +290,8 @@ unsigned char freePhysical(void* base_address, unsigned int byte_count) {
     unsigned int page_count = (byte_count >> 12) + ((byte_count & 0xFFF) ? 1 : 0);
     unsigned int alloc_address;
 
-    base_address = base_address & (void *)0xFFFFF000;
-    alloc_address = base_address;
+    base_address = (void *)((unsigned int)base_address & 0xFFFFF000);
+    alloc_address = (unsigned int)base_address;
 
     for(i = 0; i < page_count; i++, alloc_address += 0x1000) {
 
