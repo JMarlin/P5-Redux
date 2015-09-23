@@ -3,6 +3,59 @@
 #include "../include/pci.h"
 #include "../include/usb.h"
 
+void outb(unsigned short _port, unsigned char _data) {
+
+    asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
+}
+
+
+unsigned char inb(unsigned short _port) {
+
+    unsigned char data;
+
+    asm volatile ( "inb %1, %0" : "=a"(data) : "Nd"(_port) );
+    return data;
+}
+
+
+void outw(unsigned short _port, unsigned short _data) {
+
+    asm volatile (
+        "push %%ax \n"
+        "push %%dx \n"
+        "mov %1, %%ax \n"
+        "mov %0, %%dx \n"
+        "out %%ax, %%dx \n"
+        "pop %%dx \n"
+        "pop %%ax \n"
+        :
+        : "r" (_port), "r" (_data)
+        :
+    );
+}
+
+
+unsigned short inw(unsigned short _port) {
+
+
+    unsigned short data;
+
+        asm volatile (
+        "push %%ax \n"
+        "push %%dx \n"
+        "mov %1, %%dx \n"
+        "in %%dx, %%ax \n"
+        "mov %%ax, %0 \n"
+        "pop %%dx \n"
+        "pop %%ax \n"
+        : "=r" (data)
+        : "r" (_port)
+        :
+    );
+    return data;
+}
+
+
 void main(void) {
 
     unsigned int i;
@@ -10,6 +63,7 @@ void main(void) {
     unsigned char rev;
     unsigned int devcount;
 	unsigned int parent_pid;
+    unsigned short usb_base;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -57,7 +111,8 @@ void main(void) {
 
             //Print PCI register values
             prints("[uhci]      I/O Base Address: 0x");
-            printHexDword(pciReadField((pci_address)i, 0x8));
+            usb_base = (unsigned short)(pciReadField((pci_address)i, 0x8) & 0xFFE0);
+            printHexWord(usb_base);
             prints("\n[uhci]      USB Revision: ");
             rev = (unsigned char)((pciReadField((pci_address)i, 0x18) & 0xFF000000) >> 24);
 
@@ -79,6 +134,24 @@ void main(void) {
             }
 
             pchar('\n');
+
+            //Print USB control register states
+            prints("[uhci]      USBCMD: 0x");
+            printHexWord(inw(usb_base));
+            prints("\n[uhci]      USBSTS: 0x");
+            printHexWord(inw(usb_base + 0x02));
+            prints("\n[uhci]      USBINTR: 0x");
+            printHexWord(inw(usb_base + 0x04));
+            prints("\n[uhci]      FRNUM: 0x");
+            printHexWord(inw(usb_base + 0x06));
+            prints("\n[uhci]      FRBASEADD: 0x");
+            printHexWord(inw(usb_base + 0x08));
+            prints("\n[uhci]      SOFMOD: 0x");
+            printHexByte(inb(usb_base + 0x0C));
+            prints("\n[uhci]      PORTSC1: 0x");
+            printHexWord(inw(usb_base + 0x10));
+            prints("\n[uhci]      PORTSC2: 0x");
+            printHexWord(inw(usb_base + 0x12));
         }
     }
 
