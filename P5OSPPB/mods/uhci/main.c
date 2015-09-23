@@ -5,7 +5,7 @@
 
 void outb(unsigned short _port, unsigned char _data) {
 
-    asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
+    __asm__ __volatile__ ("out %%al, %%dx" : : "d" (_port), "a" (_data));
 }
 
 
@@ -13,25 +13,14 @@ unsigned char inb(unsigned short _port) {
 
     unsigned char data;
 
-    asm volatile ( "inb %1, %0" : "=a"(data) : "Nd"(_port) );
+    __asm__ __volatile__ ("in %%dx, %%al" : "=a" (data) : "dN" (_port));
     return data;
 }
 
 
 void outw(unsigned short _port, unsigned short _data) {
 
-    asm volatile (
-        "push %%ax \n"
-        "push %%dx \n"
-        "mov %1, %%ax \n"
-        "mov %0, %%dx \n"
-        "out %%ax, %%dx \n"
-        "pop %%dx \n"
-        "pop %%ax \n"
-        :
-        : "r" (_port), "r" (_data)
-        :
-    );
+    __asm__ __volatile__ ("out %%ax, %%dx" : : "d" (_port), "a" (_data));
 }
 
 
@@ -40,18 +29,7 @@ unsigned short inw(unsigned short _port) {
 
     unsigned short data;
 
-        asm volatile (
-        "push %%ax \n"
-        "push %%dx \n"
-        "mov %1, %%dx \n"
-        "in %%dx, %%ax \n"
-        "mov %%ax, %0 \n"
-        "pop %%dx \n"
-        "pop %%ax \n"
-        : "=r" (data)
-        : "r" (_port)
-        :
-    );
+    __asm__ __volatile__ ("in %%dx, %%ax" : "=a" (data) : "dN" (_port));
     return data;
 }
 
