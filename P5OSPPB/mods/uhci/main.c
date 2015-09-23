@@ -145,6 +145,29 @@ void main(void) {
             prints("\n[uhci]      PORTSC2: 0x");
             printHexWord(inw(usb_base + 0x12));
             pchar('\n');
+
+            //Disable the controller and its ports
+            //Set up default controller state (no interrupts, debug on, )
+            //Re-enable the controller, run/stop set to stop
+            //Enable port one, check to see if a device is installed
+            //If device is installed, send a reset to the port
+            //We create a control transfer to device 0 control pipe:
+            //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
+            //Set frame number to 0
+            //Set run/stop to run
+            //Poll HCHalted until the device is halted
+            //Display TD status
+            //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
+            //Set frame number to 0
+            //Set run/stop to run
+            //Poll HCHalted until the device is halted
+            //Display TD status
+            //Display recieved data
+            //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
+            //Set frame number to 0
+            //Set run/stop to run
+            //Poll HCHalted until the device is halted
+            //Display TD status
         }
     }
 
