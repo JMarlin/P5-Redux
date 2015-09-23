@@ -55,6 +55,20 @@ unsigned short inw(unsigned short _port) {
     return data;
 }
 
+void outd(unsigned short _port, unsigned int _data) {
+
+     __asm__ __volatile__ ("outl %%eax, %%dx" : : "d" (_port), "a" (_data));
+}
+
+
+ unsigned int ind(unsigned short _port) {
+
+
+    unsigned int data;
+
+    __asm__ __volatile__ ("inl %%dx, %%eax" : "=a" (data) : "dN" (_port));
+    return data;
+}
 
 void main(void) {
 
@@ -144,14 +158,15 @@ void main(void) {
             printHexWord(inw(usb_base + 0x04));
             prints("\n[uhci]      FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
-            prints("\n[uhci]      FRBASEADD: 0x");
-            printHexWord(inw(usb_base + 0x08));
+            prints("\n[uhci]      FLBASEADD: 0x");
+            printHexWord(ind(usb_base + 0x08));
             prints("\n[uhci]      SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
             printHexWord(inw(usb_base + 0x10));
             prints("\n[uhci]      PORTSC2: 0x");
             printHexWord(inw(usb_base + 0x12));
+            pchar('\n');
         }
     }
 

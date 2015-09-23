@@ -109,13 +109,13 @@ int enableA20() {
 }
 
 
- void outb(unsigned short _port, unsigned char _data) {
+void outb(unsigned short _port, unsigned char _data) {
 
     asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
 }
 
 
- unsigned char inb(unsigned short _port) {
+unsigned char inb(unsigned short _port) {
 
     unsigned char data;
 
@@ -124,7 +124,7 @@ int enableA20() {
 }
 
 
- void outw(unsigned short _port, unsigned short _data) {
+void outw(unsigned short _port, unsigned short _data) {
 
     asm volatile (
         "push %%ax \n"
@@ -141,7 +141,7 @@ int enableA20() {
 }
 
 
- unsigned short inw(unsigned short _port) {
+unsigned short inw(unsigned short _port) {
 
 
     unsigned short data;
@@ -162,7 +162,7 @@ int enableA20() {
 }
 
 
- void outd(unsigned short _port, unsigned int _data) {
+void outd(unsigned short _port, unsigned int _data) {
 
      __asm__ __volatile__ ("outl %%eax, %%dx" : : "d" (_port), "a" (_data));
 }
