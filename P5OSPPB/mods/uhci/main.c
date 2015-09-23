@@ -50,12 +50,13 @@ void outd(unsigned short _port, unsigned int _data) {
 
 void main(void) {
 
-    unsigned int i;
+    unsigned int i, j;
 	message temp_msg;
     unsigned char rev;
     unsigned int devcount;
 	unsigned int parent_pid;
     unsigned short usb_base;
+    unsigned int *usb_ram;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -85,12 +86,6 @@ void main(void) {
 
     prints("scanning\n");
     devcount = pciDeviceCount();
-
-    //Test the new allocatePhysical call
-    prints("Allocating physical memory from 0xB00000 to 0xC00000\n");
-    allocatePhysical((void*)0xB00000, 0x100000);
-    prints("Doing a test write to the new memory\n");
-    ((unsigned char*)0xB50000)[0] = 0x1B;
 
     for(i = 0; i < devcount; i++) {
 
@@ -143,7 +138,8 @@ void main(void) {
             prints("\n[uhci]      FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
             prints("\n[uhci]      FLBASEADD: 0x");
-            printHexDword(ind(usb_base + 0x08));
+            usb_ram = (unsigned int*)ind(usb_base + 0x08);
+            printHexDword((unsigned int)usb_ram);
             prints("\n[uhci]      SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
@@ -152,28 +148,65 @@ void main(void) {
             printHexWord(inw(usb_base + 0x12));
             pchar('\n');
 
+            //Allocate a physical page of memory at the host controller's default physical address
+            allocatePhysical((void*)usb_ram, 0x1000);
+
+            prints("Disabling ports\n");
             //Disable the controller and its ports
+            outw(usb_base, inw(usb_base) & 0xFFFE); //Set run/stop to stop
+            outw(usb_base + 10, 0x000A); //Disable port 1
+            while(inw(usb_base + 10) & 0x0004); //Wait for the port to be disabled
+            outw(usb_base + 12, 0x000A); //Disable port 2
+            while(inw(usb_base + 12) & 0x0004); //Wait for the port to be disabled
+
+            prints("Setting controller defaults\n");
             //Set up default controller state (no interrupts, debug on, )
-            //Re-enable the controller, run/stop set to stop
+            outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
+            outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
+            outw(usb_base + 0x04, 0x0); //Set all interrupts off
+            outw(usb_base, 0x00E2); //Max packet = 64 (default), set configure flag, enable software debug, set host controller reset, controller stopped
+
+
             //Enable port one, check to see if a device is installed
-            //If device is installed, send a reset to the port
-            //We create a control transfer to device 0 control pipe:
-            //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
-            //Set frame number to 0
-            //Set run/stop to run
-            //Poll HCHalted until the device is halted
-            //Display TD status
-            //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
-            //Set frame number to 0
-            //Set run/stop to run
-            //Poll HCHalted until the device is halted
-            //Display TD status
-            //Display recieved data
-            //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
-            //Set frame number to 0
-            //Set run/stop to run
-            //Poll HCHalted until the device is halted
-            //Display TD status
+            prints("Enabling port 1 and checking for device\n");
+            outw(usb_base + 10, 0x0004); //Enable port 1
+            while(!(inw(usb_base + 10) & 0x0004)); //Wait for the port to be enabled
+
+            if(inw(usb_base + 10) & 0x0001) {
+
+                //If device is installed, send a reset to the port
+                prints("Resetting device on port 1\n");
+                //Improve the timing later when we create a timer system
+                outw(usb_base + 10, 0x0204); //Port enabled, RESET state asserted
+                j = 0;               //Wait
+                while(j < 0xFFFFFF)
+                    j = j + 1;
+                outw(usb_base + 10, 0x0004); //Port enabled, RESET state cleared
+
+                //We create a control transfer to device 0 control pipe:
+                //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
+
+                //Set frame number to 0
+                outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
+
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+                //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
+                //Set frame number to 0
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+                //Display recieved data
+                //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
+                //Set frame number to 0
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+            } else {
+
+                prints("No device found on port 1\n");
+            }
         }
     }
 
