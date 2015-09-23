@@ -159,7 +159,7 @@ void main(void) {
             prints("\n[uhci]      FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
             prints("\n[uhci]      FLBASEADD: 0x");
-            printHexWord(ind(usb_base + 0x08));
+            printHexDword(ind(usb_base + 0x08));
             prints("\n[uhci]      SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
