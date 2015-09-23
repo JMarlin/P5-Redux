@@ -7,10 +7,9 @@
 #include "../core/irq.h"
 #include "kserver.h"
 
-unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
-
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
 
+    unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
     int i;
     unsigned char tmp_char;
 
