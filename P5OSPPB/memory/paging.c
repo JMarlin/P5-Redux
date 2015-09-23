@@ -363,7 +363,7 @@ void* reserve_physical(unsigned int physBase, unsigned int size) {
             //Find the owning page tree
             for(j = 0; j < 256; j++) {
 
-                cur_range = &procTable[j].root_page;
+                cur_range = procTable[j].root_page;
 
                 while(cur_range) {
 
