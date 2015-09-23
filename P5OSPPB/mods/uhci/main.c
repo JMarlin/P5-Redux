@@ -131,20 +131,20 @@ void main(void) {
             //Print USB control register states
             prints("[uhci]      USBCMD: 0x");
             printHexWord(inw(usb_base));
-            prints("\n[uhci]      USBSTS: 0x");
+            prints("  USBSTS: 0x");
             printHexWord(inw(usb_base + 0x02));
             prints("\n[uhci]      USBINTR: 0x");
             printHexWord(inw(usb_base + 0x04));
-            prints("\n[uhci]      FRNUM: 0x");
+            prints("  FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
             prints("\n[uhci]      FLBASEADD: 0x");
             usb_ram = (unsigned int*)ind(usb_base + 0x08);
             printHexDword((unsigned int)usb_ram);
-            prints("\n[uhci]      SOFMOD: 0x");
+            prints("  SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
             printHexWord(inw(usb_base + 0x10));
-            prints("\n[uhci]      PORTSC2: 0x");
+            prints("  PORTSC2: 0x");
             printHexWord(inw(usb_base + 0x12));
             pchar('\n');
 
