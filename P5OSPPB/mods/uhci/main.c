@@ -250,6 +250,12 @@ void main(void) {
 
                 prints("No device found on port 2\n");
             }
+
+            prints("\n[uhci]      PORTSC1: 0x");
+            printHexWord(inw(usb_base + 0x10));
+            prints("  PORTSC2: 0x");
+            printHexWord(inw(usb_base + 0x12));
+            pchar('\n');
         }
     }
 
