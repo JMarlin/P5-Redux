@@ -207,6 +207,47 @@ void main(void) {
 
                 prints("No device found on port 1\n");
             }
+
+            //Enable port two, check to see if a device is installed
+            prints("Enabling port 2 and checking for device\n");
+            outw(usb_base + 12, 0x0004); //Enable port 1
+            while(!(inw(usb_base + 12) & 0x0004)); //Wait for the port to be enabled
+
+            if(inw(usb_base + 12) & 0x0001) {
+
+                //If device is installed, send a reset to the port
+                prints("Resetting device on port 2\n");
+                //Improve the timing later when we create a timer system
+                outw(usb_base + 12, 0x0204); //Port enabled, RESET state asserted
+                j = 0;               //Wait
+                while(j < 0xFFFFFF)
+                    j = j + 1;
+                outw(usb_base + 12, 0x0004); //Port enabled, RESET state cleared
+
+                //We create a control transfer to device 0 control pipe:
+                //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
+
+                //Set frame number to 0
+                outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
+
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+                //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
+                //Set frame number to 0
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+                //Display recieved data
+                //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
+                //Set frame number to 0
+                //Set run/stop to run
+                //Poll HCHalted until the device is halted
+                //Display TD status
+            } else {
+
+                prints("No device found on port 2\n");
+            }
         }
     }
 
