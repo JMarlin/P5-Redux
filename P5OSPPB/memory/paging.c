@@ -1,6 +1,7 @@
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
 #include "../memory/memory.h"
+#include "../process/process.h"
 #include "paging.h"
 
 
@@ -325,10 +326,11 @@ void free_physical(unsigned int physBase, unsigned int size) {
 //call fails
 void* reserve_physical(unsigned int physBase, unsigned int size) {
 
+    unsigned long maxPages = maxRAM >> 12;
     unsigned int i, j, k, l, cur_page, base_page, rel_page_idx;
     unsigned char *old_mem, *new_mem;
     unsigned int page_count = 0;
-    pageRange* cur_range, replacement_range, end_range;
+    pageRange *cur_range, *new_range, *end_range;
 
     //Check to make sure that the physical base is at or above the 8MB mark where
     //the kernel and low memory zone ends.
