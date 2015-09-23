@@ -300,3 +300,158 @@ void init_mmu() {
     _enablePaging();
     DEBUG("Done\n");
 }
+
+//We're not implementing this yet, and here's why:
+void free_physical(unsigned int physBase, unsigned int size) {
+
+    //reserve_physical may reserve an area marked with 0x400, or only the os-special
+    //flag, which means that that area of memory was detected at boot-time to
+    //not be safe for normal memory usage. This is fine, because reserve_physical
+    //should be used to map the areas that a device has told us to use and therefore
+    //can be trusted.
+    //The PROBLEM, however, is that the previous state of this flag is not saved
+    //and therefore if we were to naively reset the flags to 0x000 when clearing
+    //we may lose the indication that that memory should not be allocated to
+    //processes. So for now, we're just never going to allow this memory to
+    //be reclaimed until I can think of a good way to memo which pages were
+    //originally os-special
+}
+
+//Identity map the specified region of physical memory and mark it reserved
+//As well, this ensures that the physical memory is not currently occupied
+//or reserved. If occupied, the memory content is moved to a free physical range
+//and the page tree which maps it is updated to match so that the owning process
+//is blisfully unaware of the update. If the region is already reserved, the
+//call fails
+void* reserve_physical(unsigned int physBase, unsigned int size) {
+
+    unsigned int i, j, k, l, cur_page, base_page, rel_page_idx;
+    unsigned char *old_mem, *new_mem;
+    unsigned int page_count = 0;
+    pageRange* cur_range, replacement_range, end_range;
+
+    //Check to make sure that the physical base is at or above the 8MB mark where
+    //the kernel and low memory zone ends.
+    if(physBase < 0xB00000)
+        return (void*)0;
+
+    //Convert the actual allocated base to the closest page boundary (floor)
+    physBase &= 0xFFFFF000;
+    base_page = physBase >> 12;
+
+    //Convert requested size to 4k pages
+    if(size & 0xFFF)
+        page_count += 1;
+
+    page_count += (size >> 12);
+
+    //Check each requested page for paging conflicts/clear and prepare space
+    for(i = 0; i < page_count; i++) {
+
+        cur_page = i + base_page;
+
+        //If we run into a page that's already in use as reserved physical
+        //space, we'll crash out
+        if((pageTable[cur_page] & 0xC00) == 0xC00)
+            return (void*)0;
+
+        //Check to see if the page is marked in use and therefore needs cleanup
+        if(pageTable[cur_page] & 0x800) {
+
+            //Find the owning page tree
+            for(j = 0; j < 256; j++) {
+
+                cur_range = &procTable[j].root_page;
+
+                while(cur_range) {
+
+                    //Check to see if the page falls within this range's space
+                    if((cur_page >= cur_range->base_page) &&
+                       (cur_page < (cur_range->base_page + cur_range->count))) {
+
+                        //First, we need to truncate the current entry to
+                        //the last page before the page we're going to remap
+                        //and create a new range for the pages which follow
+                        new_range = (pageRange*)kmalloc(sizeof(pageRange));
+                        new_range->count = 1;
+
+                        //Look for a free page
+                        for(k = 0xB00; k < maxPages; k++) {
+
+                            //Check to make sure the page is not already alocated and/or special
+                            if(!(pageTable[k] & 0xC00))
+                                break;
+                        }
+
+                        //Out of memory error
+                        if(k == maxPages) {
+
+                            kfree(new_range);
+                            return (void*)0;
+                        }
+
+                        //Set the new page range block to map to the free
+                        //memory we just found
+                        new_range->base_page = k;
+
+                        //Identity map the pages so that we can directly
+                        //access it for the copy (also mark it supervisor memory)
+                        map_pages(cur_page << 12, cur_page << 12, 0x1000, 3);
+                        map_pages(k << 12, k << 12, 0x1000, 3);
+
+                        //Copy the memory content
+                        //(could be improved with implementation of a memcpy later on)
+                        old_mem = (unsigned char*)(cur_page << 12);
+                        new_mem = (unsigned char*)(k << 12);
+
+                        for(l = 0; l < 0x1000; l++)
+                            new_mem[l] = old_mem[l];
+
+                        //Unmap the new page and mark it in use, it will be managed by the process manager
+                        free_pages(k << 12, 0x1000);
+                        pageTable[k] &= 0xFFFFFBFF; //Clear os-special bit
+                        pageTable[k] |= 0x800; //Set in-use bit
+
+                        //Only build a bookending range if the requested page
+                        //isn't already the last page in the page range
+                        if(cur_page != (cur_range->base_page + cur_range->count - 1)) {
+
+                            end_range = (pageRange*)kmalloc(sizeof(pageRange));
+                            end_range->base_page = cur_page + 1;
+                            end_range->count = cur_range->count - ((cur_range->count - cur_page) + 1);
+                            end_range->next = cur_range->next;
+                            new_range->next = end_range;
+                        } else {
+
+                            new_range->next = cur_range->next;
+                        }
+
+                        //Point the old block at the new block
+                        cur_range->count = cur_page - cur_range->base_page;
+                        cur_range->next = new_range;
+
+                        //We're done looking for the offending page
+                        break;
+                    }
+
+                    //Move on to the next range block
+                    cur_range = cur_range->next;
+                }
+
+                //If we found the owner, we can break out of here and move on
+                if(cur_range)
+                    break;
+            }
+        }
+
+        //Finally, we can mark this memory as os-special and map it
+        //(it is entirely possible that the above block was entered and yet
+        //the offending parent was not found and remapped. In this case, we
+        //just assume that the page being marked is anomalous as no page should
+        //be both marked and not owned)
+        pageTable[cur_page] |= 0xC00; //OS-Reserved is when both os-special and in-use are set
+        map_pages(cur_page << 12, cur_page << 12, 0x1000, 3);
+    }
+
+    return (void*)physBase;
+}

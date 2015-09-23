@@ -2,9 +2,12 @@
 #include "../process/message.h"
 #include "../ascii_io/ascii_i.h"
 #include "../ascii_io/ascii_o.h"
+#include "../memory/paging.h"
 #include "../core/kernel.h"
 #include "../core/irq.h"
 #include "kserver.h"
+
+unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
 
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
 
@@ -168,6 +171,43 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             //Attempt to register the IRQ with the process and tell the
             //requester whether or not we succeeded
             passMessage(0, source, command, irq_register(command - KS_REG_IRQ_1, &procTable[i]));
+            break;
+
+        case KS_GET_PHYS_PAGE:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+
+            if(!(procTable[i].flags & PF_SUPER)) {
+
+                //If the process doesn't have super rights then tell it
+                //that the reservation failed
+                passMessage(0, source, command, 0);
+                return;
+            }
+
+            passMessage(0, source, command, (unsigned int)reserve_physical(payload, 0x1000));
+            break;
+
+        case KS_FREE_PHYS_PAGE:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+
+            if(!(procTable[i].flags & PF_SUPER)) {
+
+                //If the process doesn't have super rights then tell it
+                //that the free failed
+                passMessage(0, source, command, 0);
+                return;
+            }
+
+            free_physical(payload, 0x1000);
+            passMessage(0, source, command, 1);
             break;
 
         default:

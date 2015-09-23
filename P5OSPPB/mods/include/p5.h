@@ -42,5 +42,7 @@ void printHexDword(unsigned int dword);
 unsigned int getBuildNumber(void);
 unsigned int getNextPid();
 void resetPidSearch();
+void* allocatePhysical(void* base_address, unsigned int byte_count);
+unsigned char freePhysical(void* base_address, unsigned int byte_count);
 
 #endif //P5_H

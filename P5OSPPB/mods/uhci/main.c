@@ -86,6 +86,12 @@ void main(void) {
     prints("scanning\n");
     devcount = pciDeviceCount();
 
+    //Test the new allocatePhysical call
+    prints("Allocating physical memory from 0xB00000 to 0xC00000\n");
+    allocatePhysical((void*)0xB00000, 0x100000);
+    prints("Doing a test write to the new memory\n");
+    ((unsigned char*)0xB50000)[0] = 0x1B;
+
     for(i = 0; i < devcount; i++) {
 
         if((pciGetDeviceClass((pci_address)i) & 0xFFFFFF00) == 0x0C030000) {
