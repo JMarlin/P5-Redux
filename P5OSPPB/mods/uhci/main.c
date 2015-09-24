@@ -180,6 +180,7 @@ void main(void) {
             while(j < 0xFFFFFF)
                 j = j + 1;
             outw(usb_base + 10, 0x0004); //Port enabled, RESET state cleared
+            inw(usb_base + 10); //Read and ignore the fact that the port is now enabled
 
             prints("Port status: ");
             printHexWord(inw(usb_base + 10));
@@ -228,6 +229,7 @@ void main(void) {
             while(j < 0xFFFFFF)
                 j = j + 1;
             outw(usb_base + 12, 0x0004); //Port enabled, RESET state cleared
+            inw(usb_base + 12); //Read and ignore the fact that the port is now enabled
 
             prints("Port status: ");
             printHexWord(inw(usb_base + 12));
