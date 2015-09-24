@@ -182,12 +182,18 @@ void main(void) {
             outw(usb_base + 10, 0x0004); //Port enabled, RESET state cleared
             inw(usb_base + 10); //Read and ignore the fact that the port is now enabled
 
+            //Wait for device to become connected ( or time out )
+            j = 0;
+            while(j < 0xFFFFFFFF && !(inw(usb_base + 10) & 0x0001))
+                j = j + 1;
+
+
             prints("Port status: ");
             printHexWord(inw(usb_base + 10));
             pchar('/');
             printHexWord(inw(usb_base + 10) & 0x0001);
             pchar('\n');
-            if(inw(usb_base + 10) & 0x0001) {
+            if(j < 0xFFFFFFFF) {
 
 
 
@@ -231,12 +237,17 @@ void main(void) {
             outw(usb_base + 12, 0x0004); //Port enabled, RESET state cleared
             inw(usb_base + 12); //Read and ignore the fact that the port is now enabled
 
+            //Wait for device to become connected ( or time out )
+            j = 0;
+            while(j < 0xFFFFFFFF && !(inw(usb_base + 12) & 0x0001))
+                j = j + 1;
+
             prints("Port status: ");
             printHexWord(inw(usb_base + 12));
             pchar('/');
             printHexWord(inw(usb_base + 12) & 0x0001);
             pchar('\n');
-            if(inw(usb_base + 12) & 0x0001) {
+            if(j < 0xFFFFFFFF) {
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
