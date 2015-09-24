@@ -171,10 +171,10 @@ void main(void) {
             prints("Enabling port 1 and checking for device\n");
             outw(usb_base + 0x10, 0x0004); //Enable port 1
             j = 0;
-            while(j < 0xFFFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
+            while(j < 0xFFFF && !(inw(usb_base + 0x10) & 0x0004))  //Wait for the port to be enabled
                 j++;
 
-            if((j < 0xFFFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
+            if((j < 0xFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
 
                 //If device is installed, send a reset to the port
                 prints("Resetting device on port 1\n");
@@ -214,10 +214,10 @@ void main(void) {
             prints("Enabling port 2 and checking for device\n");
             outw(usb_base + 0x12, 0x0004); //Enable port 2
             j = 0;
-            while(j < 0xFFFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
+            while(j < 0xFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
                 j++;
 
-            if((j < 0xFFFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
+            if((j < 0xFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
 
                 //If device is installed, send a reset to the port
                 prints("Resetting device on port 2\n");
