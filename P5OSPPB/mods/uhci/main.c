@@ -184,7 +184,7 @@ void main(void) {
 
             //Wait for device to become connected ( or time out )
             j = 0;
-            while(j < 0xFFFFFFF0) {
+            while(j < 0xFFFFFFF) {
 
                 if(inw(usb_base + 10) & 0x0001)
                     break;
@@ -198,7 +198,7 @@ void main(void) {
             pchar('/');
             printHexWord(inw(usb_base + 10) & 0x0001);
             pchar('\n');
-            if(j < 0xFFFFFFF0) {
+            if(j < 0xFFFFFFF) {
 
 
 
@@ -244,7 +244,7 @@ void main(void) {
 
             //Wait for device to become connected ( or time out )
             j = 0;
-            while(j < 0xFFFFFFF0) {
+            while(j < 0xFFFFFFF) {
 
                 if(inw(usb_base + 12) & 0x0001)
                     break;
@@ -257,7 +257,7 @@ void main(void) {
             pchar('/');
             printHexWord(inw(usb_base + 12) & 0x0001);
             pchar('\n');
-            if(j < 0xFFFFFFF0) {
+            if(j < 0xFFFFFFF) {
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
