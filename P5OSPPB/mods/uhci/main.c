@@ -138,7 +138,7 @@ void main(void) {
             prints("  FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
             prints("\n[uhci]      FLBASEADD: 0x");
-            usb_ram = (unsigned int*)ind(usb_base + 0x08);
+            usb_ram = (unsigned int*)ind(usb_base + 0x08) & 0xFFFFF000;
             printHexDword((unsigned int)usb_ram);
             prints("  SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
@@ -187,13 +187,30 @@ void main(void) {
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
+                prints("Setting up transfer structures\n")
+                usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
+                usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
+                usb_ram[5] = 0x1C800000 //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                usb_ram[6] = 0xFFE0002D //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
+                usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should place the transferred data in (no data is being transferred, so this is not actually needed)
 
                 //Set frame number to 0
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
+                prints("Setting host controller to run...\n")
+                outw(usb_base, inw(usb_base) | 0x0001);
+
                 //Poll HCHalted until the device is halted
+                while(!(inw(usb_base + 0x02) & 0x20));
+
                 //Display TD status
+                if(usb_ram[5] & 0x18800000)
+                    prints("Setup completed successfully\n");
+                else
+                    prints("Setup failed\n");
+
+
                 //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
                 //Set frame number to 0
                 //Set run/stop to run
@@ -230,13 +247,30 @@ void main(void) {
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
+                prints("Setting up transfer structures\n")
+                usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
+                usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
+                usb_ram[5] = 0x1C800000 //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                usb_ram[6] = 0xFFE0002D //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
+                usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should place the transferred data in (no data is being transferred, so this is not actually needed)
 
                 //Set frame number to 0
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
+                prints("Setting host controller to run...\n")
+                outw(usb_base, inw(usb_base) | 0x0001);
+
                 //Poll HCHalted until the device is halted
+                while(!(inw(usb_base + 0x02) & 0x20));
+
                 //Display TD status
+                if(usb_ram[5] & 0x18800000)
+                    prints("Setup completed successfully\n");
+                else
+                    prints("Setup failed\n");
+
+
                 //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
                 //Set frame number to 0
                 //Set run/stop to run
@@ -252,12 +286,6 @@ void main(void) {
 
                 prints("No device found on port 2\n");
             }
-
-            prints("[uhci]      PORTSC1: 0x");
-            printHexWord(inw(usb_base + 0x10));
-            prints("  PORTSC2: 0x");
-            printHexWord(inw(usb_base + 0x12));
-            pchar('\n');
         }
     }
 
