@@ -172,35 +172,16 @@ void main(void) {
             outw(usb_base + 0x10, 0x0004); //Enable port 1
             while(!(inw(usb_base + 0x10) & 0x0004)); //Wait for the port to be enabled
 
-            //If device is installed, send a reset to the port
-            prints("Resetting device on port 1\n");
-            //Improve the timing later when we create a timer system
-            outw(usb_base + 0x10, 0x0204); //Port enabled, RESET state asserted
-            j = 0;               //Wait
-            while(j < 0xFFFFFF)
-                j = j + 1;
-            outw(usb_base + 0x10, 0x0004); //Port enabled, RESET state cleared
-            inw(usb_base + 0x10); //Read and ignore the fact that the port is now enabled
+            if(inw(usb_base + 0x10) & 0x0001) {
 
-            //Wait for device to become connected ( or time out )
-            j = 0;
-            while(j < 0xFFFFFFF) {
-
-                if(inw(usb_base + 0x10) & 0x0001)
-                    break;
-
-                j = j + 1;
-            }
-
-
-            prints("Port status: ");
-            printHexWord(inw(usb_base + 0x10));
-            pchar('/');
-            printHexWord(inw(usb_base + 0x10) & 0x0001);
-            pchar('\n');
-            if(j < 0xFFFFFFF) {
-
-
+                //If device is installed, send a reset to the port
+                prints("Resetting device on port 1\n");
+                //Improve the timing later when we create a timer system
+                outw(usb_base + 0x10, 0x0204); //Port enabled, RESET state asserted
+                j = 0;               //Wait
+                while(j < 0xFFFFFF)
+                    j = j + 1;
+                outw(usb_base + 0x10, 0x0004); //Port enabled, RESET state cleared
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
@@ -232,32 +213,16 @@ void main(void) {
             outw(usb_base + 0x12, 0x0004); //Enable port 1
             while(!(inw(usb_base + 0x12) & 0x0004)); //Wait for the port to be enabled
 
-            //If device is installed, send a reset to the port
-            prints("Resetting device on port 2\n");
-            //Improve the timing later when we create a timer system
-            outw(usb_base + 0x12, 0x0204); //Port enabled, RESET state asserted
-            j = 0;               //Wait
-            while(j < 0xFFFFFF)
-                j = j + 1;
-            outw(usb_base + 0x12, 0x0004); //Port enabled, RESET state cleared
-            inw(usb_base + 0x12); //Read and ignore the fact that the port is now enabled
+            if(inw(usb_base + 0x12) & 0x0001) {
 
-            //Wait for device to become connected ( or time out )
-            j = 0;
-            while(j < 0xFFFFFFF) {
-
-                if(inw(usb_base + 0x12) & 0x0001)
-                    break;
-
-                j = j + 1;
-            }
-
-            prints("Port status: ");
-            printHexWord(inw(usb_base + 0x12));
-            pchar('/');
-            printHexWord(inw(usb_base + 0x12) & 0x0001);
-            pchar('\n');
-            if(j < 0xFFFFFFF) {
+                //If device is installed, send a reset to the port
+                prints("Resetting device on port 2\n");
+                //Improve the timing later when we create a timer system
+                outw(usb_base + 0x12, 0x0204); //Port enabled, RESET state asserted
+                j = 0;               //Wait
+                while(j < 0xFFFFFF)
+                    j = j + 1;
+                outw(usb_base + 0x12, 0x0004); //Port enabled, RESET state cleared
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
