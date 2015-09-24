@@ -182,6 +182,8 @@ void main(void) {
             outw(usb_base + 10, 0x0004); //Port enabled, RESET state cleared
 
             prints("Port status: ");
+            printHexWord(inw(usb_base + 10));
+            pchar('/');
             printHexWord(inw(usb_base + 10) & 0x0001);
             pchar('\n');
             if(inw(usb_base + 10) & 0x0001) {
@@ -228,6 +230,8 @@ void main(void) {
             outw(usb_base + 12, 0x0004); //Port enabled, RESET state cleared
 
             prints("Port status: ");
+            printHexWord(inw(usb_base + 12));
+            pchar('/');
             printHexWord(inw(usb_base + 12) & 0x0001);
             pchar('\n');
             if(inw(usb_base + 12) & 0x0001) {
