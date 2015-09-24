@@ -190,15 +190,15 @@ void main(void) {
                 prints("Setting up transfer structures\n")
                 usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
                 usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
-                usb_ram[5] = 0x1C800000 //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                usb_ram[6] = 0xFFE0002D //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
+                usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                usb_ram[6] = 0xFFE0002D; //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
                 usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should place the transferred data in (no data is being transferred, so this is not actually needed)
 
                 //Set frame number to 0
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
-                prints("Setting host controller to run...\n")
+                prints("Setting host controller to run...\n");
                 outw(usb_base, inw(usb_base) | 0x0001);
 
                 //Poll HCHalted until the device is halted
@@ -250,15 +250,15 @@ void main(void) {
                 prints("Setting up transfer structures\n")
                 usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
                 usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
-                usb_ram[5] = 0x1C800000 //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                usb_ram[6] = 0xFFE0002D //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
+                usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                usb_ram[6] = 0xFFE0002D; //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
                 usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should place the transferred data in (no data is being transferred, so this is not actually needed)
 
                 //Set frame number to 0
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
-                prints("Setting host controller to run...\n")
+                prints("Setting host controller to run...\n");
                 outw(usb_base, inw(usb_base) | 0x0001);
 
                 //Poll HCHalted until the device is halted
