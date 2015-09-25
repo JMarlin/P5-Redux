@@ -218,8 +218,9 @@ void main(void) {
                 //Display the status of the transaction descriptor
                 prints(" (");
                 printHexDword(usb_ram[5]);
-                prints(")\n");
-
+                prints(") USBSTS: 0x");
+                printHexWord(inw(usb_base + 0x02));
+                pchar('\n');
 
                 //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
                 //Set frame number to 0
