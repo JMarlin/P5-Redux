@@ -146,6 +146,8 @@ void main(void) {
             }
             prints("\n[uhci]      FLBASEADD: 0x");
             printHexDword(ind(usb_base + 0x08));
+            pchar('/');
+            printHexDword((unsigned int)usb_ram);
             prints("  SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
