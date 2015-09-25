@@ -56,7 +56,7 @@ void main(void) {
     unsigned int devcount;
 	unsigned int parent_pid;
     unsigned short usb_base;
-    unsigned int *usb_ram = (unsigned int*)0xB0000000;
+    unsigned int *usb_ram = (unsigned int*)getSharedPage();
     unsigned int address_test = 0;
 
 	//Get the 'here's my pid' message from init
@@ -160,6 +160,9 @@ void main(void) {
 
             //Allocate a physical page of memory at the host controller's default physical address
             allocatePhysical((void*)usb_ram, 0x1000);
+
+            prints("Disabling USB legacy support.\n");
+            pciWriteField()
 
             prints("Disabling ports\n");
             //Disable the controller and its ports

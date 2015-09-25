@@ -18,5 +18,6 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base, char super);
 int append_page(pageRange* pr_base);
 void* reserve_physical(unsigned int physBase, unsigned int size);
 void free_physical(unsigned int physBase, unsigned int size);
+void* allocate_shared_page();
 
 #endif //PAGING_H

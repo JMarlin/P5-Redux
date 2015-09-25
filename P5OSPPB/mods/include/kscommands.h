@@ -35,5 +35,6 @@
 #define KS_PID_FROM_SLOT 26
 #define KS_GET_PHYS_PAGE 27
 #define KS_FREE_PHYS_PAGE 28
+#define KS_GET_SHARED_PAGE 29
 
 #endif //KSCOMMANDS_H

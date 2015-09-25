@@ -186,6 +186,47 @@ void apply_page_range(unsigned int vBase, pageRange* pr_base, char super) {
     //_loadPageDirectory(pageDirectory);
 }
 
+//Find the next availible free physical page (very inefficient)
+unsigned int find_free_page() {
+
+    unsigned long maxPages = maxRAM >> 12;
+    unsigned int i;
+
+    for(i = 0xB00; i < maxPages; i++) {
+
+        //Check to make sure the page is not already alocated and/or special
+        if(!(pageTable[i] & 0xC00))
+            return i;
+    }
+
+    if(i == maxPages)
+        return 0;
+}
+
+//Find a free page, mark it in use, identity map it, and return its address
+//This should be improved in the future, ideally by not identity mapping this
+//page but instead taking two PIDs and appending the same page to both of
+//their memory spaces/allocation trees
+//This also needs a free, and we need to figure out a mechanism for that as
+//we don't want one process unmapping the memory before the other is done with it
+//A probable solution would be to reference count the memory. EG: Count a counter
+//up by one for every PID which attaches to the shared page and, when freeing,
+//decrease the counter and then unmap and mark the memory availible only if the
+//counter has returned to zero
+void* allocate_shared_page() {
+
+    unsigned int temp_page = find_free_page();
+
+    if(!temp_page)
+        return temp_page;
+
+    //Identity map the page, global use, and mark it in use
+    pageTable[temp_page] |= 0x800;
+    map_pages(temp_page << 12, temp_page << 12, 0x1000, 3);
+
+    //Return the
+    return (void*)(temp_page << 12);
+}
 
 //This ends the search of the page table at 0x2000
 //as opposed to 0x100000 because we're just assuming our
@@ -197,8 +238,7 @@ int append_page(pageRange* pr_base) {
     unsigned total_count = 0;
     pageRange* pr_current = pr_base;
     unsigned int offset;
-    unsigned long maxPages = maxRAM >> 12;
-    int i;
+    unsigned int temp_page;
 
     //Get to the end of the list
     while(pr_current->next) {
@@ -210,18 +250,11 @@ int append_page(pageRange* pr_base) {
     //ahead and find the first free phys page
     if(!pr_current->count) {
 
-        for(i = 0xB00; i < maxPages; i++) {
-
-            //Check to make sure the page is not already alocated and/or special
-            if(!(pageTable[i] & 0xC00))
-                break;
-        }
-
-        if(i == maxPages)
+        if((temp_page = find_free_page()) < 1)
             return 0;
 
         pr_current->count++;
-        pr_current->base_page = i;
+        pr_current->base_page = temp_page;
         pageTable[i] |= 0x00000800;
         return (total_count + pr_current->count) << 12;
     }
@@ -253,17 +286,10 @@ int append_page(pageRange* pr_base) {
     }
 
     //And then search for the next availible page to assign it to
-    for(i = 0xB00; i < maxPages; i++) {
+    if((temp_page = find_free_page()) < 1) {
 
-        //Check to make sure the page is not already alocated and/or special
-        if(!(pageTable[i] & 0xC00))
-            break;
-    }
-
-    //If we hit the top of memory, we append a null page range node and
-    //return failure to the caller
-    if(i == maxPages) {
-
+        //If we hit the top of memory, we append a null page range node and
+        //return failure to the caller
         pr_current->next = (pageRange*)0x0;
         return 0;
     }
@@ -271,7 +297,7 @@ int append_page(pageRange* pr_base) {
     //Otherwise, we were able to successfully find a free page, so we
     //store its page number and mark it allocated
     pr_current->count++;
-    pr_current->base_page = i;
+    pr_current->base_page = temp_page;
     pageTable[i] |= 0x00000800;
     return (total_count + pr_current->count) << 12;
 }
@@ -451,6 +477,10 @@ void* reserve_physical(unsigned int physBase, unsigned int size) {
         //the offending parent was not found and remapped. In this case, we
         //just assume that the page being marked is anomalous as no page should
         //be both marked and not owned)
+        //UPDATE: This is now incorrect. If we create a shared memory region, it would
+        //not have an owner. This should be cleaned up, though, since we really don't
+        //want to have a process accidentally free and map out a shared memory region
+        //while another process is reading from it anyhow
         pageTable[cur_page] |= 0xC00; //OS-Reserved is when both os-special and in-use are set
         map_pages(cur_page << 12, cur_page << 12, 0x1000, 3);
     }

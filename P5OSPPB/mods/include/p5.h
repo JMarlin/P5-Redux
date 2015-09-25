@@ -44,5 +44,6 @@ unsigned int getNextPid();
 void resetPidSearch();
 void* allocatePhysical(void* base_address, unsigned int byte_count);
 unsigned char freePhysical(void* base_address, unsigned int byte_count);
+void* getSharedPage(void);
 
 #endif //P5_H
