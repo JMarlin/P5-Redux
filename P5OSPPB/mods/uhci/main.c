@@ -56,7 +56,7 @@ void main(void) {
     unsigned int devcount;
 	unsigned int parent_pid;
     unsigned short usb_base;
-    unsigned int *usb_ram = (unsigned int*)0xE0000000;
+    unsigned int *usb_ram = (unsigned int*)0xB0000000;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -298,6 +298,8 @@ void main(void) {
 
                 prints("No device found on port 2\n");
             }
+
+            while(1); //Temporarily hang once we're done with the first port for testing
         }
     }
 
