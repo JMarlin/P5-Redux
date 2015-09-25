@@ -198,6 +198,9 @@ void main(void) {
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
+                //We should clear HCHalted here, to make sure we're not reading our own value later on
+                outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
+                while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
                 prints("Setting host controller to run...\n");
                 outw(usb_base, inw(usb_base) | 0x0001);
 
@@ -205,10 +208,15 @@ void main(void) {
                 while(!(inw(usb_base + 0x02) & 0x20));
 
                 //Display TD status
-                if(usb_ram[5] & 0x18800000)
-                    prints("Setup completed successfully\n");
+                if(usb_ram[5] & 0x18800000) { //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
+                    prints("Setup completed successfully");
                 else
-                    prints("Setup failed\n");
+                    prints("Setup failed");
+
+                //Display the status of the transaction descriptor
+                prints(" (");
+                printHexDword(usb_ram[5]);
+                prints(")\n");
 
 
                 //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
