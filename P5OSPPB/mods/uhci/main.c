@@ -164,6 +164,11 @@ void main(void) {
             prints("Disabling ports\n");
             //Disable the controller and its ports
             outw(usb_base, inw(usb_base) & 0xFFFE); //Set run/stop to stop
+
+            //Reset the host controller
+            outw(usb_base, 0x0002); //Assert hcreset
+            while((inw(usb_base) & 0x0002) == 0x0002); //Wait for the controller to indicate that reset is complete
+
             outw(usb_base + 0x10, 0x000A); //Disable port 1
             while(inw(usb_base + 0x10) & 0x0004); //Wait for the port to be disabled
             outw(usb_base + 0x12, 0x000A); //Disable port 2
@@ -172,10 +177,19 @@ void main(void) {
             prints("Setting controller defaults\n");
             //Set up default controller state (no interrupts, debug on, )
             outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
-            outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
             outw(usb_base + 0x04, 0x0); //Set all interrupts off
-            outw(usb_base, 0x00E2); //Max packet = 64 (default), set configure flag, enable software debug, set host controller reset, controller stopped
+            outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
 
+            //Make double sure the base address is set
+            outd(usb_base + 0x08, (unsigned int)usb_ram);
+            //Wait for the base address to be set
+            while(address_test != (unsigned int)usb_ram) {
+                address_test = ind(usb_base + 0x08) & 0xFFFFF000;
+                prints("\n[uhci]      FLBASEADD: 0x");
+                printHexDword(address_test);
+            }
+
+            outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
             //Enable port one, check to see if a device is installed
             prints("Enabling port 1 and checking for device\n");
