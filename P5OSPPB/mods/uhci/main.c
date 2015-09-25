@@ -140,9 +140,10 @@ void main(void) {
             //Set the base address
             outd(usb_base + 0x08, (unsigned int)usb_ram);
             //Wait for the base address to be set
-            while((ind(usb_base + 0x08) & 0xFFFFF000) != (unsigned int)usb_ram);
-            prints("\n[uhci]      FLBASEADD: 0x");
-            printHexDword(ind(usb_base + 0x08));
+            while((ind(usb_base + 0x08) & 0xFFFFF000) != (unsigned int)usb_ram) {
+                prints("\n[uhci]      FLBASEADD: 0x");
+                printHexDword(ind(usb_base + 0x08));
+            }
             prints("  SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
             prints("\n[uhci]      PORTSC1: 0x");
