@@ -208,7 +208,7 @@ void main(void) {
                 while(!(inw(usb_base + 0x02) & 0x20));
 
                 //Display TD status
-                if(usb_ram[5] & 0x18800000) { //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
+                if(usb_ram[5] & 0x18800000)  //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
                     prints("Setup completed successfully");
                 else
                     prints("Setup failed");
