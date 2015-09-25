@@ -57,6 +57,7 @@ void main(void) {
 	unsigned int parent_pid;
     unsigned short usb_base;
     unsigned int *usb_ram = (unsigned int*)0xB0000000;
+    unsigned int address_test = 0;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -140,12 +141,13 @@ void main(void) {
             //Set the base address
             outd(usb_base + 0x08, (unsigned int)usb_ram);
             //Wait for the base address to be set
-            while((ind(usb_base + 0x08) & 0xFFFFF000) != (unsigned int)usb_ram) {
+            while(address_test != (unsigned int)usb_ram) {
+                address_test = ind(usb_base + 0x08) & 0xFFFFF000;
                 prints("\n[uhci]      FLBASEADD: 0x");
-                printHexDword(ind(usb_base + 0x08));
+                printHexDword(address_test);
             }
             prints("\n[uhci]      FLBASEADD: 0x");
-            printHexDword(ind(usb_base + 0x08));
+            printHexDword(address_test);
             pchar('/');
             printHexDword((unsigned int)usb_ram);
             prints("  SOFMOD: 0x");
