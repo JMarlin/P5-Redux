@@ -56,7 +56,7 @@ void main(void) {
     unsigned int devcount;
 	unsigned int parent_pid;
     unsigned short usb_base;
-    unsigned int *usb_ram;
+    unsigned int *usb_ram = (unsigned int*)0xE0000000;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -137,8 +137,10 @@ void main(void) {
             printHexWord(inw(usb_base + 0x04));
             prints("  FRNUM: 0x");
             printHexWord(inw(usb_base + 0x06));
+            //Set the base address
+            outd(usb_base + 0x08, (unsigned int)usb_ram);
             prints("\n[uhci]      FLBASEADD: 0x");
-            usb_ram = (unsigned int*)(ind(usb_base + 0x08) & 0xFFFFF000);
+            usb_ram = (unsigned int*)(ind(usb_base + 0x08));
             printHexDword((unsigned int)usb_ram);
             prints("  SOFMOD: 0x");
             printHexByte(inb(usb_base + 0x0C));
