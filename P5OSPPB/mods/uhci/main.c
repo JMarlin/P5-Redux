@@ -209,7 +209,7 @@ void main(void) {
                 while(j < 0xFFFFFFF)
                     j = j + 1;
                 outw(usb_base + 0x10, 0x0004); //Port enabled, RESET state cleared
-                while(!(inw(usb_base + 0x10) & 0x0200)); //Wait for reset to be lifted
+                while((inw(usb_base + 0x10) & 0x0200)); //Wait for reset to be lifted
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
