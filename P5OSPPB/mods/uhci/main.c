@@ -200,9 +200,9 @@ void main(void) {
                 //Set run/stop to run
                 //We should clear HCHalted here, to make sure we're not reading our own value later on
                 outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
-                while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
                 prints("Setting host controller to run...\n");
                 outw(usb_base, inw(usb_base) | 0x0001);
+                while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
 
                 //Poll HCHalted until the device is halted
                 while(!(inw(usb_base + 0x02) & 0x20));
