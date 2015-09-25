@@ -161,8 +161,9 @@ void main(void) {
             //Allocate a physical page of memory at the host controller's default physical address
             allocatePhysical((void*)usb_ram, 0x1000);
 
-            prints("Disabling USB legacy support.\n");
-            pciWriteField()
+            //Need to implement pciWriteField so that we can turn off usb legacy support!
+            //prints("Disabling USB legacy support.\n");
+            //pciWriteField()
 
             prints("Disabling ports\n");
             //Disable the controller and its ports

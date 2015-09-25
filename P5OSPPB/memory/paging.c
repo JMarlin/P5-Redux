@@ -218,7 +218,7 @@ void* allocate_shared_page() {
     unsigned int temp_page = find_free_page();
 
     if(!temp_page)
-        return temp_page;
+        return (void*)temp_page;
 
     //Identity map the page, global use, and mark it in use
     pageTable[temp_page] |= 0x800;
@@ -255,7 +255,7 @@ int append_page(pageRange* pr_base) {
 
         pr_current->count++;
         pr_current->base_page = temp_page;
-        pageTable[i] |= 0x00000800;
+        pageTable[temp_page] |= 0x00000800;
         return (total_count + pr_current->count) << 12;
     }
 
@@ -298,7 +298,7 @@ int append_page(pageRange* pr_base) {
     //store its page number and mark it allocated
     pr_current->count++;
     pr_current->base_page = temp_page;
-    pageTable[i] |= 0x00000800;
+    pageTable[temp_page] |= 0x00000800;
     return (total_count + pr_current->count) << 12;
 }
 
