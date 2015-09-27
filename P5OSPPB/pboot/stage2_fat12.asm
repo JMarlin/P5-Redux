@@ -536,12 +536,15 @@ cluster_to_csh:
 
   ;;Calculate LBA from clusternum
   xor cx, cx
+  xor dx, dx
   mov cl, [V_SECTPERCLUSTER]
   mul cx
   mov dx, [V_RESSECT]
   add ax, dx
   push ax    ;store res + cluster_secs
-  mov ax, [V_FATCOPIES]
+  xor dx, dx
+  xor ax, ax
+  mov al, [V_FATCOPIES]
   mov bx, [V_SECTPERFAT]
   mul bx
   pop bx     ;restore res + cluster_secs
@@ -552,11 +555,14 @@ cluster_to_csh:
   mov cx, 16
   div cx     ;512 per sect / 32 per entry = 16
   cmp dx, 0
-  jne .noadd
+  je .noadd
   inc ax
   .noadd:
   add ax, bx ;bx still res + cluster_secs + fat_secs
-  sub ax, 3 ;AX now contains the LBA calculation from above
+  sub ax, 2 ;AX now contains the LBA calculation from above
+
+  ;;DEBUG
+  ;;call print_hex_word
 
   ;;Convert the calculated lba into CSH values
   call lba_to_csh
@@ -590,10 +596,10 @@ read_sector:
     pop ax
 
     ;;Package heads into CX in odd BIOS 76543210|98xxxxxx format
-    mov cx, bx
-    shl cx, 0xa  ;00000098|76543210 -> 76543210|00000000
-    mov cl, bh   ;76543210|00000098
-    shl cl, 6    ;76543210|98000000
+    xor cx, cx   ;00000000|00000000
+    mov cl, bh   ;00000000|00000098
+    shl cl, 6    ;00000000|98000000
+    mov ch, bl   ;76543210|98000000
     ;;And then package low six bits of sector into the rest of CL
     and al, 0x3f ;00ssssss
     or cl, al    ;76543210|98ssssss
@@ -784,7 +790,7 @@ get_next_cluster:
 
     ;;Now that the sector is read, get the entry within the sector
     pop bx       ;restore the remainder of the division
-    shl bx, 1    ;Multiply by two since we're indexing 16-bit values
+    ;;shl bx, 1    ;Multiply by two since we're indexing 16-bit values
     xor di, di
     mov ax, [bx+di+0x500] ;read the value at the offset
 
@@ -827,8 +833,8 @@ load_from_cluster:
         push ax
         cmp ax, 0
         je .sector_read_loop_exit ;This should never happen...
-        and ax, 0xFFF0
-        cmp ax, 0xFFF0
+        and ax, 0x0FF0
+        cmp ax, 0x0FF0
         je .sector_read_loop_exit
         pop ax
 

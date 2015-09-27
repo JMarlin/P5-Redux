@@ -556,7 +556,7 @@ cluster_to_csh:
   inc ax
   .noadd:
   add ax, bx ;bx still res + cluster_secs + fat_secs
-  sub ax, 3 ;AX now contains the LBA calculation from above
+  sub ax, 2 ;AX now contains the LBA calculation from above
 
   ;;Convert the calculated lba into CSH values
   call lba_to_csh
@@ -590,10 +590,10 @@ read_sector:
     pop ax
 
     ;;Package heads into CX in odd BIOS 76543210|98xxxxxx format
-    mov cx, bx
-    shl cx, 0xa  ;00000098|76543210 -> 76543210|00000000
-    mov cl, bh   ;76543210|00000098
-    shl cl, 6    ;76543210|98000000
+    xor cx, cx   ;00000000|00000000
+    mov cl, bh   ;00000000|00000098
+    shl cl, 6    ;00000000|98000000
+    mov ch, bl   ;76543210|98000000
     ;;And then package low six bits of sector into the rest of CL
     and al, 0x3f ;00ssssss
     or cl, al    ;76543210|98ssssss
