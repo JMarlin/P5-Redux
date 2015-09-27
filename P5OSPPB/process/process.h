@@ -98,6 +98,7 @@ unsigned int exec_v86(unsigned char* path);
 int request_new_page(process* proc);
 void next_process();
 void prep_next_process();
+void returnToProcess(process* proc);
 
 extern void _switchToKernel(void);
 extern void _returnToProc(void);

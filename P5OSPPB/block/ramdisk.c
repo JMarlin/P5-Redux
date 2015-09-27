@@ -2,6 +2,7 @@
 #include "block.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
+#include "../memory/memory.h"
 
 
 ramd_node ramd_node_root;

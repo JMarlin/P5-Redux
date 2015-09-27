@@ -1,5 +1,6 @@
 #include "memory.h"
 #include "paging.h"
+#include "../process/process.h"
 #include "../ascii_io/ascii_o.h"
 #include "../core/global.h"
 #include "../core/syscall.h"

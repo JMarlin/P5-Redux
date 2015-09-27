@@ -2,6 +2,7 @@
 #include "ramfs.h"
 #include "fs.h"
 #include "../ascii_io/ascii_i.h"
+#include "../ascii_io/ascii_o.h"
 #include "../memory/memory.h"
 #include "../core/global.h"
 

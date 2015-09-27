@@ -3,7 +3,6 @@
 #include "../ascii_io/ascii_i.h"
 #include "lists.h"
 
-
 variant* makeVariant(char* name) {
 
     variant* retvar = (variant*)kmalloc(sizeof(variant));
@@ -37,7 +36,7 @@ double str2dbl(char* dblStr) {
     }
     
     //Get whole part
-    if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return;
+    if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return 0;
 
     while(1) {
         w += dblStr[i] - '0';
@@ -53,7 +52,7 @@ double str2dbl(char* dblStr) {
     i++;
 
     //Get fractional part
-    if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return;
+    if(!(dblStr[i] && (dblStr[i] >= '0' && dblStr[i] <= '9'))) return 0;
 
     while(1) {
         w += dblStr[i] - '0';

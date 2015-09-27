@@ -1,6 +1,7 @@
 #include "ascii_i.h"
 #include "ascii_o.h"
 #include "keyboard.h"
+#include "../core/util.h"
 
 
 unsigned char keyTable[132] = "";

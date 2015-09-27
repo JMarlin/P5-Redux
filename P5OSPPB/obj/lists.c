@@ -147,7 +147,7 @@ void* getListItem(list* thisList, int itemIndex) {
             nextItem = nextItem->next;
             itemCounter++;
         }else{
-            return;
+            return (void*)0;
         }
     }        
 }
