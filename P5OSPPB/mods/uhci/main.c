@@ -332,8 +332,6 @@ void main(void) {
         }
     }
 
-    while(1); //Hang for now
-
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 	prints("[uhci] Done.\n");
 
