@@ -11,7 +11,8 @@
 #The success message which will be placed into the SUCCESS.TXT
 MESSAGE="This is a fresh PBoot boot image. To make this a functional P5OS boot volume, place a valid P5 kernel image into the root of this image with the filename 'P5KERN.BIN'"
 
-#Image params
+#Image params 
+#We will always use a single cluster per sector because fuck you I'm lazy
 SECTORSZ=$((512))
 SECTPERCLUSTER=$((1))
 #S2_SIZE, number of reserved sectors

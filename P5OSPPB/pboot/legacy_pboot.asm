@@ -5,7 +5,7 @@
 ;The root directory is 14 sectors long
 ;fat entries are stored two to three bits in reverse order and big-endian storage.
 ;Therefore a series of fat entries 0xff0 0xfff 0x003 0x00f would be stored as:
-;  0xf0ffff03f0ff
+;  0xf0 ff ff 03 f0 ff
 
 jmp boot
 
