@@ -536,12 +536,15 @@ cluster_to_csh:
 
   ;;Calculate LBA from clusternum
   xor cx, cx
+  xor dx, dx
   mov cl, [V_SECTPERCLUSTER]
   mul cx
   mov dx, [V_RESSECT]
   add ax, dx
   push ax    ;store res + cluster_secs
-  mov ax, [V_FATCOPIES]
+  xor dx, dx
+  xor ax, ax
+  mov al, [V_FATCOPIES]
   mov bx, [V_SECTPERFAT]
   mul bx
   pop bx     ;restore res + cluster_secs
@@ -552,11 +555,14 @@ cluster_to_csh:
   mov cx, 16
   div cx     ;512 per sect / 32 per entry = 16
   cmp dx, 0
-  jne .noadd
+  je .noadd
   inc ax
   .noadd:
   add ax, bx ;bx still res + cluster_secs + fat_secs
   sub ax, 2 ;AX now contains the LBA calculation from above
+
+  ;;DEBUG
+  ;;call print_hex_word
 
   ;;Convert the calculated lba into CSH values
   call lba_to_csh

@@ -352,8 +352,8 @@ void main(void) {
         }
     }
 
-	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 	prints("[uhci] Done.\n");
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
 	//Now that everything is set up, we can loop waiting for requests
 	while(1) {
