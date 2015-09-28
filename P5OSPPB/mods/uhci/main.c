@@ -206,10 +206,10 @@ void main(void) {
                 outw(usb_base + 0x10, 0x0004); //Enable port 1
 
                 j = 0;
-                while(j < 0xFFFFFF && !(inw(usb_base + 0x10) & 0x0004))  //Wait for the port to be enabled
+                while(j < 0xFFFFF && !(inw(usb_base + 0x10) & 0x0004))  //Wait for the port to be enabled
                     j++;
 
-                if((j < 0xFFFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
+                if((j < 0xFFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
 
                     //If device is installed, send a reset to the port
                     prints("Resetting device on port 1\n");
@@ -227,7 +227,7 @@ void main(void) {
                     usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x00; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' un marked
                     usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
                     usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                    usb_ram[6] = 0x0100002D; //eight bytes data, enpoint 0, address 0, PID 0x2D (SETUP)
+                    usb_ram[6] = 0x00E0002D; //eight bytes data, enpoint 0, address 0, PID 0x2D (SETUP)
                     usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should read the packet data from
                     usb_ram[8] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                     usb_ram[9] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
@@ -279,10 +279,10 @@ void main(void) {
                 outw(usb_base + 0x12, 0x0004); //Enable port 1
 
                 j = 0;
-                while(j < 0xFFFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
+                while(j < 0xFFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
                     j++;
 
-                if((j < 0xFFFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
+                if((j < 0xFFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
 
                     //If device is installed, send a reset to the port
                     prints("Resetting device on port 2\n");
