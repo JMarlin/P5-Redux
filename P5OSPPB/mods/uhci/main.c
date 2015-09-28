@@ -268,49 +268,62 @@ void main(void) {
                 prints("No device found on port 1\n");
             }
 
-            //Enable port two, check to see if a device is installed
+            //Enable port one, check to see if a device is installed
             prints("Enabling port 2 and checking for device\n");
-            outw(usb_base + 0x12, 0x0004); //Enable port 2
+            outw(usb_base + 0x12, 0x0004); //Enable port 1
+
             j = 0;
-            while(j < 0xFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
+            while(j < 0xFFFFFF && !(inw(usb_base + 0x12) & 0x0004))  //Wait for the port to be enabled
                 j++;
 
-            if((j < 0xFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
+            if((j < 0xFFFFFF) && (inw(usb_base + 0x12) & 0x0001)) {
 
                 //If device is installed, send a reset to the port
                 prints("Resetting device on port 2\n");
                 //Improve the timing later when we create a timer system
                 outw(usb_base + 0x12, 0x0204); //Port enabled, RESET state asserted
                 j = 0;               //Wait
-                while(j < 0xFFFFFF)
+                while(j < 0xFFFFFFF)
                     j = j + 1;
                 outw(usb_base + 0x12, 0x0004); //Port enabled, RESET state cleared
+                while((inw(usb_base + 0x12) & 0x0200)); //Wait for reset to be lifted
 
                 //We create a control transfer to device 0 control pipe:
                 //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
                 prints("Setting up transfer structures\n");
-                usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
+                usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x00; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' un marked
                 usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
                 usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                usb_ram[6] = 0xFFE0002D; //Empty data, enpoint 0, address 0, PID 0x2D (SETUP)
-                usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should place the transferred data in (no data is being transferred, so this is not actually needed)
+                usb_ram[6] = 0x0100002D; //eight bytes data, enpoint 0, address 0, PID 0x2D (SETUP)
+                usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should read the packet data from
+                usb_ram[8] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
+                usb_ram[9] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
 
                 //Set frame number to 0
                 outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                 //Set run/stop to run
+                //We should clear HCHalted here, to make sure we're not reading our own value later on
+                outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
                 prints("Setting host controller to run...\n");
                 outw(usb_base, inw(usb_base) | 0x0001);
+                while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
 
                 //Poll HCHalted until the device is halted
                 while(!(inw(usb_base + 0x02) & 0x20));
 
                 //Display TD status
-                if(usb_ram[5] & 0x18800000)
-                    prints("Setup completed successfully\n");
+                if(usb_ram[5] & 0x18800000)  //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
+                    prints("Setup completed successfully");
                 else
-                    prints("Setup failed\n");
+                    prints("Setup failed");
 
+                //Display the status of the transaction descriptor
+                prints(" (");
+                printHexDword(usb_ram[5]);
+                prints(") USBSTS: 0x");
+                printHexWord(inw(usb_base + 0x02));
+                pchar('\n');
 
                 //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
                 //Set frame number to 0
@@ -328,7 +341,7 @@ void main(void) {
                 prints("No device found on port 2\n");
             }
 
-            while(1); //Temporarily hang once we're done with the first port for testing
+            //while(1); //Temporarily hang once we're done with the first port for testing
         }
     }
 
