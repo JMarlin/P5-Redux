@@ -167,17 +167,16 @@ void main(void) {
                 //Allocate a physical page of memory at the host controller's default physical address
                 allocatePhysical((void*)usb_ram, 0x1000);
 
-                //Need to implement pciWriteField so that we can turn off usb legacy support!
-                //prints("Disabling USB legacy support.\n");
-                //pciWriteField()
-
-                prints("Disabling ports\n");
                 //Disable the controller and its ports
+                prints("Disabling ports\n");
                 outw(usb_base, inw(usb_base) & 0xFFFE); //Set run/stop to stop
 
                 //Reset the host controller
-                outw(usb_base, 0x0002); //Assert hcreset
-                while((inw(usb_base) & 0x0002) == 0x0002); //Wait for the controller to indicate that reset is complete
+                outw(usb_base, 0x0004); //Assert hcreset
+                j = 0;
+                while(j < 0xFFFFF) j++; //Wait 10ms (shitty timing)
+                outw(usb_base, inw(usb_base) & 0x0002); //Clear greset, don't touch hcreset
+                while((inw(usb_base) & 0x0002) == 0x0002); //Make sure that the controller isn't still resetting
 
                 outw(usb_base + 0x10, 0x000A); //Disable port 1
                 while(inw(usb_base + 0x10) & 0x0004); //Wait for the port to be disabled
@@ -186,6 +185,9 @@ void main(void) {
 
                 prints("Setting controller defaults\n");
                 //Set up default controller state (no interrupts, debug on, )
+                outw(usb_base + 0x02, inw(usb_base + 0x02) & 0x1F); //Clear USBSTS
+                //Disable USB legacy support
+                //pciWriteField((pci_address)i, pciReadField((pci_address)i, 0x30) & 0xFFFF0000 ); //We care about the low word
                 outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
                 outw(usb_base + 0x04, 0x0); //Set all interrupts off
                 outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
@@ -210,6 +212,16 @@ void main(void) {
                     j++;
 
                 if((j < 0xFFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
+
+                    //Send a resume just in case
+                    prints("Resuming device on port 1\n");
+                    //Improve the timing later when we create a timer system
+                    outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
+                    j = 0;               //Wait
+                    while(j < 0xFFFFFFF)
+                        j = j + 1;
+                    outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
+                    while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
 
                     //If device is installed, send a reset to the port
                     prints("Resetting device on port 1\n");
