@@ -58,6 +58,7 @@ void main(void) {
     unsigned short usb_base;
     unsigned int *usb_ram = (unsigned int*)getSharedPage();
     unsigned int *frame_list = (unsigned int*)getSharedPage();
+    unsigned char* usb_buf;
     unsigned int address_test = 0;
     unsigned char inbuf[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     unsigned char td1 = 0, td2 = 0;
@@ -248,8 +249,19 @@ void main(void) {
                     usb_ram[9] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
                     usb_ram[10] = 0x01800069; //eight bytes data, endpoint 0, address 0, PID 0x69 (IN), DATA 1
                     usb_ram[11] = (unsigned int)&usb_ram[14]; //Pointer for the buffer that the controller should read the packet data from
-                    usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
-                    usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
+                    usb_buf = (unsigned char*)&usb_ram[12]; //Treating the packet data buffer as a byte array to make setting it up a little easier
+                    usb_buf[0] = 0x80; //(device, standard, device-to-host)
+                    usb_buf[1] = 0x06; //Get descriptor
+                    usb_buf[2] = 0x00; //Descriptor index 0
+                    usb_buf[3] = 0x01; //Device descriptor
+                    usb_buf[4] = 0x0; //wIndex = 0
+                    usb_buf[5] = 0x0; //wIndex = 0
+                    usb_buf[6] = 0x12; //wLength = 18 bytes
+                    usb_buf[7] = 0x00; //wLength = 18 byes
+                    //usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
+                    //usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
+
+
                     usb_ram[14] = 0x0; //This is the buffer into which our device descriptor should be read
                     usb_ram[15] = 0x0;
                     usb_ram[16] = 0x0;
