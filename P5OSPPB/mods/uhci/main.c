@@ -251,7 +251,7 @@ void main(void) {
 
                         //Set run/stop to run
                         //Make sure that none of the interrupt flags are set, and clear them if they are
-                        if(usb_base + 0x02, 0x30) {
+                        if(inw(usb_base + 0x02) & 0x10) {
 
                             prints("[uhci] INTERNAL PROCESS ERROR!");
                             while(1);
