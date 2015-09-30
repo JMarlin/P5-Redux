@@ -234,7 +234,7 @@ void main(void) {
                     //We create a control transfer to device 0 control pipe:
                     //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
                     prints("Setting up transfer structures\n");
-                    for(j = 0; j < 0x1000; j++)
+                    for(j = 0; j < 0x400; j++)
                         frame_list[j] = ((unsigned int)(&usb_ram[0])) | 0x02; //All frame list pointers points to a qh at usb_ram[0] (TDs are 16-byte aligned) and has 'terminate' unmarked
                     //This is a queue head which will point to our default queue of TDs
                     usb_ram[0] = 0x01; //This is the head of our test queue, set to terminate
