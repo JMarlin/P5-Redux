@@ -249,11 +249,13 @@ void main(void) {
                         //Set frame number to 0
                         outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
-                        //Make sure we clear any process errors
-
                         //Set run/stop to run
                         //Make sure that none of the interrupt flags are set, and clear them if they are
-                        if(usb_base + 0x02, 0x30)
+                        if(usb_base + 0x02, 0x30) {
+
+                            prints("[uhci] INTERNAL PROCESS ERROR!")
+                        }
+
                         //We should clear HCHalted here, to make sure we're not reading our own value later on
                         outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
                         prints("Setting host controller to run...\n");
