@@ -6,12 +6,14 @@
 #define TIMER_INT_NUM  0xE0
 #define TICK_THRESHOLD 0
 
+struct process;
+
 void timer_on();
 void timer_off();
 void init_timer();
 void timer_int_ack();
 void c_spurious_handler();
-void c_timer_handler();
+process* c_timer_handler();
 void c_calc_mips();
 void irq_enter_kernel();
 void do_mips_calc(void (*cb)(unsigned int));
