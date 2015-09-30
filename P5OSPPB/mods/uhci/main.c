@@ -244,12 +244,14 @@ void main(void) {
                     usb_ram[8] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                     usb_ram[9] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
 
-                    //Set frame number to 0
-                    outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
-
                     while(1) {
 
+                        //Set frame number to 0
+                        outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
+
                         //Set run/stop to run
+                        //Make sure that none of the interrupt flags are set, and clear them if they are
+                        if(usb_base + 0x02, 0x30)
                         //We should clear HCHalted here, to make sure we're not reading our own value later on
                         outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
                         prints("Setting host controller to run...\n");
@@ -327,10 +329,10 @@ void main(void) {
                     usb_ram[8] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                     usb_ram[9] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
 
-                    //Set frame number to 0
-                    outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
-
                     while(1) {
+
+                        //Set frame number to 0
+                        outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
                         //Set run/stop to run
                         //We should clear HCHalted here, to make sure we're not reading our own value later on
