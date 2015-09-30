@@ -253,7 +253,8 @@ void main(void) {
                         //Make sure that none of the interrupt flags are set, and clear them if they are
                         if(usb_base + 0x02, 0x30) {
 
-                            prints("[uhci] INTERNAL PROCESS ERROR!")
+                            prints("[uhci] INTERNAL PROCESS ERROR!");
+                            while(1);
                         }
 
                         //We should clear HCHalted here, to make sure we're not reading our own value later on
