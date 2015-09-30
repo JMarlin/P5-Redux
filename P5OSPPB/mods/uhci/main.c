@@ -247,40 +247,50 @@ void main(void) {
                     //Set frame number to 0
                     outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
 
-                    //Set run/stop to run
-                    //We should clear HCHalted here, to make sure we're not reading our own value later on
-                    outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
-                    prints("Setting host controller to run...\n");
-                    outw(usb_base, inw(usb_base) | 0x0001);
-                    while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
+                    while(1) {
 
-                    //Poll HCHalted until the device is halted
-                    while(!(inw(usb_base + 0x02) & 0x20));
+                        //Set run/stop to run
+                        //We should clear HCHalted here, to make sure we're not reading our own value later on
+                        outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
+                        prints("Setting host controller to run...\n");
+                        outw(usb_base, inw(usb_base) | 0x0001);
+                        while(inw(usb_base + 0x02) & 0x20); //Wait until the halted status clears
 
-                    //Display TD status
-                    if(usb_ram[5] & 0x18800000)  //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
-                        prints("Setup completed successfully");
-                    else
-                        prints("Setup failed");
+                        //Poll HCHalted until the device is halted
+                        while(!(inw(usb_base + 0x02) & 0x20));
 
-                    //Display the status of the transaction descriptor
-                    prints(" (");
-                    printHexDword(usb_ram[5]);
-                    prints(") USBSTS: 0x");
-                    printHexWord(inw(usb_base + 0x02));
-                    pchar('\n');
+                        //Display the status of the transaction descriptor
+                        prints(" (");
+                        printHexDword(usb_ram[5]);
+                        prints(") USBSTS: 0x");
+                        printHexWord(inw(usb_base + 0x02));
+                        pchar('\n');
 
-                    //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
-                    //Set frame number to 0
-                    //Set run/stop to run
-                    //Poll HCHalted until the device is halted
-                    //Display TD status
-                    //Display recieved data
-                    //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
-                    //Set frame number to 0
-                    //Set run/stop to run
-                    //Poll HCHalted until the device is halted
-                    //Display TD status
+                        //Display TD status
+                        if(!(usb_ram[5] & 0x800000)) {
+
+                            prints("Setup completed successfully\n");
+                            break;
+                        }
+
+                        if(!(usb_ram[5] & 0x18000000)) {
+
+                            prints("Could not recover from transfer errors.\n");
+                            break;
+                        }
+
+                        //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
+                        //Set frame number to 0
+                        //Set run/stop to run
+                        //Poll HCHalted until the device is halted
+                        //Display TD status
+                        //Display recieved data
+                        //Create an OUT address 0 packet TD with null next pointer (data length 0, STATUS PHASE), insert a reference to it into the frame list
+                        //Set frame number to 0
+                        //Set run/stop to run
+                        //Poll HCHalted until the device is halted
+                        //Display TD status
+                    }
                 } else {
 
                     prints("No device found on port 1\n");
