@@ -57,6 +57,7 @@ void main(void) {
 	unsigned int parent_pid;
     unsigned short usb_base;
     unsigned int *usb_ram = (unsigned int*)getSharedPage();
+    unsigned int *frame_list = (unsigned int*)getSharedPage();
     unsigned int address_test = 0;
     unsigned char inbuf[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -145,9 +146,9 @@ void main(void) {
                 prints("  FRNUM: 0x");
                 printHexWord(inw(usb_base + 0x06));
                 //Set the base address
-                outd(usb_base + 0x08, (unsigned int)usb_ram);
+                outd(usb_base + 0x08, (unsigned int)frame_list);
                 //Wait for the base address to be set
-                while(address_test != (unsigned int)usb_ram) {
+                while(address_test != (unsigned int)frame_list) {
                     address_test = ind(usb_base + 0x08) & 0xFFFFF000;
                     prints("\n[uhci]      FLBASEADD: 0x");
                     printHexDword(address_test);
@@ -163,9 +164,6 @@ void main(void) {
                 prints("  PORTSC2: 0x");
                 printHexWord(inw(usb_base + 0x12));
                 pchar('\n');
-
-                //Allocate a physical page of memory at the host controller's default physical address
-                allocatePhysical((void*)usb_ram, 0x1000);
 
                 //Disable the controller and its ports
                 prints("Disabling ports\n");
@@ -193,9 +191,9 @@ void main(void) {
                 outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
 
                 //Make double sure the base address is set
-                outd(usb_base + 0x08, (unsigned int)usb_ram);
+                outd(usb_base + 0x08, (unsigned int)frame_list);
                 //Wait for the base address to be set
-                while(address_test != (unsigned int)usb_ram) {
+                while(address_test != (unsigned int)frame_list) {
                     address_test = ind(usb_base + 0x08) & 0xFFFFF000;
                     prints("\n[uhci]      FLBASEADD: 0x");
                     printHexDword(address_test);
@@ -236,7 +234,11 @@ void main(void) {
                     //We create a control transfer to device 0 control pipe:
                     //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
                     prints("Setting up transfer structures\n");
-                    usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
+                    for(j = 0; j < 0x1000; j++)
+                        frame_list[j] = ((unsigned int)(&usb_ram[0])) | 0x02; //All frame list pointers points to a qh at usb_ram[0] (TDs are 16-byte aligned) and has 'terminate' unmarked
+                    //This is a queue head which will point to our default queue of TDs
+                    usb_ram[0] = 0x01 //This is the head of our test queue, set to terminate
+                    usb_ram[1] = ((unsigned int)&usb_ram[4] & 0xFFFFFFF0); // Pointer to the first TD in the list
                     usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
                     usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
                     usb_ram[6] = 0x00E0002D; //eight bytes data, enpoint 0, address 0, PID 0x2D (SETUP)
