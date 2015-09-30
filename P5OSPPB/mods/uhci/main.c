@@ -95,6 +95,13 @@ void main(void) {
 
     if(inbuf[0] == 'Y' || inbuf[0] == 'y') {
 
+        //Test of timers
+        while(1) {
+
+            sleep(2000);
+            prints("BINK\n");
+        }
+
         devcount = pciDeviceCount();
 
         for(i = 0; i < devcount; i++) {

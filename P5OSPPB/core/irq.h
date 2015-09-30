@@ -8,7 +8,7 @@
 
 #include "../process/process.h"
 
-void irq_handle(unsigned char irq_number);
+process* irq_handle(unsigned char irq_number);
 void enable_irq(unsigned char channel);
 void disable_irq(unsigned char channel);
 void init_pic();

@@ -9,7 +9,7 @@
 #include "../fs/fs.h"
 #include "../core/global.h"
 #include "../timer/timer.h"
-#include "../memory/paging.h"   
+#include "../memory/paging.h"
 #include "message.h"
 
 unsigned char fake[6];
@@ -404,6 +404,7 @@ void kernelEntry(void) {
 
     unsigned int kflags;
     unsigned short* stack;
+    process* ret_p = p;
 
     //Backup the running context
     p->ctx.esp = _old_esp;
@@ -467,8 +468,12 @@ void kernelEntry(void) {
             if(!_was_spurious) {
 
                 DEBUG("\nA forceenter was requested\n");
-                c_timer_handler();
-                //kernelDebug();
+                ret_p = c_timer_handler();
+
+                //If there wasn't a process with an elapsed timer, stay in the
+                //current process
+                if(!ret_p)
+                    ret_p = p;
             } else {
 
                 c_spurious_handler();
@@ -506,11 +511,14 @@ void kernelEntry(void) {
         case 0xED:
         case 0xEE:
         case 0xEF:
-            irq_handle(_except_num);
-            //no break here as the above function will redirect to
-            //returnToProcess of its own accord if the handler is found and
-            //if it fails because there's no registered irq handler then we
-            //can go ahead and just flow through to default
+            ret_p = irq_handle(_except_num);
+
+            //If there isn't a process registered to this IRQ, we stay in the
+            //current process
+            if(!ret_p)
+                ret_p = p;
+                
+            break;
 
         default:
             prints("Interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
@@ -519,7 +527,7 @@ void kernelEntry(void) {
             break;
     }
 
-    returnToProcess(p);
+    returnToProcess(ret_p);
 }
 
 

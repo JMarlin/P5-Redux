@@ -5,6 +5,7 @@
 #include "../memory/paging.h"
 #include "../core/kernel.h"
 #include "../core/irq.h"
+#include "../timer/timer.h"
 #include "kserver.h"
 
 void post_to_kern(unsigned int source, unsigned int command, unsigned int payload) {
@@ -211,6 +212,18 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
 
         case KS_GET_SHARED_PAGE:
             passMessage(0, source, command, (unsigned int)allocate_shared_page());
+            break;
+
+        case KS_TIMER:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+
+            //Return an immediate failure message if we couldn't allocate a timer
+            if(!install_timer_entry(&procTable[i], payload))
+                passMessage(0, source, command, 0);
             break;
 
         default:

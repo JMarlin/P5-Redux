@@ -16,6 +16,7 @@ void c_calc_mips();
 void irq_enter_kernel();
 void do_mips_calc(void (*cb)(unsigned int));
 void throttle_timer(unsigned int freq);
+unsigned int install_timer_entry(process* target_p, unsigned int limit);
 
 extern void _handle_timerInt(void);
 extern void _spurious_handler(void);

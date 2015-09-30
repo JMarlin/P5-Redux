@@ -312,3 +312,11 @@ void* getSharedPage(void) {
 
     return (void*)temp_msg.payload;
 }
+
+unsigned int sleep(unsigned int ms) {
+
+    postMessage(0, KS_TIMER, ms);
+    getMessageFrom(&temp_msg, 0, KS_TIMER);
+
+    return temp_msg.payload;
+}

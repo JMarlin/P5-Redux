@@ -84,7 +84,8 @@ void kernel_resume_from_mips_calc(unsigned int mips) {
     prints("Calculated IPS: 0x");
     printHexDword(mips);
     prints(".\n");
-    throttle_timer(mips/4000); //update timer to give us 4,000 instruction time slices
+    //Throttle timer doesn't seem to work so great
+    //throttle_timer(mips/4000); //update timer to give us 4,000 instruction time slices
 
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);

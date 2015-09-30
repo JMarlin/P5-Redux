@@ -3,11 +3,22 @@
 #include "../core/global.h"
 #include "../core/irq.h"
 #include "../process/process.h"
+#include "../process/message.h"
+#include "../kserver/kserver.h"
 #include "timer.h"
 
 extern unsigned char _in_kernel;
 extern unsigned char needs_swap;
 extern unsigned char _was_spurious;
+
+typedef struct timer_entry {
+    process* p;
+    unsigned int count;
+    unsigned int limit;
+} timer_entry;
+
+unsigned int active_timer_count = 0;
+timer_entry event_timer[10];
 
 void timer_on() {
 
@@ -39,20 +50,92 @@ void timer_int_ack() {
     send_pic_eoi(0);
 }
 
+unsigned int install_timer_entry(process* target_p, unsigned int limit) {
 
-void c_timer_handler() {
+    int i;
 
-    static unsigned int tick_count = 0;
+    //Fail if we're already full up on counters
+    if(active_timer_count == 10)
+        return 0;
 
-    if(++tick_count >= TICK_THRESHOLD) {
+    //Otherwise, find an open slot and install
+    for(i = 0; i < 10; i++) {
 
-        //Force kernel entry
-        tick_count = 0;
-        needs_swap = 1;
-	//pchar('.'); //For making sure the timer is actually firing
+        if(!(event_timer[i].p)) {
+
+            event_timer[i].p = target_p;
+            event_timer[i].count = 0;
+            event_timer[i].limit = limit;
+            active_timer_count++;
+
+            return 1;
+        }
     }
 
+    //Odd case that our timer count is out of sync with our table for
+    //some inconceivable reason
+    return 0;
+}
+
+//Increment all active timer counters by one (this is fired on the millisecond)
+//While we're at it, see if any of the timers have surpassed their limit and
+//return the first one that has.
+process* find_elapsed_timers() {
+
+    int i;
+    process* ret_p;
+
+    if(!active_timer_count)
+        return (process*)0;
+
+    //Look through the timer table and message and return the process of the first
+    //found to exist and have elapsed
+    for(i = 0; i < 10; i++) {
+
+        if(event_timer[i].p && event_timer[i].count++ >= event_timer[i].limit) {
+
+            //Keep track of the matched process
+            ret_p = event_timer[i].p;
+
+            //Uninstall the timer now that it's been exhausted
+            active_timer_count--;
+            event_timer[i].p = (process*)0;
+            event_timer[i].count = 0;
+            event_timer[i].limit = 0;
+
+            //Send the process a timer elapsed message
+            passMessage(0, ret_p->id, KS_TIMER, 1);
+
+            return ret_p;
+        }
+    }
+
+    return (process*)0;
+}
+
+process* c_timer_handler() {
+
+    static unsigned int tick_count = 0;
+    unsigned int timer_proc;
+
+    //Check on our process switch regulation
+    if(++tick_count >= TICK_THRESHOLD) {
+
+        tick_count = 0;
+        needs_swap = 1;
+    }
+
+    //Check to see if there are any timers that need handling
+    timer_proc = find_elapsed_timers();
+
+    //Tell the PIC that we're done handling the interrupt
     timer_int_ack();
+
+    //Don't force process switch if we found an elapsed timer
+    if(timer_proc)
+        needs_swap = 0;
+
+    return timer_proc;
 }
 
 //If and when we open up IRQ7 this will have to
@@ -63,10 +146,6 @@ void c_spurious_handler() {
     timer_int_ack();
     _was_spurious = 0;
 }
-
-
-
-
 
 void init_time_chip(unsigned int freq) {
 
@@ -133,9 +212,15 @@ void c_calc_mips() {
 void init_timer() {
 
     t_counter = 0;
+    active_timer_count = 0;
+    int i;
+
+    //Clear the event timer table
+    for(i = 0; i < 10; i++)
+        event_timer[i].p = (process*)0;
 
     init_pic();
-    init_time_chip(100); //We use this initial low speed for MIPS calc
+    init_time_chip(1000); //We use this initial low speed for MIPS calc //UPDATE: As of now, we're just doing it because we want a steady ~1ms timebase for timer functions
     installInterrupt(TIMER_INT_NUM, &_calc_mips, 3); //Initially, this interrupt will be trapped by the MIPS calculator
     installInterrupt(0xE7, &_spurious_handler, 3);
 }

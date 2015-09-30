@@ -77,7 +77,7 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
 }
 
 //This is the magic sauce which forces a message back to the registered proc
-void irq_handle(unsigned char irq_number) {
+process* irq_handle(unsigned char irq_number) {
 
     prints("\nIRQ ");
     printHexDword(irq_number);
@@ -87,11 +87,12 @@ void irq_handle(unsigned char irq_number) {
 
     //Get the heck out of here if the irq isn't registered
     if(!irq_process[irq_number])
-        return;
+        return (process*)0;
 
     //Otherwise, write a message to the handling process and enter it
     passMessage(0, irq_process[irq_number]->id, KS_REG_IRQ_1 + irq_number, 0);
-    returnToProcess(irq_process[irq_number]);
+
+    return irq_process[irq_number];
 }
 
 //NEED TO UPDATE THESE TO HANDLE IRQs ABOVE 7
