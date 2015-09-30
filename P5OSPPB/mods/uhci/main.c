@@ -324,6 +324,11 @@ void main(void) {
                         if(!((usb_ram[9] & 0x800000)) && ((usb_ram[9] & 0x18000000) != 0)) {
 
                             prints("    Setup completed successfully\n");
+                            printHexDword(usb_ram[14]); pchar('\n');
+                            printHexDword(usb_ram[15]); pchar('\n');
+                            printHexDword(usb_ram[16]); pchar('\n');
+                            printHexDword(usb_ram[17]); pchar('\n');
+                            printHexDword(usb_ram[18]); pchar('\n');
                             td2 = 1;
                         }
 
