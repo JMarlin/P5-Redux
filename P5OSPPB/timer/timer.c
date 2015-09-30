@@ -116,7 +116,7 @@ process* find_elapsed_timers() {
 process* c_timer_handler() {
 
     static unsigned int tick_count = 0;
-    unsigned int timer_proc;
+    process* timer_proc;
 
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {
