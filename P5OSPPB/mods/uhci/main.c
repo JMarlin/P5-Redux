@@ -369,7 +369,7 @@ void main(void) {
 
                         //Check first TD (SETUP)
                         //Display TD status
-                        prints("TD 1 (SETUP)\n")
+                        prints("TD 1 (SETUP)\n");
                         if(!((usb_ram[5] & 0x800000)) && ((usb_ram[5] & 0x18000000) != 0)) {
 
                             prints("    Setup completed successfully\n");
@@ -384,7 +384,7 @@ void main(void) {
 
                         //Check the second TD (IN)
                         //Display TD status
-                        prints("TD 2 (IN)\n")
+                        prints("TD 2 (IN)\n");
                         if(!((usb_ram[9] & 0x800000)) && ((usb_ram[9] & 0x18000000) != 0)) {
 
                             prints("    Setup completed successfully\n");
