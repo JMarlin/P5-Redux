@@ -348,7 +348,7 @@ void main(void) {
 
                         if(!(usb_ram[5] & 0x800000)) {
 
-                            prints("Could not recover from transfer errors.\n")
+                            prints("Could not recover from transfer errors.\n");
                             break;
                         }
 
