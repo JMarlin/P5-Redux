@@ -340,13 +340,13 @@ void main(void) {
                         pchar('\n');
 
                         //Display TD status
-                        if(!(usb_ram[5] & 0x800000)) {  //This is wrong logic. 0x800000 should be CLEARED if the transaction was processed
+                        if(!(usb_ram[5] & 0x800000)) {
 
                             prints("Setup completed successfully\n");
                             break;
                         }
 
-                        if(!(usb_ram[5] & 0x800000)) {
+                        if(!(usb_ram[5] & 0x18000000)) {
 
                             prints("Could not recover from transfer errors.\n");
                             break;
