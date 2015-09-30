@@ -237,7 +237,7 @@ void main(void) {
                     for(j = 0; j < 0x1000; j++)
                         frame_list[j] = ((unsigned int)(&usb_ram[0])) | 0x02; //All frame list pointers points to a qh at usb_ram[0] (TDs are 16-byte aligned) and has 'terminate' unmarked
                     //This is a queue head which will point to our default queue of TDs
-                    usb_ram[0] = 0x01 //This is the head of our test queue, set to terminate
+                    usb_ram[0] = 0x01; //This is the head of our test queue, set to terminate
                     usb_ram[1] = ((unsigned int)&usb_ram[4] & 0xFFFFFFF0); // Pointer to the first TD in the list
                     usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
                     usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
