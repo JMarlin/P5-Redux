@@ -149,7 +149,7 @@ void returnToProcess(process* proc) {
         if(oldP->root_page)
             disable_page_range(oldP->base, oldP->root_page);
 
-    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
+    prints("Entering process #"); printHexDword(p->id); prints("\n");
     DEBUG("Applying process paging:\n");
 
     if(p->root_page)
@@ -517,7 +517,7 @@ void kernelEntry(void) {
             //current process
             if(!ret_p)
                 ret_p = p;
-                
+
             break;
 
         default:
