@@ -329,12 +329,21 @@ void main(void) {
                     //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
                     prints("Setting up transfer structures\n");
                     usb_ram[0] = ((unsigned int)(&usb_ram[4])) | 0x01; //First frame list pointer, points to a td at usb_ram[16] (TDs are 16-byte aligned) and has 'terminate' marked
-                    usb_ram[4] = 0x1; //This starts the TD, and the first dword is the pointer to the next td. There is none, so this is marked with 'terminate'
+                    usb_ram[4] = ((unsigned int)(&usb_ram[8])); //This starts the TD, and points to the next TD in the list
                     usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                    usb_ram[6] = 0x0100002D; //eight bytes data, enpoint 0, address 0, PID 0x2D (SETUP)
-                    usb_ram[7] = (unsigned int)&usb_ram[8]; //Pointer for the buffer that the controller should read the packet data from
-                    usb_ram[8] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
-                    usb_ram[9] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
+                    usb_ram[6] = 0x0100002D; //eight bytes data, endpoint 0, address 0, PID 0x2D (SETUP), DATA 0
+                    usb_ram[7] = (unsigned int)&usb_ram[12]; //Pointer for the buffer that the controller should read the packet data from
+                    usb_ram[8] = 0x1; //This starts the TD and is a null terminate pointer as it will also be the last TD
+                    usb_ram[9] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                    usb_ram[10] = 0x24800069; //eighteen bytes data, endpoint 0, address 0, PID 0x69 (IN), DATA 1
+                    usb_ram[11] = (unsigned int)&usb_ram[14]; //Pointer for the buffer that the controller should read the packet data from
+                    usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
+                    usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
+                    usb_ram[14] = 0x0; //This is the buffer into which our device descriptor should be read
+                    usb_ram[15] = 0x0;
+                    usb_ram[16] = 0x0;
+                    usb_ram[17] = 0x0;
+                    usb_ram[18] = 0x0;
 
                     while(1) {
 
@@ -358,16 +367,33 @@ void main(void) {
                         printHexWord(inw(usb_base + 0x02));
                         pchar('\n');
 
+                        //Check first TD (SETUP)
                         //Display TD status
-                        if(!(usb_ram[5] & 0x800000)) {
+                        prints("TD 1 (SETUP)\n")
+                        if(!((usb_ram[5] & 0x800000)) && ((usb_ram[5] & 0x18000000) != 0)) {
 
-                            prints("Setup completed successfully\n");
+                            prints("    Setup completed successfully\n");
                             break;
                         }
 
                         if(!(usb_ram[5] & 0x18000000)) {
 
-                            prints("Could not recover from transfer errors.\n");
+                            prints("    Could not recover from transfer errors.\n");
+                            break;
+                        }
+
+                        //Check the second TD (IN)
+                        //Display TD status
+                        prints("TD 2 (IN)\n")
+                        if(!((usb_ram[9] & 0x800000)) && ((usb_ram[9] & 0x18000000) != 0)) {
+
+                            prints("    Setup completed successfully\n");
+                            break;
+                        }
+
+                        if(!(usb_ram[9] & 0x18000000)) {
+
+                            prints("    Could not recover from transfer errors.\n");
                             break;
                         }
 
