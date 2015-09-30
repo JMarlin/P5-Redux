@@ -60,6 +60,7 @@ void main(void) {
     unsigned int *frame_list = (unsigned int*)getSharedPage();
     unsigned int address_test = 0;
     unsigned char inbuf[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    unsigned char td1 = 0, td2 = 0;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -277,20 +278,20 @@ void main(void) {
                         //Poll HCHalted until the device is halted
                         while(!(inw(usb_base + 0x02) & 0x20));
 
+
+                        //Check first TD (SETUP)
+                        //Display TD status
+                        prints("TD 1 (SETUP)\n");
                         //Display the status of the transaction descriptor
                         prints(" (");
                         printHexDword(usb_ram[5]);
                         prints(") USBSTS: 0x");
                         printHexWord(inw(usb_base + 0x02));
                         pchar('\n');
-
-                        //Check first TD (SETUP)
-                        //Display TD status
-                        prints("TD 1 (SETUP)\n");
                         if(!((usb_ram[5] & 0x800000)) && ((usb_ram[5] & 0x18000000) != 0)) {
 
                             prints("    Setup completed successfully\n");
-                            break;
+                            td1 = 1;
                         }
 
                         if(!(usb_ram[5] & 0x18000000)) {
@@ -302,10 +303,16 @@ void main(void) {
                         //Check the second TD (IN)
                         //Display TD status
                         prints("TD 2 (IN)\n");
+                        //Display the status of the transaction descriptor
+                        prints(" (");
+                        printHexDword(usb_ram[9]);
+                        prints(") USBSTS: 0x");
+                        printHexWord(inw(usb_base + 0x02));
+                        pchar('\n');
                         if(!((usb_ram[9] & 0x800000)) && ((usb_ram[9] & 0x18000000) != 0)) {
 
                             prints("    Setup completed successfully\n");
-                            break;
+                            td2 = 1;
                         }
 
                         if(!(usb_ram[9] & 0x18000000)) {
@@ -313,6 +320,9 @@ void main(void) {
                             prints("    Could not recover from transfer errors.\n");
                             break;
                         }
+
+                        if(td1 && td2)
+                            break;
 
                         //Create a IN address 0 packet TD with null next pointer, insert a reference to it into the frame list
                         //Set frame number to 0
