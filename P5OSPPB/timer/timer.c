@@ -68,8 +68,6 @@ unsigned int install_timer_entry(process* target_p, unsigned int limit) {
             event_timer[i].limit = limit;
             active_timer_count++;
 
-            prints("Timer installed\n");
-
             return 1;
         }
     }
@@ -87,8 +85,8 @@ process* find_elapsed_timers() {
     int i, found = 0;
     process* ret_p = (process*)0;
 
-    //if(!active_timer_count)
-        //return (process*)0;
+    if(!active_timer_count)
+        return (process*)0;
 
     //Look through the timer table and message and return the process of the first
     //found to exist and have elapsed
@@ -96,13 +94,9 @@ process* find_elapsed_timers() {
 
         if(event_timer[i].p) {
 
-            found = 1;
-            prints("Found a timer "); printHexDword(event_timer[i].count); prints(" - "); printHexDword(event_timer[i].limit); pchar('\n');
             event_timer[i].count++;
 
             if(event_timer[i].count >= event_timer[i].limit) {
-
-                prints("Timer elapsed\n");
 
                 //Keep track of the matched process
                 if(!ret_p) {
@@ -128,8 +122,6 @@ process* c_timer_handler() {
 
     static unsigned int tick_count = 0;
     process* timer_proc = (process*)0;
-
-    pchar('!');
 
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {
