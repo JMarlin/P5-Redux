@@ -404,7 +404,7 @@ void kernelEntry(void) {
 
     unsigned int kflags;
     unsigned short* stack;
-    process* ret_p = p;
+    //process* ret_p = p;
 
     //Backup the running context
     p->ctx.esp = _old_esp;
@@ -527,7 +527,7 @@ void kernelEntry(void) {
             break;
     }
 
-    returnToProcess(ret_p);
+    returnToProcess(p);
 }
 
 
