@@ -96,7 +96,7 @@ process* find_elapsed_timers() {
 
         if(event_timer[i].p) {
 
-            prints("Found a timer\n");
+            prints("Found a timer "); printHexDword(event_timer[i].count); prints(" - "); printHexDword(event_timer[i].limit); pchar('\n');
             event_timer[i].count++;
 
             if(event_timer[i].count >= event_timer[i].limit) {
