@@ -87,8 +87,8 @@ process* find_elapsed_timers() {
     int i;
     process* ret_p = (process*)0;
 
-    if(!active_timer_count)
-        return (process*)0;
+    //if(!active_timer_count)
+        //return (process*)0;
 
     //Look through the timer table and message and return the process of the first
     //found to exist and have elapsed
@@ -96,6 +96,7 @@ process* find_elapsed_timers() {
 
         if(event_timer[i].p) {
 
+            prints("Found a timer\n");
             event_timer[i].count++;
 
             if(event_timer[i].count >= event_timer[i].limit) {
