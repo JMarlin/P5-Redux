@@ -868,7 +868,7 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     //Restore the active process's paging
     if(p) apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
 
-    prints("Launching usermode process\n");
+    DEBUG("Launching usermode process\n");
 
     return proc->id;
 }
