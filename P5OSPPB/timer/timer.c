@@ -116,7 +116,7 @@ process* find_elapsed_timers() {
 process* c_timer_handler() {
 
     static unsigned int tick_count = 0;
-    process* timer_proc;
+    process* timer_proc = (process*)0;
 
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {
@@ -126,14 +126,14 @@ process* c_timer_handler() {
     }
 
     //Check to see if there are any timers that need handling
-    timer_proc = find_elapsed_timers();
+    //timer_proc = find_elapsed_timers();
 
     //Tell the PIC that we're done handling the interrupt
     timer_int_ack();
 
     //Don't force process switch if we found an elapsed timer
-    if(timer_proc)
-        needs_swap = 0;
+    //if(timer_proc)
+        //needs_swap = 0;
 
     return timer_proc;
 }
