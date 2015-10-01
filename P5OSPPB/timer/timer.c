@@ -68,7 +68,7 @@ unsigned int install_timer_entry(process* target_p, unsigned int limit) {
             event_timer[i].limit = limit;
             active_timer_count++;
 
-            prints("Timer installed\n")
+            prints("Timer installed\n");
 
             return 1;
         }
