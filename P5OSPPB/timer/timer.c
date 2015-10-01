@@ -84,7 +84,7 @@ unsigned int install_timer_entry(process* target_p, unsigned int limit) {
 //return the first one that has.
 process* find_elapsed_timers() {
 
-    int i;
+    int i, found = 0;
     process* ret_p = (process*)0;
 
     //if(!active_timer_count)
@@ -96,6 +96,7 @@ process* find_elapsed_timers() {
 
         if(event_timer[i].p) {
 
+            found = 1;
             prints("Found a timer "); printHexDword(event_timer[i].count); prints(" - "); printHexDword(event_timer[i].limit); pchar('\n');
             event_timer[i].count++;
 
@@ -120,7 +121,10 @@ process* find_elapsed_timers() {
         }
     }
 
-    return (process*)0;
+    if(!found)
+        prints("No timers found\n")
+
+    return ret_p;
 }
 
 process* c_timer_handler() {
