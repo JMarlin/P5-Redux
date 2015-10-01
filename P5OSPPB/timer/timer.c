@@ -85,6 +85,7 @@ process* find_elapsed_timers() {
     int i;
     process* ret_p;
 
+    prints("Looking for active timers\n");
     if(!active_timer_count)
         return (process*)0;
 
