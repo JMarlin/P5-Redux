@@ -149,7 +149,7 @@ void returnToProcess(process* proc) {
         if(oldP->root_page)
             disable_page_range(oldP->base, oldP->root_page);
 
-    prints("Entering process #"); printHexDword(p->id); prints("\n");
+    DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
 
     if(p->root_page)

@@ -126,14 +126,14 @@ process* c_timer_handler() {
     }
 
     //Check to see if there are any timers that need handling
-    //timer_proc = find_elapsed_timers();
+    timer_proc = find_elapsed_timers();
 
     //Tell the PIC that we're done handling the interrupt
     timer_int_ack();
 
     //Don't force process switch if we found an elapsed timer
-    //if(timer_proc)
-        //needs_swap = 0;
+    if(timer_proc)
+        needs_swap = 0;
 
     return timer_proc;
 }
@@ -182,6 +182,7 @@ void (*reentry_call)(unsigned int);
 unsigned int state;
 void do_mips_calc(void (*cb)(unsigned int)) {
 
+    installInterrupt(TIMER_INT_NUM, &_calc_mips, 3);
     reentry_call = cb;
     state = 1;
     __asm__ ("jmp _mips_loop\n");
@@ -206,6 +207,7 @@ void c_calc_mips() {
         //kernel startup process
         _mips_counter = _mips_counter * 400; //4 instructions in the loop and 100Hz sample window
         resetProcessCounter();
+        installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3); //Reset the vector to the normal timer handler
         (*reentry_call)(_mips_counter);
     }
 }
@@ -222,6 +224,6 @@ void init_timer() {
 
     init_pic();
     init_time_chip(1000); //We use this initial low speed for MIPS calc //UPDATE: As of now, we're just doing it because we want a steady ~1ms timebase for timer functions
-    installInterrupt(TIMER_INT_NUM, &_calc_mips, 3); //Initially, this interrupt will be trapped by the MIPS calculator
+    installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3);
     installInterrupt(0xE7, &_spurious_handler, 3);
 }
