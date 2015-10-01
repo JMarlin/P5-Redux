@@ -567,8 +567,15 @@ void clearContext(context* ctx) {
 //ONLY TO BE USED IN VERY SPECIFIC SCENARIOS
 void resetProcessCounter() {
 
+    int i;
+
     nextProc = 1;
     swap_count = 0;
+
+    for(i = 0; i < 255; i++)
+        procTable[i].id = 0;
+
+    p = (process*)0;
 }
 
 
