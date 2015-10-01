@@ -68,6 +68,8 @@ unsigned int install_timer_entry(process* target_p, unsigned int limit) {
             event_timer[i].limit = limit;
             active_timer_count++;
 
+            prints("Timer installed\n")
+
             return 1;
         }
     }
@@ -83,7 +85,7 @@ unsigned int install_timer_entry(process* target_p, unsigned int limit) {
 process* find_elapsed_timers() {
 
     int i;
-    process* ret_p;
+    process* ret_p = (process*)0;
 
     if(!active_timer_count)
         return (process*)0;
@@ -92,21 +94,28 @@ process* find_elapsed_timers() {
     //found to exist and have elapsed
     for(i = 0; i < 10; i++) {
 
-        if(event_timer[i].p && event_timer[i].count++ >= event_timer[i].limit) {
+        if(event_timer[i].p) {
 
-            //Keep track of the matched process
-            ret_p = event_timer[i].p;
+            event_timer[i].count++;
 
-            //Uninstall the timer now that it's been exhausted
-            active_timer_count--;
-            event_timer[i].p = (process*)0;
-            event_timer[i].count = 0;
-            event_timer[i].limit = 0;
+            if(event_timer[i].count >= event_timer[i].limit) {
 
-            //Send the process a timer elapsed message
-            passMessage(0, ret_p->id, KS_TIMER, 1);
+                prints("Timer elapsed\n");
 
-            return ret_p;
+                //Keep track of the matched process
+                if(!ret_p) {
+                    ret_p = event_timer[i].p;
+
+                    //Uninstall the timer now that it's been exhausted
+                    active_timer_count--;
+                    event_timer[i].p = (process*)0;
+                    event_timer[i].count = 0;
+                    event_timer[i].limit = 0;
+
+                    //Send the process a timer elapsed message
+                    passMessage(0, ret_p->id, KS_TIMER, 1);
+                }
+            }
         }
     }
 
