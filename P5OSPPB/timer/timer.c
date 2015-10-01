@@ -121,9 +121,6 @@ process* find_elapsed_timers() {
         }
     }
 
-    if(!found)
-        prints("No timers found\n")
-
     return ret_p;
 }
 
@@ -131,6 +128,8 @@ process* c_timer_handler() {
 
     static unsigned int tick_count = 0;
     process* timer_proc = (process*)0;
+
+    pchar('!');
 
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {
