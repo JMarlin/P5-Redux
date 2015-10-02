@@ -95,13 +95,6 @@ void main(void) {
 
     if(inbuf[0] == 'Y' || inbuf[0] == 'y') {
 
-        //Test of timers
-        while(1) {
-
-            sleep(2000);
-            prints("BINK\n");
-        }
-
         devcount = pciDeviceCount();
 
         for(i = 0; i < devcount; i++) {
@@ -180,8 +173,7 @@ void main(void) {
 
                 //Reset the host controller
                 outw(usb_base, 0x0004); //Assert hcreset
-                j = 0;
-                while(j < 0xFFFFF) j++; //Wait 10ms (shitty timing)
+                sleep(20);
                 outw(usb_base, inw(usb_base) & 0x0002); //Clear greset, don't touch hcreset
                 while((inw(usb_base) & 0x0002) == 0x0002); //Make sure that the controller isn't still resetting
 
@@ -224,9 +216,7 @@ void main(void) {
                     prints("Resetting device on port 1\n");
                     //Improve the timing later when we create a timer system
                     outw(usb_base + 0x10, 0x0204); //Port enabled, RESET state asserted
-                    j = 0;               //Wait
-                    while(j < 0xFFFFFFF)
-                        j = j + 1;
+                    sleep(20);
                     outw(usb_base + 0x10, 0x0004); //Port enabled, RESET state cleared
                     while((inw(usb_base + 0x10) & 0x0200)); //Wait for reset to be lifted
 
@@ -234,9 +224,7 @@ void main(void) {
                     prints("Resuming device on port 1\n");
                     //Improve the timing later when we create a timer system
                     outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
-                    j = 0;               //Wait
-                    while(j < 0xFFFFFFF)
-                        j = j + 1;
+                    sleep(20);
                     outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
                     while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
 
