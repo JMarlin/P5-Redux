@@ -96,5 +96,5 @@ void pciWriteField(pci_address address, unsigned char reg, unsigned int value) {
 	shared_space[0] = (unsigned int)address; //Set the device to be written
 	shared_space[1] = value; //Set the value to be written
 	postMessage(pci_pid, PCI_WRITEREG + reg, (unsigned int)shared_space);
-	getMessageFrom(&temp_msg, pci_pid, PCI_GETFUNC);
+	getMessageFrom(&temp_msg, pci_pid, PCI_WRITEREG + reg);
 }
