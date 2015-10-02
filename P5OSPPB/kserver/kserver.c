@@ -14,10 +14,6 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
     int i;
     unsigned char tmp_char;
 
-    prints("[cmd: ");
-    printHexDword(command);
-    prints("] ");
-
     switch(command) {
 
         //message 0: terminate
@@ -224,8 +220,6 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             //Fail if the calling process doesn't exist anymore
             if(i == 256)
                 return;
-
-            prints("Installing timer ");
 
             //Return an immediate failure message if we couldn't allocate a timer
             if(!install_timer_entry(&procTable[i], payload))

@@ -426,8 +426,6 @@ void kernelEntry(void) {
     p->ctx.gs = _old_gs;
     p->ctx.err = _old_err;
 
-    printHexByte(_except_num); pchar(' ');
-
     //BIG ISSUE: Interrupts can put us here while we're still in the middle of a process,
     //so we need to make sure we do a check to see if we're in an interrupt first here
     //or, even better, figure out why interrupts put us here and keep that from happening

@@ -98,7 +98,7 @@ void main(void) {
         //Test of timers
         while(1) {
 
-            sleep(100);
+            sleep(2000);
             prints("BINK\n");
         }
 
