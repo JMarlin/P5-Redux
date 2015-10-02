@@ -62,6 +62,8 @@ void main(void) {
     unsigned int address_test = 0;
     unsigned char inbuf[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     unsigned char td1 = 0, td2 = 0;
+    unsigned char port_count;
+    unsigned short temp;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -177,10 +179,21 @@ void main(void) {
                 outw(usb_base, inw(usb_base) & 0x0002); //Clear greset, don't touch hcreset
                 while((inw(usb_base) & 0x0002) == 0x0002); //Make sure that the controller isn't still resetting
 
-                outw(usb_base + 0x10, 0x000A); //Disable port 1
-                while(inw(usb_base + 0x10) & 0x0004); //Wait for the port to be disabled
-                outw(usb_base + 0x12, 0x000A); //Disable port 2
-                while(inw(usb_base + 0x12) & 0x0004); //Wait for the port to be disabled
+                //Detect and disable ports
+                for(port_count = 0; port_count < 7; port_count++) {
+
+                    temp = inw(usb_base + 0x10 + port_count);
+                    if(!(temp & 0x80) || temp == 0xFFFF)
+                        break;
+
+                    outw(usb_base + 0x10 + port_count, 0x000A); //Disable port
+                    while(inw(usb_base + 0x10 + port_count) & 0x0004); //Wait for the port to be disabled
+                }
+
+                prints("Found ");
+                printHexChar(port_count);
+                prints(" host controller ports.\n");
+                scans(9, inbuf);
 
                 prints("Setting controller defaults\n");
                 //Set up default controller state (no interrupts, debug on, )
