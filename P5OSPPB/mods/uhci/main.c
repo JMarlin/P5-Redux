@@ -191,7 +191,7 @@ void main(void) {
                 }
 
                 prints("Found ");
-                printHexChar(port_count);
+                printHexByte(port_count);
                 prints(" host controller ports.\n");
                 scans(9, inbuf);
 
