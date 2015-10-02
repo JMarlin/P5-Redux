@@ -206,62 +206,62 @@ void main(void) {
 				postMessage(temp_msg.source, PCI_DEVCOUNT, device_count);
 			break;
 
-			case PCI_WRITEREG_0:
-			case PCI_WRITEREG_1:
-			case PCI_WRITEREG_2:
-			case PCI_WRITEREG_3:
-			case PCI_WRITEREG_4:
-			case PCI_WRITEREG_5:
-			case PCI_WRITEREG_6:
-			case PCI_WRITEREG_7:
-			case PCI_WRITEREG_8:
-			case PCI_WRITEREG_9:
-			case PCI_WRITEREG_A:
-			case PCI_WRITEREG_B:
-			case PCI_WRITEREG_C:
-			case PCI_WRITEREG_D:
-			case PCI_WRITEREG_E:
-			case PCI_WRITEREG_F:
-            case PCI_WRITEREG_10:
-            case PCI_WRITEREG_11:
-            case PCI_WRITEREG_12:
-            case PCI_WRITEREG_13:
-            case PCI_WRITEREG_14:
-            case PCI_WRITEREG_15:
-            case PCI_WRITEREG_16:
-            case PCI_WRITEREG_17:
-            case PCI_WRITEREG_18:
-            case PCI_WRITEREG_19:
-            case PCI_WRITEREG_1A:
-            case PCI_WRITEREG_1B:
-            case PCI_WRITEREG_1C:
-            case PCI_WRITEREG_1D:
-            case PCI_WRITEREG_1E:
-            case PCI_WRITEREG_1F:
-            case PCI_WRITEREG_20:
-            case PCI_WRITEREG_21:
-            case PCI_WRITEREG_22:
-            case PCI_WRITEREG_23:
-            case PCI_WRITEREG_24:
-            case PCI_WRITEREG_25:
-            case PCI_WRITEREG_26:
-            case PCI_WRITEREG_27:
-            case PCI_WRITEREG_28:
-            case PCI_WRITEREG_29:
-            case PCI_WRITEREG_2A:
-            case PCI_WRITEREG_2B:
-            case PCI_WRITEREG_2C:
-            case PCI_WRITEREG_2D:
-            case PCI_WRITEREG_2E:
-            case PCI_WRITEREG_2F:
-            case PCI_WRITEREG_30:
+			case PCI_READREG_0:
+			case PCI_READREG_1:
+			case PCI_READREG_2:
+			case PCI_READREG_3:
+			case PCI_READREG_4:
+			case PCI_READREG_5:
+			case PCI_READREG_6:
+			case PCI_READREG_7:
+			case PCI_READREG_8:
+			case PCI_READREG_9:
+			case PCI_READREG_A:
+			case PCI_READREG_B:
+			case PCI_READREG_C:
+			case PCI_READREG_D:
+			case PCI_READREG_E:
+			case PCI_READREG_F:
+            case PCI_READREG_10:
+            case PCI_READREG_11:
+            case PCI_READREG_12:
+            case PCI_READREG_13:
+            case PCI_READREG_14:
+            case PCI_READREG_15:
+            case PCI_READREG_16:
+            case PCI_READREG_17:
+            case PCI_READREG_18:
+            case PCI_READREG_19:
+            case PCI_READREG_1A:
+            case PCI_READREG_1B:
+            case PCI_READREG_1C:
+            case PCI_READREG_1D:
+            case PCI_READREG_1E:
+            case PCI_READREG_1F:
+            case PCI_READREG_20:
+            case PCI_READREG_21:
+            case PCI_READREG_22:
+            case PCI_READREG_23:
+            case PCI_READREG_24:
+            case PCI_READREG_25:
+            case PCI_READREG_26:
+            case PCI_READREG_27:
+            case PCI_READREG_28:
+            case PCI_READREG_29:
+            case PCI_READREG_2A:
+            case PCI_READREG_2B:
+            case PCI_READREG_2C:
+            case PCI_READREG_2D:
+            case PCI_READREG_2E:
+            case PCI_READREG_2F:
+            case PCI_READREG_30:
 				if(temp_msg.payload < 50 && pci_device[temp_msg.payload] != 0xFFFFFFFF)
 					postMessage(temp_msg.source, temp_msg.command,
 						readPCIConfigReg(
 							PCI_ADDR_BUS(pci_device[temp_msg.payload]),
 							PCI_ADDR_DEV(pci_device[temp_msg.payload]),
 							PCI_ADDR_FUNC(pci_device[temp_msg.payload]),
-							temp_msg.command - PCI_WRITEREG
+							temp_msg.command - PCI_READREG
 						)
 					);
 				else
