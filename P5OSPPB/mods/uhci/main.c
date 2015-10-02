@@ -182,7 +182,7 @@ void main(void) {
                 //Detect and disable ports
                 for(port_count = 0; port_count < 7; port_count++) {
 
-                    temp = inw(usb_base + 0x10 + port_count);
+                    temp = inw(usb_base + 0x10 + (port_count * 2));
                     if(!(temp & 0x80) || temp == 0xFFFF)
                         break;
 
