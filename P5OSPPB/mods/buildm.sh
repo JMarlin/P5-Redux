@@ -16,4 +16,6 @@ cd ../pci
 ./build.sh
 cd ../uhci
 ./build.sh
+cd ../idle
+./build.sh
 cd ..
