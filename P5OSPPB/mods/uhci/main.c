@@ -186,8 +186,8 @@ void main(void) {
                     if(!(temp & 0x80) || temp == 0xFFFF)
                         break;
 
-                    outw(usb_base + 0x10 + port_count, 0x000A); //Disable port
-                    while(inw(usb_base + 0x10 + port_count) & 0x0004); //Wait for the port to be disabled
+                    outw(usb_base + 0x10 + (port_count * 2), 0x000A); //Disable port
+                    while(inw(usb_base + 0x10 + (port_count * 2)) & 0x0004); //Wait for the port to be disabled
                 }
 
                 prints("Found ");
