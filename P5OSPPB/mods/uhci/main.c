@@ -252,7 +252,7 @@ void main(void) {
                     usb_ram[7] = (unsigned int)&usb_ram[12]; //Pointer for the buffer that the controller should read the packet data from
                     usb_ram[8] = 0x1; //This starts the TD and is a null terminate pointer as it will also be the last TD
                     usb_ram[9] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                    usb_ram[10] = 0x22800069; //eight bytes data, endpoint 0, address 0, PID 0x69 (IN), DATA 1
+                    usb_ram[10] = 0x01800069; //eight bytes data, endpoint 0, address 0, PID 0x69 (IN), DATA 1
                     usb_ram[11] = (unsigned int)&usb_ram[14]; //Pointer for the buffer that the controller should read the packet data to
                     usb_buf = (unsigned char*)&usb_ram[12]; //Treating the packet data buffer as a byte array to make setting it up a little easier
                     usb_buf[0] = 0x80; //(device, standard, device-to-host)
