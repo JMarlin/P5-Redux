@@ -52,7 +52,6 @@ pci_config pciGetDeviceConfig(pci_address address) {
 //Read a register field from the specified device
 unsigned int pciReadField(pci_address address, unsigned char reg) {
 
-    reg = reg & 0xF;
     postMessage(pci_pid, PCI_READREG + reg, address);
     getMessageFrom(&temp_msg, pci_pid, PCI_READREG + reg);
 
@@ -80,4 +79,22 @@ unsigned int pciGetFunction(pci_address address) {
     getMessageFrom(&temp_msg, pci_pid, PCI_GETFUNC);
 
     return temp_msg.payload;
+}
+
+void pciWriteField(pci_address address, unsigned char reg, unsigned int value) {
+
+	static unsigned char allocated = 0;
+	unsigned int* shared_space;
+
+	if(!allocated) {
+
+		//A whole page is a big 'ol waste(especially per process), but whatcha gonna do?
+		shared_space = (unsigned int*)getSharedPage();
+		allocated = 1;
+	}
+
+	shared_space[0] = value; //Set the value to be written
+	shared_space[1] = (unsigned int)address; //Set the device to be written
+	postMessage(pci_pid, PCI_WRITEREG + reg, (unsigned int)shared_space);
+	getMessageFrom(&temp_msg, pci_pid, PCI_GETFUNC);
 }

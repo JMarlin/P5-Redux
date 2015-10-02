@@ -198,7 +198,7 @@ void main(void) {
                 //Set up default controller state (no interrupts, debug on, )
                 outw(usb_base + 0x02, inw(usb_base + 0x02) & 0x1F); //Clear USBSTS
                 //Disable USB legacy support
-                //pciWriteField((pci_address)i, pciReadField((pci_address)i, 0x30) & 0xFFFF0000 ); //We care about the low word
+                pciWriteField((pci_address)i, (pciReadField((pci_address)i, 0x30) & 0xFFFF0000) | 0x8F00); //We care about the low word
                 outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
                 outw(usb_base + 0x04, 0x0); //Set all interrupts off
                 outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
