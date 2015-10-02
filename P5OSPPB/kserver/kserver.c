@@ -14,6 +14,10 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
     int i;
     unsigned char tmp_char;
 
+    prints("[cmd: ");
+    printHexDword(command);
+    prints("] ");
+
     switch(command) {
 
         //message 0: terminate
