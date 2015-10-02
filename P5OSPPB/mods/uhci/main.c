@@ -233,12 +233,12 @@ void main(void) {
                     while((inw(usb_base + 0x10) & 0x0200)); //Wait for reset to be lifted
 
                     //Send a resume just in case
-                    prints("Resuming device on port 1\n");
+                    //prints("Resuming device on port 1\n");
                     //Improve the timing later when we create a timer system
-                    outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
-                    sleep(20);
-                    outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
-                    while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
+                    //outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
+                    //sleep(20);
+                    //outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
+                    //while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
 
                     //We create a control transfer to device 0 control pipe:
                     //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
