@@ -53,7 +53,7 @@ void writePCIConfigReg(unsigned char bus, unsigned char device, unsigned char fu
 
 	unsigned int pci_address = PCI_ADDRESS(bus, device, function, reg);
 	outd(PCI_CONFIG_ADDRESS, pci_address);
-	outd(PCI_CONFIG_DATA);
+	outd(PCI_CONFIG_DATA, value);
 }
 
 pci_config* readPCIConfig(unsigned char bus, unsigned char device, unsigned char function) {
