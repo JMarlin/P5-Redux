@@ -259,12 +259,12 @@ void main(void) {
                     usb_buf = (unsigned char*)&usb_ram[12]; //Treating the packet data buffer as a byte array to make setting it up a little easier
                     usb_buf[0] = 0x80; //(device, standard, device-to-host)
                     usb_buf[1] = 0x06; //Get descriptor
-                    usb_buf[2] = 0x10; //Descriptor index 0
-                    usb_buf[3] = 0x00; //Device descriptor
+                    usb_buf[2] = 0x00; //Descriptor index 0
+                    usb_buf[3] = 0x10; //Device descriptor
                     usb_buf[4] = 0x0; //wIndex = 0
                     usb_buf[5] = 0x0; //wIndex = 0
-                    usb_buf[6] = 0x00; //wLength = 18 bytes
-                    usb_buf[7] = 0x12; //wLength = 18 byes
+                    usb_buf[6] = 0x12; //wLength = 18 bytes
+                    usb_buf[7] = 0x00; //wLength = 18 byes
                     //usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                     //usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
 
