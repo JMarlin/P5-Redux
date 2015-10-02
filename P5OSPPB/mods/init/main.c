@@ -6,8 +6,8 @@ void startAndWait(char* file);
 void main(void) {
 
     //Start the idle process
-    prints("[init] Starting idle process...\n")
-    startSuperProc(":idle.mod")
+    prints("[init] Starting idle process...\n");
+    startSuperProc(":idle.mod");
 
     //Start up all of the initial-boot servers
     prints("[init] Starting VESA server...\n");
