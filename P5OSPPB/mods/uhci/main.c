@@ -224,24 +224,17 @@ void main(void) {
 
                 if((j < 0xFFFFF) && (inw(usb_base + 0x10) & 0x0001)) {
 
-                    //Send a resume just in case
-                    prints("Resuming device on port 1\n");
-                    outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
-                    sleep(2000);
-                    outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
-                    while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
-
                     //If device is installed, send a reset to the port
                     prints("Resetting device on port 1\n");
                     outw(usb_base + 0x10, 0x0204); //Port enabled, RESET state asserted
-                    sleep(2000); //Try waiting a ridiculous amount of time
+                    sleep(20); //Try waiting a ridiculous amount of time
                     outw(usb_base + 0x10, 0x0004); //Port enabled, RESET state cleared
                     while((inw(usb_base + 0x10) & 0x0200)); //Wait for reset to be lifted
 
                     //Send a resume just in case
                     prints("Resuming device on port 1\n");
                     outw(usb_base + 0x10, 0x0044); //Port enabled, RESUME state asserted
-                    sleep(2000);
+                    sleep(20);
                     outw(usb_base + 0x10, 0x0004); //Port enabled, RESUME state cleared
                     while((inw(usb_base + 0x10) & 0x0040)); //Wait for resume to be lifted
 
