@@ -221,6 +221,8 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             if(i == 256)
                 return;
 
+            prints("Installing timer ")
+
             //Return an immediate failure message if we couldn't allocate a timer
             if(!install_timer_entry(&procTable[i], payload))
                 passMessage(0, source, command, 0);
