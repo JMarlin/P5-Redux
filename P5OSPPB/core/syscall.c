@@ -37,6 +37,7 @@ void syscall_exec(void) {
         //the process exits using syscall 0 and continues the
         //execution from there
         case 0:
+            prints("Z ");
             tmp_ebx = p->ctx.ebx;
             tmp_ecx = p->ctx.ecx;
             tmp_edx = p->ctx.edx;
@@ -48,11 +49,13 @@ void syscall_exec(void) {
 
         //Process post message
         case 1:
+            prints("P ");
             passMessage(p->id, p->ctx.ebx, p->ctx.ecx, p->ctx.edx);
         break;
 
         //Process recieve message
         case 2:
+            prints("G ");
             //If there is a message in the queue, send it
             //otherwise, put the process to sleep
             if((p->ctx.ebx & 0xFFFF) == 0xFFFF) {
