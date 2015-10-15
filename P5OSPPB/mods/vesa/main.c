@@ -17,6 +17,8 @@ unsigned int pen_color = RGB(255,0,0);
 unsigned short pen_x = 0;
 unsigned short pen_y = 0;
 unsigned char mode_count = 0;
+unsigned char is_linear = 0;
+unsigned int* v = (unsigned int*)0;
 
 screen_mode detected_modes[10];
 
@@ -261,6 +263,8 @@ int setMode(unsigned short mode) {
     unsigned char *tmp_info, *cast_mode;
     int i;
 
+    is_linear = ((mode & 0x4000) == 0) ? 0 : 1;
+
     postMessage(client_pid, 3, mode);
 
     //Should include timeouts for message waits like this
@@ -287,7 +291,14 @@ int setMode(unsigned short mode) {
 
     //Here we should do some precalculation crap to speed
     //up pixel plotting and junk
+    if(is_linear) {
 
+        v = (unsigned int*)allocatePhysical((void*)curMode->physbase, (curMode->Yres * curMode->pitch) / (curMode->bpp >> 3));
+    } else {
+
+        //Should really get this off the window base from the mode info
+        v = (unsigned int*)0xA0000;
+    }
 
     return 1;
 }
@@ -295,24 +306,31 @@ int setMode(unsigned short mode) {
 
 void plotPixel32(int x, int y, int color) {
 
-    unsigned int* v = (unsigned int*)0xA0000;
     unsigned int linear_pos = x + (y * (curMode.pitch/4));
-    unsigned int window_pos = linear_pos % (curMode.winsize * 0x100);
-    unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize * 0x100)) & 0xFF);
+    unsigned int window_pos;
+    unsigned char bank_number;
 
-    if(bank_number != curBank) {
+    if(is_linear) {
 
-        curBank = bank_number;
-        setVESABank(curBank);
+        v[linear_pos] = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
+    } else {
+
+        window_pos = linear_pos % (curMode.winsize * 0x100);
+        bank_number = (unsigned char)((linear_pos / (curMode.winsize * 0x100)) & 0xFF);
+
+        if(bank_number != curBank) {
+
+            curBank = bank_number;
+            setVESABank(curBank);
+        }
+
+        v[window_pos] = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
     }
-
-    v[window_pos] = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
 }
 
 
 void plotPixel24(int x, int y, int color) {
 
-    unsigned char* v = (unsigned char*)0xA0000;
     unsigned int linear_pos = y * curMode.pitch + (x * 3);
     unsigned int window_pos = linear_pos % ((curMode.winsize * 0x400) / 3);
     unsigned char bank_number = (unsigned char)((linear_pos / ((curMode.winsize * 0x400) / 3)) & 0xFF);
@@ -333,7 +351,6 @@ void plotPixel24(int x, int y, int color) {
 
 void plotPixel16(int x, int y, int color) {
 
-    unsigned short* v = (unsigned short*)0xA0000;
     unsigned int linear_pos = y * curMode.pitch + x;
     unsigned int window_pos = linear_pos % (curMode.winsize >> 1);
     unsigned char bank_number = (unsigned char)((linear_pos / (curMode.winsize >> 1)) & 0xFF);
