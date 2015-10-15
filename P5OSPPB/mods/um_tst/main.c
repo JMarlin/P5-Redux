@@ -230,6 +230,30 @@ void drawButton(unsigned char* text, int x, int y, int width, int height, unsign
     }
 }
 
+void printDecimal(unsigned int dword) {
+
+    unsigned char digit[12];
+    int i, j;
+
+    i = 0;
+    while(1) {
+
+        if(!dword) {
+
+            if(i == 0)
+                digit[i++] = 0;
+
+            break;
+        }
+
+        digit[i++] = dword % 10;
+        dword /= 10;
+    }
+
+    for(j = i - 1; j >= 0; j--)
+        pchar(digit[j] + '0');
+}
+
 void showModes(void) {
 
 
@@ -246,14 +270,19 @@ void showModes(void) {
 
         mode = getModeDetails(i);
         prints("    ");
-        printHexByte(i);
+        printDecimal((unsigned int)i);
         prints(") ");
-        printHexWord(mode->width);
+        printDecimal((unsigned int)mode->width);
         pchar('x');
-        printHexWord(mode->height);
+        printDecimal((unsigned int)mode->height);
         prints(", ");
-        printHexByte(mode->depth);
-        prints("bpp\n");
+        printDecimal((unsigned int)mode->depth);
+        prints("bpp");
+
+        if(mode->is_linear)
+            prints(" linear");
+
+        pchar('\n');
     }
 }
 

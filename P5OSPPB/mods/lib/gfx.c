@@ -38,12 +38,13 @@ screen_mode* getModeDetails(unsigned short modenum) {
     getMessage(&temp_msg);
 
     //Unpack the passed values
-    mode_details.width = (unsigned short)(((temp_msg.payload & 0xFFFE0000) >> 17) & 0xFFFF);
-    mode_details.height = (unsigned short)(((temp_msg.payload & 0x0001FFFC) >> 2) & 0xFFFF);
+    mode_details.width = (unsigned short)(((temp_msg.payload & 0xFFF80000) >> 19) & 0x1FFF);
+    mode_details.height = (unsigned short)(((temp_msg.payload & 0x0007FFC0) >> 6) & 0x1FFF);
 
     //The bit of math in here is representative of the fact that we support 8-bit
     //16-bit, 24-bit or 32-bit color
-    mode_details.depth = (unsigned char)(((temp_msg.payload & 0x3) + 1) * 8);
+    mode_details.depth = (unsigned short)(((temp_msg.payload & 0x3) + 1) * 8);
+	mode_details.is_linear = (unsigned char)((temp_msg.payload & 0x4) != 0);
     mode_details.number = 0; //Only the server cares about this
 
     return &mode_details;

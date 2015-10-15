@@ -114,9 +114,10 @@ void main(void) {
                     postMessage(temp_msg.source, GFX_MODEDETAIL, 0);
                 } else {
                     postMessage(temp_msg.source, GFX_MODEDETAIL,
-                        ((unsigned int)detected_modes[temp_msg.payload - 1].width << 17) |
-                        ((unsigned int)detected_modes[temp_msg.payload - 1].height << 2) |
-                        ((unsigned int)((detected_modes[temp_msg.payload - 1].depth / 8) - 1) & 0x3)
+                        ((unsigned int)(detected_modes[temp_msg.payload - 1].width & 0x1FFF) << 19) |
+                        ((unsigned int)(detected_modes[temp_msg.payload - 1].height & 0x1FFF) << 6) |
+                        ((unsigned int)(detected_modes[temp_msg.payload - 1].is_linear ? 4 | 0)) |
+                        ((unsigned int)((detected_modes[temp_msg.payload - 1].depth / 8) - 1) & 3)
                     );
                 }
             break;
@@ -243,6 +244,7 @@ void getModes(void) {
              detected_modes[mode_count].number = modeList[i];
              detected_modes[mode_count].width = info->Xres;
              detected_modes[mode_count].height = info->Yres;
+             detected_modes[mode_count].is_linear = modeList[i] & 0x4000 ? 0 | 1;
              detected_modes[mode_count].depth = info->bpp;
              mode_count++;
         }

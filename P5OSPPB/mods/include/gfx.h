@@ -27,6 +27,7 @@ typedef struct screen_mode {
     unsigned short height;
     unsigned short depth;
     unsigned short number;
+    unsigned char is_linear;
 } screen_mode;
 
 unsigned char initGfx();
