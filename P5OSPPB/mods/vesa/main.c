@@ -312,7 +312,7 @@ void plotPixel32(int x, int y, int color) {
 
     if(is_linear) {
 
-        v[linear_pos] = (unsigned int)((RVAL(color) & 0xFF) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
+        v[linear_pos] = (unsigned int)((RVAL(color) & 0x00) << curMode.red_position) | ((GVAL(color) & 0xFF) << curMode.green_position) | ((BVAL(color) & 0xFF) << curMode.blue_position);
     } else {
 
         window_pos = linear_pos % (curMode.winsize * 0x100);
