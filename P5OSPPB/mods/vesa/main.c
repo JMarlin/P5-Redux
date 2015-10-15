@@ -263,7 +263,7 @@ int setMode(unsigned short mode) {
     unsigned char *tmp_info, *cast_mode;
     int i;
 
-    is_linear = 1; //((mode & 0x4000) == 0) ? 0 : 1;
+    is_linear = ((mode & 0x4000) == 0) ? 0 : 1;
 
     postMessage(client_pid, 3, mode);
 
