@@ -598,6 +598,7 @@ process* newProcess() {
     proc->flags = 0;
     proc->cpu_pct = 0;
     proc->called_count = 0;
+    proc->size = 0;
     return proc;
 }
 
@@ -612,7 +613,6 @@ process* newUserProc() {
         return newP;
 
     newP->base = 0xB00000;
-    newP->size = 0x0;
 
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0xB00FFF;
@@ -641,7 +641,6 @@ process* newSuperProc() {
     newP->flags |= PF_SUPER;
 
     newP->base = 0xB00000;
-    newP->size = 0x0;
 
     clearContext(&(newP->ctx));
     newP->ctx.esp = 0xB00FFF;
@@ -860,7 +859,7 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     }
 
     //Finish the definition of the root malloc block
-    proc->size = pageCount << 12;
+    proc->size = i + 0x1000;
 
     //Activate the new pages so we're writing to the
     //correct locations on physical ram
