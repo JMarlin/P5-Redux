@@ -326,5 +326,5 @@ unsigned int getImageSize(void) {
     postMessage(0, KS_GET_IMAGE_SIZE, 0);
     getMessageFrom(&temp_msg, 0, KS_GET_IMAGE_SIZE);
 
-    return (void*)temp_msg.payload;
+    return temp_msg.payload;
 }
