@@ -37,5 +37,6 @@
 #define KS_FREE_PHYS_PAGE 28
 #define KS_GET_SHARED_PAGE 29
 #define KS_TIMER 30
+#define KS_GET_IMAGE_SIZE 31
 
 #endif //KSCOMMANDS_H

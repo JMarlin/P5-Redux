@@ -226,6 +226,16 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
                 passMessage(0, source, command, 0);
             break;
 
+        case KS_GET_IMAGE_SIZE:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+
+            passMessage(0, source, command, procTable[i].size);
+        break;
+
         default:
         break;
     }

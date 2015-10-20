@@ -2,7 +2,7 @@
 #include "../include/gfx.h"
 #include "../include/pci.h"
 
-#define CMD_COUNT 5
+#define CMD_COUNT 6
 
 //Function declarations
 void usrClear(void);
@@ -22,6 +22,7 @@ void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
 void cmd_printHexDword(unsigned int dword);
 void cmd_printDecimal(unsigned int dword);
+void showSize(void);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -32,7 +33,8 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "EXIT",
     "CPU",
-    "PCI"
+    "PCI",
+    "SIZE"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -40,7 +42,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&usrExit,
     (sys_command)&cpuUsage,
-    (sys_command)&pciList
+    (sys_command)&pciList,
+    (sys_command)&showSize
 };
 
 char inbuf[50];
@@ -464,6 +467,13 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_width = xres-114;
     cmd_height = yres-54;
     cmd_max_chars = (cmd_width/8) - 1;
+}
+
+void showSize(void) {
+
+    cmd_prints("The size of the usermode process is ");
+    cmd_printDecimal(getImageSize());
+    cmd_prints(" bytes.\n");
 }
 
 typedef struct proc_details {
