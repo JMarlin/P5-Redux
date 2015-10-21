@@ -466,13 +466,6 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_chars = (cmd_width/8) - 1;
 }
 
-void showSize(void) {
-
-    cmd_prints("The size of the usermode process is ");
-    cmd_printDecimal(getImageSize());
-    cmd_prints(" bytes.\n");
-}
-
 typedef struct proc_details {
     unsigned char x;
     unsigned char y;
