@@ -48,7 +48,7 @@ void* malloc(unsigned int byte_count) {
 		while(current_block->next)
 			current_block = current_block->next;
 			
-		trailing_space = (unsigned int)curent_block->base + current_block->size;
+		trailing_space = (unsigned int)current_block->base + current_block->size;
 		trailing_space = ((trailing_space / 0x1000) * 0x1000) + ((trailing_space % 0x1000 > 0) ? 0x1000 : 0 ) - trailing_space; 
 		
 		//If we don't have enough space, pop a new page on 
@@ -60,9 +60,9 @@ void* malloc(unsigned int byte_count) {
 			allocated_pages++;
 		}
 		
-		new_block = (memblock*)(curent_block->base + (void*)current_block->size);
+		new_block = (memblock*)(current_block->base + (void*)current_block->size);
 		current_block->next = new_block;
-		new_block->base = curent_block->base + (void*)current_block->size;
+		new_block->base = current_block->base + (void*)current_block->size;
 		new_block->size = byte_count + sizeof(memblock);
 		new_block->next = (memblock*)0;
 		
