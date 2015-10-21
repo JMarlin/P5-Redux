@@ -560,8 +560,10 @@ void cpuUsage(void) {
         }
 
         //Busyloop
-        for(i = 0; i < 0x10; i++) 
+        for(i = 0; i < 0x100; i++) 
             if(getch()) exit = 1;
+
+        if(exit) break;
 
         setColor(RGB(0, 0, 0));
 
