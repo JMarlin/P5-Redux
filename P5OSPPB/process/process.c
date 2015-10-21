@@ -740,10 +740,14 @@ int request_new_page(process* proc) {
 
     int newSize;
 
-    if(!(newSize = append_page(proc->root_page)))
-        return proc->size = newSize;
-    else
-        return newSize;
+    if(!(newSize = append_page(proc->root_page))) {
+        
+        proc->size += 0x1000; 
+        return 1;
+    } else {
+        
+        return 0;
+    }
 }
 
 

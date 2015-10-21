@@ -2,7 +2,7 @@
 #include "../include/gfx.h"
 #include "../include/pci.h"
 
-#define CMD_COUNT 6
+#define CMD_COUNT 5
 
 //Function declarations
 void usrClear(void);
@@ -22,7 +22,6 @@ void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
 void cmd_printHexDword(unsigned int dword);
 void cmd_printDecimal(unsigned int dword);
-void showSize(void);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -42,8 +41,7 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&usrExit,
     (sys_command)&cpuUsage,
-    (sys_command)&pciList,
-    (sys_command)&showSize
+    (sys_command)&pciList
 };
 
 char inbuf[50];
@@ -490,6 +488,7 @@ void cpuUsage(void) {
     int i, j, proc_count;
     unsigned int current_pid;
     proc_details pd[10];
+    int exit = 0;
 
     cmd_prints("Clearing and initializing");
     for(i = 0; i < 10; i++) {
@@ -528,10 +527,12 @@ void cpuUsage(void) {
         cmd_printHexDword(pd[i].pid);
         cmd_prints(": ");
         cmd_getCursor(&(pd[i].x), &(pd[i].y));
+        cmd_prints("                                        ");
+        cmd_printDecimal(getImageSize(pd[i].pid));
         cmd_prints("   \n");
     }
 
-    while(1) {
+    while(!exit) {
 
         setColor(RGB(0, 255, 0));
 
@@ -567,7 +568,8 @@ void cpuUsage(void) {
         }
 
         //Busyloop
-        for(i = 0; i < 0x1000000; i++);
+        for(i = 0; i < 0x1000000; i++) 
+            if(getch()) exit = 1;
 
         setColor(RGB(0, 0, 0));
 
