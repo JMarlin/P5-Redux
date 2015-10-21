@@ -582,7 +582,9 @@ void cpuUsage(void) {
 
 void PCIPrintConfig(pci_address device) {
 
+    cmd_pchar('[');
     pci_config config = pciGetDeviceConfig(device);
+    cmd_pchar(']');
 
 	//Print the PCI address
     cmd_pchar('(');
