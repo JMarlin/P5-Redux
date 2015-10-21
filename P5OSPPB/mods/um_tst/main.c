@@ -32,8 +32,7 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "EXIT",
     "CPU",
-    "PCI",
-    "SIZE"
+    "PCI"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
