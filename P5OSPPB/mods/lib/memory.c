@@ -60,9 +60,9 @@ void* malloc(unsigned int byte_count) {
 			allocated_pages++;
 		}
 		
-		new_block = (memblock*)(current_block->base + (void*)current_block->size);
+		new_block = (memblock*)((unsigned int)current_block->base + current_block->size);
 		current_block->next = new_block;
-		new_block->base = current_block->base + (void*)current_block->size;
+		new_block->base = (void*)((unsigned int)current_block->base + current_block->size);
 		new_block->size = byte_count + sizeof(memblock);
 		new_block->next = (memblock*)0;
 		
