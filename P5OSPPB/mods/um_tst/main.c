@@ -619,8 +619,10 @@ void pciList(void) {
         return;
     }
 
-    cmd_prints("\nDetected the following PCI devices: \n");
+    cmd_prints("\nDetected the following "); 
     devcount = pciDeviceCount();
+    cmd_printDecimal(devcount);
+    cmd_prints(" PCI devices: \n");
 
     for(i = 0; i < devcount; i++)
         PCIPrintConfig((pci_address)i);
