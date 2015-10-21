@@ -12,7 +12,7 @@ void* malloc(unsigned int byte_count) {
 	static unsigned int allocated_pages = 0;
 	static memblock* root_block = (memblock*)0;
 	unsigned int trailing_space;
-	memblock* curent_block;
+	memblock* current_block;
 	memblock* new_block;
 	
 	if(!initialized) {
@@ -35,15 +35,15 @@ void* malloc(unsigned int byte_count) {
 		//Instead of appending a new block to the end of the current chain, we need to 
 		//make a new root block
 		root_block = (memblock*)free_base;
-		root_block.base = free_base;
-		root_block.size = byte_count + sizeof(memblock);
-		root_block.next = (memblock*)0;
+		root_block->base = free_base;
+		root_block->size = byte_count + sizeof(memblock);
+		root_block->next = (memblock*)0;
 		initialized = 1;
 	
-		return root_block.base + (void*)sizeof(memblock);
+		return (void*)((unsigned int)root_block->base + sizeof(memblock));
 	} else {
 		
-		current_block = &root_block;
+		current_block = root_block;
 		
 		while(current_block->next)
 			current_block = current_block->next;
@@ -66,7 +66,7 @@ void* malloc(unsigned int byte_count) {
 		new_block->size = byte_count + sizeof(memblock);
 		new_block->next = (memblock*)0;
 		
-		return new_block->base + (void*)sizeof(memblock);
+		return (void*)((unsigned int)new_block->base + sizeof(memblock));
 	}
 }
 
