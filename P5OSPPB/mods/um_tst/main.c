@@ -650,9 +650,8 @@ void doBmp(void) {
         }
     }
     
-    cmd_prints("Done\nSetting cursor...");            
+   cmd_prints("Done\nDrawing bitmap...");         
     setCursor(0, 0);
-    cmd_prints("Done\nDrawing bitmap...");
     drawBitmap(test_bmp);
     cmd_prints("Done\n");
 }
