@@ -596,12 +596,12 @@ bitmap* newBitmap_TEST(unsigned int width, unsigned int height) {
     //Allocate a shared memory region (needs to be shared so that the GFX server can access it)
     cmd_prints("Allocating ");
     cmd_printDecimal(bufsz >> 12);
-    cmd_prints(" pages of shared memory...")
+    cmd_prints(" pages of shared memory...");
     
     if(!(return_bmp = (bitmap*)getSharedPages(bufsz >> 12)))
         return (bitmap*)0;
     
-    cmd_prints("Done\nSetting bitmap dimensions...")
+    cmd_prints("Done\nSetting bitmap dimensions...");
     
     //Set dimensions    
     return_bmp->height = height;
