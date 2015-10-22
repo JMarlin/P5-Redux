@@ -91,10 +91,6 @@ void main(void) {
     printHexDword(getBuildNumber());
     pchar('\n');
 
-    prints("Testing page allocation...");
-    getSharedPages(5);
-    prints("Done\n");
-
     if(!initGfx())
         prints("\nCould not initialize GFX!\n");
 

@@ -219,15 +219,8 @@ unsigned int find_free_pages(unsigned int count) {
                
             for(j = i; j < i + count; j++) {
                 
-                pchar('['); printHexDword(j); 
-                
-                if((pageTable[j] & 0xC00) || j == maxPages) {
-                    
-                    prints("-FAIL");
+                if((pageTable[j] & 0xC00) || j == maxPages) 
                     break;
-                } 
-                
-                pchar(']');
             }
             
             if(j == i + count)
@@ -260,7 +253,7 @@ void* allocate_shared_pages(unsigned int count) {
     for(i = temp_pages; i < count; i++) 
         pageTable[i] |= 0x800;
         
-    map_pages(i << 12, i << 12, 0x1000 * count, 3);
+    map_pages(temp_pages << 12, temp_pages << 12, 0x1000 * count, 3);
     
     //Return the base address
     return (void*)(temp_pages << 12);
