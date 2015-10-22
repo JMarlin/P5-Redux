@@ -220,10 +220,11 @@ unsigned int find_free_pages(unsigned int count) {
             for(j = i; j < i + count; j++) {
                 
                 if((pageTable[j] & 0xC00) || j == maxPages)
-                    return 0;
+                    break;
             }
             
-            return base_page;   
+            if(j == i + count)
+                return base_page;   
         }
     }
 
