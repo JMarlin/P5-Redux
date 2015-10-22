@@ -219,8 +219,15 @@ unsigned int find_free_pages(unsigned int count) {
                
             for(j = i; j < i + count; j++) {
                 
-                if((pageTable[j] & 0xC00) || j == maxPages)
+                pchar('['); printHexDword(j); 
+                
+                if((pageTable[j] & 0xC00) || j == maxPages) {
+                    
+                    prints("-FAIL");
                     break;
+                } 
+                
+                pchar(']');
             }
             
             if(j == i + count)
@@ -228,8 +235,7 @@ unsigned int find_free_pages(unsigned int count) {
         }
     }
 
-    if(i == maxPages)
-        return 0;
+    return 0;
 }
 
 //Find a free page, mark it in use, identity map it, and return its address
