@@ -244,7 +244,7 @@ unsigned int find_free_pages(unsigned int count) {
 void* allocate_shared_pages(unsigned int count) {
 
     int i;
-    unsigned int temp_pages = find_free_pages(count >> 12);
+    unsigned int temp_pages = find_free_pages(count);
 
     if(!temp_pages)
         return (void*)temp_pages;
