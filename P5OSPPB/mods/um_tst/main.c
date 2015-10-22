@@ -601,7 +601,9 @@ bitmap* newBitmap_TEST(unsigned int width, unsigned int height) {
     if(!(return_bmp = (bitmap*)getSharedPages(bufsz >> 12)))
         return (bitmap*)0;
     
-    cmd_prints("Done\nSetting bitmap dimensions...");
+    cmd_prints("Done (");
+    cmd_printHexDword(return_bmp);
+    cmd_prints(")\nSetting bitmap dimensions...");
     
     //Set dimensions    
     return_bmp->height = height;

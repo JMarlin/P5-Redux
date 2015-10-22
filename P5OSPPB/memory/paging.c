@@ -253,7 +253,7 @@ void* allocate_shared_pages(unsigned int count) {
     for(i = temp_pages; i < temp_pages + count; i++) 
         pageTable[i] |= 0x800;
         
-    map_pages(temp_pages << 12, temp_pages << 12, 0x1000 * count, 3);
+    map_pages(temp_pages << 12, temp_pages << 12, 0x1000 * count, 7);
     
     //Return the base address
     return (void*)(temp_pages << 12);
@@ -269,7 +269,7 @@ void* allocate_shared_page(void) {
     //Identity map the pages, global use, and mark them in use
     pageTable[temp_page] |= 0x800;
         
-    map_pages(temp_page << 12, temp_page << 12, 0x1000, 3);
+    map_pages(temp_page << 12, temp_page << 12, 0x1000, 7);
     
     //Return the base address
     return (void*)(temp_page << 12);
