@@ -463,7 +463,7 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
         
         for(xo = bmp->left; xo < bmp->right; xo++) {
             
-            plotPixel(x + xo, y + xo, bmp->data[yo * bmp->width + xo]);
+            plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
         }
     }
 }
