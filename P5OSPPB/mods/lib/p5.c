@@ -305,6 +305,14 @@ unsigned char freePhysical(void* base_address, unsigned int byte_count) {
     return 1;
 }
 
+void* getSharedPages(unsigned int count) {
+
+    postMessage(0, KS_GET_SHARED_PAGES, count);
+    getMessageFrom(&temp_msg, 0, KS_GET_SHARED_PAGES);
+
+    return (void*)temp_msg.payload;
+}
+
 void* getSharedPage(void) {
 
     postMessage(0, KS_GET_SHARED_PAGE, 0);

@@ -103,3 +103,42 @@ void drawStr(char* str) {
 
     postMessage(gfx_pid, GFX_DRAWSTRING, (unsigned int)str);
 }
+
+bitmap* newBitmap(unsigned int width, unsigned int height) {
+    
+    unsigned int bmp_size = width * height;
+    unsigned int bufsz = (bmp_size *  sizeof(unsigned int)) + sizeof(bitmap);
+    bitmap* return_bmp;
+    unsigned int i;
+    
+    //Ceil bufsz to the next page
+    bufsz = ((bufsz / 0x1000) * 0x1000) + ((bufsz % 0x1000) ? 0x1000 : 0);
+    
+    //Allocate a shared memory region (needs to be shared so that the GFX server can access it)
+    if(!(return_bmp = (bitmap*)getSharedPages(bufsz >> 12)))
+        return (bitmap*)0;
+    
+    //Set dimensions    
+    return_bmp->height = height;
+    return_bmp->width = width;
+    
+    //Default the window to max
+    unsigned int window_top = 0;
+    unsigned int window_left = 0;
+    unsigned int window_bottom = return_bmp->height;
+    unsigned int window_right = return_bmp->width;
+    
+    //Plug in the data region
+    return_bmp->data = (unsigned int*)((unsigned int)return_bmp + sizeof(bitmap));
+    
+    //Clear the bitmap
+    for(i = 0; i < bmp_size; i++)
+        return_bmp->data[i] = 0;
+        
+    return return_bmp;
+}
+
+void drawBitmap(bitmap* bmp) {
+    
+    postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
+}

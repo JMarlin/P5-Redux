@@ -2,7 +2,7 @@
 #include "../include/gfx.h"
 #include "../include/pci.h"
 
-#define CMD_COUNT 5
+#define CMD_COUNT 6
 
 //Function declarations
 void usrClear(void);
@@ -13,6 +13,7 @@ void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
 void pciList(void);
+void doBmp(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
@@ -32,7 +33,8 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "EXIT",
     "CPU",
-    "PCI"
+    "PCI",
+    "BMP"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -40,7 +42,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&usrExit,
     (sys_command)&cpuUsage,
-    (sys_command)&pciList
+    (sys_command)&pciList,
+    (sys_command)&doBmp
 };
 
 char inbuf[50];
@@ -578,6 +581,25 @@ void cpuUsage(void) {
             cmd_printClear(10);
         }
     }
+}
+
+void doBmp(void) {
+    
+    int x, y;
+    bitmap* test_bmp = newBitmap(64, 64);
+    
+    if(!test_bmp) {
+        
+        cmd_prints("Couldn't allocate a new bitmap!\n");
+        return;
+    }
+    
+    for(x = 0; x < 64; x++)
+        for(y = 0; y < 64; y++)
+            test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
+            
+    setCursor(0, 0);
+    drawBitmap(test_bmp);
 }
 
 void PCIPrintConfig(pci_address device) {

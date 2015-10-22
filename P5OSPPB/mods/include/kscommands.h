@@ -38,6 +38,7 @@
 #define KS_GET_SHARED_PAGE 29
 #define KS_TIMER 30
 #define KS_GET_IMAGE_SIZE 31
-#define KS_APPEND_PAGE 32
+#define KS_APPEND_PAGES 32
+#define KS_APPEND_PAGE 33
 
 #endif //KSCOMMANDS_H

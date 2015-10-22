@@ -210,6 +210,10 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             passMessage(0, source, command, 1);
             break;
 
+        case KS_GET_SHARED_PAGES:
+            passMessage(0, source, command, (unsigned int)allocate_shared_pages(payload));
+            break;
+            
         case KS_GET_SHARED_PAGE:
             passMessage(0, source, command, (unsigned int)allocate_shared_page());
             break;

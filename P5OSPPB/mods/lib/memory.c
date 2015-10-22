@@ -33,8 +33,8 @@ void* malloc(unsigned int byte_count) {
 		}
 		
 		//Instead of appending a new block to the end of the current chain, we need to 
-		//make a new root block
 		root_block = (memblock*)free_base;
+		//make a new root block
 		root_block->base = free_base;
 		root_block->size = byte_count + sizeof(memblock);
 		root_block->next = (memblock*)0;

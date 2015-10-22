@@ -203,6 +203,34 @@ unsigned int find_free_page() {
         return 0;
 }
 
+//Find the next availible set of contiguous pages of the required count
+unsigned int find_free_page(unsigned int count) {
+
+    unsigned long maxPages = maxRAM >> 12;
+    unsigned int i, j;
+    unsigned int base_page = 0;
+
+    for(i = 0xB00; i < maxPages; i++) {
+
+        //Check to make sure the page is not already alocated and/or special
+        if(!(pageTable[i] & 0xC00)) {
+            
+            base_page = i;
+               
+            for(j = i; j < i + count; j++) {
+                
+                if((pageTable[j] & 0xC00) || j == maxPages)
+                    return 0;
+            }
+            
+            return base_page;   
+        }
+    }
+
+    if(i == maxPages)
+        return 0;
+}
+
 //Find a free page, mark it in use, identity map it, and return its address
 //This should be improved in the future, ideally by not identity mapping this
 //page but instead taking two PIDs and appending the same page to both of
@@ -213,19 +241,22 @@ unsigned int find_free_page() {
 //up by one for every PID which attaches to the shared page and, when freeing,
 //decrease the counter and then unmap and mark the memory availible only if the
 //counter has returned to zero
-void* allocate_shared_page() {
+void* allocate_shared_pages(unsigned int count) {
 
-    unsigned int temp_page = find_free_page();
+    int i;
+    unsigned int temp_pages = find_free_pages(count >> 12);
 
-    if(!temp_page)
-        return (void*)temp_page;
+    if(!temp_pages)
+        return (void*)temp_pages;
 
-    //Identity map the page, global use, and mark it in use
-    pageTable[temp_page] |= 0x800;
-    map_pages(temp_page << 12, temp_page << 12, 0x1000, 3);
-
-    //Return the
-    return (void*)(temp_page << 12);
+    //Identity map the pages, global use, and mark them in use
+    for(i = temp_pages; i < count; i++) 
+        pageTable[i] |= 0x800;
+        
+    map_pages(i << 12, i << 12, 0x1000 * count, 3);
+    
+    //Return the base address
+    return (void*)(temp_pages << 12);
 }
 
 //This ends the search of the page table at 0x2000
