@@ -93,7 +93,7 @@ void main(void) {
 
     prints("Testing page allocation...");
     getSharedPages(5);
-    prints("Done\n")
+    prints("Done\n");
 
     if(!initGfx())
         prints("\nCould not initialize GFX!\n");
