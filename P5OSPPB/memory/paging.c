@@ -250,7 +250,7 @@ void* allocate_shared_pages(unsigned int count) {
         return (void*)temp_pages;
 
     //Identity map the pages, global use, and mark them in use
-    for(i = temp_pages; i < count; i++) 
+    for(i = temp_pages; i < temp_pages + count; i++) 
         pageTable[i] |= 0x800;
         
     map_pages(temp_pages << 12, temp_pages << 12, 0x1000 * count, 3);
