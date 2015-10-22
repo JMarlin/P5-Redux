@@ -259,6 +259,22 @@ void* allocate_shared_pages(unsigned int count) {
     return (void*)(temp_pages << 12);
 }
 
+void* allocate_shared_page(void) {
+
+    unsigned int temp_page = find_free_page();
+
+    if(!temp_page)
+        return (void*)temp_page;
+
+    //Identity map the pages, global use, and mark them in use
+    pageTable[temp_page] |= 0x800;
+        
+    map_pages(temp_page << 12, temp_page << 12, 0x1000, 3);
+    
+    //Return the base address
+    return (void*)(temp_page << 12);
+}
+
 //This ends the search of the page table at 0x2000
 //as opposed to 0x100000 because we're just assuming our
 //system has 32 megs of memory for now
