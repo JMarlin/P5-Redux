@@ -594,12 +594,22 @@ void doBmp(void) {
         return;
     }
     
-    for(x = 0; x < 64; x++)
-        for(y = 0; y < 64; y++)
-            test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
+    cmd_prints("Bitmap created\nCreating gradient");
+    
+    for(x = 0; x < 64; x++) {
+        
+        for(y = 0; y < 64; y++) {
             
+            cmd_pchar('.');
+            test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
+        }
+    }
+    
+    cmd_prints("Done\nSetting cursor...");            
     setCursor(0, 0);
+    cmd_prints("Done\nDrawing bitmap...");
     drawBitmap(test_bmp);
+    cmd_prints("Done\n");
 }
 
 void PCIPrintConfig(pci_address device) {
