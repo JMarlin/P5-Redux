@@ -34,10 +34,10 @@ typedef struct bitmap {
 
     //Window into the current portion
     //of the image to be drawn
-    unsigned int window_top;
-    unsigned int window_left;
-    unsigned int window_bottom;
-    unsigned int window_right;
+    unsigned int top;
+    unsigned int left;
+    unsigned int bottom;
+    unsigned int right;
 } bitmap;
 
 typedef struct screen_mode {

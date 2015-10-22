@@ -204,7 +204,7 @@ unsigned int find_free_page() {
 }
 
 //Find the next availible set of contiguous pages of the required count
-unsigned int find_free_page(unsigned int count) {
+unsigned int find_free_pages(unsigned int count) {
 
     unsigned long maxPages = maxRAM >> 12;
     unsigned int i, j;
