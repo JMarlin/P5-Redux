@@ -639,21 +639,21 @@ void doBmp(void) {
         return;
     }
     
-    cmd_prints("Bitmap created\nCreating gradient");
+    //cmd_prints("Bitmap created\nCreating gradient");
     
     for(x = 0; x < 64; x++) {
         
         for(y = 0; y < 64; y++) {
             
-            cmd_pchar('.');
+            //cmd_pchar('.');
             test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
         }
     }
     
-   cmd_prints("Done\nDrawing bitmap...");         
+    //cmd_prints("Done\nDrawing bitmap...");         
     setCursor(0, 0);
     drawBitmap(test_bmp);
-    cmd_prints("Done\n");
+    //cmd_prints("Done\n");
 }
 
 void PCIPrintConfig(pci_address device) {
