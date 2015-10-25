@@ -29,8 +29,8 @@ int main(void) {
 
     __asm__ ("cli");
 
-    initScreen();
     setColor(0x1F);
+    initScreen();
     clear();
     prints("Setting up interrupt table...");
     initIDT();

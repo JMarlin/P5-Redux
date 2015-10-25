@@ -4,7 +4,7 @@
 
 #ifdef KPRINTS_ON
 #define LINECOUNT 24
-#define KP_COLOR 0xF4
+#define KP_COLOR 0x74
 int kcursor = 0;
 #else 
 #define LINECOUNT 25
@@ -12,7 +12,7 @@ int kcursor = 0;
 
 char* screenBase = 0;
 int cursor_x = 0, cursor_y = 0;
-char color_code = 0;
+char color_code = 0x07;
 
 void ramdump(unsigned int address, unsigned int count) {
 
@@ -91,11 +91,10 @@ void initScreen() {
     int i;
 
     initSerial();
-    color_code = 0x07;
     screenBase = (char*)0xB8000;
     setCursor(0, 0);
     
-    for(i = 0; i < LINECOUNT * 160; i += 2) {
+    for(i = 0; i < LINECOUNT* 160; i += 2) {
     
         screenBase[i] = ' ';
         screenBase[i + 1] = color_code;
@@ -148,7 +147,6 @@ void scrollScreen() {
 
     for(x = 0; x < 160; x++) {
         screenBase[((LINECOUNT - 1)*160)+(x++)] = 0x00;
-        screenBase[((LINECOUNT - 1)*160)+x] = color_code;
     }
 
     setCursor(0, LINECOUNT - 1);
@@ -195,19 +193,19 @@ void kpchar(unsigned char c) {
     
     int i;
     
-    if(c != '\n'){
-
-        //Insert the character
-        screenBase[kcursor*2] = c;
-        kcursor++;
-    }
-
     if(kcursor == 80 || c == '\n') {
         
         kcursor = 0;
         
         for(i = LINECOUNT * 160; i < (LINECOUNT + 1) * 160; i += 2)
             screenBase[i] = ' ';
+    }
+    
+    if(c != '\n'){
+
+        //Insert the character
+        screenBase[(LINECOUNT * 160) + (kcursor*2)] = c;
+        kcursor++;
     }
     
     return;
