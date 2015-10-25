@@ -352,7 +352,11 @@ void V86Entry(void) {
                 KPCHAR(':');
                 KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
                 KPCHAR(']');
-        	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
+                if(op32) {
+                    outd((unsigned short)p->ctx.edx, p->ctx.eax);
+                } else {
+        	        outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
+        	    }
         	    p->ctx.eip++;
         	    return;
         	    break;
@@ -364,8 +368,12 @@ void V86Entry(void) {
                 KPCHAR(':');
                 KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
                 KPCHAR(']');
-        	    p->ctx.eax &= 0xFFFFFF00;
-        	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
+                if(op32) {
+        			p->ctx.eax = ind(p->ctx.edx);
+        		} else {
+        		    p->ctx.eax &= 0xFFFFFF00;
+        	        p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
+        		}
         	    p->ctx.eip++;
         	    return;
         	    break;
