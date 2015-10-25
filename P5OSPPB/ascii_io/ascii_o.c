@@ -4,11 +4,11 @@
 
 #ifdef KPRINTS_ON
 #define LINECOUNT 24
-#define KPCOLOR 0xF4
+#define KP_COLOR 0xF4
 int kcursor = 0;
 #else 
 #define LINECOUNT 25
-#define 
+#endif
 
 char* screenBase = 0;
 int cursor_x = 0, cursor_y = 0;
