@@ -305,6 +305,14 @@ unsigned char freePhysical(void* base_address, unsigned int byte_count) {
     return 1;
 }
 
+void* getSharedPages(unsigned int count) {
+
+    postMessage(0, KS_GET_SHARED_PAGES, count);
+    getMessageFrom(&temp_msg, 0, KS_GET_SHARED_PAGES);
+
+    return (void*)temp_msg.payload;
+}
+
 void* getSharedPage(void) {
 
     postMessage(0, KS_GET_SHARED_PAGE, 0);
@@ -321,10 +329,18 @@ unsigned int sleep(unsigned int ms) {
     return temp_msg.payload;
 }
 
-unsigned int getImageSize(void) {
+unsigned int getImageSize(unsigned int pid) {
 
-    postMessage(0, KS_GET_IMAGE_SIZE, 0);
+    postMessage(0, KS_GET_IMAGE_SIZE, pid);
     getMessageFrom(&temp_msg, 0, KS_GET_IMAGE_SIZE);
 
+    return temp_msg.payload;
+}
+
+unsigned int appendPage(void) {
+    
+    postMessage(0, KS_APPEND_PAGE, 0);
+    getMessageFrom(&temp_msg, 0, KS_APPEND_PAGE);
+    
     return temp_msg.payload;
 }

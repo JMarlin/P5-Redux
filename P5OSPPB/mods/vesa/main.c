@@ -11,6 +11,7 @@ void VdrawVLine(int x, int y, int length, unsigned int color);
 void VdrawRect(int x, int y, int width, int height, unsigned int color);
 void VfillRect(int x, int y, int width, int height, unsigned int color);
 void drawCharacter(unsigned char c, int x, int y, unsigned int color);
+void VdrawBitmap(int x, int y, bitmap* bmp);
 
 message temp_msg;
 unsigned int pen_color = RGB(255,0,0);
@@ -169,6 +170,10 @@ void main(void) {
 
             case GFX_DRAWSTRING:
                 //CAN'T DO THIS UNTIL WE SOLVE SHARED MEMORY
+            break;
+
+            case GFX_DRAWBMP:
+                VdrawBitmap(pen_x, pen_y, (bitmap*)temp_msg.payload);
             break;
 
             default:
@@ -447,5 +452,18 @@ void drawString(unsigned char* s, int x, int y, unsigned int color) {
 
         drawCharacter(*s++, x, y, color);
         x += 8;
+    }
+}
+
+void VdrawBitmap(int x, int y, bitmap* bmp) {
+    
+    int xo, yo;
+    
+    for(yo = bmp->top; yo < bmp->bottom; yo++) {
+        
+        for(xo = bmp->left; xo < bmp->right; xo++) {
+            
+            plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
+        }
     }
 }

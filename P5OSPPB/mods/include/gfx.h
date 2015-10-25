@@ -14,6 +14,7 @@
 #define GFX_FILLRECT   10
 #define GFX_DRAWCHAR   11
 #define GFX_DRAWSTRING 12
+#define GFX_DRAWBMP 13
 
 #define SVC_GFX 1
 
@@ -21,6 +22,23 @@
 #define RVAL(x) ((x & 0xFF0000) >> 16)
 #define GVAL(x) ((x & 0xFF00) >> 8)
 #define BVAL(x) (x & 0xFF)
+
+typedef struct bitmap {
+    
+    //Dimensions of the image
+    unsigned int height;
+    unsigned int width;
+    
+    //Pointer to the raw image data
+    unsigned int* data;
+
+    //Window into the current portion
+    //of the image to be drawn
+    unsigned int top;
+    unsigned int left;
+    unsigned int bottom;
+    unsigned int right;
+} bitmap;
 
 typedef struct screen_mode {
     unsigned short width;
@@ -43,5 +61,7 @@ void drawRect(unsigned short width, unsigned short height);
 void fillRect(unsigned short width, unsigned short height);
 void drawChar(char c);
 void drawStr(char* str);
+bitmap* newBitmap(unsigned int width, unsigned int height);
+void drawBitmap(bitmap* bmp);
 
 #endif //GFX_H

@@ -13,6 +13,7 @@ void startGui(unsigned short xres, unsigned short yres);
 void showModes(void);
 void enterMode(void);
 void pciList(void);
+void doBmp(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
@@ -22,7 +23,6 @@ void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
 void cmd_printHexDword(unsigned int dword);
 void cmd_printDecimal(unsigned int dword);
-void showSize(void);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -34,7 +34,7 @@ char* cmdWord[CMD_COUNT] = {
     "EXIT",
     "CPU",
     "PCI",
-    "SIZE"
+    "BMP"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -43,7 +43,7 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrExit,
     (sys_command)&cpuUsage,
     (sys_command)&pciList,
-    (sys_command)&showSize
+    (sys_command)&doBmp
 };
 
 char inbuf[50];
@@ -469,13 +469,6 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_chars = (cmd_width/8) - 1;
 }
 
-void showSize(void) {
-
-    cmd_prints("The size of the usermode process is ");
-    cmd_printDecimal(getImageSize());
-    cmd_prints(" bytes.\n");
-}
-
 typedef struct proc_details {
     unsigned char x;
     unsigned char y;
@@ -490,6 +483,7 @@ void cpuUsage(void) {
     int i, j, proc_count;
     unsigned int current_pid;
     proc_details pd[10];
+    int exit = 0;
 
     cmd_prints("Clearing and initializing");
     for(i = 0; i < 10; i++) {
@@ -528,10 +522,12 @@ void cpuUsage(void) {
         cmd_printHexDword(pd[i].pid);
         cmd_prints(": ");
         cmd_getCursor(&(pd[i].x), &(pd[i].y));
+        cmd_prints("                                        ");
+        cmd_printDecimal(getImageSize(pd[i].pid));
         cmd_prints("   \n");
     }
 
-    while(1) {
+    while(!exit) {
 
         setColor(RGB(0, 255, 0));
 
@@ -567,7 +563,14 @@ void cpuUsage(void) {
         }
 
         //Busyloop
-        for(i = 0; i < 0x1000000; i++);
+        for(i = 0; i < 0x100; i++) 
+            if(getch()) exit = 1;
+
+        if(exit) {
+            
+            cmd_pchar('\n');   
+            break;
+        }
 
         setColor(RGB(0, 0, 0));
 
@@ -580,9 +583,39 @@ void cpuUsage(void) {
     }
 }
 
+void doBmp(void) {
+    
+    int x, y;
+    bitmap* test_bmp = newBitmap(64, 64);
+    
+    if(!test_bmp) {
+        
+        cmd_prints("Couldn't allocate a new bitmap!\n");
+        return;
+    }
+    
+    //cmd_prints("Bitmap created\nCreating gradient");
+    
+    for(x = 0; x < 64; x++) {
+        
+        for(y = 0; y < 64; y++) {
+            
+            //cmd_pchar('.');
+            test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
+        }
+    }
+    
+    //cmd_prints("Done\nDrawing bitmap...");         
+    setCursor(0, 0);
+    drawBitmap(test_bmp);
+    //cmd_prints("Done\n");
+}
+
 void PCIPrintConfig(pci_address device) {
 
+    cmd_pchar('[');
     pci_config config = pciGetDeviceConfig(device);
+    cmd_pchar(']');
 
 	//Print the PCI address
     cmd_pchar('(');
@@ -619,8 +652,10 @@ void pciList(void) {
         return;
     }
 
-    cmd_prints("\nDetected the following PCI devices: \n");
+    cmd_prints("\nDetected the following "); 
     devcount = pciDeviceCount();
+    cmd_printDecimal(devcount);
+    cmd_prints(" PCI devices: \n");
 
     for(i = 0; i < devcount; i++)
         PCIPrintConfig((pci_address)i);

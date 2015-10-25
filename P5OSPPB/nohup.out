@@ -1,0 +1,7 @@
+[6463:1021/092023:ERROR:browser_main_loop.cc(173)] Running without the SUID sandbox! See https://code.google.com/p/chromium/wiki/LinuxSUIDSandboxDevelopment for more information on developing with the sandbox on.
+libGL error: failed to load driver: swrast
+libGL error: Try again with LIBGL_DEBUG=verbose for more details.
+[6507:1021/092024:INFO:renderer_main.cc(200)] Renderer process started
+[6627:1021/092037:ERROR:browser_main_loop.cc(173)] Running without the SUID sandbox! See https://code.google.com/p/chromium/wiki/LinuxSUIDSandboxDevelopment for more information on developing with the sandbox on.
+libGL error: failed to load driver: swrast
+libGL error: Try again with LIBGL_DEBUG=verbose for more details.

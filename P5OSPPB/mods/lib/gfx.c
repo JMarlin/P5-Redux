@@ -103,3 +103,53 @@ void drawStr(char* str) {
 
     postMessage(gfx_pid, GFX_DRAWSTRING, (unsigned int)str);
 }
+
+bitmap* newBitmap(unsigned int width, unsigned int height) {
+    
+    unsigned int bmp_size = width * height;
+    unsigned int bufsz = (bmp_size *  sizeof(unsigned int)) + sizeof(bitmap);
+    bitmap* return_bmp;
+    unsigned int i;
+    
+    //Ceil bufsz to the next page
+    bufsz = ((bufsz / 0x1000) * 0x1000) + ((bufsz % 0x1000) ? 0x1000 : 0);
+    
+    //Allocate a shared memory region (needs to be shared so that the GFX server can access it)
+    //cmd_prints("Allocating ");
+    //cmd_printDecimal(bufsz >> 12);
+    //cmd_prints(" pages of shared memory...");
+    
+    if(!(return_bmp = (bitmap*)getSharedPages(bufsz >> 12)))
+        return (bitmap*)0;
+    
+    //cmd_prints("Done (");
+    //cmd_printHexDword(return_bmp);
+    //cmd_prints(")\nSetting bitmap dimensions...");
+    
+    //Set dimensions    
+    return_bmp->height = height;
+    return_bmp->width = width;
+    
+    //Default the window to max
+    return_bmp->top = 0;
+    return_bmp->left = 0;
+    return_bmp->bottom = return_bmp->height;
+    return_bmp->right = return_bmp->width;
+    
+    //Plug in the data region
+    //cmd_prints("Done\nInitializing data buffer...");
+    return_bmp->data = (unsigned int*)((unsigned int)return_bmp + sizeof(bitmap));
+    
+    //Clear the bitmap
+    for(i = 0; i < bmp_size; i++)
+        return_bmp->data[i] = 0;
+    
+    //cmd_prints("Done\n");
+        
+    return return_bmp;
+}
+
+void drawBitmap(bitmap* bmp) {
+    
+    postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
+}

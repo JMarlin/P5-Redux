@@ -210,6 +210,10 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             passMessage(0, source, command, 1);
             break;
 
+        case KS_GET_SHARED_PAGES:
+            passMessage(0, source, command, (unsigned int)allocate_shared_pages(payload));
+            break;
+            
         case KS_GET_SHARED_PAGE:
             passMessage(0, source, command, (unsigned int)allocate_shared_page());
             break;
@@ -227,13 +231,23 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             break;
 
         case KS_GET_IMAGE_SIZE:
-            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+            for(i = 0; i < 256 && (procTable[i].id != payload); i++);
 
-            //Fail if the calling process doesn't exist anymore
+            //Fail if the requested process no longer exists
             if(i == 256)
                 return;
 
             passMessage(0, source, command, procTable[i].size);
+        break;
+        
+        case KS_APPEND_PAGE:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+            
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+            
+            passMessage(0, source, command, (unsigned int)request_new_page(&procTable[i]));
         break;
 
         default:
