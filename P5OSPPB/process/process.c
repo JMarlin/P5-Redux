@@ -210,6 +210,11 @@ void V86Entry(void) {
                 //If it was a service call, forward it to the syscall handler
                 if(insPtr[1] == 0xFF) {
 
+                    KPRINTS("[v86 syscall @ ");
+                    KPRINTHEXWORD(p->ctx.cs);
+                    KPCHAR(':');
+                    KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                    KPCHAR(']');
                     _syscall_number = p->ctx.eax & 0xFFFF;
                     _syscall_param1 = p->ctx.ebx & 0xFFFF;
                     _syscall_param2 = p->ctx.ecx & 0xFFFF;
@@ -217,6 +222,13 @@ void V86Entry(void) {
                     p->ctx.eip += 2;
                 } else {
 
+                    KPRINTS("[v86 INT ");
+                    KPRINTHEXBYTE(insPtr[1]);
+                    KPRINTS(" @ ");
+                    KPRINTHEXWORD(p->ctx.cs);
+                    KPCHAR(':');
+                    KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                    KPCHAR(']');
             		stack -= 3;
             		p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 6) & 0xFFFF;
             		stack[0] = (unsigned short)(p->ctx.eip + 2);
@@ -236,12 +248,6 @@ void V86Entry(void) {
                     intVect *= 4;
                     off = ((unsigned short*)intVect)[0];
                     seg = ((unsigned short*)intVect)[1];
-                    //prints("(V86 Interrupt #"); printHexByte(insPtr[1]);
-                    //prints(" -> "); printHexWord(seg);
-                    //prints(":"); printHexWord(off);
-                    //prints(")");
-                    //kernelDebug();
-    		        //scans(5, fake);
                     p->ctx.cs = seg;
                     p->ctx.eip = (((unsigned int)off) & 0xFFFF);
                 }
@@ -250,7 +256,11 @@ void V86Entry(void) {
 
             //IRET
             case 0xCF:
-                //prints("(Return from previous interrupt)");
+                KPRINTS("[v86 IRET @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 p->ctx.eip = stack[0];
         	    p->ctx.cs = stack[1];
         	    p->ctx.eflags = stack[2] | 0x20020;
@@ -261,21 +271,33 @@ void V86Entry(void) {
 
             //O32
             case 0x66:
-                //prints("(o32)");
+                KPRINTS("[v86 O32 @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
             //A32
             case 0x67:
-                //prints("(a32)");
+                KPRINTS("[v86 A32 @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 insPtr = (char*)(((((unsigned int)p->ctx.cs)&0xFFFF) << 4) + (((unsigned int)(++p->ctx.eip) &0xFFFF)));
                 op32 = 1;
                 break;
 
     	    //PUSHF
             case 0x9C:
-    	        //prints("(F Pu)");
+    	        KPRINTS("[v86 PUSHF @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
 
                 if(op32) {
                     p->ctx.esp = ((p->ctx.esp & 0xFFFF) - 4) & 0xFFFF;
@@ -303,7 +325,11 @@ void V86Entry(void) {
 
         	//POPF
         	case 0x9D:
-        	    //prints("(F Po)");
+        	    KPRINTS("[v86 POPF @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
 
                 if(op32) {
                     p->ctx.eflags = 0x20020 | (stack32[0] & 0xDFF);
@@ -321,7 +347,11 @@ void V86Entry(void) {
 
         	//OUT DX AL
         	case 0xEE:
-        	    //prints("(Out)");
+        	    KPRINTS("[v86 OUTB @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
         	    outb((unsigned short)p->ctx.edx, (unsigned char)p->ctx.eax);
         	    p->ctx.eip++;
         	    return;
@@ -329,7 +359,11 @@ void V86Entry(void) {
 
         	//IN AL DX
         	case 0xEC:
-        	    //prints("(In)");
+        	    KPRINTS("[v86 INB @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
         	    p->ctx.eax &= 0xFFFFFF00;
         	    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)p->ctx.edx) & 0xFF));
         	    p->ctx.eip++;
@@ -338,7 +372,11 @@ void V86Entry(void) {
 
         	//OUT DX AX
         	case 0xEF:
-        	    //prints("(OutW)");
+        	    KPRINTS("[v86 OUTW @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 //if(op32) {
                 //    outd((unsigned short)p->ctx.edx, p->ctx.eax);
                 //} else {
@@ -350,7 +388,11 @@ void V86Entry(void) {
 
             //IN AX DX
         	case 0xED:
-        	    //prints("(InW)");
+        	    KPRINTS("[v86 INW @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
 
                 //if(op32) {
         		//	p->ctx.eax = ind(p->ctx.edx);
@@ -364,7 +406,11 @@ void V86Entry(void) {
 
             //INT 3 (debug) or anything else
             case 0xCC:
-                //prints("(V86 Debug Interrupt)");
+                KPRINTS("[v86 DEBUG @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 kernelDebug();
                 scans(5, fake);
                 p->ctx.eip++;
@@ -373,7 +419,11 @@ void V86Entry(void) {
 
     		//CLI
     		case 0xfa:
-                //prints("(cli)");
+                KPRINTS("[v86 CLI @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 p->ctx.vif = 0;
                 p->ctx.eip++;
                 return;
@@ -381,7 +431,11 @@ void V86Entry(void) {
 
     		//STI
             case 0xfb:
-                //prints("(sti)");
+                KPRINTS("[v86 STI @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 p->ctx.vif = 1;
                 p->ctx.eip++;
                 return;
@@ -390,7 +444,13 @@ void V86Entry(void) {
             default:
                 //for now, assume that we didn't have an
                 //execption but rather just a hardware interrupt or something
-                //prints("Unrecognized v86 command:\n");
+                KPRINTS("[v86 illegal op ");
+                KPRINTHEXBYTE(insPtr[0]);
+                KPRINTS(" @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
                 //kernelDebug();
                 //while(1);
                 return;

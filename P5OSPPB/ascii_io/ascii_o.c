@@ -2,11 +2,17 @@
 #include "../core/util.h"
 #include "serial.h"
 
+#ifdef KPRINTS_ON
+#define LINECOUNT 24
+#define KPCOLOR 0xF4
+int kcursor = 0;
+#else 
+#define LINECOUNT 25
+#define 
 
 char* screenBase = 0;
 int cursor_x = 0, cursor_y = 0;
 char color_code = 0;
-
 
 void ramdump(unsigned int address, unsigned int count) {
 
@@ -42,10 +48,8 @@ void clear(void) {
 
     int i;
 
-    setCursor(0, 0);
-
-    for(i = 0; i < 2000; i++)
-        pchar(0);
+    for(i = 0; i < LINECOUNT * 160; i += 2) 
+        screenBase[i] = ' ';
 
     setCursor(0, 0);
 }
@@ -84,10 +88,27 @@ void printHexDword(unsigned int dword) {
 
 void initScreen() {
 
+    int i;
+
     initSerial();
     color_code = 0x07;
     screenBase = (char*)0xB8000;
     setCursor(0, 0);
+    
+    for(i = 0; i < LINECOUNT * 160; i += 2) {
+    
+        screenBase[i] = ' ';
+        screenBase[i + 1] = color_code;
+    }
+        
+#ifdef KPRINTS_ON
+    for(; i < (LINECOUNT + 1) * 160; i += 2) {
+        
+        screenBase[i] = ' ';
+        screenBase[i + 1] = KP_COLOR;
+    }
+#endif
+    
     return;
 }
 
@@ -118,7 +139,7 @@ void scrollScreen() {
 
     int x, y;
 
-    for(y = 0; y < 24; y++) {
+    for(y = 0; y < LINECOUNT - 1; y++) {
 
         for(x = 0; x < 160; x+=2) {
             screenBase[(y*160)+x] = screenBase[((y+1)*160)+x];
@@ -126,11 +147,11 @@ void scrollScreen() {
     }
 
     for(x = 0; x < 160; x++) {
-        screenBase[(24*160)+(x++)] = 0x00;
-        screenBase[(24*160)+x] = color_code;
+        screenBase[((LINECOUNT - 1)*160)+(x++)] = 0x00;
+        screenBase[((LINECOUNT - 1)*160)+x] = color_code;
     }
 
-    setCursor(0, 24);
+    setCursor(0, LINECOUNT - 1);
     return;
 }
 
@@ -141,15 +162,14 @@ void pchar(char _inin) {
 
         //Insert the character
         screenBase[((cursor_y*80)+cursor_x)*2] = _inin;
-        screenBase[(((cursor_y*80)+cursor_x)*2)+1] = color_code;
-            cursor_x++;
+        cursor_x++;
     }
 
     if(cursor_x == 80 || _inin == '\n') {
         cursor_x = 0;
         cursor_y++;
 
-        if(cursor_y == 25){
+        if(cursor_y == LINECOUNT){
             scrollScreen();
         }
     }
@@ -168,3 +188,59 @@ void prints(char* _str) {
         index++;
     }
 }
+
+#ifdef KPRINTS_ON
+
+void kpchar(unsigned char c) {
+    
+    int i;
+    
+    if(c != '\n'){
+
+        //Insert the character
+        screenBase[kcursor*2] = c;
+        kcursor++;
+    }
+
+    if(kcursor == 80 || c == '\n') {
+        
+        kcursor = 0;
+        
+        for(i = LINECOUNT * 160; i < (LINECOUNT + 1) * 160; i += 2)
+            screenBase[i] = ' ';
+    }
+    
+    return;
+}
+
+void kprints(unsigned char* s) {
+    
+    int index = 0;
+
+    while(s[index] != 0) {
+        kpchar(s[index]);
+        index++;
+    }
+}
+
+void kprintHexByte(unsigned char byte) {
+
+    kpchar(digitToHex((byte & 0xF0)>>4));
+    kpchar(digitToHex(byte & 0xF));
+}
+
+
+void kprintHexWord(unsigned short wd) {
+
+    kprintHexByte((unsigned char)((wd & 0xFF00)>>8));
+    kprintHexByte((unsigned char)(wd & 0xFF));
+}
+
+
+void kprintHexDword(unsigned int dword) {
+
+    kprintHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    kprintHexWord((unsigned short)(dword & 0xFFFF));
+}
+
+#endif
