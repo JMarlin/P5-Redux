@@ -302,7 +302,8 @@ int setMode(unsigned short mode) {
     } else {
 
         //Should really get this off the window base from the mode info
-        v = (unsigned int*)((unsigned int)curMode.segmentA << 4); //0xA0000
+        //v = (unsigned int*)((unsigned int)curMode.segmentA << 4); 
+        v = (unsigned int*)0xA0000;
     }
 
     return 1;
