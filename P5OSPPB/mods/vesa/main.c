@@ -355,6 +355,10 @@ int setMode(unsigned short mode) {
         v = (unsigned int*)((unsigned int)curMode.segmentA << 4);
     }
 
+    //Test to see if the mode switch completed
+    for(i = 0; i < 0x4000; i++)
+        v[i] = 0xFFFFFFFF;
+
     return 1;
 }
 
