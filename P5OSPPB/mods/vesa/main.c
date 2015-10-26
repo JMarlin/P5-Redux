@@ -65,6 +65,54 @@ ModeInfoBlock curMode;
 unsigned int client_pid = 0;
 unsigned char curBank = 0;
 
+void dumpMode(ModeInfoBlock mode) {
+
+    unsigned char fake[10];
+
+    pchar('\n');
+
+    printHexWord(attributes); pchar('|');
+    printHexByte(winA); pchar('|');
+    printHexByte(winB); pchar('|');
+    printHexWord(granularity); pchar('|');
+    printHexWord(winsize); pchar('|');
+    printHexWord(segmentA); pchar('|');
+    printHexWord(segmentB); pchar('|');
+    printHexWord(realFctPtrSeg); pchar('|');
+    printHexWord(realFctPtrOff); pchar('|');
+    printHexWord(pitch); pchar('|');
+
+    printHexWord(Xres); pchar('|');
+    printHexWord(Yres); pchar('|');
+    printHexByte(Wchar); pchar('|');
+    printHexByte(Ychar); pchar('|');
+    printHexByte(planes); pchar('|');
+    printHexByte(bpp); pchar('|');
+    printHexByte(banks); pchar('|');
+    printHexByte(memory_model); pchar('|');
+    printHexByte(bank_size); pchar('|');
+    printHexByte(image_pages); pchar('|');
+    printHexByte(reserved0); pchar('|');
+
+    printHexByte(red_mask); pchar('|');
+    printHexByte(red_position); pchar('|');
+    printHexByte(green_mask); pchar('|');
+    printHexByte(green_position); pchar('|');
+    printHexByte(blue_mask); pchar('|');
+    printHexByte(blue_position); pchar('|');
+    printHexByte(rsv_mask); pchar('|');
+    printHexByte(rsv_position); pchar('|');
+    printHexByte(directcolor_attributes); pchar('|');
+
+    printHexDword(physbase); pchar('|');
+    printHexDword(reserved1); pchar('|');
+    printHexWord(reserved2);
+
+    pchar('\n');
+
+    scans(fake, 5);
+}
+
 void main(void) {
 
     unsigned short new_mode;
@@ -249,6 +297,8 @@ void getModes(void) {
 
         if((info->bpp >= 32) && (info->attributes & 0x1) && (mode_count < 10)) {
 
+            dumpMode(info);
+
              detected_modes[mode_count].number = modeList[i];
              detected_modes[mode_count].width = info->Xres;
              detected_modes[mode_count].height = info->Yres;
@@ -302,8 +352,7 @@ int setMode(unsigned short mode) {
     } else {
 
         //Should really get this off the window base from the mode info
-        //v = (unsigned int*)((unsigned int)curMode.segmentA << 4); 
-        v = (unsigned int*)0xA0000;
+        v = (unsigned int*)((unsigned int)curMode.segmentA << 4);
     }
 
     return 1;
