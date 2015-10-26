@@ -180,7 +180,7 @@ void main(void) {
                 else
                     new_mode = detected_modes[temp_msg.payload - 1].number;
 
-                postMessage(temp_msg.source, GFX_SETMODE, setMode(new_mode));
+                postMessage(temp_msg.source, GFX_SETMODE, setMode(detected_modes[temp_msg.payload - 1].is_linear ? (new_mode | 0x4000) : new_mode));
             break;
 
             case GFX_SETCOLOR:
