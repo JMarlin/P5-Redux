@@ -304,9 +304,14 @@ void enterMode(void) {
         return;
     }
 
-    mode = getModeDetails(num);
+    if(num) {
 
-    startGui(mode->width, mode->height);
+        mode = getModeDetails(num);
+        startGui(mode->width, mode->height);
+    } else {
+
+        prints("Staying in text mode.\n");
+    }
 }
 
 unsigned char cmd_x;
@@ -563,12 +568,12 @@ void cpuUsage(void) {
         }
 
         //Busyloop
-        for(i = 0; i < 0x100; i++) 
+        for(i = 0; i < 0x100; i++)
             if(getch()) exit = 1;
 
         if(exit) {
-            
-            cmd_pchar('\n');   
+
+            cmd_pchar('\n');
             break;
         }
 
@@ -584,28 +589,28 @@ void cpuUsage(void) {
 }
 
 void doBmp(void) {
-    
+
     int x, y;
     bitmap* test_bmp = newBitmap(64, 64);
-    
+
     if(!test_bmp) {
-        
+
         cmd_prints("Couldn't allocate a new bitmap!\n");
         return;
     }
-    
+
     //cmd_prints("Bitmap created\nCreating gradient");
-    
+
     for(x = 0; x < 64; x++) {
-        
+
         for(y = 0; y < 64; y++) {
-            
+
             //cmd_pchar('.');
             test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
         }
     }
-    
-    //cmd_prints("Done\nDrawing bitmap...");         
+
+    //cmd_prints("Done\nDrawing bitmap...");
     setCursor(0, 0);
     drawBitmap(test_bmp);
     //cmd_prints("Done\n");
@@ -652,7 +657,7 @@ void pciList(void) {
         return;
     }
 
-    cmd_prints("\nDetected the following "); 
+    cmd_prints("\nDetected the following ");
     devcount = pciDeviceCount();
     cmd_printDecimal(devcount);
     cmd_prints(" PCI devices: \n");
