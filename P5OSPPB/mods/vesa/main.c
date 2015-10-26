@@ -349,15 +349,19 @@ int setMode(unsigned short mode) {
     if(is_linear) {
 
         v = (unsigned int*)allocatePhysical((void*)curMode.physbase, curMode.Yres * curMode.pitch);
+
+        //Test to see if the mode switch completed
+        for(i = 0; i < curMode.Yres * curMode.pitch/4 ; i++)
+            v[i] = 0xFFFFFFFF;
     } else {
 
         //Should really get this off the window base from the mode info
         v = (unsigned int*)((unsigned int)curMode.segmentA << 4);
-    }
 
-    //Test to see if the mode switch completed
-    for(i = 0; i < 0x4000; i++)
-        v[i] = 0xFFFFFFFF;
+        //Test to see if the mode switch completed
+        for(i = 0; i < 0x4000; i++)
+            v[i] = 0xFFFFFFFF;
+    }
 
     return 1;
 }
