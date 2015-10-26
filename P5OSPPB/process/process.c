@@ -345,6 +345,68 @@ void V86Entry(void) {
         	    return;
         	    break;
 
+            //INB immediate address
+            case 0xE4:
+                KPRINTS("\n[v86 INW Imm @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
+                if(op32) {
+                    p->ctx.eax = ind((unsigned short)(insPtr[1]));
+                } else {
+                    p->ctx.eax &= 0xFFFFFF00;
+                    p->ctx.eax |= ((unsigned int)0 + (inb((unsigned short)(insPtr[1])) & 0xFF));
+                }
+                p->ctx.eip += 2;
+                return;
+                break;
+
+            //INW/IND immediate address
+            case 0xE5:
+                KPRINTS("\n[v86 INW Imm @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
+                if(op32) {
+                    p->ctx.eax = ind((unsigned short)(insPtr[1]));
+                } else {
+                    p->ctx.eax &= 0xFFFF0000;
+                    p->ctx.eax |= ((unsigned int)0 + (inw((unsigned short)(insPtr[1])) & 0xFFFF));
+                }
+                p->ctx.eip += 2;
+                return;
+                break;
+
+            //OUTB immediate address
+            case 0xE6:
+                KPRINTS("\n[v86 OUTB Imm @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
+                outb((unsigned short)(insPtr[1]), (unsigned char)p->ctx.eax);
+                p->ctx.eip += 2;
+                return;
+                break;
+
+            //OUTW/OUTD immediate address
+            case 0xE7:
+                KPRINTS("\n[v86 OUTW Imm @ ");
+                KPRINTHEXWORD(p->ctx.cs);
+                KPCHAR(':');
+                KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
+                KPCHAR(']');
+                if(op32) {
+                    outd((unsigned short)(insPtr[1]), p->ctx.eax);
+                } else {
+                    outw((unsigned short)(insPtr[1]), (unsigned short)p->ctx.eax);
+                }
+                p->ctx.eip += 2;
+                return;
+                break;
+
         	//OUT DX AL
         	case 0xEE:
         	    KPRINTS("\n[v86 OUTB @ ");
@@ -809,11 +871,11 @@ int request_new_page(process* proc) {
     int newSize;
 
     if(!(newSize = append_page(proc->root_page))) {
-        
-        proc->size += 0x1000; 
+
+        proc->size += 0x1000;
         return 1;
     } else {
-        
+
         return 0;
     }
 }
