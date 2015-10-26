@@ -318,8 +318,6 @@ int setMode(unsigned short mode) {
     unsigned char *tmp_info, *cast_mode;
     int i;
 
-    is_linear = ((mode & 0x4000) == 0) ? 0 : 1;
-
     postMessage(client_pid, 3, mode);
 
     //Should include timeouts for message waits like this
@@ -346,6 +344,8 @@ int setMode(unsigned short mode) {
 
     //Here we should do some precalculation crap to speed
     //up pixel plotting and junk
+    is_linear = curMode.physbase != 0;
+
     if(is_linear) {
 
         v = (unsigned int*)allocatePhysical((void*)curMode.physbase, (curMode.Yres * curMode.pitch) / (curMode.bpp >> 3));
