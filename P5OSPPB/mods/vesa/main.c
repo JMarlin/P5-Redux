@@ -297,12 +297,12 @@ void getModes(void) {
 
         if((info->bpp >= 32) && (info->attributes & 0x1) && (mode_count < 10)) {
 
-            dumpMode(info);
+            //dumpMode(info);
 
              detected_modes[mode_count].number = modeList[i];
              detected_modes[mode_count].width = info->Xres;
              detected_modes[mode_count].height = info->Yres;
-             detected_modes[mode_count].is_linear = modeList[i] & 0x4000 ? 1 : 0;
+             detected_modes[mode_count].is_linear = info->physbase == 0 ? 0 : 1;
              detected_modes[mode_count].depth = info->bpp;
              mode_count++;
         }
