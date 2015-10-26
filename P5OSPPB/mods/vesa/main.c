@@ -65,48 +65,48 @@ ModeInfoBlock curMode;
 unsigned int client_pid = 0;
 unsigned char curBank = 0;
 
-void dumpMode(ModeInfoBlock mode) {
+void dumpMode(ModeInfoBlock* mode) {
 
     unsigned char fake[10];
 
     pchar('\n');
 
-    printHexWord(attributes); pchar('|');
-    printHexByte(winA); pchar('|');
-    printHexByte(winB); pchar('|');
-    printHexWord(granularity); pchar('|');
-    printHexWord(winsize); pchar('|');
-    printHexWord(segmentA); pchar('|');
-    printHexWord(segmentB); pchar('|');
-    printHexWord(realFctPtrSeg); pchar('|');
-    printHexWord(realFctPtrOff); pchar('|');
-    printHexWord(pitch); pchar('|');
+    printHexWord(mode->attributes); pchar('|');
+    printHexByte(mode->winA); pchar('|');
+    printHexByte(mode->winB); pchar('|');
+    printHexWord(mode->granularity); pchar('|');
+    printHexWord(mode->winsize); pchar('|');
+    printHexWord(mode->segmentA); pchar('|');
+    printHexWord(mode->segmentB); pchar('|');
+    printHexWord(mode->realFctPtrSeg); pchar('|');
+    printHexWord(mode->realFctPtrOff); pchar('|');
+    printHexWord(mode->pitch); pchar('|');
 
-    printHexWord(Xres); pchar('|');
-    printHexWord(Yres); pchar('|');
-    printHexByte(Wchar); pchar('|');
-    printHexByte(Ychar); pchar('|');
-    printHexByte(planes); pchar('|');
-    printHexByte(bpp); pchar('|');
-    printHexByte(banks); pchar('|');
-    printHexByte(memory_model); pchar('|');
-    printHexByte(bank_size); pchar('|');
-    printHexByte(image_pages); pchar('|');
-    printHexByte(reserved0); pchar('|');
+    printHexWord(mode->Xres); pchar('|');
+    printHexWord(mode->Yres); pchar('|');
+    printHexByte(mode->Wchar); pchar('|');
+    printHexByte(mode->Ychar); pchar('|');
+    printHexByte(mode->planes); pchar('|');
+    printHexByte(mode->bpp); pchar('|');
+    printHexByte(mode->banks); pchar('|');
+    printHexByte(mode->memory_model); pchar('|');
+    printHexByte(mode->bank_size); pchar('|');
+    printHexByte(mode->image_pages); pchar('|');
+    printHexByte(mode->reserved0); pchar('|');
 
-    printHexByte(red_mask); pchar('|');
-    printHexByte(red_position); pchar('|');
-    printHexByte(green_mask); pchar('|');
-    printHexByte(green_position); pchar('|');
-    printHexByte(blue_mask); pchar('|');
-    printHexByte(blue_position); pchar('|');
-    printHexByte(rsv_mask); pchar('|');
-    printHexByte(rsv_position); pchar('|');
-    printHexByte(directcolor_attributes); pchar('|');
+    printHexByte(mode->red_mask); pchar('|');
+    printHexByte(mode->red_position); pchar('|');
+    printHexByte(mode->green_mask); pchar('|');
+    printHexByte(mode->green_position); pchar('|');
+    printHexByte(mode->blue_mask); pchar('|');
+    printHexByte(mode->blue_position); pchar('|');
+    printHexByte(mode->rsv_mask); pchar('|');
+    printHexByte(mode->rsv_position); pchar('|');
+    printHexByte(mode->directcolor_attributes); pchar('|');
 
-    printHexDword(physbase); pchar('|');
-    printHexDword(reserved1); pchar('|');
-    printHexWord(reserved2);
+    printHexDword(mode->physbase); pchar('|');
+    printHexDword(mode->reserved1); pchar('|');
+    printHexWord(mode->reserved2);
 
     pchar('\n');
 
