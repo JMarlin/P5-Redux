@@ -239,7 +239,7 @@ void setVESABank(unsigned char bank_no) {
     //HERE'S OUR PROBLEM!
     //This is picking up other drawing commands in the queue
     //instead of the response from the v86 module
-    while(!getMessageFrom(&tmp_msg, client_pid, 0xFFFFFFFF));
+    getMessageFrom(&tmp_msg, client_pid, 4);
 }
 
 
@@ -249,13 +249,9 @@ ModeInfoBlock* getModeInfo(unsigned short mode) {
     unsigned short seg, off;
 
     postMessage(client_pid, 2, mode);
-
-    while(!getMessage(&tmp_msg));
-
+    getMessageFrom(&tmp_msg, client_pid, 2);
     seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-
-    while(!getMessage(&tmp_msg));
-
+    getMessageFrom(&tmp_msg, client_pid, 2);
     off = (unsigned short)(tmp_msg.payload & 0xFFFF);
 
     //return (ModeInfoBlock*)0x83000; //Should NOT do this
@@ -274,15 +270,10 @@ void getModes(void) {
     int i;
 
     postMessage(client_pid, 1, 0);
-
-    while(!getMessage(&tmp_msg));
-
+    getMessageFrom(&tmp_msg, client_pid, 1);
     seg = (unsigned short)(tmp_msg.payload & 0xFFFF);
-
-    //This one is just for sync
     postMessage(client_pid, 1, 0);
-
-    while(!getMessage(&tmp_msg));
+    getMessageFrom(&tmp_msg, client_pid, 1);
 
     off = (unsigned short)(tmp_msg.payload & 0xFFFF);
     vinfo = (VESAInfo*)((((unsigned int)seg) << 4) + off);
@@ -297,7 +288,7 @@ void getModes(void) {
 
         if((info->bpp >= 32) && (info->attributes & 0x1) && (mode_count < 10)) {
 
-            //dumpMode(info);
+             //dumpMode(info);
 
              detected_modes[mode_count].number = modeList[i];
              detected_modes[mode_count].width = info->Xres;
@@ -321,7 +312,7 @@ int setMode(unsigned short mode) {
     postMessage(client_pid, 3, mode);
 
     //Should include timeouts for message waits like this
-    while(!getMessage(&tmp_msg));
+    getMessageFrom(&tmp_msg, client_pid, 3);
 
     //Make sure we didn't get an error
     if((tmp_msg.payload & 0xFF) == 0x4F) {
@@ -344,15 +335,21 @@ int setMode(unsigned short mode) {
 
     //Here we should do some precalculation crap to speed
     //up pixel plotting and junk
-    is_linear = curMode.physbase != 0;
+    is_linear = curMode.physbase == 0 ? 0 : 1;
 
     if(is_linear) {
 
         v = (unsigned int*)allocatePhysical((void*)curMode.physbase, curMode.Yres * curMode.pitch);
 
+        if(!v) {
+
+            KPRINTS("\n[VESA] Could not allocate linear video memory.");
+            return 0;
+        }
+
         //Test to see if the mode switch completed
-        for(i = 0; i < curMode.Yres * curMode.pitch/4 ; i++)
-            v[i] = 0xFFFFFFFF;
+        for(i = 0; i < (curMode.Yres * curMode.pitch/4) ; i++)
+            v[i] = 0xFF00FFFF;
     } else {
 
         //Should really get this off the window base from the mode info
@@ -360,7 +357,7 @@ int setMode(unsigned short mode) {
 
         //Test to see if the mode switch completed
         for(i = 0; i < 0x4000; i++)
-            v[i] = 0xFFFFFFFF;
+            v[i] = 0xFFFF0000;
     }
 
     return 1;

@@ -37,12 +37,6 @@ decode_msg:
     jmp wait_msg
 
 get_modes:
-    ;Turn debugging on
-    ;mov ax, 0x1
-    ;mov bx, 0x0
-    ;mov cx, 0x7
-    ;mov dx, 0x0
-    ;int 0xFF
 
     ;We will begin stepping here
     mov ax, ds
@@ -62,19 +56,13 @@ get_modes:
     cmp ax, 0x004F
     je ret_msgs_m
 
-    mov ax, 0xDEAD
+    mov ax, 0x1
     mov [_msg], ax
 
  ret_msgs_m:
-    ;Turn debugging back off
-    ;mov ax, 0x1
-    ;mov bx, 0x0
-    ;mov cx, 0x7
-    ;mov dx, 0x0
-    ;int 0xFF
 
     mov bx, [_client]
-    mov cx, 0 ;doesn't matter
+    mov cx, 1
     mov dx, es
     mov ax, 0x1
     int 0xFF
@@ -89,7 +77,7 @@ get_modes:
  send_dos:
 
     mov bx, [_client]
-    mov cx, 0
+    mov cx, 1
     mov dx, di ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
@@ -105,10 +93,11 @@ get_info:
     int 0x10
 
     mov bx, [_client]
-    mov cx, 0 ;doesn't matter
+    mov cx, 2 ;doesn't matter
     mov dx, 0x8000
     mov ax, 0x1
     int 0xFF
+    mov cx, 2
     mov dx, 0x3000 ;We should get this proper in the future, but fuck it for now
     mov ax, 0x1
     int 0xFF
@@ -120,7 +109,7 @@ set_mode:
    int 0x10
 
    mov bx, [_client]
-   mov cx, 0
+   mov cx, 3
    mov dx, ax
    mov ax, 0x1
    int 0xFF
@@ -134,7 +123,7 @@ set_bank:
    int 0x10
 
    mov bx, [_client]
-   mov cx, 0
+   mov cx, 4
    mov dx, 0
    mov ax, 0x1
    int 0xFF
