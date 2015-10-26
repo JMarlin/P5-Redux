@@ -348,7 +348,7 @@ int setMode(unsigned short mode) {
 
     if(is_linear) {
 
-        v = (unsigned int*)allocatePhysical((void*)curMode.physbase, (curMode.Yres * curMode.pitch) / (curMode.bpp >> 3));
+        v = (unsigned int*)allocatePhysical((void*)curMode.physbase, curMode.Yres * curMode.pitch);
     } else {
 
         //Should really get this off the window base from the mode info
