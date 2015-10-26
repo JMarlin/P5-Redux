@@ -302,7 +302,7 @@ int setMode(unsigned short mode) {
     } else {
 
         //Should really get this off the window base from the mode info
-        v = (unsigned int*)0xA0000;
+        v = (unsigned int*)((unsigned int)curMode.segmentA << 4); //0xA0000
     }
 
     return 1;
@@ -456,13 +456,13 @@ void drawString(unsigned char* s, int x, int y, unsigned int color) {
 }
 
 void VdrawBitmap(int x, int y, bitmap* bmp) {
-    
+
     int xo, yo;
-    
+
     for(yo = bmp->top; yo < bmp->bottom; yo++) {
-        
+
         for(xo = bmp->left; xo < bmp->right; xo++) {
-            
+
             plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
         }
     }
