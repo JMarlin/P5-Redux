@@ -343,7 +343,7 @@ int setMode(unsigned short mode) {
 
         if(!v) {
 
-            KPRINTS("\n[VESA] Could not allocate linear video memory.");
+            prints("\n[VESA] Could not allocate linear video memory.");
             return 0;
         }
 
