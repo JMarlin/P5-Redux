@@ -110,7 +110,7 @@ void dumpMode(ModeInfoBlock* mode) {
 
     pchar('\n');
 
-    scans(fake, 5);
+    scans(5, fake);
 }
 
 void main(void) {
