@@ -117,6 +117,7 @@ void main(void) {
 
     unsigned short new_mode;
     unsigned int parent_pid;
+    unsigned int oldsrc;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -180,7 +181,9 @@ void main(void) {
                 else
                     new_mode = detected_modes[temp_msg.payload - 1].number;
 
-                postMessage(temp_msg.source, GFX_SETMODE, setMode(detected_modes[temp_msg.payload - 1].is_linear ? (new_mode | 0x4000) : new_mode));
+                oldsrc = temp_msg.source;
+
+                postMessage(oldsrc, GFX_SETMODE, setMode(detected_modes[temp_msg.payload - 1].is_linear ? (new_mode | 0x4000) : new_mode));
             break;
 
             case GFX_SETCOLOR:
@@ -347,9 +350,11 @@ int setMode(unsigned short mode) {
             return 0;
         }
 
+        prints("Allocated memory, clearing framebuffer.\n");
         //Test to see if the mode switch completed
         for(i = 0; i < (curMode.Yres * curMode.pitch/4) ; i++)
             v[i] = 0xFF00FFFF;
+             
     } else {
 
         //Should really get this off the window base from the mode info
@@ -360,6 +365,7 @@ int setMode(unsigned short mode) {
             v[i] = 0xFFFF0000;
     }
 
+    prints("Done setting mode\n");
     return 1;
 }
 
