@@ -304,9 +304,13 @@ void enterMode(void) {
         return;
     }
 
+    prints("Changed screen mode\n");
+
     if(num) {
 
+        prints("Getting mode details.\n");
         mode = getModeDetails(num);
+        prints("Starting GUI.\n");
         startGui(mode->width, mode->height);
     } else {
 
