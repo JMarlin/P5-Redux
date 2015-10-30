@@ -2,5 +2,16 @@
 #define WYG_H
 
 #define WYG_CREATE_WINDOW 1
+#define WYG_GET_CONTEXT 2
+#define WYG_MOVE_WINDOW 3
+#define WYG_INSTALL_WINDOW 4
+#define WYG_SHOW_WINDOW 5
+#define WYG_REPAINT_WINDOW 6
+#define WYG_POINT 7
+#define WYG_WHANDLE 8
+
+#define WIN_UNDECORATED 1
+#define WIN_FIXEDSIZE 2
+#define WIN_VISIBLE 4
 
 #endif //WYG_H

@@ -17,6 +17,7 @@ Linkage is in order of increasing z-value
 typedef struct window {
     unsigned char flags;
     unsigned int handle;
+    unsigned int pid;
     bitmap* context;
     window* next_sibling;
     window* parent; 
@@ -33,7 +34,7 @@ unsigned int next_handle;
 unsigned int window_count;
 window** registered_windows;
 
-unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags) {
+unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
     window* new_window;
     
@@ -44,6 +45,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     if(!registered_windows = (window*)realloc((void*)registered_windows, sizeof(window*))))
         return 0;
     
+    new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
     new_window->parent = (window*)0;
@@ -111,11 +113,116 @@ void showModes(void) {
     }
 }
 
+bitmap* getWindowContext(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window)
+        return (bitmap*)0;
+        
+    return dest_window->context;
+}
+
+void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window)
+        return;
+        
+    dest_window->x = new_x;
+    dest_window->y = new_y;
+    
+    return;
+}
+
+void installWindow(unsigned int child_handle, unsigned int parent_handle) {
+    
+    window* child_window = getWindowByHandle(child_handle);
+    window* parent_window = getWindowByHandle(parent_handle);
+    window* sibling_window;
+    
+    if(!child_window || !parent_window)
+        return;
+        
+    sibling_window = parent_window->first_child;
+    
+    if(!sibling_window) {
+        
+        parent_window->first_child = child_window;
+        return;
+    }
+    
+    while(sibling_window->next_sibling)
+        sibling_window = sibling_window->next_sibling;
+        
+    sibling_window->next_sibling = child_window;
+    
+    return;   
+}
+
+void markWindowVisible(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window)
+        return;
+        
+    dest_window->flags |= WIN_VISIBLE;
+    
+    return;
+}
+
+void markWindowDirty(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window)
+        return;
+        
+    dest_window->needs_redraw = true;
+    
+    return;
+}
+
+//Recursively draw all of the child windows of this window
+//At the moment, we're just being super lazy and using 
+//painter's algorithm to redraw EVERYTHING
+void drawWindow(window* cur_window) {
+    
+    window* cur_child;
+    
+    //Start by drawing this window
+    if(!(window->flags & WIN_UNDECORATED))
+        drawFrame(cur_window);
+        
+    setCursor(cur_window->x, cur_window->y);
+    drawBitmap(cur_window->context);
+    
+    //Then recursively draw all children
+    cur_child = cur_window->first_child;
+    
+    while(cur_child) {
+        
+        drawWindow(cur_child);
+        cur_child = cur_child->next_sibling;
+    }
+    
+    return;
+}
+
+void refreshTree() {
+    
+    drawWindow(&root_window);
+}
+
 void main(void) {
 
     unsigned int parent_pid;
     screen_mode* mode;
     unsigned short num;
+    unsigned int current_handle;
+    int i;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -186,6 +293,7 @@ void main(void) {
     root_window.next_sibling = (window*)0;
     root_window.parent = (window*)0;
     root_window.first_child = (window*)0;
+    root_window.pid = 0;
     root_window.x = 0;
     root_window.y = 0;
     root_window.w = mode->width;
@@ -203,6 +311,12 @@ void main(void) {
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
+    //Paint the initial scene
+    for(i = 0; i < root_window.w * root_window.h; i++)
+        root_window.context->data[i] = RGB(11, 162, 193);
+        
+    refreshTree();
+
     //Now we can start the main message loop and begin handling
     //GFX command messages
     while(1) {
@@ -212,7 +326,7 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
-                postMessage(temp_msg.source, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF));
+                postMessage(temp_msg.source, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, temp_msg.source));
             break;
             
             case WYG_GET_CONTEXT:
@@ -220,7 +334,26 @@ void main(void) {
             break;
             
             case WYG_MOVE_WINDOW:
-                postMessage(temp_msg.source, WYG_MOVE_WINDOW, (unsigned int)getWindowContext(temp_msg.payload));
+                current_handle = temp_msg.payload;
+                getMessageFrom(&temp_msg, temp_msg.source, WYG_POINT);
+                moveWindow(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
+                refreshTree();
+            break;
+
+            case WYG_INSTALL_WINDOW:
+                current_handle = temp_msg.payload;
+                getMessageFrom(&temp_msg, temp_msg.source, WYG_WHANDLE);
+                installWindow(current_handle, temp_msg.payload);
+            break;
+
+            case WYG_SHOW_WINDOW:
+                markWindowVisible(temp_msg.payload);
+                refreshTree();
+            break;
+
+            case WYG_REPAINT_WINDOW:
+                markWindowDirty(temp_msg.payload);
+                refreshTree();
             break;
 
             default:
