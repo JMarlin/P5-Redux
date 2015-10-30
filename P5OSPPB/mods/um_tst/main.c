@@ -640,7 +640,7 @@ void doBmp(void) {
                     if(x > 0) x--;
                     break;
                     
-                case 'D';
+                case 'D':
                     x++;
                     break;
             
