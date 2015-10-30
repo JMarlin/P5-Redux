@@ -1,8 +1,6 @@
 #ifndef PCI_H
 #define PCI_H
 
-#define SVC_PCI 2
-
 #define PCI_DEVCOUNT 0x1
 #define PCI_READREG_0 0x2
 #define PCI_READREG_1 0x3

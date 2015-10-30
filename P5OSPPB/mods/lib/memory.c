@@ -70,6 +70,52 @@ void* malloc(unsigned int byte_count) {
 	}
 }
 
+memblock* find_memblock(void* address) {
+	
+	memblock* cur_block = root_block;
+	
+	while(cur_block) {
+		
+		if(cur_block->base == (address - sizeof(memblock)))
+			break;
+			
+		cur_block = cur_block->next;
+	}
+	
+	return cur_block;
+}
+
 void free(void* address) {
 	
+}
+
+void* realloc(void* old_address, unsigned int byte_count) {
+	
+	int i;
+	unsigned char *oldbuf, *newbuf;
+	
+	//Get the original memblock
+	memblock* old_block = find_memblock(old_address);
+	
+	if(!old_block)
+		return (void*)0
+	
+	//Malloc the new space
+	void* new_address = malloc(byte_count);
+	
+	if(!new_address)
+		return (void*)0;
+	
+	//Set up the transfer buffers
+	newbuf = (unsigned char*)new_address;
+	oldbuf = (unsigned char*)old_address;
+	
+	//Copy the old content to the new location (again, could probably be much improved by a hardware-aware memcpy routine)
+	for(i = 0; i < old_block->size; i++)
+		newbuf[i] = oldbuf[i];
+		
+	//Delete the old allocation
+	free(old_address);
+	
+	return new_address;
 }

@@ -16,8 +16,6 @@
 #define GFX_DRAWSTRING 12
 #define GFX_DRAWBMP 13
 
-#define SVC_GFX 1
-
 #define RGB(r, g, b) (((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF))
 #define RVAL(x) ((x & 0xFF0000) >> 16)
 #define GVAL(x) ((x & 0xFF00) >> 8)
