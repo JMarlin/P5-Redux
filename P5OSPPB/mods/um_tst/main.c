@@ -594,7 +594,8 @@ void cpuUsage(void) {
 
 void doBmp(void) {
 
-    int x, y;
+    int x, y, redraw;
+    unsigned char tmp_chr = 0;
     bitmap* test_bmp = newBitmap(64, 64);
 
     if(!test_bmp) {
@@ -614,10 +615,47 @@ void doBmp(void) {
         }
     }
 
-    //cmd_prints("Done\nDrawing bitmap...");
-    setCursor(0, 0);
+    x = 0;
+    y = 0;
+    setCursor(x, y);
     drawBitmap(test_bmp);
-    //cmd_prints("Done\n");
+
+    while((tmp_chr = getch() != 'Q')) {
+
+        if(tmp_chr) {
+         
+            redraw = 1;
+         
+            switch(tmp_chr) {
+            
+                case 'W':
+                    if(y > 0) y--;
+                    break;
+                    
+                case 'S':
+                    y++;
+                    break;
+                    
+                case 'A':
+                    if(x > 0) x--;
+                    break;
+                    
+                case 'D';
+                    x++;
+                    break;
+            
+                default:
+                    redraw = 0;
+                    break;    
+            }   
+            
+            if(redraw) {
+                
+                setCursor(x, y);
+                drawBitmap(test_bmp);
+            }
+        }
+    }
 }
 
 void PCIPrintConfig(pci_address device) {
