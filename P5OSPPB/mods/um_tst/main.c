@@ -615,12 +615,12 @@ void doBmp(void) {
         }
     }
 
-    x = 0;
-    y = 0;
+    x = 50;
+    y = 50;
     setCursor(x, y);
     drawBitmap(test_bmp);
 
-    while((tmp_chr = getch() != 'Q')) {
+    while((tmp_chr = getch()) != 'Q') {
 
         if(tmp_chr) {
          
@@ -629,18 +629,22 @@ void doBmp(void) {
             switch(tmp_chr) {
             
                 case 'W':
+                    cmd_pchar('^');
                     if(y > 0) y--;
                     break;
                     
                 case 'S':
+                    cmd_pchar('v');
                     y++;
                     break;
                     
                 case 'A':
+                    cmd_pchar('<');
                     if(x > 0) x--;
                     break;
                     
                 case 'D':
+                    cmd_pchar('>');
                     x++;
                     break;
             
