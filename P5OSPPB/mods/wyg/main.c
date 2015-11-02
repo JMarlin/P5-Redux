@@ -14,6 +14,8 @@ desktop.first_child:  window_a.first_child:  button_1.first_child:  -
 Linkage is in order of increasing z-value                                                                                                
 */
 
+message temp_msg;
+
 typedef struct window {
     unsigned char flags;
     unsigned int handle;
@@ -42,7 +44,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
         return 0;
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-    if(!(registered_windows = (window*)realloc((void*)registered_windows, sizeof(window*))))
+    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*))))
         return 0;
     
     new_window->pid = pid;
@@ -75,7 +77,7 @@ window* getWindowByHandle(unsigned int handle) {
     for(i = 0; i < window_count; i++) {
         
         if(registered_windows[i] && registered_windows[i]->handle == handle)
-            return &registered_windows[i];
+            return registered_windows[i];
     }
     
     return (window*)0;
@@ -180,7 +182,7 @@ void markWindowDirty(unsigned int handle) {
     if(!dest_window)
         return;
         
-    dest_window->needs_redraw = true;
+    dest_window->needs_redraw = 1;
     
     return;
 }
@@ -203,8 +205,10 @@ void drawWindow(window* cur_window) {
     
     if(cur_window->flags & WIN_VISIBLE) {
         
+        cur_window->needs_redraw = 0;
+        
         //Start by drawing this window
-        if(!(window->flags & WIN_UNDECORATED))
+        if(!(cur_window->flags & WIN_UNDECORATED))
             drawFrame(cur_window);
             
         setCursor(cur_window->x, cur_window->y);
@@ -236,6 +240,7 @@ void main(void) {
     unsigned int current_handle;
     int i;
     window* temp_window;
+    unsigned char inbuf[12];
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -288,7 +293,7 @@ void main(void) {
         terminate();
     }
     
-    if(!registered_windows = (window*)malloc(sizeof(window*)))) {
+    if(!(registered_windows = (window*)malloc(sizeof(window*)))) {
         
         prints("[WYG] Couldn't allocate window LUT.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
@@ -348,7 +353,7 @@ void main(void) {
             
             case WYG_GET_DIMS:
                 temp_window = getWindowByHandle(temp_msg.payload);
-                postMessage(temp_msg.source, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF));
+                postMessage(temp_msg.source, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF)));
             break;
             
             case WYG_MOVE_WINDOW:
