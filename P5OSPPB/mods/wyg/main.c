@@ -378,6 +378,9 @@ void main(void) {
     while(1) {
 
         getMessage(&temp_msg);
+        prints("[WYG] Got message ");
+        printDecimal(temp_msg.command);
+        pchar('\n');
 
         switch(temp_msg.command) {
 
