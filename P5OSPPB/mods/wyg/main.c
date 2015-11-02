@@ -19,9 +19,9 @@ typedef struct window {
     unsigned int handle;
     unsigned int pid;
     bitmap* context;
-    window* next_sibling;
-    window* parent; 
-    window* first_child;
+    struct window* next_sibling;
+    struct window* parent; 
+    struct window* first_child;
     unsigned int w;
     unsigned int h;
     unsigned int x;
@@ -42,7 +42,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
         return 0;
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-    if(!registered_windows = (window*)realloc((void*)registered_windows, sizeof(window*))))
+    if(!(registered_windows = (window*)realloc((void*)registered_windows, sizeof(window*))))
         return 0;
     
     new_window->pid = pid;
@@ -198,10 +198,10 @@ void drawFrame(window* cur_window) {
 //At the moment, we're just being super lazy and using 
 //painter's algorithm to redraw EVERYTHING
 void drawWindow(window* cur_window) {
-    
+     
     window* cur_child;
     
-    if(cur_window->flags | WIN_VISIBLE) {
+    if(cur_window->flags & WIN_VISIBLE) {
         
         //Start by drawing this window
         if(!(window->flags & WIN_UNDECORATED))
