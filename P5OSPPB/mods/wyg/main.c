@@ -40,13 +40,20 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     window* new_window;
     
-    if(!(new_window = (window*)malloc(sizeof(window))))
+    if(!(new_window = (window*)malloc(sizeof(window)))) {
+        
+        prints("[WYG] Couldn't allocate a new window\n");
         return 0;
+    }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*))))
+    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1))))) {
+        
+        prints("[WYG] Window list realloc failed\n");
         return 0;
+    }
     
+    prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
@@ -60,13 +67,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Create a drawing context for the new window
     if(!(root_window.context = newBitmap(new_window->w, new_window->h))) {
         
+        prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
     
+    prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
     
+    prints("[WYG] Successfully created new window ");
+    printDecimal(new_window->handle);
+    pchar('\n');
     return new_window->handle;
 }
 
@@ -119,8 +131,11 @@ bitmap* getWindowContext(unsigned int handle) {
     
     window* dest_window = getWindowByHandle(handle);
     
-    if(!dest_window)
+    if(!dest_window) {
+     
+        prints("[WYG] Couldn't find the window to get its context\n");   
         return (bitmap*)0;
+    }
         
     return dest_window->context;
 }
@@ -129,8 +144,11 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     
     window* dest_window = getWindowByHandle(handle);
     
-    if(!dest_window)
+    if(!dest_window) {
+     
+        prints("[WYG] Couldn't find the window to set its location\n");   
         return;
+    }
         
     dest_window->x = new_x;
     dest_window->y = new_y;
@@ -144,8 +162,11 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     window* parent_window = getWindowByHandle(parent_handle);
     window* sibling_window;
     
-    if(!child_window || !parent_window)
+    if(!child_window || !parent_window) {
+     
+        prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
+    }
         
     sibling_window = parent_window->first_child;
     
@@ -167,8 +188,11 @@ void markWindowVisible(unsigned int handle) {
     
     window* dest_window = getWindowByHandle(handle);
     
-    if(!dest_window)
+    if(!dest_window) {
+     
+        prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
+    }
         
     dest_window->flags |= WIN_VISIBLE;
     
@@ -179,8 +203,11 @@ void markWindowDirty(unsigned int handle) {
     
     window* dest_window = getWindowByHandle(handle);
     
-    if(!dest_window)
+    if(!dest_window) {
+     
+        prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
+    }
         
     dest_window->needs_redraw = 1;
     
@@ -188,6 +215,10 @@ void markWindowDirty(unsigned int handle) {
 }
 
 void drawFrame(window* cur_window) {
+    
+    prints("[WYG] Drawing frame for window ");
+    printDecimal(cur_window->handle);
+    pchar('\n');
     
     setColor(RGB(0, 0, 0));
     setCursor(cur_window->x - 2, cur_window->y - 2);
@@ -202,6 +233,10 @@ void drawFrame(window* cur_window) {
 void drawWindow(window* cur_window) {
      
     window* cur_child;
+    
+    prints("[WYG] Drawing window ");
+    printDecimal(cur_window->handle);
+    pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
         
@@ -223,6 +258,10 @@ void drawWindow(window* cur_window) {
             cur_child = cur_child->next_sibling;
         }
     }
+    
+    prints("[WYG] Finished drawing window ");
+    printDecimal(cur_window->handle);
+    pchar('\n');
     
     return;
 }
