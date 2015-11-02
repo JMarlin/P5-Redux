@@ -284,7 +284,6 @@ void main(void) {
     if(num) {
 
         mode = getModeDetails(num);
-        startGui(mode->width, mode->height);
     } else {
 
         prints("[WYG] Staying in text mode.\n");
