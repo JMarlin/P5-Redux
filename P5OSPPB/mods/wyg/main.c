@@ -377,8 +377,9 @@ void main(void) {
     //GFX command messages
     while(1) {
 
+        prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        prints("[WYG] Got message ");
+        prints("got message ");
         printDecimal(temp_msg.command);
         pchar('\n');
 
