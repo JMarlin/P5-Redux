@@ -1,6 +1,8 @@
 #include "../include/p5.h"
 #include "../include/memory.h"
 
+memblock* root_block = (memblock*)0;
+
 //This is currently very naive implementation which does not allow for
 //free()ing and allocates new chunks of memory in a completely linear 
 //fashion
@@ -10,7 +12,6 @@ void* malloc(unsigned int byte_count) {
 	static unsigned char initialized = 0;
 	static void* free_base = (void*)0;
 	static unsigned int allocated_pages = 0;
-	static memblock* root_block = (memblock*)0;
 	unsigned int trailing_space;
 	memblock* current_block;
 	memblock* new_block;
@@ -98,7 +99,7 @@ void* realloc(void* old_address, unsigned int byte_count) {
 	memblock* old_block = find_memblock(old_address);
 	
 	if(!old_block)
-		return (void*)0
+		return (void*)0;
 	
 	//Malloc the new space
 	void* new_address = malloc(byte_count);

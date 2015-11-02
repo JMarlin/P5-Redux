@@ -112,7 +112,7 @@ void main(void) {
 
     if(!initWYG()) {
         
-        prints("usr.mod could not init WYG.")
+        prints("usr.mod could not init WYG.");
         while(1); //Hang 
     }
     

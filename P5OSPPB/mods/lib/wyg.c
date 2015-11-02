@@ -1,6 +1,7 @@
 #include "../include/wyg.h"
 #include "../include/p5.h"
 #include "../include/registrar.h"
+#include "../include/gfx.h"
 
 message temp_msg;
 unsigned int wyg_pid;
