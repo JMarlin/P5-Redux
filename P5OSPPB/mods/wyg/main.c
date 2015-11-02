@@ -388,7 +388,7 @@ void main(void) {
 
             case WYG_CREATE_WINDOW:
                 src_pid = temp_msg.source;
-                postMessage(temp_msg.source, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, temp_msg.source));
+                postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, temp_msg.source));
             break;
             
             case WYG_GET_CONTEXT:
