@@ -18,4 +18,6 @@ cd ../uhci
 ./build.sh
 cd ../idle
 ./build.sh
+cd ../wyg
+./build.sh
 cd ..
