@@ -293,7 +293,7 @@ void main(void) {
         terminate();
     }
     
-    if(!(registered_windows = (window*)malloc(sizeof(window*)))) {
+    if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
         
         prints("[WYG] Couldn't allocate window LUT.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
