@@ -39,6 +39,7 @@ window** registered_windows;
 unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
     window* new_window;
+    unsigned int i, bufsz;
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
@@ -65,12 +66,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     new_window->h = height;
     
     //Create a drawing context for the new window
-    if(!(root_window.context = newBitmap(new_window->w, new_window->h))) {
+    if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
         prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
+    
+    bufsz = new_window->w * new_window->h;
+    
+    //Clear new window to white
+    for(i = 0; i < bufsz; i++)
+        new_window->context->data[i] = RGB(255, 255 ,255);
     
     prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
@@ -384,32 +391,33 @@ void main(void) {
         printDecimal(temp_msg.command);
         pchar('\n');
 
+        src_pid = temp_msg.source;
+
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
-                src_pid = temp_msg.source;
-                postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, temp_msg.source));
+                postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
             break;
             
             case WYG_GET_CONTEXT:
-                postMessage(temp_msg.source, WYG_GET_CONTEXT, (unsigned int)getWindowContext(temp_msg.payload));
+                postMessage(src_pid, WYG_GET_CONTEXT, (unsigned int)getWindowContext(temp_msg.payload));
             break;
             
             case WYG_GET_DIMS:
                 temp_window = getWindowByHandle(temp_msg.payload);
-                postMessage(temp_msg.source, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF)));
+                postMessage(src_pid, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF)));
             break;
             
             case WYG_MOVE_WINDOW:
                 current_handle = temp_msg.payload;
-                getMessageFrom(&temp_msg, temp_msg.source, WYG_POINT);
+                getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 moveWindow(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
                 refreshTree();
             break;
 
             case WYG_INSTALL_WINDOW:
                 current_handle = temp_msg.payload;
-                getMessageFrom(&temp_msg, temp_msg.source, WYG_WHANDLE);
+                getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);
                 installWindow(current_handle, temp_msg.payload);
             break;
 

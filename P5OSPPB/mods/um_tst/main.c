@@ -107,7 +107,11 @@ void makeWindows() {
     showWindow(window_b);
     
     //Hang
-    while(1);
+    while(1) {
+        
+        if(getch())
+            repaintWindow(window_a);
+    } 
 }
 
 void main(void) {
