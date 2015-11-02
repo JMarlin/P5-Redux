@@ -47,7 +47,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1))))) {
+    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
         prints("[WYG] Window list realloc failed\n");
         return 0;
