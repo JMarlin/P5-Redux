@@ -48,5 +48,6 @@ void* getSharedPages(unsigned int count);
 void* getSharedPage(void);
 unsigned int getImageSize(unsigned int pid);
 unsigned int appendPage(void);
+void printDecimal(unsigned int dword);
 
 #endif //P5_H

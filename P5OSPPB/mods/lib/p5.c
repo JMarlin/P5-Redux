@@ -344,3 +344,27 @@ unsigned int appendPage(void) {
     
     return temp_msg.payload;
 }
+
+void printDecimal(unsigned int dword) {
+
+    unsigned char digit[12];
+    int i, j;
+
+    i = 0;
+    while(1) {
+
+        if(!dword) {
+
+            if(i == 0)
+                digit[i++] = 0;
+
+            break;
+        }
+
+        digit[i++] = dword % 10;
+        dword /= 10;
+    }
+
+    for(j = i - 1; j >= 0; j--)
+        pchar(digit[j] + '0');
+}
