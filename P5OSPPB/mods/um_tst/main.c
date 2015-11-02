@@ -1,6 +1,7 @@
 #include "../include/p5.h"
 #include "../include/gfx.h"
 #include "../include/pci.h"
+#include "../include/wyg.h"
 
 #define CMD_COUNT 6
 
@@ -10,8 +11,6 @@ void consVer(void);
 void usrExit(void);
 void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
-void showModes(void);
-void enterMode(void);
 void pciList(void);
 void doBmp(void);
 void cmd_pchar(unsigned char c);
@@ -85,17 +84,39 @@ void parse(char* cmdbuf) {
     }
 }
 
+void makeWindows() {
+    
+    unsigned int window_a, window_b;
+    
+    //Make two windows
+    window_a = createWindow(300, 200, WIN_FIXEDSIZE);
+    window_b = createWindow(300, 200, WIN_FIXEDSIZE);
+    
+    //Install them into the root window
+    installWindow(window_a, ROOT_WINDOW);
+    installWindow(window_b, ROOT_WINDOW);
+    
+    //Make them prettily cascade
+    moveWindow(window_a, 100, 100);
+    moveWindow(window_b, 150, 150);    
+    
+    //Make them visible
+    showWindow(window_a);
+    showWindow(window_b);
+    
+    //Hang
+    while(1);
+}
+
 void main(void) {
 
-    prints("\nUser environment for P5 build #0x");
-    printHexDword(getBuildNumber());
-    pchar('\n');
-
-    if(!initGfx())
-        prints("\nCould not initialize GFX!\n");
-
-    showModes();
-    enterMode();
+    if(!initWYG()) {
+        
+        prints("usr.mod could not init WYG.")
+        while(1); //Hang 
+    }
+    
+    makeWindows();
 }
 
 void usrClear(void) {
@@ -255,67 +276,6 @@ void printDecimal(unsigned int dword) {
 
     for(j = i - 1; j >= 0; j--)
         pchar(digit[j] + '0');
-}
-
-void showModes(void) {
-
-
-    unsigned short mode_count;
-    unsigned short i;
-    screen_mode* mode;
-
-    prints("Enumerating modes...");
-    mode_count = enumerateModes();
-    prints("done\n");
-
-    prints("\nAvailible modes:\n");
-    for(i = 0; i < mode_count; i++) {
-
-        mode = getModeDetails(i);
-        prints("    ");
-        printDecimal((unsigned int)i);
-        prints(") ");
-        printDecimal((unsigned int)mode->width);
-        pchar('x');
-        printDecimal((unsigned int)mode->height);
-        prints(", ");
-        printDecimal((unsigned int)mode->depth);
-        prints("bpp");
-
-        if(mode->is_linear)
-            prints(" linear");
-
-        pchar('\n');
-    }
-}
-
-void enterMode(void) {
-
-    screen_mode* mode;
-    unsigned short num;
-
-    prints("mode: ");
-    scans(10, inbuf);
-    num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
-
-    if(!setScreenMode(num)) {
-
-        prints("Could not set screen mode.\n");
-        return;
-    }
-
-    prints("Changed screen mode\n");
-
-    if(num) {
-
-        prints("Getting mode details.\n");
-        mode = getModeDetails(num);
-        prints("Starting GUI.\n");
-        startGui(mode->width, mode->height);
-    } else {
-
-        prints("Staying in text mode.\n");
-    }
 }
 
 unsigned char cmd_x;
@@ -714,7 +674,7 @@ void pciList(void) {
     cmd_pchar('\n');
 }
 
-void startGui(unsigned short xres, unsigned short yres) {
+void startGui_old(unsigned short xres, unsigned short yres) {
 
     int i, os_build;
     unsigned char tmpch;

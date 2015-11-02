@@ -435,6 +435,10 @@ void plotPixel16(int x, int y, int color) {
 //pointer when the video mode is set
 void plotPixel(int x, int y, unsigned int color) {
 
+    //Don't draw pixels outside of the framebuffer
+    if(x < 0 || x >= curMode.Xres || y < 0 || y >= curMode.Yres)
+        return;
+
     if(curMode.bpp == 32) plotPixel32(x, y, color);
     if(curMode.bpp == 24) plotPixel24(x, y, color);
     if(curMode.bpp == 16) plotPixel16(x, y, color);

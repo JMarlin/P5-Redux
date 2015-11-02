@@ -185,6 +185,15 @@ void markWindowDirty(unsigned int handle) {
     return;
 }
 
+void drawFrame(window* cur_window) {
+    
+    setColor(RGB(0, 0, 0));
+    setCursor(cur_window->x - 2, cur_window->y - 2);
+    drawRect(cur_window->w + 4, cur_window->h + 4);
+    setCursor(cur_window->x - 1, cur_window->y - 1);
+    drawRect(cur_window->w + 2, cur_window->h + 2);
+}
+
 //Recursively draw all of the child windows of this window
 //At the moment, we're just being super lazy and using 
 //painter's algorithm to redraw EVERYTHING
@@ -192,20 +201,23 @@ void drawWindow(window* cur_window) {
     
     window* cur_child;
     
-    //Start by drawing this window
-    if(!(window->flags & WIN_UNDECORATED))
-        drawFrame(cur_window);
+    if(cur_window->flags | WIN_VISIBLE) {
         
-    setCursor(cur_window->x, cur_window->y);
-    drawBitmap(cur_window->context);
-    
-    //Then recursively draw all children
-    cur_child = cur_window->first_child;
-    
-    while(cur_child) {
+        //Start by drawing this window
+        if(!(window->flags & WIN_UNDECORATED))
+            drawFrame(cur_window);
+            
+        setCursor(cur_window->x, cur_window->y);
+        drawBitmap(cur_window->context);
         
-        drawWindow(cur_child);
-        cur_child = cur_child->next_sibling;
+        //Then recursively draw all children
+        cur_child = cur_window->first_child;
+        
+        while(cur_child) {
+            
+            drawWindow(cur_child);
+            cur_child = cur_child->next_sibling;
+        }
     }
     
     return;
@@ -223,6 +235,7 @@ void main(void) {
     unsigned short num;
     unsigned int current_handle;
     int i;
+    window* temp_window;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -331,6 +344,11 @@ void main(void) {
             
             case WYG_GET_CONTEXT:
                 postMessage(temp_msg.source, WYG_GET_CONTEXT, (unsigned int)getWindowContext(temp_msg.payload));
+            break;
+            
+            case WYG_GET_DIMS:
+                temp_window = getWindowByHandle(temp_msg.payload);
+                postMessage(temp_msg.source, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF));
             break;
             
             case WYG_MOVE_WINDOW:

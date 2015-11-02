@@ -1,6 +1,7 @@
 #include "../include/p5.h"
 
 void startAndWait(char* file);
+void startAndWaitUsr(char* file);
 
 //Update this in the future to read the boot module names from a text file
 void main(void) {
@@ -21,6 +22,10 @@ void main(void) {
     prints("[init] Starting UHCI server...\n");
     startAndWait(":uhci.mod");
 
+    //Start WYG server
+    prints("[init] Starting UHCI server...\n");
+    startAndWaitUsr(":wyg.mod");
+
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
@@ -28,6 +33,17 @@ void main(void) {
     terminate();
 }
 
+void startAndWaitUsr(char* file) {
+
+    message temp_msg;
+    unsigned int pid = startProc(file);
+
+    //Send a message so the child gets the
+    //parent PID, then wait for a message once
+    //the child has registered itself
+    postMessage(pid, 0, 0);
+    getMessage(&temp_msg);
+}
 
 void startAndWait(char* file) {
 
