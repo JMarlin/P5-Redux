@@ -280,6 +280,7 @@ void main(void) {
     int i;
     window* temp_window;
     unsigned char inbuf[12];
+    unsigned int src_pid;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -386,6 +387,7 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
+                src_pid = temp_msg.source;
                 postMessage(temp_msg.source, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, temp_msg.source));
             break;
             
