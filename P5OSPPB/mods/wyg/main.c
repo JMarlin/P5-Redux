@@ -168,8 +168,9 @@ void raiseWindow(unsigned int handle) {
     
     while(owning_sibling->next_sibling != dest_window)
         owning_sibling = owning_sibling->next_sibling;
-        
+                
     owning_sibling->next_sibling = dest_window->next_sibling;
+    dest_window->next_sibling = (window*)0;
     
     while(owning_sibling->next_sibling)
         owning_sibling = owning_sibling->next_sibling;
