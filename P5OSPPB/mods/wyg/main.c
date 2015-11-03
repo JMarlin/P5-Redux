@@ -281,7 +281,7 @@ void drawFrame(window* cur_window) {
     fillRect(2, cur_window->h + 35);
     
     //Right frame
-    setCursor(cur_window->x + cur_window->w, cur_window->y - 32);
+    setCursor(cur_window->x + cur_window->w + 1, cur_window->y - 32);
     fillRect(2, cur_window->h + 35);
     
     //Top frame
@@ -293,7 +293,7 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w + 2, 2);
     
     //Bottom frame
-    setCursor(cur_window->x - 1, cur_window->y + cur_window->h);
+    setCursor(cur_window->x - 1, cur_window->y + cur_window->h + 1);
     fillRect(cur_window->w + 2, 2);
     
     //Titlebar
@@ -302,10 +302,10 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w, 25);
     
     //Button
-    drawPanel(cur_window->x + cur_window->w - 26, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x + cur_window->w - 25, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
     setColor(RGB(238, 203, 137));
     setCursor(cur_window->x + cur_window->w - 25, cur_window->y - 28);
-    fillRect(24, 24);
+    fillRect(23, 23);
 }
 
 //Recursively draw all of the child windows of this window
