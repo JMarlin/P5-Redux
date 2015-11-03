@@ -273,7 +273,7 @@ void drawFrame(window* cur_window) {
     drawPanel(cur_window->x - 1, cur_window->y - 25, cur_window->w + 2, 22, RGB(238, 203, 137), 1, 1);
     
     //Body border
-    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 4, cur_window->h + 4, RGB(238, 203, 137), 1, 1);
+    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 2, cur_window->h + 2, RGB(238, 203, 137), 1, 1);
     
     //Left frame
     setColor(RGB(238, 203, 137));
