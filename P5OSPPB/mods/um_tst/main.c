@@ -111,9 +111,9 @@ void makeWindows() {
         if(getch()) {
             
             if(toggle)                
-                raiseWindow(window_b);
+                focus(window_b);
             else
-                raiseWindow(window_a);
+                focus(window_a);
             
             toggle = !toggle;
         }
