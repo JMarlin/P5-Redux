@@ -302,9 +302,9 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w, 25);
     
     //Button
-    drawPanel(cur_window->x + cur_window->w - 24, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x + cur_window->w - 25, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
     setColor(RGB(238, 203, 137));
-    setCursor(cur_window->x + cur_window->w - 25, cur_window->y - 28);
+    setCursor(cur_window->x + cur_window->w - 24, cur_window->y - 28);
     fillRect(23, 23);
 }
 
