@@ -159,6 +159,10 @@ void raiseWindow(unsigned int handle) {
         return;
     }
     
+    //Can't raise the root window
+    if(handle == 1)
+        return;
+    
     //We don't need to do anything if the window is parentless or already at the end of its chain
     if(!dest_window->parent || !dest_window->next_sibling)
         return;
@@ -166,8 +170,25 @@ void raiseWindow(unsigned int handle) {
     parent = dest_window->parent;
     owning_sibling = parent->first_child;
     
-    while(owning_sibling->next_sibling != dest_window)
-        owning_sibling = owning_sibling->next_sibling;
+    //This only happens if the dest window is the bottommost child
+    if(owning_sibling == dest_window) {
+        
+        //Find the end window
+        while(owning_sibling->next_sibling)
+            owning_sibling = owning_sibling->next_sibling;
+        
+        parent->first_child = dest_window->next_sibling;
+        owning_sibling->next_sibling = dest_window;
+        dest_window->next_sibling = (window*)0;
+        
+        //Go up the tree and make sure the parent is raised
+        raiseWindow(dest_window->parent->handle);
+        
+        return;
+    }
+    
+    while(owning_sibling->next_sibling != dest_window && owning_sibling)
+        owning_sibling = owning_sibling->next_sibling;        
                 
     owning_sibling->next_sibling = dest_window->next_sibling;
     dest_window->next_sibling = (window*)0;
@@ -176,6 +197,9 @@ void raiseWindow(unsigned int handle) {
         owning_sibling = owning_sibling->next_sibling;
         
     owning_sibling->next_sibling = dest_window;
+    
+    //Go up the tree and make sure the parent is raised
+    raiseWindow(dest_window->parent->handle);
 }
 
 void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
