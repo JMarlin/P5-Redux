@@ -204,7 +204,8 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
         prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
     }
-        
+    
+    child_window->parent = parent_window;    
     sibling_window = parent_window->first_child;
     
     if(!sibling_window) {
@@ -217,7 +218,6 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
         sibling_window = sibling_window->next_sibling;
         
     sibling_window->next_sibling = child_window;
-    child_window->parent = parent_window;
     
     return;   
 }
