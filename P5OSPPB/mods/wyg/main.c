@@ -267,44 +267,44 @@ void drawFrame(window* cur_window) {
     pchar('\n');
     
     //Outer border
-    drawPanel(window->x - 4, window->y - 33, window->w + 8, window->h + 37, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x - 4, cur_window->y - 33, cur_window->w + 8, cur_window->h + 37, RGB(238, 203, 137), 1, 0);
     
     //Title border
-    drawPanel(window->x - 1, window->y - 30, window->w + 2, 27, RGB(238, 203, 137), 1, 1);
+    drawPanel(cur_window->x - 1, cur_window->y - 30, cur_window->w + 2, 27, RGB(238, 203, 137), 1, 1);
     
     //Body border
-    drawPanel(window->x - 1, window->y - 1, window->w + 2, window->h + 2, RGB(238, 203, 137), 1, 1);
+    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 2, cur_window->h + 2, RGB(238, 203, 137), 1, 1);
     
     //Left frame
     setColor(RGB(238, 203, 137));
-    setCursor(window->x - 3, window->y - 32);
-    fillRect(2, window->h + 35);
+    setCursor(cur_window->x - 3, cur_window->y - 32);
+    fillRect(2, cur_window->h + 35);
     
     //Right frame
-    setCursor(window->x + window->w, window->y - 32);
-    fillRect(2, window->h + 35);
+    setCursor(cur_window->x + cur_window->w, cur_window->y - 32);
+    fillRect(2, cur_window->h + 35);
     
     //Top frame
-    setCursor(window->x - 1, window->y - 32);
-    fillRect(window->w + 2, 2);
+    setCursor(cur_window->x - 1, cur_window->y - 32);
+    fillRect(cur_window->w + 2, 2);
     
     //Mid frame
-    setCursor(window->x - 1, window->y - 3);
-    fillRect(window->w + 2, 2);
+    setCursor(cur_window->x - 1, cur_window->y - 3);
+    fillRect(cur_window->w + 2, 2);
     
     //Bottom frame
-    setCursor(window->x - 1, window->y + window->h);
-    fillRect(window->w + 2, 2);
+    setCursor(cur_window->x - 1, cur_window->y + cur_window->h);
+    fillRect(cur_window->w + 2, 2);
     
     //Titlebar
     setColor(RGB(182, 0, 0));
-    setCursor(window->x, window->y - 29);
-    fillRect(window->w, 25);
+    setCursor(cur_window->x, cur_window->y - 29);
+    fillRect(cur_window->w, 25);
     
     //Button
-    drawPanel(window->x + window->w - 26, window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x + cur_window->w - 26, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
     setColor(RGB(238, 203, 137));
-    setCursor(window->x + window->w - 25, window->y - 28);
+    setCursor(cur_window->x + cur_window->w - 25, cur_window->y - 28);
     fillRect(24, 24);
 }
 
