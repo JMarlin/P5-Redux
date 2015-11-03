@@ -267,25 +267,25 @@ void drawFrame(window* cur_window) {
     pchar('\n');
     
     //Outer border
-    drawPanel(cur_window->x - 4, cur_window->y - 33, cur_window->w + 8, cur_window->h + 37, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
     
     //Title border
-    drawPanel(cur_window->x - 1, cur_window->y - 30, cur_window->w + 2, 27, RGB(238, 203, 137), 1, 1);
+    drawPanel(cur_window->x - 1, cur_window->y - 25, cur_window->w + 2, 22, RGB(238, 203, 137), 1, 1);
     
     //Body border
-    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 3, cur_window->h + 3, RGB(238, 203, 137), 1, 1);
+    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 4, cur_window->h + 4, RGB(238, 203, 137), 1, 1);
     
     //Left frame
     setColor(RGB(238, 203, 137));
-    setCursor(cur_window->x - 3, cur_window->y - 32);
-    fillRect(2, cur_window->h + 35);
+    setCursor(cur_window->x - 3, cur_window->y - 27);
+    fillRect(2, cur_window->h + 30);
     
     //Right frame
-    setCursor(cur_window->x + cur_window->w + 1, cur_window->y - 32);
-    fillRect(2, cur_window->h + 35);
+    setCursor(cur_window->x + cur_window->w + 1, cur_window->y - 27);
+    fillRect(2, cur_window->h + 30);
     
     //Top frame
-    setCursor(cur_window->x - 1, cur_window->y - 32);
+    setCursor(cur_window->x - 1, cur_window->y - 27);
     fillRect(cur_window->w + 2, 2);
     
     //Mid frame
@@ -298,14 +298,14 @@ void drawFrame(window* cur_window) {
     
     //Titlebar
     setColor(RGB(182, 0, 0));
-    setCursor(cur_window->x, cur_window->y - 29);
-    fillRect(cur_window->w, 25);
+    setCursor(cur_window->x, cur_window->y - 24);
+    fillRect(cur_window->w, 20);
     
     //Button
-    drawPanel(cur_window->x + cur_window->w - 25, cur_window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
+    drawPanel(cur_window->x + cur_window->w - 20, cur_window->y - 24, 20, 20, RGB(238, 203, 137), 1, 0);
     setColor(RGB(238, 203, 137));
-    setCursor(cur_window->x + cur_window->w - 24, cur_window->y - 28);
-    fillRect(23, 23);
+    setCursor(cur_window->x + cur_window->w - 19, cur_window->y - 23);
+    fillRect(18, 18);
 }
 
 //Recursively draw all of the child windows of this window
