@@ -87,6 +87,7 @@ void parse(char* cmdbuf) {
 void makeWindows() {
     
     unsigned int window_a, window_b;
+    unsigned char toggle = 0;
     
     //Make two windows
     window_a = createWindow(300, 200, WIN_FIXEDSIZE);
@@ -107,8 +108,15 @@ void makeWindows() {
     //Hang
     while(1) {
         
-        if(getch())
-            repaintWindow(window_a);
+        if(getch()) {
+            
+            if(toggle)                
+                raiseWindow(window_b);
+            else
+                raiseWindow(window_a);
+            
+            toggle = !toggle;
+        }
     } 
 }
 

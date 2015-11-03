@@ -147,6 +147,36 @@ bitmap* getWindowContext(unsigned int handle) {
     return dest_window->context;
 }
 
+void raiseWindow(unsigned int handle) {
+    
+    window* parent;
+    window* owning_sibling;
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) {
+     
+        prints("[WYG] Couldn't find the window to be raised\n");   
+        return;
+    }
+    
+    //We don't need to do anything if the window is parentless or already at the end of its chain
+    if(!dest_window->parent || !dest_window->next_sibling)
+        return;
+        
+    parent = dest_window->parent;
+    owning_sibling = parent->first_child;
+    
+    while(owning_sibling->next_sibling != dest_window)
+        owning_sibling = owning_sibling->next_sibling;
+        
+    owning_sibling->next_sibling = dest_window->next_sibling;
+    
+    while(owning_sibling->next_sibling)
+        owning_sibling = owning_sibling->next_sibling;
+        
+    owning_sibling->next_sibling = dest_window;
+}
+
 void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
     
     window* dest_window = getWindowByHandle(handle);
@@ -187,6 +217,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
         sibling_window = sibling_window->next_sibling;
         
     sibling_window->next_sibling = child_window;
+    child_window->parent = parent_window;
     
     return;   
 }
@@ -497,6 +528,11 @@ void main(void) {
 
             case WYG_SHOW_WINDOW:
                 markWindowVisible(temp_msg.payload);
+                refreshTree();
+            break;
+            
+            case WYG_RAISE_WINDOW:
+                raiseWindow(temp_msg.payload);
                 refreshTree();
             break;
 

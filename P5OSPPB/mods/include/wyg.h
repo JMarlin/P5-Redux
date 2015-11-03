@@ -10,6 +10,7 @@
 #define WYG_POINT 7
 #define WYG_WHANDLE 8
 #define WYG_GET_DIMS 9
+#define WYG_RAISE_WINDOW 10
 
 #define ROOT_WINDOW 1
 
@@ -27,5 +28,6 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle);
 void showWindow(unsigned int handle);
 void repaintWindow(unsigned int handle);
 void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short *h); 
+void focus(unsigned int handle);
 
 #endif //WYG_H

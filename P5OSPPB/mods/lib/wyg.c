@@ -62,3 +62,8 @@ void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short 
 	*w = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
 	*h = (unsigned short)(temp_msg.payload & 0xFFFF);
 }
+
+void focus(unsigned int handle) {
+	
+	postMessage(wyg_pid, WYG_RAISE_WINDOW, handle);
+}
