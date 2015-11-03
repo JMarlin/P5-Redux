@@ -221,17 +221,91 @@ void markWindowDirty(unsigned int handle) {
     return;
 }
 
+void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
+
+    unsigned char r = RVAL(color);
+    unsigned char g = GVAL(color);
+    unsigned char b = BVAL(color);
+    unsigned int light_color = RGB(r > 195 ? 255 : r + 60, g > 195 ? 255 : g + 60, b > 195 ? 255 : b + 60);
+    unsigned int shade_color = RGB(r < 60 ? 0 : r - 60, g < 60 ? 0 : g - 60, b < 60 ? 0 : b - 60);
+    unsigned int temp;
+    int i;
+
+    if(invert) {
+
+        temp = shade_color;
+        shade_color = light_color;
+        light_color = temp;
+    }
+
+    for(i = 0; i < border_width; i++) {
+
+        //Top edge
+        setCursor(x+i, y+i);
+        setColor(light_color);
+        drawHLine(width-(2*i));
+
+        //Left edge
+        setCursor(x+i, y+i+1);
+        drawVLine(height-((i+1)*2));
+
+        //Bottom edge
+        setCursor(x+i, (y+height)-(i+1));
+        setColor(shade_color);
+        drawHLine(width-(2*i));
+
+        //Right edge
+        setCursor(x+width-i-1, y+i+1);
+        drawVLine(height-((i+1)*2));
+    }
+}
+
 void drawFrame(window* cur_window) {
     
     prints("[WYG] Drawing frame for window ");
     printDecimal(cur_window->handle);
     pchar('\n');
     
-    setColor(RGB(0, 0, 0));
-    setCursor(cur_window->x - 2, cur_window->y - 2);
-    drawRect(cur_window->w + 4, cur_window->h + 4);
-    setCursor(cur_window->x - 1, cur_window->y - 1);
-    drawRect(cur_window->w + 2, cur_window->h + 2);
+    //Outer border
+    drawPanel(window->x - 4, window->y - 33, window->w + 8, window->h + 37, RGB(238, 203, 137), 1, 0);
+    
+    //Title border
+    drawPanel(window->x - 1, window->y - 30, window->w + 2, 27, RGB(238, 203, 137), 1, 1);
+    
+    //Body border
+    drawPanel(window->x - 1, window->y - 1, window->w + 2, window->h + 2, RGB(238, 203, 137), 1, 1);
+    
+    //Left frame
+    setColor(RGB(238, 203, 137));
+    setCursor(window->x - 3, window->y - 32);
+    fillRect(2, window->h + 35);
+    
+    //Right frame
+    setCursor(window->x + window->w, window->y - 32);
+    fillRect(2, window->h + 35);
+    
+    //Top frame
+    setCursor(window->x - 1, window->y - 32);
+    fillRect(window->w + 2, 2);
+    
+    //Mid frame
+    setCursor(window->x - 1, window->y - 3);
+    fillRect(window->w + 2, 2);
+    
+    //Bottom frame
+    setCursor(window->x - 1, window->y + window->h);
+    fillRect(window->w + 2, 2);
+    
+    //Titlebar
+    setColor(RGB(182, 0, 0));
+    setCursor(window->x, window->y - 29);
+    fillRect(window->w, 25);
+    
+    //Button
+    drawPanel(window->x + window->w - 26, window->y - 29, 25, 25, RGB(238, 203, 137), 1, 0);
+    setColor(RGB(238, 203, 137));
+    setCursor(window->x + window->w - 25, window->y - 28);
+    fillRect(24, 24);
 }
 
 //Recursively draw all of the child windows of this window

@@ -89,9 +89,7 @@ void makeWindows() {
     unsigned int window_a, window_b;
     
     //Make two windows
-    prints("[UM] Sending request to make new window A\n");
     window_a = createWindow(300, 200, WIN_FIXEDSIZE);
-    prints("[UM] Sending request to make new window B\n");
     window_b = createWindow(300, 200, WIN_FIXEDSIZE);
     
     //Install them into the root window
