@@ -353,7 +353,7 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w + 2, 2);
     
     //Titlebar
-    if(1) //cur_window->next_sibling == (window*)0)
+    if(cur_window->next_sibling == (window*)0)
         pchar('a'); //setColor(RGB(182, 0, 0));
     else 
         pchar('b'); //setColor(RGB(238, 203, 137));
