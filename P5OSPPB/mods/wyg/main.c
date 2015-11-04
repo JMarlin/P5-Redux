@@ -353,12 +353,7 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w + 2, 2);
     
     //Titlebar
-    //Set the titlebar color based on whether the window is top-level
-    if(cur_window->next_sibling)
-        setColor(RGB(182, 0, 0));
-    else
-        setColor(RGB(238, 203, 137));
-        
+    setColor(RGB(182, 0, 0));
     setCursor(cur_window->x, cur_window->y - 24);
     fillRect(cur_window->w, 20);
     
