@@ -162,7 +162,7 @@ void raiseWindow(unsigned int handle) {
     //Can't raise the root window
     if(handle == 1)
         return;
-    
+        
     //We don't need to do anything if the window is parentless or already at the end of its chain
     if(!dest_window->parent || !dest_window->next_sibling)
         return;
@@ -353,7 +353,12 @@ void drawFrame(window* cur_window) {
     fillRect(cur_window->w + 2, 2);
     
     //Titlebar
-    setColor(RGB(182, 0, 0));
+    //Set the titlebar color based on whether the window is top-level
+    if(cur_window->next_sibling)
+        setColor(RGB(182, 0, 0));
+    else
+        setColor(RGB(238, 203, 137));
+        
     setCursor(cur_window->x, cur_window->y - 24);
     fillRect(cur_window->w, 20);
     
