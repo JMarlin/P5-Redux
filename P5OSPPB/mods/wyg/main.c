@@ -46,11 +46,17 @@ int cmd_max_chars, cmd_max_lines;
 
 void cmd_getCursor(unsigned char *x, unsigned char *y) {
 
+    if(!inited)
+        return;
+
     *x = cmd_x;
     *y = cmd_y;
 }
 
 void cmd_putCursor(unsigned char x, unsigned char y) {
+
+    if(!inited)
+        return;
 
     cmd_x = x;
     cmd_y = y;
@@ -98,6 +104,9 @@ void cmd_pchar(unsigned char c) {
 
 void cmd_prints(unsigned char* s) {
 
+    if(!inited)
+        return;
+
     while(*s)
         cmd_pchar(*s++);
 }
@@ -114,6 +123,9 @@ void cmd_printClear(int count) {
 }
 
 void cmd_printDecimal(unsigned int dword) {
+
+    if(!inited)
+        return;
 
     unsigned char digit[12];
     int i, j;
@@ -139,6 +151,9 @@ void cmd_printDecimal(unsigned int dword) {
 
 void cmd_printHexByte(unsigned char byte) {
 
+    if(!inited)
+        return;
+
     cmd_pchar(digitToHex((byte & 0xF0)>>4));
     cmd_pchar(digitToHex(byte & 0xF));
 }
@@ -146,12 +161,18 @@ void cmd_printHexByte(unsigned char byte) {
 
 void cmd_printHexWord(unsigned short wd) {
 
+    if(!inited)
+        return;
+
     cmd_printHexByte((unsigned char)((wd & 0xFF00)>>8));
     cmd_printHexByte((unsigned char)(wd & 0xFF));
 }
 
 
 void cmd_printHexDword(unsigned int dword) {
+
+    if(!inited)
+        return;
 
     cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
     cmd_printHexWord((unsigned short)(dword & 0xFFFF));
@@ -650,6 +671,7 @@ void main(void) {
     
     //Start debug console
     cmd_init(root_window.w, 48);
+    while(1);
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
