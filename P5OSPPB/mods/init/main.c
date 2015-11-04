@@ -15,12 +15,12 @@ void main(void) {
     startAndWait(":vesa.mod");
 
     //Start PCI server
-    //prints("[init] Starting pci server...\n");
-    //startAndWait(":pci.mod");
+    prints("[init] Starting pci server...\n");
+    startAndWait(":pci.mod");
 
     //Start UHCI server
-    //prints("[init] Starting UHCI server...\n");
-    //startAndWait(":uhci.mod");
+    prints("[init] Starting UHCI server...\n");
+    startAndWait(":uhci.mod");
 
     //Start WYG server
     prints("[init] Starting UHCI server...\n");

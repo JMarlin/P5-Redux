@@ -35,6 +35,139 @@ window root_window;
 unsigned int next_handle;
 unsigned int window_count;
 window** registered_windows;
+unsigned char inited = 0;
+
+/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
+unsigned char cmd_x;
+unsigned char cmd_y;
+int cmd_width;
+int cmd_height;
+int cmd_max_chars, cmd_max_lines;
+
+void cmd_getCursor(unsigned char *x, unsigned char *y) {
+
+    *x = cmd_x;
+    *y = cmd_y;
+}
+
+void cmd_putCursor(unsigned char x, unsigned char y) {
+
+    cmd_x = x;
+    cmd_y = y;
+}
+
+void cmd_pchar(unsigned char c) {
+
+    if(!inited)
+        return;
+
+    if(c == '\n') {
+
+        cmd_x = 0;
+        cmd_y++;
+        
+        if(cmd_y > cmd_max_lines) 
+            cmd_clear();
+    } else {
+
+        drawCharacter(c, (cmd_x*8), (cmd_y*12), RGB(0, 0, 0));
+        cmd_x++;
+
+        if(cmd_x > cmd_max_chars) {
+
+            cmd_x = 0;
+            cmd_y++;
+            
+            if(cmd_y > cmd_max_lines) 
+                cmd_clear();
+        }
+    }
+}
+
+void cmd_prints(unsigned char* s) {
+
+    while(*s)
+        cmd_pchar(*s++);
+}
+
+void cmd_printClear(int count) {
+
+    if(!inited)
+        return;
+
+    setCursor((cmd_x*8), (cmd_y*12));
+    setColor(0);
+    fillRect(8*count, 12);
+    cmd_x += count;
+}
+
+void cmd_clear() {
+
+    if(!inited)
+        return;
+
+    setCursor(0, 0);
+    setColor(RGB(255, 255, 255));
+    fillRect(cmd_width, cmd_height);
+    cmd_x = 0;
+    cmd_y = 0;
+}
+
+void cmd_printDecimal(unsigned int dword) {
+
+    unsigned char digit[12];
+    int i, j;
+
+    i = 0;
+    while(1) {
+
+        if(!dword) {
+
+            if(i == 0)
+                digit[i++] = 0;
+
+            break;
+        }
+
+        digit[i++] = dword % 10;
+        dword /= 10;
+    }
+
+    for(j = i - 1; j >= 0; j--)
+        cmd_pchar(digit[j] + '0');
+}
+
+void cmd_printHexByte(unsigned char byte) {
+
+    cmd_pchar(digitToHex((byte & 0xF0)>>4));
+    cmd_pchar(digitToHex(byte & 0xF));
+}
+
+
+void cmd_printHexWord(unsigned short wd) {
+
+    cmd_printHexByte((unsigned char)((wd & 0xFF00)>>8));
+    cmd_printHexByte((unsigned char)(wd & 0xFF));
+}
+
+
+void cmd_printHexDword(unsigned int dword) {
+
+    cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    cmd_printHexWord((unsigned short)(dword & 0xFFFF));
+}
+
+void cmd_init(unsigned short xres, unsigned short yres) {
+
+    cmd_x = 0;
+    cmd_y = 0;
+    cmd_width = xres;
+    cmd_height = yres;
+    cmd_max_chars = (cmd_width/8) - 1;
+    cmd_max_lines = (cmd_height/12) - 1;
+    inited = 1;
+}
+/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
 unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
@@ -43,18 +176,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-        prints("[WYG] Couldn't allocate a new window\n");
+        cmd_prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
     if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-        prints("[WYG] Window list realloc failed\n");
+        cmd_prints("[WYG] Window list realloc failed\n");
         return 0;
     }
     
-    prints("[WYG] Created new window, setting initial values\n");
+    cmd_prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
@@ -68,7 +201,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-        prints("[WYG] Could not create a new window context\n");
+        cmd_prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
@@ -79,13 +212,13 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
     
-    prints("[WYG] Installing new window into window list\n");
+    cmd_prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
     
-    prints("[WYG] Successfully created new window ");
-    printDecimal(new_window->handle);
-    pchar('\n');
+    cmd_prints("[WYG] Successfully created new window ");
+    cmd_printDecimal(new_window->handle);
+    cmd_pchar('\n');
     return new_window->handle;
 }
 
@@ -140,7 +273,7 @@ bitmap* getWindowContext(unsigned int handle) {
     
     if(!dest_window) {
      
-        prints("[WYG] Couldn't find the window to get its context\n");   
+        cmd_prints("[WYG] Couldn't find the window to get its context\n");   
         return (bitmap*)0;
     }
         
@@ -155,7 +288,7 @@ void raiseWindow(unsigned int handle) {
     
     if(!dest_window) {
      
-        prints("[WYG] Couldn't find the window to be raised\n");   
+        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -208,7 +341,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     
     if(!dest_window) {
      
-        prints("[WYG] Couldn't find the window to set its location\n");   
+        cmd_prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
         
@@ -226,7 +359,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     
     if(!child_window || !parent_window) {
      
-        prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
+        cmd_prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
     }
     
@@ -253,7 +386,7 @@ void markWindowVisible(unsigned int handle) {
     
     if(!dest_window) {
      
-        prints("[WYG] Couldn't find window to mark it visible\n");   
+        cmd_prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
         
@@ -268,7 +401,7 @@ void markWindowDirty(unsigned int handle) {
     
     if(!dest_window) {
      
-        prints("[WYG] Couldn't find window to mark it dirty\n");   
+        cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
         
@@ -318,9 +451,9 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
 
 void drawFrame(window* cur_window) {
     
-    prints("[WYG] Drawing frame for window ");
-    printDecimal(cur_window->handle);
-    pchar('\n');
+    cmd_prints("[WYG] Drawing frame for window ");
+    cmd_printDecimal(cur_window->handle);
+    cmd_pchar('\n');
     
     //Outer border
     drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
@@ -375,9 +508,9 @@ void drawWindow(window* cur_window) {
      
     window* cur_child;
     
-    prints("[WYG] Drawing window ");
-    printDecimal(cur_window->handle);
-    pchar('\n');
+    cmd_prints("[WYG] Drawing window ");
+    cmd_printDecimal(cur_window->handle);
+    cmd_pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
         
@@ -400,9 +533,9 @@ void drawWindow(window* cur_window) {
         }
     }
     
-    prints("[WYG] Finished drawing window ");
-    printDecimal(cur_window->handle);
-    pchar('\n');
+    cmd_prints("[WYG] Finished drawing window ");
+    cmd_printDecimal(cur_window->handle);
+    cmd_pchar('\n');
     
     return;
 }
@@ -514,16 +647,19 @@ void main(void) {
         root_window.context->data[i] = RGB(11, 162, 193);
         
     refreshTree();
+    
+    //Start debug console
+    cmd_init(root_window.w, 48);
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
     while(1) {
 
-        prints("[WYG] Waiting for message...");
+        cmd_prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        prints("got message ");
-        printDecimal(temp_msg.command);
-        pchar('\n');
+        cmd_prints("got message ");
+        cmd_printDecimal(temp_msg.command);
+        cmd_pchar('\n');
 
         src_pid = temp_msg.source;
 
