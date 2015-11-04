@@ -56,6 +56,18 @@ void cmd_putCursor(unsigned char x, unsigned char y) {
     cmd_y = y;
 }
 
+void cmd_clear() {
+
+    if(!inited)
+        return;
+
+    setCursor(0, 0);
+    setColor(RGB(255, 255, 255));
+    fillRect(cmd_width, cmd_height);
+    cmd_x = 0;
+    cmd_y = 0;
+}
+
 void cmd_pchar(unsigned char c) {
 
     if(!inited)
@@ -99,18 +111,6 @@ void cmd_printClear(int count) {
     setColor(0);
     fillRect(8*count, 12);
     cmd_x += count;
-}
-
-void cmd_clear() {
-
-    if(!inited)
-        return;
-
-    setCursor(0, 0);
-    setColor(RGB(255, 255, 255));
-    fillRect(cmd_width, cmd_height);
-    cmd_x = 0;
-    cmd_y = 0;
 }
 
 void cmd_printDecimal(unsigned int dword) {
