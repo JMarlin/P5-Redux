@@ -352,15 +352,12 @@ void drawFrame(window* cur_window) {
     setCursor(cur_window->x - 1, cur_window->y + cur_window->h + 1);
     fillRect(cur_window->w + 2, 2);
     
-    printHexDword((unsigned int)200);
-    
     //Titlebar
-    if(1)
-        pchar('a'); //setColor(RGB(182, 0, 0));
+    if(cur_window->next_sibling == (window*)0)
+        setColor(RGB(182, 0, 0));
     else 
-        pchar('b'); //setColor(RGB(238, 203, 137));
+        setColor(RGB(238, 203, 137));
     
-    setColor(RGB(238, 203, 137));    
     setCursor(cur_window->x, cur_window->y - 24);
     fillRect(cur_window->w, 20);
     
