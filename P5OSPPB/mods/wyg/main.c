@@ -44,6 +44,13 @@ int cmd_width;
 int cmd_height;
 int cmd_max_chars, cmd_max_lines;
 
+void drawCharacter(char c, int x, int y, unsigned int color) {
+
+    setCursor(x, y);
+    setColor(color);
+    drawChar(c);
+}
+
 void cmd_getCursor(unsigned char *x, unsigned char *y) {
 
     if(!inited)
@@ -671,7 +678,6 @@ void main(void) {
     
     //Start debug console
     cmd_init(root_window.w, 48);
-    while(1);
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
