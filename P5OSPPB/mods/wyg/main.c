@@ -352,7 +352,7 @@ void drawFrame(window* cur_window) {
     setCursor(cur_window->x - 1, cur_window->y + cur_window->h + 1);
     fillRect(cur_window->w + 2, 2);
     
-    printHexDword((unsigned int)cur_window->next_sibling);
+    printHexDword((unsigned int)cur_window->parent);
     
     //Titlebar
     if(1)
