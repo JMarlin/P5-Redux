@@ -224,8 +224,8 @@ void main(void) {
                     outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
     
                     //Enable port, check to see if a device is installed
-                    prints("Enabling port");
-                    printDecimal(((portreg - 0x10) / 2) + 1);
+                    prints("Enabling port ");
+                    printHexWord(((portreg - (0x10 + usb_base)) / 2) + 1);
                     prints(" and checking for device\n");
                     outw(portreg, 0x0004); //Enable port
     
@@ -237,7 +237,7 @@ void main(void) {
     
                         //If device is installed, send a reset to the port
                         prints("Resetting device on port ");
-                        printDecimal(((portreg - 0x10) / 2) + 1);
+                        printHexWord(((portreg - (0x10 + usb_base)) / 2) + 1);
                         pchar('\n');
                         outw(portreg, 0x0204); //Port enabled, RESET state asserted
                         sleep(20); //Try waiting a ridiculous amount of time
