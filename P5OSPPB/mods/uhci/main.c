@@ -140,6 +140,9 @@ void main(void) {
                 }
 
                 pchar('\n');
+                
+                //Enable the device for memory and i/o access and bus master capability
+                pciWriteField((pci_address)i, 1, pciReadField((pci_address)i, 1) | 0x7);
 
                 //Print USB control register states
                 prints("[uhci]      USBCMD: 0x");
@@ -267,7 +270,7 @@ void main(void) {
                         usb_ram[7] = (unsigned int)&usb_ram[20]; //Pointer for the buffer that the controller should read the packet data from
                         usb_ram[8] = 0; usb_ram[9] = 0; usb_ram[10] = 0; usb_ram[11] = 0; //There's extra shit here, fuck if I know why
                         usb_ram[12] = 0x1; //This starts the TD and is a null terminate pointer as it will also be the last TD
-                        usb_ram[13] = 0x3C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
+                        usb_ram[13] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
                         usb_ram[14] = 0x02280069; //eighteen bytes data, endpoint 0, address 0, PID 0x69 (IN), DATA 1
                         usb_ram[15] = (unsigned int)&usb_ram[22]; //Pointer for the buffer that the controller should read the packet data to
                         usb_ram[16] = 0; usb_ram[17] = 0; usb_ram[18] = 0; usb_ram[19] = 0; //There's extra shit here, fuck if I know why
@@ -355,6 +358,7 @@ void main(void) {
                                 printHexDword(usb_ram[25]); pchar('\n');
                                 printHexDword(usb_ram[26]); pchar('\n');
                                 td2 = 1;
+                                while(1); //REMOVE ME
                             }
     
                             if(!(usb_ram[13] & 0x18000000)) {
