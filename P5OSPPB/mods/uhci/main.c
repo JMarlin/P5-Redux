@@ -381,8 +381,9 @@ void main(void) {
                     }
                 }
             }
-            while(1); //Temporarily hang once we're done with the first port for testing
         }
+        
+        while(1); //Temporarily hang once we're done with the first port for testing
     }
 
 	prints("[uhci] Done.\n");
