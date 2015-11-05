@@ -64,7 +64,7 @@ void main(void) {
     unsigned char td1 = 0, td2 = 0;
     unsigned char port_count;
     unsigned short temp;
-    unsigned char portreg, maxport;
+    unsigned short portreg, maxport;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -218,9 +218,9 @@ void main(void) {
                     printHexDword(address_test);
                 }
 
-                maxport = 0x10 + (port_count * 2);
+                maxport = usb_base + 0x10 + (port_count * 2);
 
-                for(portreg = 0x10; portreg < maxport; portreg += 2) {
+                for(portreg = usb_base + 0x10; portreg < maxport; portreg += 2) {
                     outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
     
                     //Enable port, check to see if a device is installed
