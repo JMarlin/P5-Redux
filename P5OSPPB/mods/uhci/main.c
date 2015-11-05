@@ -161,7 +161,7 @@ void main(void) {
                 prints("\n[uhci]      FLBASEADD: 0x");
                 printHexDword(address_test);
                 pchar('/');
-                printHexDword((unsigned int)usb_ram);
+                printHexDword((unsigned int)frame_list);
                 prints("  SOFMOD: 0x");
                 printHexByte(inb(usb_base + 0x0C));
                 prints("\n[uhci]      PORTSC1: 0x");
@@ -232,6 +232,8 @@ void main(void) {
                     j = 0;
                     while(j < 0xFFFFF && !(inw(portreg) & 0x0004))  //Wait for the port to be enabled
                         j++;
+    
+                    sleep(100); //Wait at least 64 usb times for device detection to occur
     
                     if((j < 0xFFFFF) && (inw(portreg) & 0x0001)) {
     
