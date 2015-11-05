@@ -142,7 +142,7 @@ void main(void) {
                 pchar('\n');
                 
                 //Enable the device for memory and i/o access and bus master capability
-                pciWriteField((pci_address)i, 1, pciReadField((pci_address)i, 1) | 0x7);
+                pciWriteField((pci_address)i, 1, pciReadField((pci_address)i, 1) | 0x70000);
 
                 //Print USB control register states
                 prints("[uhci]      USBCMD: 0x");
