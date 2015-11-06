@@ -229,7 +229,7 @@ void main(void) {
                     sleep(250); //Wait at least 64 usb times for device detection to occur (spec says at least 50, we're doing 250 to deal with flaky devices)
                     outw(portreg, 0x0000); //Clear reset
                     while(inw(portreg) & 0x0200); //Wait for reset to clear
-                    outw(portreg, 0x0002); //Enable port
+                    outw(portreg, 0x0004); //Enable port
                     sleep(10); //Wait for the device to come online 
     
                     if(inw(portreg) & 0x0001) {
