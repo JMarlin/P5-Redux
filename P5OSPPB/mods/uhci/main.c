@@ -185,7 +185,7 @@ void main(void) {
                     prints("HC greset did not complete\n");
                 outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
                 outw(usb_base + 0x04, 0x0); //Set all interrupts off
-                outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
+                outw(usb_base, 0x00C0); //Max packet = 64 (default), set configure flag, controller stopped
                 //Set up default controller state (no interrupts, debug on, )
                 //outw(usb_base + 0x02, inw(usb_base + 0x02) & 0x1F); //Clear USBSTS
                 //Disable USB legacy support
@@ -317,7 +317,7 @@ while(1);
                                 }
                                 
                                 //Set software debug on
-                                outw(usb_base, inw(usb_base) | 0x20);
+                                //outw(usb_base, inw(usb_base) | 0x20);
         
                                 //We should clear HCHalted here, to make sure we're not reading our own value later on
                                 outw(usb_base + 0x02, 0x20); //The usbsts register is R/WC which means that writing a one to a location resets its value to zero
