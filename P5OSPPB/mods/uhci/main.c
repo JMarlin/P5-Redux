@@ -391,7 +391,11 @@ void main(void) {
                             //Exit early if the first attempt worked
                             if(td1 && td2)
                                 break;
+                                
+                            if(j)
+                                prints("Second attempt failed\n");
                         }
+                        
                         
                         while(1); //Temporarily hang once we're done with the first port for testing
                     } else {
