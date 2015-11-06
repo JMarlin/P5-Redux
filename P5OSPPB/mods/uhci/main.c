@@ -142,7 +142,7 @@ void main(void) {
                 pchar('\n');
                 
                 //Enable the device for memory and i/o access and bus master capability
-                pciWriteField((pci_address)i, 1, pciReadField((pci_address)i, 1) | 0x70000);
+                pciWriteField((pci_address)i, 1, pciReadField((pci_address)i, 1) | 0x7);
 
                 //Print USB control register states
                 prints("[uhci]      USBCMD: 0x");
@@ -278,7 +278,7 @@ void main(void) {
                         usb_buf[0] = 0x80; //(device, standard, device-to-host)
                         usb_buf[1] = 0x06; //Get descriptor
                         usb_buf[2] = 0x00; //Descriptor index 0
-                        usb_buf[3] = 0x10; //Device descriptor
+                        usb_buf[3] = 0x01; //Device descriptor
                         usb_buf[4] = 0x0; //wIndex = 0
                         usb_buf[5] = 0x0; //wIndex = 0
                         usb_buf[6] = 0x12; //wLength = 18 bytes
@@ -286,6 +286,15 @@ void main(void) {
                         //usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                         //usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
     
+    /*
+      GetDvcDescrReq:
+    DB SRRTIn+SRRTTypeStandard+SRRTRecipDevice = 0x80 + 0x00 + 0x00 = 0x80
+    DB SRRQGetDescriptor = 0x06
+    DB 0
+    DB DescrTypeDevice = 0x01
+    DW 0
+    DW DvcDescrSize = 0x12
+    */
     
                         usb_ram[22] = 0x0; //This is the buffer into which our device descriptor should be read
                         usb_ram[23] = 0x0;
