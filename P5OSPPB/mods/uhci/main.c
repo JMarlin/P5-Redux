@@ -256,8 +256,8 @@ void main(void) {
                             frame_list[j] = ((unsigned int)(&usb_ram[0])) | 0x02; //All frame list pointers points to a qh at usb_ram[0] (TDs are 16-byte aligned) and has 'terminate' unmarked
                         //This is a queue head which will point to our default queue of TDs
                         usb_ram[0] = 0x01; //This is the head of our test queue, set to terminate
-                        usb_ram[1] = ((unsigned int)&usb_ram[4] & 0xFFFFFFF0); // Pointer to the first TD in the list
-                        usb_ram[4] = ((unsigned int)(&usb_ram[12])); //This starts the TD, and points to the next TD in the list
+                        usb_ram[1] = ((unsigned int)&usb_ram[4] & 0xFFFFFFF0); // Pointer to the first TD in the list, 
+                        usb_ram[4] = ((unsigned int)&usb_ram[12] & 0xFFFFFFF0) | 0x4; //This starts the TD, and points to the next TD in the list -- also marked depth-first
                         usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
                         usb_ram[6] = 0x00E0002D; //eight bytes data, endpoint 0, address 0, PID 0x2D (SETUP), DATA 0
                         usb_ram[7] = (unsigned int)&usb_ram[20]; //Pointer for the buffer that the controller should read the packet data from
