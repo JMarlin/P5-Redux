@@ -391,6 +391,8 @@ void main(void) {
                             //Poll HCHalted until the device is halted
                             //Display TD status
                         }
+                        
+                        while(1); //Temporarily hang once we're done with the first port for testing
                     } else {
     
                         outw(portreg, 0x000A); //Disable port
@@ -400,7 +402,7 @@ void main(void) {
             }
         }
         
-        while(1); //Temporarily hang once we're done with the first port for testing
+        while(1); 
     }
 
 	prints("[uhci] Done.\n");
