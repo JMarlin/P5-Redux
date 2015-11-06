@@ -231,9 +231,8 @@ void main(void) {
                     printHexWord(((portreg - (0x10 + usb_base)) / 2) + 1);
                     prints("\n");
                     outw(portreg, 0x0200); //Reset port
-                    sleep(55); //Wait at least 64 usb times for device detection to occur
-                    outw(portreg, 0x0000); //Clear reset
-                    outw(portreg, 0x0004); //Set port enabled 
+                    sleep(50); //Wait at least 64 usb times for device detection to occur
+                    outw(portreg, 0x0004); //Clear reset, enable port
                     sleep(10); //Wait for the device to come online
     
                     if(inw(portreg) & 0x0001) {
