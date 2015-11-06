@@ -234,8 +234,10 @@ void main(void) {
                     while(!(inw(portreg) & 0x0200)); //Wait for reset to start
                     sleep(250); //Wait at least 64 usb times for device detection to occur (spec says at least 50, we're doing 250 to deal with flaky devices)
                     outw(portreg, 0x0000); //Clear reset
+                    prints("Waiting for port to exit reset\n");
+                    while(inw(portreg) & 0x0200);
                     outw(portreg, 0x0004); //Enable port
-                    prints("Waiting for port to be enabled");
+                    prints("Waiting for port to be enabled\n");
                     for(j = 0; j < 20; j++) {
                         
                         if(inw(portreg) & 0x0004)
