@@ -281,7 +281,7 @@ void main(void) {
                         usb_buf[3] = 0x01; //Device descriptor
                         usb_buf[4] = 0x0; //wIndex = 0
                         usb_buf[5] = 0x0; //wIndex = 0
-                        usb_buf[6] = 0x12; //wLength = 18 bytes
+                        usb_buf[6] = 0x08; //wLength = 18 bytes //Set to 8 to match our max packet size in the setup packet
                         usb_buf[7] = 0x00; //wLength = 18 byes
                         //usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                         //usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
