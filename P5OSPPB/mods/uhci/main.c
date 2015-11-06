@@ -173,15 +173,24 @@ void main(void) {
                 printHexWord(inw(usb_base + 0x12));
                 pchar('\n');
 
-                //Disable the controller and its ports
-                prints("Disabling ports\n");
-                outw(usb_base, inw(usb_base) & 0xFFFE); //Set run/stop to stop
-
                 //Reset the host controller
-                outw(usb_base, 0x0004); //Assert hcreset
-                sleep(50);
-                outw(usb_base, 0); //Clear greset, don't touch hcreset
-                sleep(10);
+                prints("Resetting the HC\n");
+                outw(usb_base, 0x0002); //Assert hcreset
+                wait(5);
+                if(inw(usb_base) & 0x0002)
+                    prints("HC reset did not complete\n");
+                outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
+                outw(usb_base + 0x04, 0x0); //Set all interrupts off
+                outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
+                //Set up default controller state (no interrupts, debug on, )
+                //outw(usb_base + 0x02, inw(usb_base + 0x02) & 0x1F); //Clear USBSTS
+                //Disable USB legacy support
+                prints("Legsup: ");
+                printHexDword(pciReadField((pci_address)i, 0x30));
+                pciWriteField((pci_address)i, 0x30, (pciReadField((pci_address)i, 0x30) & 0xFFFF0000) | 0x8F00); //We care about the low word
+                prints(" -> ");
+                printHexDword(pciReadField((pci_address)i, 0x30));
+                pchar('\n');
 
                 //Detect and disable ports
                 for(port_count = 0; port_count < 7; port_count++) {
@@ -196,22 +205,8 @@ void main(void) {
 
                 prints("Found ");
                 printHexByte(port_count);
-                prints(" host controller ports.\n");
-
-                prints("Setting controller defaults\n");
-                //Set up default controller state (no interrupts, debug on, )
-                outw(usb_base + 0x02, inw(usb_base + 0x02) & 0x1F); //Clear USBSTS
-                //Disable USB legacy support
-                prints("Legsup: ");
-                printHexDword(pciReadField((pci_address)i, 0x30));
-                pciWriteField((pci_address)i, 0x30, (pciReadField((pci_address)i, 0x30) & 0xFFFF0000) | 0x8F00); //We care about the low word
-                prints(" -> ");
-                printHexDword(pciReadField((pci_address)i, 0x30));
-                pchar('\n');
-                outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
-                outw(usb_base + 0x04, 0x0); //Set all interrupts off
-                outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
-
+                prints(" host controller ports.\n");               
+                
                 //Make double sure the base address is set
                 outd(usb_base + 0x08, (unsigned int)frame_list);
                 //Wait for the base address to be set
@@ -232,8 +227,10 @@ void main(void) {
                     prints("\n");
                     outw(portreg, 0x0200); //Reset port
                     sleep(250); //Wait at least 64 usb times for device detection to occur (spec says at least 50, we're doing 250 to deal with flaky devices)
-                    outw(portreg, 0x0004); //Clear reset, enable port
-                    sleep(10); //Wait for the device to come online
+                    outw(portreg, 0x0000); //Clear reset
+                    sleep(5); //Insert a delay between reset and enable
+                    outw(portreg, 0x0002); //Enable port
+                    sleep(10); //Wait for the device to come online 
     
                     if(inw(portreg) & 0x0001) {
         
