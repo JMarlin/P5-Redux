@@ -232,7 +232,13 @@ void main(void) {
                     outw(portreg, 0x0000); //Clear reset
                     outw(portreg, 0x0004); //Enable port
                     prints("Waiting for port to be enabled");
-                    while(!(inw(portreg) & 0x0004)); //Wait for enable to take hold
+                    for(j = 0; j < 20; j++) {
+                        
+                        if(inw(portreg) & 0x0004)
+                            break;  //Wait for enable to take hold
+                    }
+                    if(!(inw(portreg) & 0x0004))
+                        prints("Could not enable port\n");
                     sleep(10); //Wait for the device to come online 
     
                     if(inw(portreg) & 0x0001) {
