@@ -246,6 +246,11 @@ void main(void) {
                     if(!(inw(portreg) & 0x0004))
                         prints("Could not enable port\n");
                     sleep(10); //Wait for the device to come online 
+
+prints("  STATUS: 0x");
+printHexWord(inw(portreg));
+pchar('\n');    
+while(1);
     
                     if(inw(portreg) & 0x0001) {
         
@@ -262,12 +267,12 @@ void main(void) {
                             usb_ram[1] = ((unsigned int)&usb_ram[4] & 0xFFFFFFF0); // Pointer to the first TD in the list, 
                             usb_ram[4] = ((unsigned int)&usb_ram[12] & 0xFFFFFFF0) | 0x4; //This starts the TD, and points to the next TD in the list -- also marked depth-first
                             usb_ram[5] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                            usb_ram[6] = 0x00E8002D; //eight bytes data, endpoint 0, address 0, PID 0x2D (SETUP), DATA 0
+                            usb_ram[6] = 0x00E0002D; //eight bytes data, endpoint 0, address 0, PID 0x2D (SETUP), DATA 0
                             usb_ram[7] = (unsigned int)&usb_ram[20]; //Pointer for the buffer that the controller should read the packet data from
                             usb_ram[8] = 0; usb_ram[9] = 0; usb_ram[10] = 0; usb_ram[11] = 0; //There's extra shit here, fuck if I know why
                             usb_ram[12] = 0x1; //This starts the TD and is a null terminate pointer as it will also be the last TD
                             usb_ram[13] = 0x1C800000; //Transfer active, Check to see later on if 0x800000 is set. If it's not, the transaction was carried out. And if 0x18000000 = 0x18000000 it had no errors
-                            usb_ram[14] = 0x00E00069; //eight bytes data (we will be splitting the descriptor into multiple 8-byte packets), endpoint 0, address 0, PID 0x69 (IN), DATA 1
+                            usb_ram[14] = 0x00E80069; //eight bytes data (we will be splitting the descriptor into multiple 8-byte packets), endpoint 0, address 0, PID 0x69 (IN), DATA 1
                             usb_ram[15] = (unsigned int)&usb_ram[22]; //Pointer for the buffer that the controller should read the packet data to
                             usb_ram[16] = 0; usb_ram[17] = 0; usb_ram[18] = 0; usb_ram[19] = 0; //There's extra shit here, fuck if I know why
                             usb_buf = (unsigned char*)&usb_ram[20]; //Treating the packet data buffer as a byte array to make setting it up a little easier
