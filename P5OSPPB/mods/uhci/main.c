@@ -176,7 +176,7 @@ void main(void) {
                 //Reset the host controller
                 prints("Resetting the HC\n");
                 outw(usb_base, 0x0002); //Assert hcreset
-                wait(5);
+                sleep(5);
                 if(inw(usb_base) & 0x0002)
                     prints("HC reset did not complete\n");
                 outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
