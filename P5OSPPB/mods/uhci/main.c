@@ -227,35 +227,17 @@ void main(void) {
                     outw(usb_base + 0x06, 0x0); //Set the current frame number to 0
     
                     //Enable port, check to see if a device is installed
-                    prints("Enabling port ");
+                    prints("Resetting port ");
                     printHexWord(((portreg - (0x10 + usb_base)) / 2) + 1);
-                    prints(" and checking for device\n");
-                    outw(portreg, 0x0004); //Enable port
+                    prints("\n");
+                    outw(portreg, 0x0200); //Reset port
+                    sleep(55); //Wait at least 64 usb times for device detection to occur
+                    outw(portreg, 0x0000); //Clear reset
+                    outw(portreg, 0x0004); //Set port enabled 
+                    sleep(10); //Wait for the device to come online
     
-                    j = 0;
-                    while(j < 0xFFFFF && !(inw(portreg) & 0x0004))  //Wait for the port to be enabled
-                        j++;
-    
-                    sleep(100); //Wait at least 64 usb times for device detection to occur
-    
-                    if((j < 0xFFFFF) && (inw(portreg) & 0x0001)) {
-    
-                        //If device is installed, send a reset to the port
-                        prints("Resetting device on port ");
-                        printHexWord(((portreg - (0x10 + usb_base)) / 2) + 1);
-                        pchar('\n');
-                        outw(portreg, 0x0204); //Port enabled, RESET state asserted
-                        sleep(20); //Try waiting a ridiculous amount of time
-                        outw(portreg, 0x0004); //Port enabled, RESET state cleared
-                        while((inw(portreg) & 0x0200)); //Wait for reset to be lifted
-    
-                        //Send a resume just in case
-                        prints("Resuming device on port 1\n");
-                        outw(portreg, 0x0044); //Port enabled, RESUME state asserted
-                        sleep(20);
-                        outw(portreg, 0x0004); //Port enabled, RESUME state cleared
-                        while((inw(portreg) & 0x0040)); //Wait for resume to be lifted
-    
+                    if(inw(portreg) & 0x0001) {
+        
                         //We create a control transfer to device 0 control pipe:
                         //Create a SETUP address 0 packet TD with null next pointer, insert a reference to it into the frame list
                         prints("Setting up transfer structures\n");
@@ -281,7 +263,7 @@ void main(void) {
                         usb_buf[3] = 0x01; //Device descriptor
                         usb_buf[4] = 0x0; //wIndex = 0
                         usb_buf[5] = 0x0; //wIndex = 0
-                        usb_buf[6] = 0x08; //wLength = 18 bytes //Set to 8 to match our max packet size in the setup packet
+                        usb_buf[6] = 0x12; //wLength = 18 bytes //Set to 8 to match our max packet size in the setup packet
                         usb_buf[7] = 0x00; //wLength = 18 byes
                         //usb_ram[12] = 0x01000680; //bmRequestType = 0x80 (device, standard, device-to-host), bRequest = 0x06 (descriptor), wValue = 0x0100 (device descriptor/descriptor index 0)
                         //usb_ram[13] = 0x00120000; //wIndex = 0x0000 (unused in this request), wLength = 0x0012 (18 bytes, which is the length of a device descriptor)
