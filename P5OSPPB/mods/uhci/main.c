@@ -175,10 +175,14 @@ void main(void) {
 
                 //Reset the host controller
                 prints("Resetting the HC\n");
-                outw(usb_base, 0x0002); //Assert hcreset
-                sleep(5);
-                if(inw(usb_base) & 0x0002)
-                    prints("HC reset did not complete\n");
+                outw(usb_base, inw(usb_base) | 0x0004); //Assert greset
+                sleep(100); //Let the reset happen
+                outw(usb_base, inw(usb_base) & ~((unsigned short)0x0004));
+                for(j = 0; j < 20; j++)
+                    if(!(inw(usb_base) & 0x0004))
+                        break;                    
+                if(inw(usb_base) & 0x0004)
+                    prints("HC greset did not complete\n");
                 outb(usb_base + 0x0C, 0x40); //Set SOF to default value, about 1ms per frame
                 outw(usb_base + 0x04, 0x0); //Set all interrupts off
                 outw(usb_base, 0x00E0); //Max packet = 64 (default), set configure flag, enable software debug, controller stopped
