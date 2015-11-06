@@ -246,12 +246,12 @@ void main(void) {
                     if(!(inw(portreg) & 0x0004))
                         prints("Could not enable port\n");
                     sleep(10); //Wait for the device to come online 
-
+/*
 prints("  STATUS: 0x");
 printHexWord(inw(portreg));
 pchar('\n');    
 while(1);
-    
+*/    
                     if(inw(portreg) & 0x0001) {
         
                         //attempt device init twice
