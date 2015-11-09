@@ -418,9 +418,6 @@ void getString(unsigned int src, unsigned char* outstring, unsigned int count) {
     //Start at zero
     recieved = 0;
     s_index = 0;
-        
-    //Allocate space for the incoming string
-    outstring = (unsigned char*)malloc(chunk_count * sizeof(unsigned int) + 1);
     
     while(recieved < chunk_count) {
         
