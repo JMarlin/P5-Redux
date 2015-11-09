@@ -90,11 +90,13 @@ void makeWindows() {
     bitmap* ctx_a;
     unsigned int x, y;
     unsigned char toggle = 0;
-    unsigned int tile_width = 2;
-    unsigned int tile_height = 2;
+    unsigned int tile_width = 4;
+    unsigned int tile_height = 4;
     unsigned int tile_data[] = {
-        0x00000000, 0xFFFFFFFF,
-        0xFFFFFFFF, 0x00000000  
+        0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF,
+        0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000,
+        0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000
     };
     
     
