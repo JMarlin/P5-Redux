@@ -84,9 +84,6 @@ void parse(char* cmdbuf) {
     }
 }
 
-unsigned int tile_width
-unsigned int tile 
-
 void makeWindows() {
     
     unsigned int window_a, window_b;
