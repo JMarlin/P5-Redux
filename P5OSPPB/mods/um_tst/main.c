@@ -84,10 +84,22 @@ void parse(char* cmdbuf) {
     }
 }
 
+unsigned int tile_width
+unsigned int tile 
+
 void makeWindows() {
     
     unsigned int window_a, window_b;
+    bitmap* ctx_a;
+    unsigned int x, y;
     unsigned char toggle = 0;
+    unsigned int tile_width = 2;
+    unsigned int tile_height = 2;
+    unsigned int tile_data[] = {
+        0x00000000, 0xFFFFFFFF,
+        0xFFFFFFFF, 0x00000000  
+    };
+    
     
     //Make two windows
     window_a = createWindow(300, 200, WIN_FIXEDSIZE);
@@ -100,6 +112,14 @@ void makeWindows() {
     //Install them into the root window
     installWindow(window_a, ROOT_WINDOW);
     installWindow(window_b, ROOT_WINDOW);
+    
+    //Paint a pretty picture into window A
+    ctx_a = getWindowContext(window_a);
+    
+    //This SHOULD tile the tile image across the window
+    for(x = 0; x < 300; x++)
+        for(y = 0; y < 200; y++)
+            ctx_a->data[y*300 + x] = tile_data[(y%(tile_height - 1))*tile_width + (x%(tile_width - 1))];
     
     //Make them prettily cascade
     moveWindow(window_a, 100, 100);
