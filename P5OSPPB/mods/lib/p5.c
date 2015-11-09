@@ -403,7 +403,8 @@ void sendString(unsigned char* s, unsigned int dest) {
 
 unsigned char* getString(unsigned int src) {
     
-    unsigned int chunk_count, recieved, outstring, s_index, i;
+    unsigned int chunk_count, recieved, s_index, i;
+    unsigned char*  outstring;
     
     //Get the number of chunks from the source 
     getMessageFrom(&temp_msg, src, MSG_STRLEN);
@@ -425,7 +426,7 @@ unsigned char* getString(unsigned int src) {
         
         //Unpack the chunk into the string         
         for(i = 0; i < 4; i++)
-            outstring[s_index++] = (unsigned char)((temp_msg.payload >> (i*8) & 0xFF))
+            outstring[s_index++] = (unsigned char)((temp_msg.payload >> (i*8) & 0xFF));
         
         recieved++;
     }
