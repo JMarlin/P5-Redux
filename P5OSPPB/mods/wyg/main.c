@@ -561,7 +561,11 @@ void drawFrame(window* cur_window) {
         base_y = cur_window->y - 20;
         off_x = 0;
         titlebar_width = cur_window->w - 20;
-        setColor(RGB(255, 255, 255));
+        
+        if(cur_window->next_sibling)
+            setColor(RGB(178, 143, 77));
+        else
+            setColor(RGB(255, 255, 255));
         
         while(*s) {
             
