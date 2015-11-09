@@ -93,6 +93,10 @@ void makeWindows() {
     window_a = createWindow(300, 200, WIN_FIXEDSIZE);
     window_b = createWindow(300, 200, WIN_FIXEDSIZE);
     
+    //Set up their titles
+    setTitle(window_a, "Window A");
+    setTitle(window_b, "Window B");
+    
     //Install them into the root window
     installWindow(window_a, ROOT_WINDOW);
     installWindow(window_b, ROOT_WINDOW);

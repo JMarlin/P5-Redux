@@ -497,6 +497,9 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
 
 void drawFrame(window* cur_window) {
     
+    int i;
+    unsigned char* s;
+    
     cmd_prints("[WYG] Drawing frame for window ");
     cmd_printDecimal(cur_window->handle);
     cmd_pchar('\n');
@@ -545,6 +548,30 @@ void drawFrame(window* cur_window) {
     setColor(RGB(238, 203, 137));
     setCursor(cur_window->x + cur_window->w - 19, cur_window->y - 23);
     fillRect(18, 18);
+    
+    //Window title
+    if(cur_window->title) {
+        
+        int base_x, base_y, off_x, titlebar_width;
+        
+        s = cur_window->title;
+        base_x = cur_window->x + 2;
+        base_y = cur_window->y - 20;
+        off_x = 0;
+        titlebar_width = cur_window->w - 20;
+        setColor(RGB(255, 255, 255));
+        
+        while(*s) {
+            
+            setCursor(base_x + off_x, base_y);
+            drawChar(*(s++));
+            off_x += 8;
+            
+            //Truncate the text if it's wider than the titlebar
+            if(off_x >= titlebar_width)
+                break;
+        }
+    }
 }
 
 //Recursively draw all of the child windows of this window
