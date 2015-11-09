@@ -116,7 +116,7 @@ void makeWindows() {
     //This SHOULD tile the tile image across the window
     for(x = 0; x < 300; x++)
         for(y = 0; y < 200; y++)
-            ctx_a->data[y*300 + x] = tile_data[(y%(tile_height - 1))*tile_width + (x%(tile_width - 1))];
+            ctx_a->data[y*300 + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
     moveWindow(window_a, 100, 100);
