@@ -411,7 +411,6 @@ unsigned int getStringLength(unsigned int src) {
 void getString(unsigned int src, unsigned char* outstring, unsigned int count) {
     
     unsigned int chunk_count, recieved, s_index, i;
-    unsigned char*  outstring;
     
     //Convert from characters to chunks
     chunk_count = count/sizeof(unsigned int) + (count%sizeof(unsigned int) ? 1 : 0);
