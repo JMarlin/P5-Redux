@@ -29,6 +29,7 @@ typedef struct window {
     unsigned int x;
     unsigned int y;
     unsigned char needs_redraw;
+    unsigned char* title;
 } window;
 
 window root_window;
@@ -225,6 +226,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     new_window->y = 0;
     new_window->w = width;
     new_window->h = height;
+    new_window->title = (unsigned char*)0;
     
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
@@ -438,6 +440,22 @@ void markWindowDirty(unsigned int handle) {
     return;
 }
 
+void setWindowTitle(unsigned int handle, unsigned char* newstr) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) {
+     
+        cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
+        return;
+    }
+    
+    if(dest_window->title)
+        free(dest_window->title);
+        
+    dest_window->title = newstr;
+}
+
 void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
 
     unsigned char r = RVAL(color);
@@ -583,6 +601,7 @@ void main(void) {
     window* temp_window;
     unsigned char inbuf[12];
     unsigned int src_pid;
+    unsigned char* instr;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -732,6 +751,13 @@ void main(void) {
             case WYG_REPAINT_WINDOW:
                 markWindowDirty(temp_msg.payload);
                 refreshTree();
+            break;
+
+            case WYG_SET_TITLE:
+                current_handle = temp_msg.payload;
+                postMessage(src_pid, WYG_SET_TITLE, 1);
+                instr = getString(src_pid);
+                setWindowTitle(current_handle, instr);
             break;
 
             default:

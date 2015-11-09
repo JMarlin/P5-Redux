@@ -67,3 +67,10 @@ void focus(unsigned int handle) {
 	
 	postMessage(wyg_pid, WYG_RAISE_WINDOW, handle);
 }
+
+void setTitle(unsigned int handle, unsigned char* string) {
+	
+	postMessage(wyg_pid, WYG_SET_TITLE, handle);
+	getMessageFrom(&temp_msg, wyg_pid, WYG_SET_TITLE);
+	sendString(string, wyg_pid);
+}

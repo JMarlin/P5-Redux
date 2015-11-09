@@ -48,6 +48,14 @@ void outd(unsigned short _port, unsigned int _data) {
     return data;
 }
 
+/* This page could be super helpful in figuring out what we're screwing up here:
+http://cs.usfca.edu/~cruse/cs698s10/
+And there are some specific demo sources from that page which should be enlightening:
+http://cs.usfca.edu/~cruse/cs698s10/uhciboot.s
+http://cs.usfca.edu/~cruse/cs698s10/uhci.c
+http://cs.usfca.edu/~cruse/cs698s10/tryuhci.cpp
+*/
+
 void main(void) {
 
     unsigned int i, j;

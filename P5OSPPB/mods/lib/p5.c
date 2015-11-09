@@ -1,5 +1,5 @@
 #include "../include/p5.h"
-
+#include "../include/memory.h"
 
 message temp_msg;
 
@@ -367,4 +367,69 @@ void printDecimal(unsigned int dword) {
 
     for(j = i - 1; j >= 0; j--)
         pchar(digit[j] + '0');
+}
+
+void sendString(unsigned char* s, unsigned int dest) {
+
+    unsigned int strlen, i, s_index, transfer_chunk;
+    
+    //Count the string length 
+    for(strlen = 0; s[strlen]; strlen++);
+    
+    //Set up the countdown value
+    s_index = 0;
+    
+    //Make sure the value reflects the length, not the highest index
+    strlen++;
+    
+    //Tell the destination process that we want to send a string 
+    //of ceil(strlen/4) string chunks 
+    postMessage(dest, MSG_STRLEN, strlen/4 + (strlen%4 ? 1 : 0));
+    getMessageFrom(&temp_msg, dest, MSG_STRLEN);
+    
+    while(s_index < strlen) {
+            
+        //Pack a transfer chunk
+        transfer_chunk = 0;
+            
+        for(i = 0; i < 4 && s_index < strlen; i++, s_index++)   
+            transfer_chunk |= (((unsigned int)s[s_index]) & ((unsigned int)0xFF << (8*i))) << (8*i);    
+            
+        //Send the chunk
+        postMessage(dest, MSG_STRCHUNK, transfer_chunk);
+        getMessageFrom(&temp_msg, dest, MSG_STRCHUNK);
+    }
+}
+
+unsigned char* getString(unsigned int src) {
+    
+    unsigned int chunk_count, recieved, outstring, s_index, i;
+    
+    //Get the number of chunks from the source 
+    getMessageFrom(&temp_msg, src, MSG_STRLEN);
+    postMessage(src, MSG_STRLEN, 1);
+    chunk_count = temp_msg.payload;
+    
+    //Start at zero
+    recieved = 0;
+    s_index = 0;
+        
+    //Allocate space for the incoming string
+    outstring = (unsigned char*)malloc(chunk_count * sizeof(unsigned int) + 1);
+    
+    while(recieved < chunk_count) {
+        
+        //Get the chunks from the client
+        getMessageFrom(&temp_msg, src, MSG_STRCHUNK);
+        postMessage(src, MSG_STRCHUNK, 1);
+        
+        //Unpack the chunk into the string         
+        for(i = 0; i < 4; i++)
+            outstring[s_index++] = (unsigned char)((temp_msg.payload >> (i*8) & 0xFF))
+        
+        recieved++;
+    }
+    
+    //Make sure the string is zero-terminated
+    outstring[s_index] = 0;
 }

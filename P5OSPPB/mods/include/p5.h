@@ -3,6 +3,9 @@
 
 #include "kscommands.h"
 
+#define MSG_STRLEN 34
+#define MSG_STRCHUNK 35 
+
 typedef struct message {
 
     unsigned int source;
@@ -49,5 +52,7 @@ void* getSharedPage(void);
 unsigned int getImageSize(unsigned int pid);
 unsigned int appendPage(void);
 void printDecimal(unsigned int dword);
+void sendString(unsigned char* s, unsigned int dest);
+unsigned char* getString(unsigned int src);
 
 #endif //P5_H
