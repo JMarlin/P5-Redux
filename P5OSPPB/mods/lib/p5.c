@@ -392,7 +392,7 @@ void sendString(unsigned char* s, unsigned int dest) {
         transfer_chunk = 0;
             
         for(i = 0; i < 4 && s_index < strlen; i++, s_index++)   
-            transfer_chunk |= (((unsigned int)s[s_index]) & ((unsigned int)0xFF << (8*i))) << (8*i);    
+            transfer_chunk |= (((unsigned int)s[s_index]) & ((unsigned int)0xFF << (8*i))) >> (8*i);    
             
         //Send the chunk
         postMessage(dest, MSG_STRCHUNK, transfer_chunk);
@@ -427,7 +427,7 @@ void getString(unsigned int src, unsigned char* outstring, unsigned int count) {
         
         //Unpack the chunk into the string         
         for(i = 0; i < 4; i++)
-            outstring[s_index++] = (unsigned char)((temp_msg.payload >> (i*8) & 0xFF));
+            outstring[s_index++] = (unsigned char)((temp_msg.payload >> (i*8)) & 0xFF);
         
         recieved++;
     }
