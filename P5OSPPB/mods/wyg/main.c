@@ -461,8 +461,8 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
     unsigned char r = RVAL(color);
     unsigned char g = GVAL(color);
     unsigned char b = BVAL(color);
-    unsigned int light_color = RGB(r > 195 ? 255 : r + 60, g > 195 ? 255 : g + 60, b > 195 ? 255 : b + 60);
-    unsigned int shade_color = RGB(r < 60 ? 0 : r - 60, g < 60 ? 0 : g - 60, b < 60 ? 0 : b - 60);
+    unsigned int light_color = RGB(r > 155 ? 255 : r + 100, g > 155 ? 255 : g + 100, b > 155 ? 255 : b + 100);
+    unsigned int shade_color = RGB(r < 100 ? 0 : r - 100, g < 100 ? 0 : g - 100, b < 100 ? 0 : b - 100);
     unsigned int temp;
     int i;
 
@@ -563,7 +563,7 @@ void drawFrame(window* cur_window) {
         titlebar_width = cur_window->w - 20;
         
         if(cur_window->next_sibling)
-            setColor(RGB(178, 143, 77));
+            setColor(RGB(138, 103, 37));
         else
             setColor(RGB(255, 255, 255));
         
