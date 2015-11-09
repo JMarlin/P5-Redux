@@ -552,6 +552,8 @@ void drawFrame(window* cur_window) {
     //Window title
     if(cur_window->title) {
         
+        cmd_prints(cur_window->title);
+        
         int base_x, base_y, off_x, titlebar_width;
         
         s = cur_window->title;
