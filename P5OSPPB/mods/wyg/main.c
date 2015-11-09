@@ -602,6 +602,7 @@ void main(void) {
     unsigned char inbuf[12];
     unsigned int src_pid;
     unsigned char* instr;
+    unsigned int strlen;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -756,7 +757,9 @@ void main(void) {
             case WYG_SET_TITLE:
                 current_handle = temp_msg.payload;
                 postMessage(src_pid, WYG_SET_TITLE, 1);
-                instr = getString(src_pid);
+                strlen = getStringLength(src_pid);
+                instr = (unsigned char*)malloc(strlen);
+                getString(src_pid, instr, strlen);
                 setWindowTitle(current_handle, instr);
             break;
 

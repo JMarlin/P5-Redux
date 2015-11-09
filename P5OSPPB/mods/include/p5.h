@@ -53,6 +53,7 @@ unsigned int getImageSize(unsigned int pid);
 unsigned int appendPage(void);
 void printDecimal(unsigned int dword);
 void sendString(unsigned char* s, unsigned int dest);
-unsigned char* getString(unsigned int src);
+unsigned int getStringLength(unsigned int src);
+void getString(unsigned int src, unsigned char* outstring, unsigned int count);
 
 #endif //P5_H

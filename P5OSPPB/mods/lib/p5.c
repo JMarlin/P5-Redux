@@ -1,5 +1,4 @@
 #include "../include/p5.h"
-#include "../include/memory.h"
 
 message temp_msg;
 
@@ -401,15 +400,21 @@ void sendString(unsigned char* s, unsigned int dest) {
     }
 }
 
-unsigned char* getString(unsigned int src) {
-    
-    unsigned int chunk_count, recieved, s_index, i;
-    unsigned char*  outstring;
+unsigned int getStringLength(unsigned int src) {
     
     //Get the number of chunks from the source 
     getMessageFrom(&temp_msg, src, MSG_STRLEN);
     postMessage(src, MSG_STRLEN, 1);
-    chunk_count = temp_msg.payload;
+    return temp_msg.payload * sizeof(unsigned int);
+}
+
+void getString(unsigned int src, unsigned char* outstring, unsigned int count) {
+    
+    unsigned int chunk_count, recieved, s_index, i;
+    unsigned char*  outstring;
+    
+    //Convert from characters to chunks
+    chunk_count = count/sizeof(unsigned int) + (count%sizeof(unsigned int) ? 1 : 0);
     
     //Start at zero
     recieved = 0;
