@@ -442,6 +442,8 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
 
 void drawTitlebar(window* cur_window, unsigned char active) {
     
+    unsigned char* s;    
+    
     //Titlebar
     if(active)
         setColor(RGB(182, 0, 0));
@@ -485,7 +487,6 @@ void drawTitlebar(window* cur_window, unsigned char active) {
 void drawFrame(window* cur_window) {
     
     int i;
-    unsigned char* s;
     
     cmd_prints("[WYG] Drawing frame for window ");
     cmd_printDecimal(cur_window->handle);
@@ -615,10 +616,10 @@ void raiseWindow(unsigned int handle) {
     if(!dest_window->parent || !dest_window->next_sibling)
         return;
     
-    //Deactivate the titlebars of all previously active windows
-    drawDeactivated(root_window);
+    //Deactivate the titlebars of all previously active siblings
+    drawDeactivated(dest_window->parent);
     
-    //Set up thw window iterators    
+    //Set up the window iterators    
     parent = dest_window->parent;
     owning_sibling = parent->first_child;
     
