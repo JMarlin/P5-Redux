@@ -89,7 +89,7 @@ void makeWindows() {
     unsigned int window_a, window_b;
     bitmap* ctx_a;
     unsigned int x, y;
-    unsigned int w, h;
+    unsigned short w, h;
     unsigned char toggle = 0;
     unsigned int tile_width = 4;
     unsigned int tile_height = 4;
