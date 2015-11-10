@@ -191,6 +191,16 @@ void repaintRegion(unsigned int handle, bitmap* h_bmp, unsigned int x, unsigned 
     repaintWindow(handle); 
 }
 
+bitmap* cmd_bmp;
+unsigned int cmd_window;
+unsigned char cmd_x;
+unsigned char cmd_y;
+unsigned short cmd_bx, cmd_by; 
+int cmd_width;
+int cmd_height;
+int cmd_max_chars;
+int cmd_max_lines;
+
 void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
     
     int j, i;
@@ -227,16 +237,6 @@ void drawString(bitmap* b, char* str, int x, int y, unsigned int color) {
     for(i = 0; str[i]; i++) 
         drawCharacter(b, str[i], x+(i*8), y, color);
 }
-
-bitmap* cmd_bmp;
-unsigned int cmd_window;
-unsigned char cmd_x;
-unsigned char cmd_y;
-unsigned short cmd_bx, cmd_by; 
-int cmd_width;
-int cmd_height;
-int cmd_max_chars;
-int cmd_max_lines;
 
 void cmd_getCursor(unsigned char *x, unsigned char *y) {
 
