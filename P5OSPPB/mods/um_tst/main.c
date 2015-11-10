@@ -240,12 +240,12 @@ void cmd_pchar(unsigned char c) {
         }
     }
     
-    if(cmd_y > cmd_max_lines)
-        cmd_clear();
-    
     //Should update this so it only repaints the section
     //of bitmap where the character was drawn    
-    repaintWindow(cmd_window);
+    if(cmd_y > cmd_max_lines)
+        cmd_clear();
+    else
+        repaintWindow(cmd_window);
 }
 
 void cmd_prints(unsigned char* s) {
@@ -264,6 +264,8 @@ void cmd_clear() {
             
     cmd_x = 0;
     cmd_y = 0;
+    
+    repaintWindow(cmd_window);
 }
 
 void cmd_printDecimal(unsigned int dword) {
@@ -348,6 +350,8 @@ void cmd_init(unsigned int win) {
     cmd_width = cmd_bmp->width;
     cmd_height = cmd_bmp->height;
     cmd_max_chars = (cmd_width/8) - 1;
+    cmd_max_lines = (cmd_height/12) - 1;
+    cmd_clear();
 }
 
 /*
