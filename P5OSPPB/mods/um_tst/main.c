@@ -4,13 +4,13 @@
 #include "../include/wyg.h"
 #include "../vesa/font.h"
 
-#define CMD_COUNT 6
+#define CMD_COUNT 4
 
 //Function declarations
 void usrClear(void);
 void consVer(void);
 void usrExit(void);
-void cpuUsage(void);
+//void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void pciList(void);
 void cmd_pchar(unsigned char c);
@@ -33,18 +33,16 @@ char* cmdWord[CMD_COUNT] = {
     "CLR",
     "VER",
     "EXIT",
-    "CPU",
-    "PCI",
-    "BMP"
+    //"CPU",
+    "PCI"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&usrClear,
     (sys_command)&consVer,
     (sys_command)&usrExit,
-    (sys_command)&cpuUsage,
-    (sys_command)&pciList,
-    (sys_command)&doBmp
+    //(sys_command)&cpuUsage,
+    (sys_command)&pciList
 };
 
 char inbuf[50];
