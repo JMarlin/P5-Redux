@@ -2,6 +2,7 @@
 #include "../include/gfx.h"
 #include "../include/pci.h"
 #include "../include/wyg.h"
+#include "../vesa/font.h"
 
 #define CMD_COUNT 6
 
@@ -104,15 +105,12 @@ void makeWindows() {
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
     window_a = createWindow(w - 108, h - 168, WIN_FIXEDSIZE);
-    window_b = createWindow(300, 200, WIN_FIXEDSIZE);
     
     //Set up their titles
-    setTitle(window_a, "Window A");
-    setTitle(window_b, "Window B");
+    setTitle(window_a, "PTerm");
     
     //Install them into the root window
     installWindow(window_a, ROOT_WINDOW);
-    installWindow(window_b, window_a);
     
     //Paint a pretty picture into window A
     ctx_a = getWindowContext(window_a);
@@ -124,25 +122,19 @@ void makeWindows() {
     
     //Make them prettily cascade
     moveWindow(window_a, 54, 102);
-    moveWindow(window_b, 150, 150);    
     
     //Make them visible
     showWindow(window_a);
-    showWindow(window_b);
     
-    //Hang
+    //Set up the console commands
+    cmd_init(window_a);
+    
     while(1) {
-        
-        if(getch()) {
-            
-            if(toggle)                
-                focus(window_b);
-            else
-                focus(window_a);
-            
-            toggle = !toggle;
-        }
-    } 
+
+        cmd_prints("::");
+        cmd_scans(50, inbuf);
+        parse(inbuf);
+    }
 }
 
 void main(void) {
@@ -174,128 +166,50 @@ void usrExit(void) {
     terminate();
 }
 
-void drawCharacter(char c, int x, int y, unsigned int color) {
+void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
+    
+    int j, i;
+    unsigned char line;
+    c &= 0x7F; //Reduce to base ASCII set
 
-    setCursor(x, y);
-    setColor(color);
-    drawChar(c);
-}
+    for(i = 0; i < 12; i++) {
 
+        line = font_array[i * 128 + c];
+        for(j = 0; j < 8; j++) {
 
-void drawCharacterBold(char c, int x, int y, unsigned int color) {
-
-    setColor(color);
-    setCursor(x, y);
-    drawChar(c);
-    setCursor(x+1, y);
-    drawChar(c);
-    setCursor(x, y+1);
-    drawChar(c);
-    setCursor(x+1, y+1);
-    drawChar(c);
-}
-
-
-void drawString(char* str, int x, int y, unsigned int color) {
-
-    int i;
-
-    setColor(color);
-
-    for(i = 0; str[i]; i++) {
-
-        setCursor(x+(i*8), y);
-        drawChar(str[i]);
-    }
-}
-
-
-void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
-
-    unsigned char r = RVAL(color);
-    unsigned char g = GVAL(color);
-    unsigned char b = BVAL(color);
-    unsigned int light_color = RGB(r > 195 ? 255 : r + 60, g > 195 ? 255 : g + 60, b > 195 ? 255 : b + 60);
-    unsigned int shade_color = RGB(r < 60 ? 0 : r - 60, g < 60 ? 0 : g - 60, b < 60 ? 0 : b - 60);
-    unsigned int temp;
-    int i;
-
-    if(invert) {
-
-        temp = shade_color;
-        shade_color = light_color;
-        light_color = temp;
-    }
-
-    for(i = 0; i < border_width; i++) {
-
-        //Top edge
-        setCursor(x+i, y+i);
-        setColor(light_color);
-        drawHLine(width-(2*i));
-
-        //Left edge
-        setCursor(x+i, y+i+1);
-        drawVLine(height-((i+1)*2));
-
-        //Bottom edge
-        setCursor(x+i, (y+height)-(i+1));
-        setColor(shade_color);
-        drawHLine(width-(2*i));
-
-        //Right edge
-        setCursor(x+width-i-1, y+i+1);
-        drawVLine(height-((i+1)*2));
-    }
-
-    //Fill
-    setCursor(x+border_width, y+border_width);
-    setColor(color);
-    fillRect(width-(2*border_width), height-(2*border_width));
-}
-
-
-void drawButton(unsigned char* text, int x, int y, int width, int height, unsigned int color, int border_width) {
-
-    int str_len, lines, cols, lmargin, tmargin, l, c, ocols;
-
-    for(str_len = 0; text[str_len]; str_len++);
-
-    lines = (str_len * 8) / (width - border_width*2);
-
-    //Do a ceiling
-    if((str_len*8) % width)
-        lines++;
-
-    cols = (width - border_width*2) / 8;
-    ocols = cols;
-    lmargin = (width - border_width*2 - (cols*8)) / 2;
-    tmargin = (height - border_width*2 - (lines*12)) / 2;
-
-    drawPanel(x, y, width, height, color, border_width, 0);
-
-    for(l = 0; l < lines; l++) {
-
-        //Recalculate values for the last lines in case it's
-        //shorter than the rest
-        if(l == (lines - 1)) {
-
-            cols = str_len - (cols * (lines - 1));
-            lmargin = (width - border_width*2 - (cols*8)) / 2;
-        }
-
-        for(c = 0; c < cols; c++) {
-
-            drawCharacterBold(text[c+(l*ocols)], x + lmargin + border_width + (c*8), y +  border_width + tmargin + (l*12), 0);
+            if(line & 0x80) b->data[(y + i)*b->w + (x + j)] = color;
+            line = line << 1;
         }
     }
 }
 
+
+void drawCharacterBold(bitmap* b, char c, int x, int y, unsigned int color) {
+
+    drawCharacter(b, c, x, y, color);
+    drawCharacter(b, c, x+1, y, color);
+    drawCharacter(b, c, x, y+1, color);
+    drawCharacter(b, c, x+1, y+1, color);
+}
+
+
+void drawString(bitmap* b, char* str, int x, int y, unsigned int color) {
+
+    int i;
+
+    for(i = 0; str[i]; i++) 
+        drawCharacter(b, str[i], x+(i*8), y, color);
+}
+
+bitmap* cmd_bmp;
+unsigned int cmd_window;
 unsigned char cmd_x;
 unsigned char cmd_y;
+unsigned short cmd_bx, cmd_by; 
 int cmd_width;
 int cmd_height;
 int cmd_max_chars;
+int cmd_max_lines;
 
 void cmd_getCursor(unsigned char *x, unsigned char *y) {
 
@@ -317,7 +231,7 @@ void cmd_pchar(unsigned char c) {
         cmd_y++;
     } else {
 
-        drawCharacter(c, (cmd_x*8)+27, (cmd_y*12)+27, RGB(0, 255, 0));
+        drawCharacter(cmd_bmp, c, (cmd_x*8)+cmd_bx, (cmd_y*12)+cmd_by, RGB(0, 0, 0));
         cmd_x++;
 
         if(cmd_x > cmd_max_chars) {
@@ -326,25 +240,11 @@ void cmd_pchar(unsigned char c) {
             cmd_y++;
         }
     }
-}
-
-void cmd_clchar(unsigned char c) {
-
-    if(c == '\n') {
-
-        cmd_x = 0;
-        cmd_y++;
-    } else {
-
-        drawCharacter(c, (cmd_x*8)+27, (cmd_y*12)+27, RGB(0, 0, 0));
-        cmd_x++;
-
-        if(cmd_x > cmd_max_chars) {
-
-            cmd_x = 0;
-            cmd_y++;
-        }
-    }
+    
+    if(cmd_y > cmd_max_lines)
+        cmd_clear();
+        
+    redrawWindow(cmd_window);
 }
 
 void cmd_prints(unsigned char* s) {
@@ -353,19 +253,14 @@ void cmd_prints(unsigned char* s) {
         cmd_pchar(*s++);
 }
 
-void cmd_printClear(int count) {
-
-    setCursor((cmd_x*8) + 27, (cmd_y*12) + 27);
-    setColor(0);
-    fillRect(8*count, 12);
-    cmd_x += count;
-}
-
 void cmd_clear() {
 
-    setCursor(27, 27);
-    setColor(0);
-    fillRect(cmd_width, cmd_height);
+    unsigned int x, y;
+
+    for(y = 0; y < cmd_height; y++)
+        for(x = 0; x < cmd_width; x++)
+            cmd_bmp->data[y*cmd_bmp->w + x] = RGB(255, 255, 255);
+            
     cmd_x = 0;
     cmd_y = 0;
 }
@@ -442,15 +337,19 @@ void cmd_scans(int c, char* b) {
 }
 
 
-void cmd_init(unsigned short xres, unsigned short yres) {
+void cmd_init(unsigned int win) {
 
+    cmd_window = win;
+    cmd_bmp = getWindowContext(cmd_window);
     cmd_x = 0;
     cmd_y = 0;
-    cmd_width = xres-114;
-    cmd_height = yres-54;
+    getWindowLocation(cmd_window, &cmd_bx, &cmd_by);
+    cmd_width = cmd_bmp->w;
+    cmd_height = cmd_bmp->h;
     cmd_max_chars = (cmd_width/8) - 1;
 }
 
+/*
 typedef struct proc_details {
     unsigned char x;
     unsigned char y;
@@ -564,76 +463,7 @@ void cpuUsage(void) {
         }
     }
 }
-
-void doBmp(void) {
-
-    int x, y, redraw;
-    unsigned char tmp_chr = 0;
-    bitmap* test_bmp = newBitmap(64, 64);
-
-    if(!test_bmp) {
-
-        cmd_prints("Couldn't allocate a new bitmap!\n");
-        return;
-    }
-
-    //cmd_prints("Bitmap created\nCreating gradient");
-
-    for(x = 0; x < 64; x++) {
-
-        for(y = 0; y < 64; y++) {
-
-            //cmd_pchar('.');
-            test_bmp->data[y * 64 + x] = RGB(0, 0, (((y / 4) & 0xFF) << 4) | ((x / 4) & 0xFF));
-        }
-    }
-
-    x = 50;
-    y = 50;
-    setCursor(x, y);
-    drawBitmap(test_bmp);
-
-    while((tmp_chr = getch()) != 'Q') {
-
-        if(tmp_chr) {
-         
-            redraw = 1;
-         
-            switch(tmp_chr) {
-            
-                case 'W':
-                    cmd_pchar('^');
-                    if(y > 0) y--;
-                    break;
-                    
-                case 'S':
-                    cmd_pchar('v');
-                    y++;
-                    break;
-                    
-                case 'A':
-                    cmd_pchar('<');
-                    if(x > 0) x--;
-                    break;
-                    
-                case 'D':
-                    cmd_pchar('>');
-                    x++;
-                    break;
-            
-                default:
-                    redraw = 0;
-                    break;    
-            }   
-            
-            if(redraw) {
-                
-                setCursor(x, y);
-                drawBitmap(test_bmp);
-            }
-        }
-    }
-}
+*/
 
 void PCIPrintConfig(pci_address device) {
 
@@ -685,98 +515,4 @@ void pciList(void) {
         PCIPrintConfig((pci_address)i);
 
     cmd_pchar('\n');
-}
-
-void startGui_old(unsigned short xres, unsigned short yres) {
-
-    int i, os_build;
-    unsigned char tmpch;
-
-    //Backdrop
-    setCursor(0, 0);
-    setColor(RGB(11, 162, 193));
-    fillRect(xres, yres);
-
-    //System Bar
-    drawPanel(xres-60, 0, 60, yres, RGB(200, 200, 200), 2, 0);
-
-    //Indent for fun
-    drawButton("P5OS", xres-55, 5, 50, 50, RGB(200, 200, 200), 2);
-
-    //Redundant text for shadow
-    drawString("Build #", 1, 1, 0);
-    os_build = getBuildNumber();
-    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) - 10 + 'A' : (os_build >> 28 & 0xF) + '0', 57, 1, 0);
-    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) - 10 + 'A' : (os_build >> 24 & 0xF) + '0', 65, 1, 0);
-    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) - 10 + 'A' : (os_build >> 20 & 0xF) + '0', 73, 1, 0);
-    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) - 10 + 'A' : (os_build >> 16 & 0xF) + '0', 81, 1, 0);
-    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) - 10 + 'A' : (os_build >> 12 & 0xF) + '0', 89, 1, 0);
-    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) - 10 + 'A' : (os_build >> 8 & 0xF) + '0', 97, 0, 1);
-    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) - 10 + 'A' : (os_build >> 4 & 0xF) + '0', 105, 1, 0);
-    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) - 10 + 'A' : (os_build & 0xF) + '0', 113, 1, 0);
-
-    //Text test
-    drawString("Build #", 0, 0, RGB(255, 255, 255));
-    os_build = getBuildNumber();
-    drawCharacter((os_build >> 28 & 0xF) > 9 ? (os_build >> 28 & 0xF) - 10 + 'A' : (os_build >> 28 & 0xF) + '0', 56, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 24 & 0xF) > 9 ? (os_build >> 24 & 0xF) - 10 + 'A' : (os_build >> 24 & 0xF) + '0', 64, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 20 & 0xF) > 9 ? (os_build >> 20 & 0xF) - 10 + 'A' : (os_build >> 20 & 0xF) + '0', 72, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 16 & 0xF) > 9 ? (os_build >> 16 & 0xF) - 10 + 'A' : (os_build >> 16 & 0xF) + '0', 80, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 12 & 0xF) > 9 ? (os_build >> 12 & 0xF) - 10 + 'A' : (os_build >> 12 & 0xF) + '0', 88, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 8 & 0xF) > 9 ? (os_build >> 8 & 0xF) - 10 + 'A' : (os_build >> 8 & 0xF) + '0', 96, 0, RGB(255, 255, 255));
-    drawCharacter((os_build >> 4 & 0xF) > 9 ? (os_build >> 4 & 0xF) - 10 + 'A' : (os_build >> 4 & 0xF) + '0', 104, 0, RGB(255, 255, 255));
-    drawCharacter((os_build & 0xF) > 9 ? (os_build & 0xF) - 10 + 'A' : (os_build & 0xF) + '0', 112, 0, RGB(255, 255, 255));
-
-    //body of 'window'
-    drawPanel(20, 20, xres-100, yres-40, RGB(200, 200, 200), 2, 0);
-
-    //'window' inner bevel
-    drawPanel(25, 25, xres-110, yres-50, RGB(200, 200, 200), 2, 1);
-
-    //'terminal' background
-    setCursor(27, 27);
-    setColor(0);
-    fillRect(xres-114, yres-54);
-
-    //Simple input loop
-    cmd_init(xres, yres);
-
-    cmd_prints("----| Welcome to P5 |----\n");
-
-    //Wait for keypress
-    //NOTE: BIG ISSUE HERE IS THAT THIS LOOP IS FILLING UP THE KERNEL HEAP
-    //SPACE WITH MESSAGE REQUESTS AND SLOWING DOWN EVERYTHING ELSE ON THE
-    //SYSTEM BECAUSE OF THE CONSTANT POLLING NATURE OF SCANS
-    //THIS IS ALSO A PROBLEM THAT NEEDS TO BE ADDRESSED WITH THE CURRENT
-    //KMALLOC IMPLEMENTATION BEING CRAZY SLOW WHICH NEEDS TO BE ADDRESSED
-    //(PROBABLY BY SWITCHING TO ALLOCATING PAGES AND KEEPING A TREE OF PAGES
-    //WHICH CAN THEN BE SUBDIVIDED ON FUTURE ALLOCATIONS)
-    //BUT THE FIRST, FASTEST THING WE CAN DO FOR NOW IS TO USE THE SLEEP-FOR
-    //-MESSAGE CAPABILITY OF MESSAGING WE HAVE NOW TO CHANGE SCANS FROM A POLLING
-    //TO A WAKE-ON-EVENT TYPE OF COMMAND. THIS WAY WE'LL ONLY SPAWN A SINGLE
-    //MESSAGE AND THE PROCESS WILL BE BYPASSED BY THE SCHEDULER UNTIL THE KERNEL
-    //HAS A KEYPRESS READY TO SEND BACK
-    while(1) {
-
-        cmd_prints("::");
-        cmd_scans(50, inbuf);
-        parse(inbuf);
-    }
-
-
-    //drawRect(102, 102, xres - 204, yres - 204, RGB(68, 76, 82));
-
-    //int row;
-    //int inner_height = (yres - 204);
-    //int change_rate = inner_height / 255;
-    //int shade_val = 255;
-    //for(row = 0; row < inner_height; row++) {
-
-        //drawHLine(102, row + 102, xres - 204, RGB(0, 0, shade_val));
-
-        //if(!(row % change_rate))
-            //shade_val--;
-    //}
-
-
 }

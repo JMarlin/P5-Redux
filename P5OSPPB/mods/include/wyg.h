@@ -12,6 +12,7 @@
 #define WYG_GET_DIMS 9
 #define WYG_RAISE_WINDOW 10
 #define WYG_SET_TITLE 11
+#define WYG_GET_LOCATION 12
 
 #define ROOT_WINDOW 1
 
@@ -31,5 +32,6 @@ void repaintWindow(unsigned int handle);
 void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short *h); 
 void focus(unsigned int handle);
 void setTitle(unsigned int handle, unsigned char* string);
+void getWindowLocation(unsigned int handle, unsigned short x, unsigned short y);
 
 #endif //WYG_H

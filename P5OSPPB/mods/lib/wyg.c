@@ -74,3 +74,12 @@ void setTitle(unsigned int handle, unsigned char* string) {
 	getMessageFrom(&temp_msg, wyg_pid, WYG_SET_TITLE);
 	sendString(string, wyg_pid);
 }
+
+void getWindowLocation(unsigned int handle, unsigned short x, unsigned short y) {
+	
+	postMessage(wyg_pid, WYG_GET_LOCATION, handle);
+	getMessageFrom(&temp_msg, wyg_pid, WYG_GET_LOCATION);
+	
+	*x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
+	*y = (unsigned short)(temp_msg.payload & 0xFFFF);
+}

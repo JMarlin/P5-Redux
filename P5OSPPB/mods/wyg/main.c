@@ -799,6 +799,11 @@ void main(void) {
                 postMessage(src_pid, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF)));
             break;
             
+            case WYG_GET_LOCATION:
+                temp_window = getWindowByHandle(temp_msg.payload);
+                postMessage(src_pid, WYG_GET_DIMS, (unsigned int)((((temp_window->x & 0xFFFF) << 16)) | (temp_window->y & 0xFFFF)));
+            break;
+            
             case WYG_MOVE_WINDOW:
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
