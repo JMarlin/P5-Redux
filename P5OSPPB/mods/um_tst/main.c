@@ -13,16 +13,17 @@ void usrExit(void);
 void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void pciList(void);
-void doBmp(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
+void cmd_init(unsigned int win);
 void cmd_getCursor(unsigned char *x, unsigned char *y);
 void cmd_putCursor(unsigned char x, unsigned char y);
 void cmd_printHexByte(unsigned char byte);
 void cmd_printHexWord(unsigned short wd);
 void cmd_printHexDword(unsigned int dword);
 void cmd_printDecimal(unsigned int dword);
+void cmd_scans(int c, char* b);
 
 //Typedefs
 typedef void (*sys_command)(void);
@@ -177,7 +178,7 @@ void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
         line = font_array[i * 128 + c];
         for(j = 0; j < 8; j++) {
 
-            if(line & 0x80) b->data[(y + i)*b->w + (x + j)] = color;
+            if(line & 0x80) b->data[(y + i)*b->width + (x + j)] = color;
             line = line << 1;
         }
     }
@@ -259,7 +260,7 @@ void cmd_clear() {
 
     for(y = 0; y < cmd_height; y++)
         for(x = 0; x < cmd_width; x++)
-            cmd_bmp->data[y*cmd_bmp->w + x] = RGB(255, 255, 255);
+            cmd_bmp->data[y*cmd_bmp->width + x] = RGB(255, 255, 255);
             
     cmd_x = 0;
     cmd_y = 0;
@@ -344,8 +345,8 @@ void cmd_init(unsigned int win) {
     cmd_x = 0;
     cmd_y = 0;
     getWindowLocation(cmd_window, &cmd_bx, &cmd_by);
-    cmd_width = cmd_bmp->w;
-    cmd_height = cmd_bmp->h;
+    cmd_width = cmd_bmp->width;
+    cmd_height = cmd_bmp->height;
     cmd_max_chars = (cmd_width/8) - 1;
 }
 

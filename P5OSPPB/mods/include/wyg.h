@@ -32,6 +32,6 @@ void repaintWindow(unsigned int handle);
 void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short *h); 
 void focus(unsigned int handle);
 void setTitle(unsigned int handle, unsigned char* string);
-void getWindowLocation(unsigned int handle, unsigned short x, unsigned short y);
+void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y);
 
 #endif //WYG_H

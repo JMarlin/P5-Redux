@@ -75,7 +75,7 @@ void setTitle(unsigned int handle, unsigned char* string) {
 	sendString(string, wyg_pid);
 }
 
-void getWindowLocation(unsigned int handle, unsigned short x, unsigned short y) {
+void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y) {
 	
 	postMessage(wyg_pid, WYG_GET_LOCATION, handle);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_GET_LOCATION);
