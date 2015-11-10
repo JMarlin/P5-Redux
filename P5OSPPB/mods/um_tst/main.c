@@ -89,6 +89,7 @@ void makeWindows() {
     unsigned int window_a, window_b;
     bitmap* ctx_a;
     unsigned int x, y;
+    unsigned int w, h;
     unsigned char toggle = 0;
     unsigned int tile_width = 4;
     unsigned int tile_height = 4;
@@ -101,7 +102,8 @@ void makeWindows() {
     
     
     //Make two windows
-    window_a = createWindow(300, 200, WIN_FIXEDSIZE);
+    getWindowDimensions(ROOT_WINDOW, &w, &h); 
+    window_a = createWindow(w - 108, h - 168, WIN_FIXEDSIZE);
     window_b = createWindow(300, 200, WIN_FIXEDSIZE);
     
     //Set up their titles
@@ -110,18 +112,18 @@ void makeWindows() {
     
     //Install them into the root window
     installWindow(window_a, ROOT_WINDOW);
-    installWindow(window_b, ROOT_WINDOW);
+    installWindow(window_b, window_a);
     
     //Paint a pretty picture into window A
     ctx_a = getWindowContext(window_a);
     
     //This SHOULD tile the tile image across the window
-    for(x = 0; x < 300; x++)
-        for(y = 0; y < 200; y++)
-            ctx_a->data[y*300 + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
+    for(x = 0; x < w - 108; x++)
+        for(y = 0; y < h - 168; y++)
+            ctx_a->data[y*(w - 108) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
-    moveWindow(window_a, 100, 100);
+    moveWindow(window_a, 54, 102);
     moveWindow(window_b, 150, 150);    
     
     //Make them visible
