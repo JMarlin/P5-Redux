@@ -570,6 +570,19 @@ void drawWindow(window* cur_window) {
     return;
 }
 
+void drawHandle(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) {
+     
+        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+        return;
+    }
+    
+    drawWindow(dest_window);
+}
+
 void drawDeactivated(window* owner) {
     
     window* cur_sibling;
@@ -827,8 +840,7 @@ void main(void) {
             break;
 
             case WYG_REPAINT_WINDOW:
-                markWindowDirty(temp_msg.payload);
-                refreshTree();
+                drawHandle(temp_msg.payload);
             break;
 
             case WYG_SET_TITLE:

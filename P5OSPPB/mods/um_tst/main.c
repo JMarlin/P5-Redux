@@ -242,8 +242,10 @@ void cmd_pchar(unsigned char c) {
     
     if(cmd_y > cmd_max_lines)
         cmd_clear();
-        
-    redrawWindow(cmd_window);
+    
+    //Should update this so it only repaints the section
+    //of bitmap where the character was drawn    
+    repaintWindow(cmd_window);
 }
 
 void cmd_prints(unsigned char* s) {
