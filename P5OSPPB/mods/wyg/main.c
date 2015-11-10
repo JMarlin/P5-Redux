@@ -310,61 +310,6 @@ bitmap* getWindowContext(unsigned int handle) {
     return dest_window->context;
 }
 
-void raiseWindow(unsigned int handle) {
-    
-    window* parent;
-    window* owning_sibling;
-    window* dest_window = getWindowByHandle(handle);
-    
-    if(!dest_window) {
-     
-        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
-        return;
-    }
-    
-    //Can't raise the root window
-    if(handle == 1)
-        return;
-        
-    //We don't need to do anything if the window is parentless or already at the end of its chain
-    if(!dest_window->parent || !dest_window->next_sibling)
-        return;
-        
-    parent = dest_window->parent;
-    owning_sibling = parent->first_child;
-    
-    //This only happens if the dest window is the bottommost child
-    if(owning_sibling == dest_window) {
-        
-        //Find the end window
-        while(owning_sibling->next_sibling)
-            owning_sibling = owning_sibling->next_sibling;
-        
-        parent->first_child = dest_window->next_sibling;
-        owning_sibling->next_sibling = dest_window;
-        dest_window->next_sibling = (window*)0;
-        
-        //Go up the tree and make sure the parent is raised
-        raiseWindow(dest_window->parent->handle);
-        
-        return;
-    }
-    
-    while(owning_sibling->next_sibling != dest_window && owning_sibling)
-        owning_sibling = owning_sibling->next_sibling;        
-                
-    owning_sibling->next_sibling = dest_window->next_sibling;
-    dest_window->next_sibling = (window*)0;
-    
-    while(owning_sibling->next_sibling)
-        owning_sibling = owning_sibling->next_sibling;
-        
-    owning_sibling->next_sibling = dest_window;
-    
-    //Go up the tree and make sure the parent is raised
-    raiseWindow(dest_window->parent->handle);
-}
-
 void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
     
     window* dest_window = getWindowByHandle(handle);
@@ -495,6 +440,48 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
     }
 }
 
+void drawTitlebar(window* cur_window, unsigned char active) {
+    
+    //Titlebar
+    if(active)
+        setColor(RGB(182, 0, 0));
+    else 
+        setColor(RGB(238, 203, 137));
+    
+    setCursor(cur_window->x, cur_window->y - 24);
+    fillRect(cur_window->w, 20);
+    
+     //Window title
+    if(cur_window->title) {
+        
+        cmd_prints(cur_window->title);
+        
+        int base_x, base_y, off_x, titlebar_width;
+        
+        s = cur_window->title;
+        base_x = cur_window->x + 2;
+        base_y = cur_window->y - 20;
+        off_x = 0;
+        titlebar_width = cur_window->w - 20;
+        
+        if(active)
+            setColor(RGB(138, 103, 37));
+        else
+            setColor(RGB(255, 255, 255));
+        
+        while(*s) {
+            
+            setCursor(base_x + off_x, base_y);
+            drawChar(*(s++));
+            off_x += 8;
+            
+            //Truncate the text if it's wider than the titlebar
+            if(off_x >= titlebar_width)
+                break;
+        }
+    }
+}
+
 void drawFrame(window* cur_window) {
     
     int i;
@@ -533,51 +520,14 @@ void drawFrame(window* cur_window) {
     //Bottom frame
     setCursor(cur_window->x - 1, cur_window->y + cur_window->h + 1);
     fillRect(cur_window->w + 2, 2);
-    
-    //Titlebar
-    if(cur_window->next_sibling == (window*)0)
-        setColor(RGB(182, 0, 0));
-    else 
-        setColor(RGB(238, 203, 137));
-    
-    setCursor(cur_window->x, cur_window->y - 24);
-    fillRect(cur_window->w, 20);
-    
+        
     //Button
     drawPanel(cur_window->x + cur_window->w - 20, cur_window->y - 24, 20, 20, RGB(238, 203, 137), 1, 0);
     setColor(RGB(238, 203, 137));
     setCursor(cur_window->x + cur_window->w - 19, cur_window->y - 23);
     fillRect(18, 18);
     
-    //Window title
-    if(cur_window->title) {
-        
-        cmd_prints(cur_window->title);
-        
-        int base_x, base_y, off_x, titlebar_width;
-        
-        s = cur_window->title;
-        base_x = cur_window->x + 2;
-        base_y = cur_window->y - 20;
-        off_x = 0;
-        titlebar_width = cur_window->w - 20;
-        
-        if(cur_window->next_sibling)
-            setColor(RGB(138, 103, 37));
-        else
-            setColor(RGB(255, 255, 255));
-        
-        while(*s) {
-            
-            setCursor(base_x + off_x, base_y);
-            drawChar(*(s++));
-            off_x += 8;
-            
-            //Truncate the text if it's wider than the titlebar
-            if(off_x >= titlebar_width)
-                break;
-        }
-    }
+    drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
 }
 
 //Recursively draw all of the child windows of this window
@@ -617,6 +567,95 @@ void drawWindow(window* cur_window) {
     cmd_pchar('\n');
     
     return;
+}
+
+void drawDeactivated(window* owner) {
+    
+    window* cur_sibling;
+    
+    //Find the active child of the owner
+    cur_sibling = owner->first_child;
+    
+    //No children, we can quit
+    if(!cur_sibling)
+        return;
+        
+    while(cur_sibling->next_sibling)
+        cur_sibling = cur_sibling->next_sibling;
+        
+    //cur_sibling is now the active sibling and can have its titlebar redrawn
+    if(cur_sibling->flags & WIN_VISIBLE && !(cur_sibling->flags & WIN_UNDECORATED))
+        drawTitlebar(cur_sibling, 0);
+    
+    //Iterate down the active branch until we're out of children
+    drawDeactivated(cur_sibling);
+}
+
+void raiseWindow(unsigned int handle) {
+    
+    window* parent;
+    window* owning_sibling;
+    window* dest_window = getWindowByHandle(handle);
+    window* old_active;
+    
+    if(!dest_window) {
+     
+        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+        return;
+    }
+    
+    //If the window isn't visible, it will need to be in order to be raised 
+    dest_window->flags |= WIN_VISIBLE;
+    
+    //Can't raise the root window
+    if(handle == 1)
+        return ;
+        
+    //We don't need to do anything if the window is parentless or already at the end of its chain
+    if(!dest_window->parent || !dest_window->next_sibling)
+        return;
+    
+    //Deactivate the titlebars of all previously active windows
+    drawDeactivated(root_window);
+    
+    //Set up thw window iterators    
+    parent = dest_window->parent;
+    owning_sibling = parent->first_child;
+    
+    //This only happens if the dest window is the bottommost child
+    if(owning_sibling == dest_window) {
+        
+        //Find the end window
+        while(owning_sibling->next_sibling)
+            owning_sibling = owning_sibling->next_sibling;
+        
+        parent->first_child = dest_window->next_sibling;
+        owning_sibling->next_sibling = dest_window;
+        dest_window->next_sibling = (window*)0;
+        
+    } else {
+    
+        while(owning_sibling->next_sibling != dest_window && owning_sibling)
+            owning_sibling = owning_sibling->next_sibling;        
+                    
+        owning_sibling->next_sibling = dest_window->next_sibling;
+        dest_window->next_sibling = (window*)0;
+        
+        while(owning_sibling->next_sibling)
+            owning_sibling = owning_sibling->next_sibling;
+            
+        owning_sibling->next_sibling = dest_window;
+        
+        //Go up the tree and make sure the parent is raised
+        raiseWindow(dest_window->parent->handle);
+    }
+    
+    //Go up the tree and make sure the parent is raised
+    raiseWindow(dest_window->parent->handle);
+    
+    //Redraw the tree of active windows if we've hit the root 
+    if(dest_window->parent->handle == 1)
+        drawWindow(dest_window);
 }
 
 void refreshTree() {
