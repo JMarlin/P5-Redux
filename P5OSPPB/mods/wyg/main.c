@@ -38,7 +38,7 @@ unsigned int window_count;
 window** registered_windows;
 unsigned char inited = 0;
 
-/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
+/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
 unsigned char cmd_y;
 int cmd_width;
@@ -196,7 +196,7 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_lines = (cmd_height/12) - 1;
     inited = 1;
 }
-/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
+!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
 unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
@@ -205,18 +205,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-        cmd_prints("[WYG] Couldn't allocate a new window\n");
+        //cmd_prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
     if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-        cmd_prints("[WYG] Window list realloc failed\n");
+        //cmd_prints("[WYG] Window list realloc failed\n");
         return 0;
     }
     
-    cmd_prints("[WYG] Created new window, setting initial values\n");
+    //cmd_prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
@@ -231,7 +231,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-        cmd_prints("[WYG] Could not create a new window context\n");
+        //cmd_prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
@@ -242,13 +242,13 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
     
-    cmd_prints("[WYG] Installing new window into window list\n");
+    //cmd_prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
     
-    cmd_prints("[WYG] Successfully created new window ");
-    cmd_printDecimal(new_window->handle);
-    cmd_pchar('\n');
+    //cmd_prints("[WYG] Successfully created new window ");
+    //cmd_printDecimal(new_window->handle);
+    //cmd_pchar('\n');
     return new_window->handle;
 }
 
@@ -303,7 +303,7 @@ bitmap* getWindowContext(unsigned int handle) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find the window to get its context\n");   
+        //cmd_prints("[WYG] Couldn't find the window to get its context\n");   
         return (bitmap*)0;
     }
         
@@ -316,7 +316,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find the window to set its location\n");   
+        //cmd_prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
         
@@ -334,7 +334,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     
     if(!child_window || !parent_window) {
      
-        cmd_prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
+        //cmd_prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
     }
     
@@ -361,7 +361,7 @@ void markWindowVisible(unsigned int handle) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find window to mark it visible\n");   
+        //cmd_prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
         
@@ -376,7 +376,7 @@ void markWindowDirty(unsigned int handle) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
+        //cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
         
@@ -391,7 +391,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
+        //cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
     
@@ -456,7 +456,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
      //Window title
     if(cur_window->title) {
         
-        cmd_prints(cur_window->title);
+        //cmd_prints(cur_window->title);
         
         int base_x, base_y, off_x, titlebar_width;
         
@@ -488,9 +488,9 @@ void drawFrame(window* cur_window) {
     
     int i;
     
-    cmd_prints("[WYG] Drawing frame for window ");
-    cmd_printDecimal(cur_window->handle);
-    cmd_pchar('\n');
+    //cmd_prints("[WYG] Drawing frame for window ");
+    //cmd_printDecimal(cur_window->handle);
+    //cmd_pchar('\n');
     
     //Outer border
     drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
@@ -538,9 +538,9 @@ void drawWindow(window* cur_window) {
      
     window* cur_child;
     
-    cmd_prints("[WYG] Drawing window ");
-    cmd_printDecimal(cur_window->handle);
-    cmd_pchar('\n');
+    //cmd_prints("[WYG] Drawing window ");
+    //cmd_printDecimal(cur_window->handle);
+    //cmd_pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
         
@@ -563,9 +563,9 @@ void drawWindow(window* cur_window) {
         }
     }
     
-    cmd_prints("[WYG] Finished drawing window ");
-    cmd_printDecimal(cur_window->handle);
-    cmd_pchar('\n');
+    //cmd_prints("[WYG] Finished drawing window ");
+    //cmd_printDecimal(cur_window->handle);
+    //cmd_pchar('\n');
     
     return;
 }
@@ -576,7 +576,7 @@ void drawHandle(unsigned int handle) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -614,7 +614,7 @@ void raiseWindow(unsigned int handle) {
     
     if(!dest_window) {
      
-        cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -783,17 +783,17 @@ void main(void) {
     refreshTree();
     
     //Start debug console
-    cmd_init(root_window.w, 48);
+    //cmd_init(root_window.w, 48);
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
     while(1) {
 
-        cmd_prints("[WYG] Waiting for message...");
+        //cmd_prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        cmd_prints("got message ");
-        cmd_printDecimal(temp_msg.command);
-        cmd_pchar('\n');
+        //cmd_prints("got message ");
+        //cmd_printDecimal(temp_msg.command);
+        //cmd_pchar('\n');
 
         src_pid = temp_msg.source;
 

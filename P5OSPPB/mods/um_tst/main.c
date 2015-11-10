@@ -103,7 +103,7 @@ void makeWindows() {
     
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
-    window_a = createWindow(w - 108, h - 168, WIN_FIXEDSIZE);
+    window_a = createWindow(w - 108, h - 132, WIN_FIXEDSIZE);
     
     //Set up their titles
     setTitle(window_a, "PTerm");
@@ -120,7 +120,7 @@ void makeWindows() {
             ctx_a->data[y*(w - 108) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
-    moveWindow(window_a, 54, 102);
+    moveWindow(window_a, 54, 66);
     
     //Make them visible
     showWindow(window_a);
@@ -230,7 +230,7 @@ void cmd_pchar(unsigned char c) {
         cmd_y++;
     } else {
 
-        drawCharacter(cmd_bmp, c, (cmd_x*8)+cmd_bx, (cmd_y*12)+cmd_by, RGB(0, 0, 0));
+        drawCharacter(cmd_bmp, c, (cmd_x*8), (cmd_y*12), RGB(0, 0, 0));
         cmd_x++;
 
         if(cmd_x > cmd_max_chars) {
