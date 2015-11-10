@@ -52,6 +52,7 @@ void showWindow(unsigned int handle) {
 void repaintWindow(unsigned int handle) {
 	
 	postMessage(wyg_pid, WYG_REPAINT_WINDOW, handle);
+	getMessageFrom(&temp_msg, wyg_pid, WYG_REPAINT_WINDOW);
 }
 
 void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short *h) {

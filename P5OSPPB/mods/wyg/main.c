@@ -531,9 +531,35 @@ void drawFrame(window* cur_window) {
     drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
 }
 
-//Recursively draw all of the child windows of this window
-//At the moment, we're just being super lazy and using 
-//painter's algorithm to redraw EVERYTHING
+//   Developing a proper redraw routine is going to be one of
+//the most key aspects of getting a responsive window manager.
+//One of the current major issues we're experiencing thus far
+//is that small, repeated redraw requests are filling up the 
+//message buffer and slowing everything to a crawl (this is 
+//currently happening on our terminal which is redrawing with
+//each printed character)
+//   The obvious answer is twofold: Firstly, we need to prevent
+//a window from requesting another redraw until the current 
+//redraw has completed. Secondly, we need to allow for
+//specifying the region of the redraw within the window bitmap
+//to minimize the amount of time that the redraw call spends
+//blitting to the screen. For this, we can use the bitmap's
+//built-in blitting rectangle.
+//   The final component is to allow for the redrawing of 
+//background windows that may be semi-occluded by overlapping
+//siblings. This will be done by using a recursive splitting 
+//algorithm to break down the non-occluded rectilinear
+//polygon defining the visible area of the window into 
+//rectangles, each of which will then be sent to the GFX 
+//bitmap blitter to be inserted into the framebuffer -- this
+//will require finally implementing the blit rectangle in 
+//GFX as well. In this phase we'll be able to do things to
+//significantly improve performance such as throwing out a
+//window for redraw the moment it is determined to be 
+//completely occluded and generalizing that to the input 
+//blitting rectangle as well. EG: If the region we want
+//redrawn is under another window, don't bother drawing it.
+
 void drawWindow(window* cur_window) {
      
     window* cur_child;
@@ -549,10 +575,16 @@ void drawWindow(window* cur_window) {
         //Start by drawing this window
         if(!(cur_window->flags & WIN_UNDECORATED))
             drawFrame(cur_window);
-            
+        
+        //For now, we'll just pass the given blit mask on to
+        //the GFX system unmodified because we don't care
+        //about occlusion yet. But note that this is where
+        //we would extract that info into a temp rectangle 
+        //upon which we will do our occlusion splitting/testing    
         setCursor(cur_window->x, cur_window->y);
         drawBitmap(cur_window->context);
-        
+               
+        /*
         //Then recursively draw all children
         cur_child = cur_window->first_child;
         
@@ -561,6 +593,7 @@ void drawWindow(window* cur_window) {
             drawWindow(cur_child);
             cur_child = cur_child->next_sibling;
         }
+        */
     }
     
     //cmd_prints("[WYG] Finished drawing window ");
@@ -841,6 +874,7 @@ void main(void) {
 
             case WYG_REPAINT_WINDOW:
                 drawHandle(temp_msg.payload);
+                postMessage(src_pid, WYG_REPAINT_WINDOW, 1);
             break;
 
             case WYG_SET_TITLE:

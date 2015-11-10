@@ -165,6 +165,32 @@ void usrExit(void) {
     terminate();
 }
 
+//Wrapper for setting the blit mask for the window bitmap to a specific region before requesting redraw
+void repaintAll(unsigned int handle, bitmap* h_bmp) {
+    
+    //Set the blitting rect 
+    h_bmp->top = 0;
+    h_bmp->left = 0;
+    h_bmp->bottom = h_bmp->height;
+    h_bmp->right = h_bmp->width;   
+    
+    //Redraw 
+    repaintWindow(handle); 
+}
+
+//Wrapper for setting the blit mask for the window bitmap to a specific region before requesting redraw
+void repaintRegion(unsigned int handle, bitmap* h_bmp, unsigned int x, unsigned int y, unsigned int w, unsigned int h) {
+    
+    //Set the blitting rect 
+    h_bmp->top = y;
+    h_bmp->left = x;
+    h_bmp->bottom = y + h;
+    h_bmp->right = x + w;   
+    
+    //Redraw 
+    repaintWindow(handle); 
+}
+
 void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
     
     int j, i;
@@ -180,6 +206,8 @@ void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
             line = line << 1;
         }
     }
+    
+    repaintRegion(cmd_window, cmd_bmp, x, y, 8, 12);
 }
 
 
@@ -243,9 +271,7 @@ void cmd_pchar(unsigned char c) {
     //Should update this so it only repaints the section
     //of bitmap where the character was drawn    
     if(cmd_y > cmd_max_lines)
-        cmd_clear();
-    else
-        repaintWindow(cmd_window);
+        cmd_clear();        
 }
 
 void cmd_prints(unsigned char* s) {
@@ -265,7 +291,12 @@ void cmd_clear() {
     cmd_x = 0;
     cmd_y = 0;
     
-    repaintWindow(cmd_window);
+    repaintAll(cmd_window, cmd_bmp);
+    
+    //Now clear to green temporarily to see what's getting repainted and where
+    for(y = 0; y < cmd_height; y++)
+        for(x = 0; x < cmd_width; x++)
+            cmd_bmp->data[y*cmd_bmp->width + x] = RGB(0, 255, 0);
 }
 
 void cmd_printDecimal(unsigned int dword) {
