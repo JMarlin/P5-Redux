@@ -451,7 +451,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         setColor(RGB(238, 203, 137));
     
     setCursor(cur_window->x, cur_window->y - 24);
-    fillRect(cur_window->w, 20);
+    fillRect(cur_window->w - 20, 20);
     
      //Window title
     if(cur_window->title) {
@@ -467,9 +467,9 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         titlebar_width = cur_window->w - 20;
         
         if(active)
-            setColor(RGB(138, 103, 37));
-        else
             setColor(RGB(255, 255, 255));
+        else
+            setColor(RGB(138, 103, 37));
         
         while(*s) {
             
@@ -819,7 +819,6 @@ void main(void) {
             
             case WYG_RAISE_WINDOW:
                 raiseWindow(temp_msg.payload);
-                refreshTree();
             break;
 
             case WYG_REPAINT_WINDOW:
