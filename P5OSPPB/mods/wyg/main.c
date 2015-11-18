@@ -14,7 +14,16 @@ desktop.first_child:  window_a.first_child:  button_1.first_child:  -
 Linkage is in order of increasing z-value                                                                                                
 */
 
+#define new(x) (((x)*)malloc(sizeof(x)))
+
 message temp_msg;
+
+typedef struct rect {
+    unsigned int top;
+    unsigned int right;
+    unsigned int bottom;
+    unsigned int left;
+} rect;
 
 typedef struct window {
     unsigned char flags;
@@ -313,23 +322,58 @@ bitmap* getWindowContext(unsigned int handle) {
 }
 
 //Redraws every window intersected by window_bounds
-void updateOverlapped(window* dest_window) { //rect* window_bounds) {
+void updateOverlapped(rect* window_bounds) {
     
-    //NEED TO IMPLEMENT
+    int i;
+    rect comp_rect; 
+        
+    for(i = 0; i < window_count; i++) {
+        
+        comp_rect.top = registered_windows[i]->y;
+        comp_rect.left = registered_windows[i]->x;
+        comp_rect.bottom = comp_rect.top + registered_windows[i]->h - 1;
+        comp_rect.right = comp_rect.left + registered_windows[i]->w - 1;
+        
+        if(window_bounds->left <= comp_rect.right &&
+           window_bounds->right >= comp_rect.left &&
+           window_bounds->top <= comp_rect.bottom && 
+           window_bounts->bottom >= comp_rect.top)
+            drawWindow(registered_windows[i]);
+    }
 }
 
 void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
     
     window* dest_window = getWindowByHandle(handle);
+    rect overlap_rect;
     
     if(!dest_window) {
      
         //cmd_prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
+    
+    //If a window is moved, we must ensure that it is the active window 
+    raiseWindow(dest_window);
+    
+    //Create a rectangle covering the old location for later intersection
+    overlap_rect.top = dest_window->y;
+    overlap_rect.left = dest_window->x;
+    overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
+    overlap_rect.right = overlap_rect.left + dest_window->w - 1;
         
     dest_window->x = new_x;
     dest_window->y = new_y;
+    
+    //Need to update the screen if we're visible    
+    if(dest_window->flags & WIN_VISIBLE) {
+                
+        updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
+        
+        //Redraw the window at its new location
+        dest_window->frame_needs_redraw = 1;
+        drawWindow(dest_window);
+    } 
         
     return;
 }
@@ -366,6 +410,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
 void markWindowVisible(window* dest_window, unsigned char is_visible) {
     
     unsigned char was_visible;
+    rect overlap_rect;
     
     was_visible = dest_window->flags & WIN_VISIBLE;
 
@@ -374,8 +419,15 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     else
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
     
-    if(was_visible & !is_visible)
-        updateOverlapped(dest_window); //Redraw all of the siblings that this window was covering up 
+    if(was_visible & !is_visible) {
+        
+        overlap_rect.top = dest_window->y;
+        overlap_rect.left = dest_window->x;
+        overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
+        overlap_rect.right = overlap_rect.left + dest_window->w - 1;
+        
+        updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
+    } 
     
     return;
 }
@@ -665,19 +717,12 @@ void drawDeactivated(window* owner) {
     drawDeactivated(cur_sibling);
 }
 
-void raiseWindow(unsigned int handle) {
+void raiseWindow(window* dest_window) {
     
     window* parent;
     window* owning_sibling;
-    window* dest_window = getWindowByHandle(handle);
     window* old_active;
-    
-    if(!dest_window) {
-     
-        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
-        return;
-    }
-    
+        
     //If the window isn't visible, it will need to be in order to be raised 
     dest_window->flags |= WIN_VISIBLE;
     
@@ -721,15 +766,28 @@ void raiseWindow(unsigned int handle) {
         owning_sibling->next_sibling = dest_window;
         
         //Go up the tree and make sure the parent is raised
-        raiseWindow(dest_window->parent->handle);
+        raiseWindow(dest_window->parent);
     }
     
     //Go up the tree and make sure the parent is raised
-    raiseWindow(dest_window->parent->handle);
+    raiseWindow(dest_window->parent);
     
     //Redraw the tree of active windows if we've hit the root 
     if(dest_window->parent->handle == 1)
         drawWindow(dest_window);
+}
+
+void raiseHandle(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) {
+     
+        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+        return;
+    }
+    
+    raiseWindow(dest_window);
 }
 
 void refreshTree() {
@@ -955,7 +1013,6 @@ void main(void) {
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 moveWindow(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
-                refreshTree();
             break;
 
             case WYG_INSTALL_WINDOW:
@@ -969,7 +1026,7 @@ void main(void) {
             break;
             
             case WYG_RAISE_WINDOW:
-                raiseWindow(temp_msg.payload);
+                raiseHandle(temp_msg.payload);
             break;
 
             case WYG_REPAINT_WINDOW:
