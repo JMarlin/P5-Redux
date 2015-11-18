@@ -208,6 +208,9 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 }
 !!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
+void drawWindow(window* dest_window);
+void raiseWindow(window* dest_window);
+
 unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
     window* new_window;
@@ -337,7 +340,7 @@ void updateOverlapped(rect* window_bounds) {
         if(window_bounds->left <= comp_rect.right &&
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
-           window_bounts->bottom >= comp_rect.top)
+           window_bounds->bottom >= comp_rect.top)
             drawWindow(registered_windows[i]);
     }
 }
@@ -727,7 +730,7 @@ void raiseWindow(window* dest_window) {
     dest_window->flags |= WIN_VISIBLE;
     
     //Can't raise the root window
-    if(handle == 1)
+    if(dest_window->handle == 1)
         return ;
         
     //We don't need to do anything if the window is parentless or already at the end of its chain
