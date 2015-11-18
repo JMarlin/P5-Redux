@@ -10,6 +10,9 @@
 void usrClear(void);
 void consVer(void);
 void usrExit(void);
+void makeChild(void);
+void closeChild(void);
+void focusCmd(void);
 //void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void pciList(void);
@@ -34,7 +37,10 @@ char* cmdWord[CMD_COUNT] = {
     "VER",
     "EXIT",
     //"CPU",
-    "PCI"
+    "PCI",
+    "WIN",
+    "CLOSE",
+    "FOCUS"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -42,7 +48,9 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&consVer,
     (sys_command)&usrExit,
     //(sys_command)&cpuUsage,
-    (sys_command)&pciList
+    (sys_command)&pciList,
+    (sys_command)&makeChild,
+    (sys_command)&closeChild
 };
 
 char inbuf[50];
@@ -84,14 +92,17 @@ void parse(char* cmdbuf) {
     }
 }
 
-    unsigned int window_a, window_b;
+unsigned int window_a = 0, window_b = 0;
 
-void makeWindows() {
+void focusCmd() {
     
-    bitmap* ctx_a;
-    unsigned int x, y;
-    unsigned short w, h;
-    unsigned char toggle = 0;
+    focus(window_a);
+}
+
+void makeChild() {
+    
+    bitmap* ctx_b;
+    int x, y;
     unsigned int tile_width = 4;
     unsigned int tile_height = 4;
     unsigned int tile_data[] = {
@@ -101,6 +112,54 @@ void makeWindows() {
         0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000
     };
     
+    if(window_b) {
+        
+        cmd_prints("Raising window\n");
+        focus(window_b);
+        return;
+    }    
+    
+    cmd_prints("Creating window\n");
+    
+    window_b = createWindow(400, 400, WIN_FIXEDSIZE);
+    
+    //Set up their titles
+    setTitle(window_a, "Window B");
+    
+    //Install them into the root window
+    installWindow(window_b, ROOT_WINDOW);
+    
+    //Paint a pretty picture into window A
+    ctx_b = getWindowContext(window_b);
+    
+    //This SHOULD tile the tile image across the window
+    for(x = 0; x < 400; x++)
+        for(y = 0; y < 400; y++)
+            ctx_b->data[y*(w - 108) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
+    
+    //Make them prettily cascade
+    moveWindow(window_b, 100, 100);
+    
+    //Make them visible
+    showWindow(window_b);
+}
+
+void closeChild() {
+    
+    if(window_b) {
+     
+        cmd_prints("Destroying window\n");   
+        destroyWindow(window_b);
+        window_b = 0;
+        return;
+    }
+    
+    cmd_prints("Window doesn't exist\n");
+}
+
+void makeWindows() {
+    
+    unsigned short w, h;
     
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
@@ -111,15 +170,7 @@ void makeWindows() {
     
     //Install them into the root window
     installWindow(window_a, ROOT_WINDOW);
-    
-    //Paint a pretty picture into window A
-    ctx_a = getWindowContext(window_a);
-    
-    //This SHOULD tile the tile image across the window
-    for(x = 0; x < w - 108; x++)
-        for(y = 0; y < h - 168; y++)
-            ctx_a->data[y*(w - 108) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
-    
+        
     //Make them prettily cascade
     moveWindow(window_a, 54, 66);
     
