@@ -324,7 +324,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
         
     dest_window->x = new_x;
     dest_window->y = new_y;
-    
+        
     return;
 }
 
@@ -357,7 +357,24 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     return;   
 }
 
-void markWindowVisible(unsigned int handle) {
+void markWindowVisible(window* dest_window, unsigned char is_visible) {
+    
+    unsigned char was_visible;
+    
+    was_visible = dest_window->flags & WIN_VISIBLE;
+
+    if(is_visible)        
+        dest_window->flags |= WIN_VISIBLE;
+    else
+        dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
+    
+    if(was_visible & !is_visible)
+        updateOverlapped(dest_window); //Redraw all of the siblings that this window was covering up 
+    
+    return;
+}
+
+void markHandleVisible(unsigned int handle, unsigned char is_visible) {
     
     window* dest_window = getWindowByHandle(handle);
     
@@ -366,10 +383,8 @@ void markWindowVisible(unsigned int handle) {
         //cmd_prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
-        
-    dest_window->flags |= WIN_VISIBLE;
     
-    return;
+    markWindowVisible(dest_window, is_visible);
 }
 
 void markWindowDirty(unsigned int handle) {
@@ -716,6 +731,74 @@ void refreshTree() {
     drawWindow(&root_window);
 }
 
+void destroy(unsigned int handle) {
+
+    window* dest_window = getWindowByHandle(handle);
+    window* cur_child;
+    int i;
+    
+    if(!dest_window) 
+        return;
+        
+    //Start by hiding the window 
+    markWindowVisible(dest_window, 0);
+    
+    //Destroy everything that belongs to this window
+    cur_child = dest_window->first_child;
+    
+    while(cur_child) {
+        
+        destroy(cur_child);
+        cur_child = cur_child->next_sibling;
+    }
+    
+    //Now that everything we own has been destroyed, we can destory ourself
+    //Find our parent and use that to find the node before us 
+    cur_child = dest_window->parent->first_child;
+    
+    while(cur_child->next_sibling != dest_window && cur_child != dest_window)
+        cur_child = cur_child->next_sibling;
+        
+    if(cur_child == dest_window) {
+        
+        //The deleted window is the lowest window, so we need to repoint the parent window 
+        dest_window->parent->first_child = dest_window->next_sibling;
+    } else {
+        
+        //Otherwise we reparent the next sibling to the previous sibling 
+        cur_child->next_sibling = dest_window->next_sibling;
+    }
+    
+    //Remove this bitmap from the handle list     
+    for(i = 0; i < window_count; i++) {
+        if(registered_windows[i] == dest_window) {
+            
+            window_count--;
+            
+            for(; i < window_count; i++)
+                registered_windows[i] = registered_windows[i+1];
+        
+            //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
+            if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
+                
+                //cmd_prints("[WYG] Window list realloc failed\n");
+                return 0;
+            }
+        
+            break;
+        }
+    }
+    
+    //Free the context
+    freeBitmap(dest_window->context);
+    
+    //Free the title (if we ever decide to error on unsuccessful frees, this could be an issue for static or undefined titles)
+    free((void*)dest_window->title);
+    
+    //And finally free ourself 
+    free((void*)dest_window);
+}
+
 void main(void) {
 
     unsigned int parent_pid;
@@ -870,8 +953,7 @@ void main(void) {
             break;
 
             case WYG_SHOW_WINDOW:
-                markWindowVisible(temp_msg.payload);
-                refreshTree();
+                markHandleVisible(temp_msg.payload, 1);
             break;
             
             case WYG_RAISE_WINDOW:
@@ -890,6 +972,10 @@ void main(void) {
                 instr = (unsigned char*)malloc(strlen);
                 getString(src_pid, instr, strlen);
                 setWindowTitle(current_handle, instr);
+            break;
+            
+            case WYG_DESTROY:
+                destroy(temp_msg.payload);
             break;
 
             default:

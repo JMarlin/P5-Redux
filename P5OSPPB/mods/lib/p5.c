@@ -312,6 +312,11 @@ void* getSharedPages(unsigned int count) {
     return (void*)temp_msg.payload;
 }
 
+void freeSharedPages(void* base) {
+    
+    //To be implemented later
+}
+
 void* getSharedPage(void) {
 
     postMessage(0, KS_GET_SHARED_PAGE, 0);

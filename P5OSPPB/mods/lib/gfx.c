@@ -149,6 +149,11 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     return return_bmp;
 }
 
+void freeBitmap(bitmap* bmp) {
+    
+    freeSharedPages((void*)bmp);
+}
+
 void drawBitmap(bitmap* bmp) {
     
     postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);

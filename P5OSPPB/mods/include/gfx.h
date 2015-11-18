@@ -60,6 +60,7 @@ void fillRect(unsigned short width, unsigned short height);
 void drawChar(char c);
 void drawStr(char* str);
 bitmap* newBitmap(unsigned int width, unsigned int height);
+void freeBitmap(bitmap* bmp);
 void drawBitmap(bitmap* bmp);
 
 #endif //GFX_H

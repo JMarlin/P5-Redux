@@ -84,9 +84,10 @@ void parse(char* cmdbuf) {
     }
 }
 
+    unsigned int window_a, window_b;
+
 void makeWindows() {
     
-    unsigned int window_a, window_b;
     bitmap* ctx_a;
     unsigned int x, y;
     unsigned short w, h;
@@ -162,6 +163,7 @@ void consVer(void) {
 
 void usrExit(void) {
 
+    destroyWindow(window_a);
     terminate();
 }
 

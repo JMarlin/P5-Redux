@@ -48,6 +48,7 @@ void resetPidSearch();
 void* allocatePhysical(void* base_address, unsigned int byte_count);
 unsigned char freePhysical(void* base_address, unsigned int byte_count);
 void* getSharedPages(unsigned int count);
+void freeSharedPages(void* base);
 void* getSharedPage(void);
 unsigned int getImageSize(unsigned int pid);
 unsigned int appendPage(void);
