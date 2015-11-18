@@ -30,6 +30,7 @@ typedef struct window {
     unsigned int y;
     unsigned char needs_redraw;
     unsigned char* title;
+    unsigned char frame_needs_redraw;
 } window;
 
 window root_window;
@@ -227,6 +228,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     new_window->w = width;
     new_window->h = height;
     new_window->title = (unsigned char*)0;
+    new_window->frame_needs_redraw = 1;
     
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
@@ -399,6 +401,8 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
         free(dest_window->title);
         
     dest_window->title = newstr;
+    
+    cur_window->frame_needs_redraw = 1;
 }
 
 void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
@@ -529,6 +533,8 @@ void drawFrame(window* cur_window) {
     fillRect(18, 18);
     
     drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
+    
+    cur_window->frame_needs_redraw = 0;
 }
 
 //   Developing a proper redraw routine is going to be one of
@@ -573,7 +579,7 @@ void drawWindow(window* cur_window) {
         cur_window->needs_redraw = 0;
         
         //Start by drawing this window
-        if(!(cur_window->flags & WIN_UNDECORATED))
+        if(!(cur_window->flags & WIN_UNDECORATED) && cur_window->frame_needs_redraw)
             drawFrame(cur_window);
         
         //For now, we'll just pass the given blit mask on to
