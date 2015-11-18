@@ -800,7 +800,7 @@ void refreshTree() {
 
 void destroy(window* dest_window) {
 
-    window* cur_child, next;
+    window *cur_child, *next;
     int i;
             
     //Start by hiding the window 
