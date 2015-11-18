@@ -4,7 +4,7 @@
 #include "../include/wyg.h"
 #include "../vesa/font.h"
 
-#define CMD_COUNT 4
+#define CMD_COUNT 7
 
 //Function declarations
 void usrClear(void);
@@ -50,7 +50,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     //(sys_command)&cpuUsage,
     (sys_command)&pciList,
     (sys_command)&makeChild,
-    (sys_command)&closeChild
+    (sys_command)&closeChild,
+    (sys_command)&focusCmd
 };
 
 char inbuf[50];
@@ -135,7 +136,7 @@ void makeChild() {
     //This SHOULD tile the tile image across the window
     for(x = 0; x < 400; x++)
         for(y = 0; y < 400; y++)
-            ctx_b->data[y*(w - 108) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
+            ctx_b->data[y*(400) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
     moveWindow(window_b, 100, 100);
