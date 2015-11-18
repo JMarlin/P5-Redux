@@ -125,7 +125,7 @@ void makeChild() {
     window_b = createWindow(400, 400, WIN_FIXEDSIZE);
     
     //Set up their titles
-    setTitle(window_a, "Window B");
+    setTitle(window_b, "Window B");
     
     //Install them into the root window
     installWindow(window_b, ROOT_WINDOW);

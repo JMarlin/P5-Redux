@@ -776,8 +776,11 @@ void raiseWindow(window* dest_window) {
     raiseWindow(dest_window->parent);
     
     //Redraw the tree of active windows if we've hit the root 
-    if(dest_window->parent->handle == 1)
+    if(dest_window->parent->handle == 1) {
+    
+        dest_window->frame_needs_redraw;    
         drawWindow(dest_window);
+    }
 }
 
 void raiseHandle(unsigned int handle) {
