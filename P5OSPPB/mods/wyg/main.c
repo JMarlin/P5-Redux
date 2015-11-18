@@ -422,7 +422,7 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     else
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
     
-    if(was_visible & !is_visible) {
+    if(was_visible && !is_visible) {
         
         overlap_rect.top = dest_window->y;
         overlap_rect.left = dest_window->x;
@@ -800,7 +800,7 @@ void refreshTree() {
 
 void destroy(window* dest_window) {
 
-    window* cur_child;
+    window* cur_child, next;
     int i;
             
     //Start by hiding the window 
@@ -811,8 +811,9 @@ void destroy(window* dest_window) {
     
     while(cur_child) {
         
+        next = cur_child->next_sibling;
         destroy(cur_child);
-        cur_child = cur_child->next_sibling;
+        cur_child = next;
     }
     
     //Now that everything we own has been destroyed, we can destory ourself

@@ -93,6 +93,7 @@ void free(void* address) {
 void* realloc(void* old_address, unsigned int byte_count) {
 	
 	int i;
+	unsigned int copy_size;
 	unsigned char *oldbuf, *newbuf;
 	
 	//Get the original memblock
@@ -111,8 +112,14 @@ void* realloc(void* old_address, unsigned int byte_count) {
 	newbuf = (unsigned char*)new_address;
 	oldbuf = (unsigned char*)old_address;
 	
+	//Figure out how many bytes we're copying
+	if(byte_count < old_block->size)
+		copy_size = byte_count;
+	else
+		copy_size = old_block->size;
+	
 	//Copy the old content to the new location (again, could probably be much improved by a hardware-aware memcpy routine)
-	for(i = 0; i < old_block->size; i++)
+	for(i = 0; i < copy_size; i++)
 		newbuf[i] = oldbuf[i];
 		
 	//Delete the old allocation
