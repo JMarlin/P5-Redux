@@ -152,4 +152,5 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
 void drawBitmap(bitmap* bmp) {
     
     postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
+    getMessageFrom(&temp_msg, gfx_pid, GFX_DRAWBMP);
 }

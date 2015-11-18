@@ -402,7 +402,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
         
     dest_window->title = newstr;
     
-    cur_window->frame_needs_redraw = 1;
+    dest_window->frame_needs_redraw = 1;
 }
 
 void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {

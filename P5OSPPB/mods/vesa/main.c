@@ -152,6 +152,7 @@ void main(void) {
         //fast if we get a GFX request while we're waiting
         //on a response from v86
         getMessage(&temp_msg);
+        oldsrc = temp_msg.source;
 
         switch(temp_msg.command) {
 
@@ -225,6 +226,7 @@ void main(void) {
 
             case GFX_DRAWBMP:
                 VdrawBitmap(pen_x, pen_y, (bitmap*)temp_msg.payload);
+                postMessage(oldsrc, GFX_DRAWBMP, 1);
             break;
 
             default:
