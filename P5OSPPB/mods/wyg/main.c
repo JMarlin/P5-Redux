@@ -312,6 +312,12 @@ bitmap* getWindowContext(unsigned int handle) {
     return dest_window->context;
 }
 
+//Redraws every window intersected by window_bounds
+void updateOverlapped(window* dest_window) { //rect* window_bounds) {
+    
+    //NEED TO IMPLEMENT
+}
+
 void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
     
     window* dest_window = getWindowByHandle(handle);
@@ -731,15 +737,11 @@ void refreshTree() {
     drawWindow(&root_window);
 }
 
-void destroy(unsigned int handle) {
+void destroy(window* dest_window) {
 
-    window* dest_window = getWindowByHandle(handle);
     window* cur_child;
     int i;
-    
-    if(!dest_window) 
-        return;
-        
+            
     //Start by hiding the window 
     markWindowVisible(dest_window, 0);
     
@@ -782,7 +784,7 @@ void destroy(unsigned int handle) {
             if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
                 
                 //cmd_prints("[WYG] Window list realloc failed\n");
-                return 0;
+                return;
             }
         
             break;
@@ -797,6 +799,16 @@ void destroy(unsigned int handle) {
     
     //And finally free ourself 
     free((void*)dest_window);
+}
+
+void destroyHandle(unsigned int handle) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) 
+        return;
+        
+    destroy(dest_window);
 }
 
 void main(void) {
@@ -975,7 +987,7 @@ void main(void) {
             break;
             
             case WYG_DESTROY:
-                destroy(temp_msg.payload);
+                destroyHandle(temp_msg.payload);
             break;
 
             default:
