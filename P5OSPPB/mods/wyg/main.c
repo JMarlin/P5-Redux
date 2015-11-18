@@ -1048,6 +1048,7 @@ void main(void) {
             
             case WYG_DESTROY:
                 destroyHandle(temp_msg.payload);
+                postMessage(src_pid, WYG_DESTROY, 1);
             break;
 
             default:

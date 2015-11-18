@@ -88,4 +88,5 @@ void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y
 void destroyWindow(unsigned int handle) {
 	
 	postMessage(wyg_pid, WYG_DESTROY, handle);
+	getMessageFrom(&temp_msg, wyg_pid, WYG_DESTROY);
 }
