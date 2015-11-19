@@ -208,17 +208,17 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 }
 !!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
-void drawWindow(window* dest_window);
+void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
 
 //Update this to draw the rectangular region of the specified window
-void drawRect(window* win, rect r) {
+void drawBmpRect(window* win, rect r) {
     
     //Adjust the rectangle coordinate from global space to window space 
-    win->context->top = rect.top - win->y;
-    win->context->left = rect.left - win->x;
-    win->context->bottom = rect.bottom - win->y;
-    win->context->right = rect.right - win->x;   
+    win->context->top = r.top - win->y;
+    win->context->left = r.left - win->x;
+    win->context->bottom = r.bottom - win->y;
+    win->context->right = r.right - win->x;   
     
     //Do the blit
     setCursor(win->x, win->y);
@@ -343,7 +343,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				 out_rects[j].bottom == 0 &&
 				 out_rects[j].right == 0)) {
 			
-				rect* split_rects = splitRect(renderer, out_rects[j], splitrects[i], &split_count);
+				rect* split_rects = splitRect(out_rects[j], splitrects[i], &split_count);
 			
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!split_count) {
@@ -403,7 +403,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
              out_rects[k].left == 0 &&
              out_rects[k].bottom == 0 &&
              out_rects[k].right == 0)) 
-                drawRect(win, out_rects[k]);
+                drawBmpRect(win, out_rects[k]);
 		
 	free(out_rects);
 }
@@ -844,7 +844,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
     rect* return_rects = (rect*)0;
 
     //See if I overlap, and then check my children 
-    if(cur_child) {
+    if(cur_window) {
         
         //Allocate space for rectangles if we haven't yet AND we're building them
         if(create_rects && !rect_collection) {
@@ -859,17 +859,17 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
         //Count the window only if it overlaps
         if(!initial && /* Don't check the current window if it's the overlapped window */
            cur_window->x <= baserect->right &&
-           (cur_window->x + cur_window->context->w - 1) >= baserect->left &&
+           (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
            cur_window->y <= baserect->bottom && 
-           (cur_window->y + cur_window->context->h - 1) >= baserect->top) {
+           (cur_window->y + cur_window->context->height - 1) >= baserect->top) {
            
                     //Create the rectangle, if we're into that junk
                 if(create_rects) {
                     
                     return_rects[rect_count[0]].top = cur_window->y;
                     return_rects[rect_count[0]].left = cur_window->x;
-                    return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->h - 1);
-                    return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->w - 1);
+                    return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->height - 1);
+                    return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->width - 1);
                 }
                
                 rect_count[0]++;
@@ -915,8 +915,8 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
                 
             winrect.top = cur_window->y;
             winrect.left = cur_window->x;
-            winrect.bottom = cur_window->y + cur_window->context->h - 1;
-            winrect.right = cur_window->x + cur_window->context->w - 1;
+            winrect.bottom = cur_window->y + cur_window->context->height - 1;
+            winrect.right = cur_window->x + cur_window->context->width - 1;
         }
         
         rect_count = 0;
