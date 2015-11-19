@@ -211,6 +211,203 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 void drawWindow(window* dest_window);
 void raiseWindow(window* dest_window);
 
+//Update this to draw the rectangular region of the specified window
+void drawRect(window* win, rect r) {
+    
+    //Adjust the rectangle coordinate from global space to window space 
+    win->context->top = rect.top - win->y;
+    win->context->left = rect.left - win->x;
+    win->context->bottom = rect.bottom - win->y;
+    win->context->right = rect.right - win->x;   
+    
+    //Do the blit
+    setCursor(win->x, win->y);
+    drawBitmap(win->context);
+}
+
+rect* splitRect(rect rdest, rect rknife, int* out_count) {
+	
+	rect baserect;
+	rect* outrect;
+	int rect_count = 0;
+	unsigned int i;
+	
+	baserect.top = rdest.top;
+	baserect.left = rdest.left;
+	baserect.bottom = rdest.bottom;
+	baserect.right = rdest.right;
+
+	if(rknife.left > baserect.left && rknife.left < baserect.right)
+		rect_count++;
+		
+	if(rknife.right > baserect.left && rknife.right < baserect.right)
+		rect_count++;
+	
+	if(rknife.top < baserect.bottom && rknife.top > baserect.top)
+		rect_count++;		
+		
+	if(rknife.bottom < baserect.bottom && rknife.bottom > baserect.top)
+		rect_count++;	
+	
+	if(rect_count == 0) {
+		
+		out_count[0] = 0;
+		return (rect*)0;
+	}
+		
+	outrect = (rect*)malloc(sizeof(rect)*rect_count);
+	rect_count = 0;
+	
+	//Split by left edge
+	if(rknife.left > baserect.left && rknife.left < baserect.right) {
+		
+		outrect[rect_count].top = baserect.top;
+		outrect[rect_count].bottom = baserect.bottom;
+		outrect[rect_count].right = rknife.left - 1;
+		outrect[rect_count].left = baserect.left;
+		
+		baserect.left = rknife.left;
+		
+		rect_count++;
+	}
+
+	//Split by top edge
+	if(rknife.top < baserect.bottom && rknife.top > baserect.top) {
+		
+		outrect[rect_count].top = baserect.top;
+		outrect[rect_count].bottom = rknife.top - 1;
+		outrect[rect_count].right = baserect.right;
+		outrect[rect_count].left = baserect.left;
+		
+		baserect.top = rknife.top;
+		
+		rect_count++;
+	}
+
+	//Split by right edge
+	if(rknife.right > baserect.left && rknife.right < baserect.right) {
+		
+		outrect[rect_count].top = baserect.top;
+		outrect[rect_count].bottom = baserect.bottom;
+		outrect[rect_count].right = baserect.right;
+		outrect[rect_count].left = rknife.right + 1;
+		
+		baserect.right = rknife.right;
+		
+		rect_count++;
+	}
+
+	//Split by right edge
+	if(rknife.bottom > baserect.top && rknife.bottom < baserect.bottom) {
+		
+		outrect[rect_count].top = rknife.bottom + 1;
+		outrect[rect_count].bottom = baserect.bottom;
+		outrect[rect_count].right = baserect.right;
+		outrect[rect_count].left = baserect.left;
+		
+		baserect.bottom = rknife.bottom;
+		
+		rect_count++;
+	}
+
+	out_count[0] = rect_count;
+
+	return outrect;	
+}
+
+void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) {
+	
+	int split_count = 0;
+	int total_count = 1;
+	int working_total = 0;
+	rect* out_rects = (rect*)0;
+	rect* working_rects = (rect*)0;
+	int i, j, k;
+	
+	out_rects = (rect*)malloc(sizeof(rect));
+	out_rects[0].top = baserect.top;
+	out_rects[0].left = baserect.left;
+	out_rects[0].bottom = baserect.bottom;
+	out_rects[0].right = baserect.right;
+	
+	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
+	for(i = 0; i < rect_count; i++) {
+		
+		for(j = 0; j < total_count;) {
+			
+			//Only bother with this combination of rectangles if the rectangle to be split (out_rects[]) 
+			//is not a blank (zero-dimension) -- we don't have to check for intersection as the calling function
+            //already does that
+			if(!(out_rects[j].top == 0 &&
+				 out_rects[j].left == 0 &&
+				 out_rects[j].bottom == 0 &&
+				 out_rects[j].right == 0)) {
+			
+				rect* split_rects = splitRect(renderer, out_rects[j], splitrects[i], &split_count);
+			
+				//If nothing was returned, we actually want to clip a rectangle in its entirety
+				if(!split_count) {
+					
+					//We use zero-dimension rects to represent blank entries
+					//Ideally we would want to break out of the function the second
+					//we've rejected the last rect, but in this case our memory model
+					//makes that a little difficult. We could do this very quickly 
+					//if we switched to some kind of linked list
+					out_rects[j].top = 0;
+					out_rects[j].left = 0;
+					out_rects[j].bottom = 0;
+					out_rects[j].right = 0;
+					
+					j++;
+					continue;
+				}
+				
+				//From here on out, the first result rectangle is alredy allocated for because it takes the
+				//place of the rectangle that was split
+				split_count--;
+				
+				out_rects = (rect*)realloc(out_rects, sizeof(rect) * (split_count + total_count));
+					
+				//Replace the rectangle that got split with the first result rectangle 
+				out_rects[j].top = split_rects[0].top;
+				out_rects[j].left = split_rects[0].left;
+				out_rects[j].bottom = split_rects[0].bottom;
+				out_rects[j].right = split_rects[0].right;
+				
+				//Append the rest of the result rectangles to the output collection
+				for(k = 0; k < split_count; k++) {
+					
+					out_rects[total_count + k].top = split_rects[k+1].top;
+					out_rects[total_count + k].left = split_rects[k+1].left;
+					out_rects[total_count + k].bottom = split_rects[k+1].bottom;
+					out_rects[total_count + k].right = split_rects[k+1].right;
+				}
+				
+				//Free the space that was used for the split 
+				free(split_rects);
+				
+				//Update the count of rectangles 
+				total_count += split_count;
+				
+				//Restart the list 
+				j = 0;
+			} else {
+				
+				j++;
+			}
+		}
+	}
+	
+    for(k = 0; k < total_count; k++)
+        if(!(out_rects[k].top == 0 &&
+             out_rects[k].left == 0 &&
+             out_rects[k].bottom == 0 &&
+             out_rects[k].right == 0)) 
+                drawRect(win, out_rects[k]);
+		
+	free(out_rects);
+}
+
 unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
     window* new_window;
@@ -341,7 +538,7 @@ void updateOverlapped(rect* window_bounds) {
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top)
-            drawWindow(registered_windows[i]);
+            drawWindow(registered_windows[i], 0);
     }
 }
 
@@ -375,7 +572,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
         
         //Redraw the window at its new location
         dest_window->frame_needs_redraw = 1;
-        drawWindow(dest_window);
+        drawWindow(dest_window, 0);
     } 
         
     return;
@@ -642,9 +839,57 @@ void drawFrame(window* cur_window) {
 //blitting rectangle as well. EG: If the region we want
 //redrawn is under another window, don't bother drawing it.
 
-void drawWindow(window* cur_window) {
+rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* rect_collection, rect* baserect, unsigned char initial, unsigned char create_rects) {
+
+    rect* return_rects = (rect*)0;
+
+    //See if I overlap, and then check my children 
+    if(cur_child) {
+        
+        //Allocate space for rectangles if we haven't yet AND we're building them
+        if(create_rects && !rect_collection) {
+            
+            return_rects = (rect*)malloc(sizeof(rect)*(rect_count[0]));
+            rect_count[0] = 0;
+        } else {
+            
+            return_rects = rect_collection;
+        }
+        
+        //Count the window only if it overlaps
+        if(!initial && /* Don't check the current window if it's the overlapped window */
+           cur_window->x <= baserect->right &&
+           (cur_window->x + cur_window->context->w - 1) >= baserect->left &&
+           cur_window->y <= baserect->bottom && 
+           (cur_window->y + cur_window->context->h - 1) >= baserect->top) {
+           
+                    //Create the rectangle, if we're into that junk
+                if(create_rects) {
+                    
+                    return_rects[rect_count[0]].top = cur_window->y;
+                    return_rects[rect_count[0]].left = cur_window->x;
+                    return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->h - 1);
+                    return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->w - 1);
+                }
+               
+                rect_count[0]++;
+           }
+        
+        //Get the overlapping children
+        getOverlappingWindows(cur_window->first_child, rect_count, return_rects, baserect, 0, create_rects);
+        
+        //Get the overlapping higher sibling windows 
+        getOverlappingWindows(cur_window->next_sibling, rect_count, return_rects, baserect, 0, create_rects);
+    }
+    
+    return return_rects;
+}
+
+void drawWindow(window* cur_window, unsigned char use_current_blit) {
      
-    window* cur_child;
+    unsigned int rect_count;
+    rect* split_rects;
+    rect winrect;
     
     //cmd_prints("[WYG] Drawing window ");
     //cmd_printDecimal(cur_window->handle);
@@ -658,14 +903,27 @@ void drawWindow(window* cur_window) {
         if(!(cur_window->flags & WIN_UNDECORATED) && cur_window->frame_needs_redraw)
             drawFrame(cur_window);
         
-        //For now, we'll just pass the given blit mask on to
-        //the GFX system unmodified because we don't care
-        //about occlusion yet. But note that this is where
-        //we would extract that info into a temp rectangle 
-        //upon which we will do our occlusion splitting/testing    
-        setCursor(cur_window->x, cur_window->y);
-        drawBitmap(cur_window->context);
-               
+        //Create a rectangle for the window to be drawn
+        if(use_current_blit) {
+            
+            //Convert the current blit window to desktop space
+            winrect.top = cur_window->y + cur_window->context->top;
+            winrect.left = cur_window->x + cur_window->context->left;
+            winrect.bottom = cur_window->y + cur_window->context->bottom;
+            winrect.right = cur_window->x + cur_window->context->right;
+        } else {
+                
+            winrect.top = cur_window->y;
+            winrect.left = cur_window->x;
+            winrect.bottom = cur_window->y + cur_window->context->h - 1;
+            winrect.right = cur_window->x + cur_window->context->w - 1;
+        }
+        
+        rect_count = 0;
+        getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 0); //count the rects 
+        splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects
+        drawOccluded(cur_window, winrect, splitrects, rect_count);       
+        free(splitrects);       
         /*
         //Then recursively draw all children
         cur_child = cur_window->first_child;
@@ -695,7 +953,8 @@ void drawHandle(unsigned int handle) {
         return;
     }
     
-    drawWindow(dest_window);
+    //Draw the window, assume we want to use the blit window set up by the client   
+    drawWindow(dest_window, 1);
 }
 
 void drawDeactivated(window* owner) {
@@ -779,7 +1038,7 @@ void raiseWindow(window* dest_window) {
     if(dest_window->parent->handle == 1) {
     
         dest_window->frame_needs_redraw;    
-        drawWindow(dest_window);
+        drawWindow(dest_window, 0);
     }
 }
 
@@ -798,7 +1057,7 @@ void raiseHandle(unsigned int handle) {
 
 void refreshTree() {
     
-    drawWindow(&root_window);
+    drawWindow(&root_window, 0);
 }
 
 void destroy(window* dest_window) {
