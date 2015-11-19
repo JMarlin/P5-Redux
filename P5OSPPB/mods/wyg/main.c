@@ -324,6 +324,13 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 	rect* working_rects = (rect*)0;
 	int i, j, k;
 	
+    //If there's nothing occluding us, just render the bitmap and get out of here
+    if(!rect_count) {
+    
+        drawBmpRect(win, baserect);
+        return;
+    }
+    
 	out_rects = (rect*)malloc(sizeof(rect));
 	out_rects[0].top = baserect.top;
 	out_rects[0].left = baserect.left;
