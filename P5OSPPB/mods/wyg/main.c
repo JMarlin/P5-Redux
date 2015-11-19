@@ -888,7 +888,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
 void drawWindow(window* cur_window, unsigned char use_current_blit) {
      
     unsigned int rect_count;
-    rect* split_rects;
+    rect* splitrects;
     rect winrect;
     
     //cmd_prints("[WYG] Drawing window ");
