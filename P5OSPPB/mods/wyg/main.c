@@ -931,16 +931,6 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects
         drawOccluded(cur_window, winrect, splitrects, rect_count);       
         free(splitrects);       
-        /*
-        //Then recursively draw all children
-        cur_child = cur_window->first_child;
-        
-        while(cur_child) {
-            
-            drawWindow(cur_child);
-            cur_child = cur_child->next_sibling;
-        }
-        */
     }
     
     //cmd_prints("[WYG] Finished drawing window ");

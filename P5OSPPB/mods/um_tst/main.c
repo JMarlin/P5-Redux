@@ -4,7 +4,7 @@
 #include "../include/wyg.h"
 #include "../vesa/font.h"
 
-#define CMD_COUNT 7
+#define CMD_COUNT 8
 
 //Function declarations
 void usrClear(void);
@@ -13,6 +13,7 @@ void usrExit(void);
 void makeChild(void);
 void closeChild(void);
 void focusCmd(void);
+void moveChild(void);
 //void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void pciList(void);
@@ -40,7 +41,8 @@ char* cmdWord[CMD_COUNT] = {
     "PCI",
     "WIN",
     "CLOSE",
-    "FOCUS"
+    "FOCUS",
+    "MOV"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -51,7 +53,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&pciList,
     (sys_command)&makeChild,
     (sys_command)&closeChild,
-    (sys_command)&focusCmd
+    (sys_command)&focusCmd,
+    (sys_command)&moveChild
 };
 
 char inbuf[50];
@@ -100,6 +103,21 @@ void focusCmd() {
     focus(window_a);
 }
 
+unsigned int winx, winy;
+
+void moveChild() {
+    
+    if(!window_b) {
+        
+        cmd_prints("No window\n");
+        return;
+    }   
+    
+    winx += 20;
+    winy += 20;
+    moveWindow(window_b, winx, winy);
+}
+
 void makeChild() {
     
     bitmap* ctx_b;
@@ -112,6 +130,9 @@ void makeChild() {
         0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000,
         0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000
     };
+    
+    winx = 100;
+    winy = 20;
     
     if(window_b) {
         
@@ -139,7 +160,7 @@ void makeChild() {
             ctx_b->data[y*(400) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
-    moveWindow(window_b, 100, 100);
+    moveWindow(window_b, 100, 20);
     
     //Make them visible
     showWindow(window_b);
