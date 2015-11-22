@@ -148,7 +148,7 @@ void returnToProcess(process* proc) {
     if(oldP)
         if(oldP->root_page)
             disable_page_range(oldP->base, oldP->root_page);
-
+            
     DEBUG("Entering process #"); DEBUG_HD(p->id); DEBUG("\n");
     DEBUG("Applying process paging:\n");
 
@@ -877,12 +877,18 @@ int request_new_page(process* proc) {
 
     int newSize;
 
-    if(!(newSize = append_page(proc->root_page))) {
+    prints("[kernel] Appending new page\n");
+    newSize = append_page(proc->root_page);
+    if(newSize) {
 
+        prints("[kernel] Success\n");
         proc->size += 0x1000;
         return 1;
     } else {
 
+        prints("[kernel] Fail (");
+        printHexDword(newSize);
+        prints(")\n");
         return 0;
     }
 }

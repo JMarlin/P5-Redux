@@ -288,6 +288,7 @@ int append_page(pageRange* pr_base) {
     unsigned int temp_page;
 
     //Get to the end of the list
+    prints("[kernel] Getting end of page list\n");
     while(pr_current->next) {
         total_count += pr_current->count;
         pr_current = pr_current->next;
@@ -297,6 +298,7 @@ int append_page(pageRange* pr_base) {
     //ahead and find the first free phys page
     if(!pr_current->count) {
 
+        prints("[kernel] Finding a free page for the new page range\n");
         if((temp_page = find_free_page()) < 1)
             return 0;
 
@@ -315,6 +317,8 @@ int append_page(pageRange* pr_base) {
     //Check to make sure the page is not already alocated and/or special
     if(!(pageTable[offset] & 0xC00)) {
 
+        prints("[kernel] Using next free page\n");
+
         //Bit 0x800, which is available to the OS,
         //indicates physical page availability.
         //We mark it to 1 to indicate that we're
@@ -326,26 +330,32 @@ int append_page(pageRange* pr_base) {
 
     //We can't allocate contiguous memory, so we have
     //to allocate a new pageRange
+    prints("[kernel] Allocating a new page range\n");
     if(!(pr_current->next = (pageRange*)kmalloc(sizeof(pageRange)))) {
-
+        
+        prints("[kernel] Couldn't allocate a new page range\n");
         pr_current->next = (pageRange*)0x0;
         return 0;
     }
 
     //And then search for the next availible page to assign it to
+    prints("[kernel] Looking for the next availible page\n");
     if((temp_page = find_free_page()) < 1) {
 
+        prints("[kernel] No more pages availible\n");
         //If we hit the top of memory, we append a null page range node and
         //return failure to the caller
         pr_current->next = (pageRange*)0x0;
         return 0;
     }
 
+    prints("[kernel] Marking new page allocated\n");
     //Otherwise, we were able to successfully find a free page, so we
     //store its page number and mark it allocated
     pr_current->count++;
     pr_current->base_page = temp_page;
     pageTable[temp_page] |= 0x00000800;
+    prints("[kernel] Returning appended page\n");
     return (total_count + pr_current->count) << 12;
 }
 

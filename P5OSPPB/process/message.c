@@ -32,8 +32,11 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     d_proc = &procTable[i];
 
     //Make some room for the message
-    if(!(new_message = (message*)kmalloc(sizeof(message))))
+    if(!(new_message = (message*)kmalloc(sizeof(message)))) {
+        
+        prints("[kernel] kmalloc failed\n");
         return;
+    }
 
     //Insert the data into the newly allocated struct
     new_message->source = source;
@@ -61,7 +64,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     if(d_proc->flags & PF_WAITMSG &&
       (d_proc->wait_pid == 0xFFFFFFFF || d_proc->wait_pid == source) &&
       (d_proc->wait_cmd == 0xFFFFFFFF || d_proc->wait_cmd == command)) {
-
+          
         //Clear wait flag
         d_proc->flags &= ~((unsigned int)PF_WAITMSG);
 

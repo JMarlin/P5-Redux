@@ -327,11 +327,15 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     //If there's nothing occluding us, just render the bitmap and get out of here
     if(!rect_count) {
     
+        prints("[WYG] Nothing overlapping us\n");
         drawBmpRect(win, baserect);
         return;
     }
     
+    prints("[WYG] Allocating space for output rectangles\n");
 	out_rects = (rect*)malloc(sizeof(rect));
+    if(!out_rects)
+        prints("[WYG] Couldn't allocate memory\n");
 	out_rects[0].top = baserect.top;
 	out_rects[0].left = baserect.left;
 	out_rects[0].bottom = baserect.bottom;
@@ -422,18 +426,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-        //cmd_prints("[WYG] Couldn't allocate a new window\n");
+         prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
     if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-        //cmd_prints("[WYG] Window list realloc failed\n");
+         prints("[WYG] Window list realloc failed\n");
         return 0;
     }
     
-    //cmd_prints("[WYG] Created new window, setting initial values\n");
+     prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
@@ -449,7 +453,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-        //cmd_prints("[WYG] Could not create a new window context\n");
+         prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
@@ -460,13 +464,13 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
     
-    //cmd_prints("[WYG] Installing new window into window list\n");
+     prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
     
-    //cmd_prints("[WYG] Successfully created new window ");
-    //cmd_printDecimal(new_window->handle);
-    //cmd_pchar('\n');
+     prints("[WYG] Successfully created new window ");
+     printDecimal(new_window->handle);
+     pchar('\n');
     return new_window->handle;
 }
 
@@ -521,7 +525,7 @@ bitmap* getWindowContext(unsigned int handle) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find the window to get its context\n");   
+         prints("[WYG] Couldn't find the window to get its context\n");   
         return (bitmap*)0;
     }
         
@@ -556,7 +560,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find the window to set its location\n");   
+         prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
     
@@ -593,7 +597,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     
     if(!child_window || !parent_window) {
      
-        //cmd_prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
+         prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
     }
     
@@ -645,7 +649,7 @@ void markHandleVisible(unsigned int handle, unsigned char is_visible) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find window to mark it visible\n");   
+         prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
     
@@ -658,7 +662,7 @@ void markWindowDirty(unsigned int handle) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
+         prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
         
@@ -673,7 +677,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find window to mark it dirty\n");   
+         prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
     
@@ -740,7 +744,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
      //Window title
     if(cur_window->title) {
         
-        //cmd_prints(cur_window->title);
+         prints(cur_window->title);
         
         int base_x, base_y, off_x, titlebar_width;
         
@@ -772,9 +776,9 @@ void drawFrame(window* cur_window) {
     
     int i;
     
-    //cmd_prints("[WYG] Drawing frame for window ");
-    //cmd_printDecimal(cur_window->handle);
-    //cmd_pchar('\n');
+     prints("[WYG] Drawing frame for window ");
+     printDecimal(cur_window->handle);
+     pchar('\n');
     
     //Outer border
     drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
@@ -856,7 +860,10 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
         //Allocate space for rectangles if we haven't yet AND we're building them
         if(create_rects && !rect_collection) {
             
+            prints("[WYG] Allocating space for overlapping rectangle list\n");
             return_rects = (rect*)malloc(sizeof(rect)*(rect_count[0]));
+            if(!return_rects)
+                prints("[WYG] Couldn't allocate space for the rectangles\n");
             rect_count[0] = 0;
         } else {
             
@@ -898,21 +905,23 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
     rect* splitrects;
     rect winrect;
     
-    //cmd_prints("[WYG] Drawing window ");
-    //cmd_printDecimal(cur_window->handle);
-    //cmd_pchar('\n');
+     prints("[WYG] Drawing window ");
+     printDecimal(cur_window->handle);
+     pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
         
         cur_window->needs_redraw = 0;
         
         //Start by drawing this window
+        prints("[WYG] Drawing window frame\n");
         if(!(cur_window->flags & WIN_UNDECORATED) && cur_window->frame_needs_redraw)
             drawFrame(cur_window);
         
         //Create a rectangle for the window to be drawn
         if(use_current_blit) {
             
+            prints("[WYG] Setting base rectangle using winrect\n");
             //Convert the current blit window to desktop space
             winrect.top = cur_window->y + cur_window->context->top;
             winrect.left = cur_window->x + cur_window->context->left;
@@ -920,6 +929,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.right = cur_window->x + cur_window->context->right;
         } else {
                 
+            prints("[WYG] Setting base rectangle using whole ctx\n");
             winrect.top = cur_window->y;
             winrect.left = cur_window->x;
             winrect.bottom = cur_window->y + cur_window->context->height - 1;
@@ -927,15 +937,19 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         }
         
         rect_count = 0;
+        prints("[WYG] Counting overlapping windows\n");
         getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 0); //count the rects 
+        prints("[WYG] Building overlapping rectangles\n");
         splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects
-        drawOccluded(cur_window, winrect, splitrects, rect_count);       
+        prints("[WYG] Drawing occluded window\n");
+        drawOccluded(cur_window, winrect, splitrects, rect_count);   
+        prints("[WYG] Finished doing occluded draw\n");    
         free(splitrects);       
     }
     
-    //cmd_prints("[WYG] Finished drawing window ");
-    //cmd_printDecimal(cur_window->handle);
-    //cmd_pchar('\n');
+     prints("[WYG] Finished drawing window ");
+     printDecimal(cur_window->handle);
+     pchar('\n');
     
     return;
 }
@@ -946,7 +960,7 @@ void drawHandle(unsigned int handle) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+         prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -1045,7 +1059,7 @@ void raiseHandle(unsigned int handle) {
     
     if(!dest_window) {
      
-        //cmd_prints("[WYG] Couldn't find the window to be raised\n");   
+         prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -1104,7 +1118,7 @@ void destroy(window* dest_window) {
             //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
             if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
                 
-                //cmd_prints("[WYG] Window list realloc failed\n");
+                 prints("[WYG] Window list realloc failed\n");
                 return;
             }
         
@@ -1238,17 +1252,17 @@ void main(void) {
     refreshTree();
     
     //Start debug console
-    //cmd_init(root_window.w, 48);
+    //init(root_window.w, 48);
 
     //Now we can start the main message loop and begin handling
     //GFX command messages
     while(1) {
 
-        //cmd_prints("[WYG] Waiting for message...");
+        prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        //cmd_prints("got message ");
-        //cmd_printDecimal(temp_msg.command);
-        //cmd_pchar('\n');
+        prints("got message ");
+        printDecimal(temp_msg.command);
+        pchar('\n');
 
         src_pid = temp_msg.source;
 

@@ -55,8 +55,15 @@ void* malloc(unsigned int byte_count) {
 		//If we don't have enough space, pop a new page on 
 		if(trailing_space < (byte_count + sizeof(memblock))) {
 			
-			if(!appendPage())
+			prints("[malloc] appending page\n");
+			
+			if(!appendPage()) {
+				
+				prints("[malloc] page request failed\n");
 				return (void*)0;
+			}
+			
+			prints("[malloc] page appended\n");
 			
 			allocated_pages++;
 		}
