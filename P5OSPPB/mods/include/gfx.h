@@ -36,6 +36,7 @@ typedef struct bitmap {
     unsigned int left;
     unsigned int bottom;
     unsigned int right;
+    
 } bitmap;
 
 typedef struct screen_mode {
@@ -47,6 +48,7 @@ typedef struct screen_mode {
 } screen_mode;
 
 unsigned char initGfx();
+void endGfx(); //Only for test harness use
 unsigned char enumerateModes();
 screen_mode* getModeDetails(unsigned short modenum);
 unsigned char setScreenMode(unsigned short modenum);

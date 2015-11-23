@@ -1,8 +1,18 @@
+#ifdef HARNESS_TEST
+#include "../../mods/include/p5.h"
+#include "../../mods/include/gfx.h"
+#include <stdlib.h>
+#include "../../mods/include/wyg.h"
+#define REGISTRAR_PID 0
+#define REG_DEREGISTER 0
+#define SVC_WYG 0
+#else 
 #include "../include/p5.h"
 #include "../include/registrar.h"
 #include "../include/gfx.h"
 #include "../include/memory.h"
 #include "../include/wyg.h"
+#endif //HARNESS_TEST
 
 /* Windows are logically arranged as follows:
 desktop.first_child:  window_a.first_child:  button_1.first_child:  -
@@ -499,7 +509,7 @@ void showModes(void) {
     prints("done\n");
 
     prints("\nAvailible modes:\n");
-    for(i = 0; i < mode_count; i++) {
+    for(i = 1; i <= mode_count; i++) {
 
         mode = getModeDetails(i);
         prints("    ");
@@ -1146,7 +1156,11 @@ void destroyHandle(unsigned int handle) {
     destroy(dest_window);
 }
 
+#ifdef HARNESS_TEST
+void WYG_main(void) {
+#else 
 void main(void) {
+#endif //HARNESS_TEST
 
     unsigned int parent_pid;
     screen_mode* mode;
@@ -1158,6 +1172,8 @@ void main(void) {
     unsigned int src_pid;
     unsigned char* instr;
     unsigned int strlen;
+
+#ifndef HARNESS_TEST
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -1175,6 +1191,8 @@ void main(void) {
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
+
+#endif //HARNESS_TEST
 
     if(!initGfx()) {
         
@@ -1254,15 +1272,27 @@ void main(void) {
     //Start debug console
     //init(root_window.w, 48);
 
-    //Now we can start the main message loop and begin handling
-    //GFX command messages
+#ifdef HARNESS_TEST
+
+    //enter the testing code
+    testMain();
+    endGfx();
+    return;
+
+#else 
+
+    //Now we can start the main message loop 
     while(1) {
 
+<<<<<<< HEAD
+        getMessage(&temp_msg);
+=======
         prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
         prints("got message ");
         printDecimal(temp_msg.command);
         pchar('\n');
+>>>>>>> 27036e16a7338f97b3c65e1ae94153a8fbe05711
 
         src_pid = temp_msg.source;
 
@@ -1329,4 +1359,7 @@ void main(void) {
             break;
         }
     }
+    
+#endif //HARNESS_TEST
+    
 }
