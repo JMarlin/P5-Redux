@@ -2,6 +2,8 @@
 #include "../../mods/include/p5.h"
 #include "../../mods/include/gfx.h"
 #include <stdlib.h>
+#include <memory.h>
+#include <stdio.h>
 #include "../../mods/include/wyg.h"
 #define REGISTRAR_PID 0
 #define REG_DEREGISTER 0
@@ -265,9 +267,15 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		return (rect*)0;
 	}
 		
+    prints("Allocating space for ");
+    printDecimal(sizeof(rect)*rect_count);
+    prints(" rect bytes\n");
 	outrect = (rect*)malloc(sizeof(rect)*rect_count);
+    if(!outrect)
+        prints("Couldn't allocate rect space\n");
 	rect_count = 0;
 	
+    prints("Doing left edge split\n");
 	//Split by left edge
 	if(rknife.left > baserect.left && rknife.left < baserect.right) {
 		
@@ -281,6 +289,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
+    prints("Doing top edge split\n");
 	//Split by top edge
 	if(rknife.top < baserect.bottom && rknife.top > baserect.top) {
 		
@@ -294,6 +303,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
+    prints("Doing right edge split\n");
 	//Split by right edge
 	if(rknife.right > baserect.left && rknife.right < baserect.right) {
 		
@@ -307,6 +317,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
+    prints("Doing bottom edge split\n");
 	//Split by right edge
 	if(rknife.bottom > baserect.top && rknife.bottom < baserect.bottom) {
 		
@@ -354,8 +365,12 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	for(i = 0; i < rect_count; i++) {
 		
+        prints("Outer loop\n");
+        
 		for(j = 0; j < total_count;) {
 			
+            prints("Inner loop\n");
+            
 			//Only bother with this combination of rectangles if the rectangle to be split (out_rects[]) 
 			//is not a blank (zero-dimension) -- we don't have to check for intersection as the calling function
             //already does that
@@ -364,8 +379,11 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				 out_rects[j].bottom == 0 &&
 				 out_rects[j].right == 0)) {
 			
+                prints("Splitting rects\n");
 				rect* split_rects = splitRect(out_rects[j], splitrects[i], &split_count);
 			
+                prints("Done splitting\n");
+            
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!split_count) {
 					
@@ -386,8 +404,10 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				//From here on out, the first result rectangle is alredy allocated for because it takes the
 				//place of the rectangle that was split
 				split_count--;
-				
+                prints("[WYG] Reallocating space for output rectangles\n");
 				out_rects = (rect*)realloc(out_rects, sizeof(rect) * (split_count + total_count));
+                if(!out_rects)
+                    prints("[WYG] Couldn't allocate memory\n");
 					
 				//Replace the rectangle that got split with the first result rectangle 
 				out_rects[j].top = split_rects[0].top;
@@ -414,6 +434,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				j = 0;
 			} else {
 				
+                prints("Not a real rect\n");
 				j++;
 			}
 		}

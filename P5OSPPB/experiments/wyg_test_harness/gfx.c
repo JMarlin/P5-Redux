@@ -1,6 +1,7 @@
 #include "../../mods/include/p5.h"
 #include "../../mods/include/gfx.h"
-#include <memory.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <SDL.h>
 #include "../../mods/vesa/font.h" 
 
