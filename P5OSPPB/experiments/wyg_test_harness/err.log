@@ -1,0 +1,16 @@
+Enumerating modes...done
+
+Availible modes:
+    1) 800x600, 32bpp linear
+mode: 1
+[WYG] Drawing window 1
+[WYG] Drawing window frame
+[WYG] Setting base rectangle using whole ctx
+[WYG] Counting overlapping windows
+[WYG] Building overlapping rectangles
+[WYG] Drawing occluded window
+[WYG] Nothing overlapping us
+Creating RGB surface
+Turning surface into texture
+Cleaning up surface
+Copying texture to renderer

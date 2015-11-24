@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 	
 	fclose(ramfile);
 	
-	procTable = (process*)(rawbuf+PROC_TABLE_OFFSET);
+	procTable = (process*)(&rawbuf[PROC_TABLE_OFFSET]);
 	
 	while(1) {
 	

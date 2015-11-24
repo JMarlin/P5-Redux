@@ -17,6 +17,7 @@ void testMain() {
 	installWindow(window_a, 1);
 	moveWindow(window_a, 100, 100);
 	markHandleVisible(window_a, 1);	
+	moveWindow(window_a, 150, 150);
 	
 	while(1);
 }

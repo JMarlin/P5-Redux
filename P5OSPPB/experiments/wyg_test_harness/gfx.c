@@ -173,11 +173,13 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     return_bmp->right = return_bmp->width;
     
     //Plug in the data region
-    return_bmp->data = (unsigned int*)(return_bmp + sizeof(bitmap));
+    return_bmp->data = (unsigned int*)((unsigned char*)return_bmp + sizeof(bitmap));
     
     //Clear the bitmap
-    for(i = 0; i < bmp_size; i++)
+    for(i = 0; i < bmp_size; i++) {
+            
         return_bmp->data[i] = 0;
+    }
         
     return return_bmp;
 }
@@ -201,9 +203,22 @@ void drawBitmap(bitmap* bmp) {
     destrect.w = srcrect.w;
     destrect.h = srcrect.h; 
     
-    SDL_Surface* static_surface = SDL_CreateRGBSurfaceFrom((void*)bmp->data, bmp->width, bmp->height, 32, 3200, 0xFF0000, 0xFF00, 0xFF, 0xFF000000);
-    SDL_Texture* static_texture = SDL_CreateTextureFromSurface(renderer, static_surface);  
-    SDL_RenderCopy(renderer, static_texture, &srcrect, &destrect);
+    //printf("Creating RGB surface\n");
+    //SDL_Surface* static_surface = SDL_CreateRGBSurfaceFrom((void*)bmp->data, bmp->width, bmp->height, 32, 4*bmp->width, 0xFF0000, 0xFF00, 0xFF, 0xFF000000);
+    printf("Creating texture\n");
+    SDL_Texture* static_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, bmp->right - bmp->left, bmp->bottom - bmp->top);
+    
+    printf("Inserting pixel data into texture\n");
+    SDL_UpdateTexture(static_texture, 0, (void*)bmp->data, 4*bmp->width); 
+     
+    printf("Copying texture to renderer\n");
+    if(!!SDL_RenderCopy(renderer, static_texture, &srcrect, &destrect)) 
+        printf("Couldn't render texture: %s\n", SDL_GetError());
+    SDL_RenderPresent(renderer);
+    
+    printf("Cleaning up texture\n");
     SDL_DestroyTexture(static_texture);
-    SDL_FreeSurface(static_surface);
+    
+    //printf("Cleaning up surface\n");
+    //SDL_FreeSurface(static_surface);
 }

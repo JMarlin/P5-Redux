@@ -138,7 +138,7 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     
     //Plug in the data region
     //cmd_prints("Done\nInitializing data buffer...");
-    return_bmp->data = (unsigned int*)((unsigned int)return_bmp + sizeof(bitmap));
+    return_bmp->data = (unsigned int*)((unsigned char*)return_bmp + sizeof(bitmap));
     
     //Clear the bitmap
     for(i = 0; i < bmp_size; i++)
