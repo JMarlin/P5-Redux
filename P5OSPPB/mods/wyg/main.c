@@ -223,14 +223,17 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
 
-//Update this to draw the rectangular region of the specified window
+//#define RECT_TEST 1
 void drawBmpRect(window* win, rect r) {
+
+#ifdef RECT_TEST 
   
-  setColor(RGB(255, 0, 0));
-  setCursor(r.left, r.top);
-  drawRect(r.right - r.left, r.bottom - r.top);
+    setColor(RGB(255, 0, 0));
+    setCursor(r.left, r.top);
+    drawRect(r.right - r.left, r.bottom - r.top);
     
-  /*  
+#else     
+
     //Adjust the rectangle coordinate from global space to window space 
     win->context->top = r.top - win->y;
     win->context->left = r.left - win->x;
@@ -240,7 +243,8 @@ void drawBmpRect(window* win, rect r) {
     //Do the blit
     setCursor(win->x, win->y);
     drawBitmap(win->context);
-  */
+    
+#endif //RECT_TEST
 }
 
 rect* splitRect(rect rdest, rect rknife, int* out_count) {

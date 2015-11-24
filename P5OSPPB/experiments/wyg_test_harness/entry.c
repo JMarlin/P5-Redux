@@ -193,29 +193,10 @@ int closeChild() {
     return 0;
 }
 
-static int refreshThread(void* ptr) {
-    
-    SDL_Event event;
-    
-    while(1) {
-        
-        printf(".");
-        SDL_PumpEvents();
-        SDL_RenderPresent(renderer);
-    }
-}
-
 void makeWindows() {
     
     unsigned short w, h;
-    
-    //Create a thread to keep windows inactivity detection from kicking in 
-    if(SDL_CreateThread(refreshThread, "refreshthread", (void*)0) == 0) {
-    
-        printf("Refresh thread couldn't be started");
-        return;
-    }
-    
+        
     //Make two windows
     window* root_window = getWindowByHandle(ROOT_WINDOW);
     w = root_window->w;

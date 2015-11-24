@@ -203,8 +203,6 @@ void drawBitmap(bitmap* bmp) {
     destrect.w = srcrect.w;
     destrect.h = srcrect.h; 
     
-    //printf("Creating RGB surface\n");
-    //SDL_Surface* static_surface = SDL_CreateRGBSurfaceFrom((void*)bmp->data, bmp->width, bmp->height, 32, 4*bmp->width, 0xFF0000, 0xFF00, 0xFF, 0xFF000000);
     printf("Creating texture\n");
     SDL_Texture* static_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, bmp->right - bmp->left, bmp->bottom - bmp->top);
     
@@ -218,7 +216,4 @@ void drawBitmap(bitmap* bmp) {
     
     printf("Cleaning up texture\n");
     SDL_DestroyTexture(static_texture);
-    
-    //printf("Cleaning up surface\n");
-    //SDL_FreeSurface(static_surface);
 }
