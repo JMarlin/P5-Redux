@@ -104,7 +104,7 @@ void cmd_clear() {
     cmd_y = 0;
 }
 
-void cmd_pchar(unsigned char c) {
+void cmd_//pchar(unsigned char c) {
 
     if(!inited)
         return;
@@ -138,7 +138,7 @@ void cmd_//prints(unsigned char* s) {
         return;
 
     while(*s)
-        cmd_pchar(*s++);
+        cmd_//pchar(*s++);
 }
 
 void cmd_//printClear(int count) {
@@ -176,7 +176,7 @@ void cmd_ //printDecimal(unsigned int dword) {
     }
 
     for(j = i - 1; j >= 0; j--)
-        cmd_pchar(digit[j] + '0');
+        cmd_//pchar(digit[j] + '0');
 }
 
 void cmd_//printHexByte(unsigned char byte) {
@@ -184,8 +184,8 @@ void cmd_//printHexByte(unsigned char byte) {
     if(!inited)
         return;
 
-    cmd_pchar(digitToHex((byte & 0xF0)>>4));
-    cmd_pchar(digitToHex(byte & 0xF));
+    cmd_//pchar(digitToHex((byte & 0xF0)>>4));
+    cmd_//pchar(digitToHex(byte & 0xF));
 }
 
 
@@ -550,7 +550,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
      //prints("[WYG] Successfully created new window ");
       //printDecimal(new_window->handle);
-     pchar('\n');
+     //pchar('\n');
     return new_window->handle;
 }
 
@@ -574,26 +574,26 @@ void showModes(void) {
     unsigned short i;
     screen_mode* mode;
 
-    //prints("Enumerating modes...");
+    prints("Enumerating modes...");
     mode_count = enumerateModes();
-    //prints("done\n");
+    prints("done\n");
 
-    //prints("\nAvailible modes:\n");
+    prints("\nAvailible modes:\n");
     for(i = 1; i <= mode_count; i++) {
 
         mode = getModeDetails(i);
-        //prints("    ");
-        //printDecimal((unsigned int)i);
-        //prints(") ");
-        //printDecimal((unsigned int)mode->width);
+        prints("    ");
+        printDecimal((unsigned int)i);
+        prints(") ");
+        printDecimal((unsigned int)mode->width);
         pchar('x');
-        //printDecimal((unsigned int)mode->height);
-        //prints(", ");
-        //printDecimal((unsigned int)mode->depth);
-        //prints("bpp");
+        printDecimal((unsigned int)mode->height);
+        prints(", ");
+        printDecimal((unsigned int)mode->depth);
+        prints("bpp");
 
         if(mode->is_linear)
-            //prints(" linear");
+            prints(" linear");
 
         pchar('\n');
     }
@@ -863,7 +863,7 @@ void drawFrame(window* cur_window) {
     
      //prints("[WYG] Drawing frame for window ");
       //printDecimal(cur_window->handle);
-     pchar('\n');
+     //pchar('\n');
     
     //Outer border
     drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
@@ -992,7 +992,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
     
      //prints("[WYG] Drawing window ");
       //printDecimal(cur_window->handle);
-     pchar('\n');
+     //pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
         
@@ -1037,7 +1037,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
     
      //prints("[WYG] Finished drawing window ");
       //printDecimal(cur_window->handle);
-     pchar('\n');
+     //pchar('\n');
     
     return;
 }
@@ -1282,7 +1282,7 @@ void main(void) {
 
     //Prompt user for a screen mode
     showModes();
-    //prints("mode: ");
+    prints("mode: ");
     scans(10, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
 
@@ -1366,7 +1366,7 @@ void main(void) {
         getMessage(&temp_msg);
         //prints("got message ");
          //printDecimal(temp_msg.command);
-        pchar('\n');
+        ////pchar('\n');
 
         src_pid = temp_msg.source;
 
