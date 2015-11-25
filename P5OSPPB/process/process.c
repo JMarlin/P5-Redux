@@ -877,18 +877,18 @@ int request_new_page(process* proc) {
 
     int newSize;
 
-    prints("[kernel] Appending new page\n");
+    //prints("[kernel] Appending new page\n");
     newSize = append_page(proc->root_page);
     if(newSize) {
 
-        prints("[kernel] Success\n");
+        //prints("[kernel] Success\n");
         proc->size += 0x1000;
         return 1;
     } else {
 
-        prints("[kernel] Fail (");
-        printHexDword(newSize);
-        prints(")\n");
+        //prints("[kernel] Fail (");
+        //printHexDword(newSize);
+        //prints(")\n");
         return 0;
     }
 }

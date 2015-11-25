@@ -132,7 +132,7 @@ void cmd_pchar(unsigned char c) {
     }
 }
 
-void cmd_prints(unsigned char* s) {
+void cmd_//prints(unsigned char* s) {
 
     if(!inited)
         return;
@@ -141,7 +141,7 @@ void cmd_prints(unsigned char* s) {
         cmd_pchar(*s++);
 }
 
-void cmd_printClear(int count) {
+void cmd_//printClear(int count) {
 
     if(!inited)
         return;
@@ -152,7 +152,7 @@ void cmd_printClear(int count) {
     cmd_x += count;
 }
 
-void cmd_ printDecimal(unsigned int dword) {
+void cmd_ //printDecimal(unsigned int dword) {
 
     if(!inited)
         return;
@@ -179,7 +179,7 @@ void cmd_ printDecimal(unsigned int dword) {
         cmd_pchar(digit[j] + '0');
 }
 
-void cmd_printHexByte(unsigned char byte) {
+void cmd_//printHexByte(unsigned char byte) {
 
     if(!inited)
         return;
@@ -189,23 +189,23 @@ void cmd_printHexByte(unsigned char byte) {
 }
 
 
-void cmd_printHexWord(unsigned short wd) {
+void cmd_//printHexWord(unsigned short wd) {
 
     if(!inited)
         return;
 
-    cmd_printHexByte((unsigned char)((wd & 0xFF00)>>8));
-    cmd_printHexByte((unsigned char)(wd & 0xFF));
+    cmd_//printHexByte((unsigned char)((wd & 0xFF00)>>8));
+    cmd_//printHexByte((unsigned char)(wd & 0xFF));
 }
 
 
-void cmd_printHexDword(unsigned int dword) {
+void cmd_//printHexDword(unsigned int dword) {
 
     if(!inited)
         return;
 
-    cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
-    cmd_printHexWord((unsigned short)(dword & 0xFFFF));
+    cmd_//printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    cmd_//printHexWord((unsigned short)(dword & 0xFFFF));
 }
 
 void cmd_init(unsigned short xres, unsigned short yres) {
@@ -260,8 +260,8 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 	baserect.right = rdest.right;
 
 #ifdef RECT_TEST    
-    printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
-    printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
+    //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
+    //printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
 #endif //RECT_TEST
 
 	if(rknife.left > baserect.left && rknife.left < baserect.right)
@@ -282,15 +282,15 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		return (rect*)0;
 	}
 		
-    prints("Allocating space for ");
-     printDecimal(sizeof(rect)*rect_count);
-    prints(" rect bytes\n");
+    //prints("Allocating space for ");
+     //printDecimal(sizeof(rect)*rect_count);
+    //prints(" rect bytes\n");
 	outrect = (rect*)malloc(sizeof(rect)*rect_count);
     if(!outrect)
-        prints("Couldn't allocate rect space\n");
+        //prints("Couldn't allocate rect space\n");
 	rect_count = 0;
 	
-    prints("Doing left edge split\n");
+    //prints("Doing left edge split\n");
 	//Split by left edge
 	if(rknife.left > baserect.left && rknife.left < baserect.right) {
 		
@@ -304,7 +304,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
-    prints("Doing top edge split\n");
+    //prints("Doing top edge split\n");
 	//Split by top edge
 	if(rknife.top < baserect.bottom && rknife.top > baserect.top) {
 		
@@ -318,7 +318,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
-    prints("Doing right edge split\n");
+    //prints("Doing right edge split\n");
 	//Split by right edge
 	if(rknife.right > baserect.left && rknife.right < baserect.right) {
 		
@@ -332,7 +332,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 		rect_count++;
 	}
 
-    prints("Doing bottom edge split\n");
+    //prints("Doing bottom edge split\n");
 	//Split by right edge
 	if(rknife.bottom > baserect.top && rknife.bottom < baserect.bottom) {
 		
@@ -385,15 +385,15 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     //If there's nothing occluding us, just render the bitmap and get out of here
     if(!rect_count) {
     
-        prints("[WYG] Nothing overlapping us\n");
+        //prints("[WYG] Nothing overlapping us\n");
         drawBmpRect(win, baserect);
         return;
     }
     
-    prints("[WYG] Allocating space for output rectangles\n");
+    //prints("[WYG] Allocating space for output rectangles\n");
 	out_rects = (rect*)malloc(sizeof(rect));
     if(!out_rects)
-        prints("[WYG] Couldn't allocate memory\n");
+        //prints("[WYG] Couldn't allocate memory\n");
 	out_rects[0].top = baserect.top;
 	out_rects[0].left = baserect.left;
 	out_rects[0].bottom = baserect.bottom;
@@ -421,7 +421,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 #ifdef RECT_TEST
 			            
                 for(k = 0; k < split_count; k++)
-                    printf("split %u, %u, %u, %u\n", split_rects[k].top, split_rects[k].left, split_rects[k].bottom, split_rects[k].right);
+                    //printf("split %u, %u, %u, %u\n", split_rects[k].top, split_rects[k].left, split_rects[k].bottom, split_rects[k].right);
 
 #endif //RECT_TEST
             
@@ -445,10 +445,10 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				//From here on out, the first result rectangle is alredy allocated for because it takes the
 				//place of the rectangle that was split
 				split_count--;
-                prints("[WYG] Reallocating space for output rectangles\n");
+                //prints("[WYG] Reallocating space for output rectangles\n");
 				out_rects = (rect*)realloc(out_rects, sizeof(rect) * (split_count + total_count));
                 if(!out_rects)
-                    prints("[WYG] Couldn't allocate memory\n");
+                    //prints("[WYG] Couldn't allocate memory\n");
 					
 				//Replace the rectangle that got split with the first result rectangle 
 				out_rects[j].top = split_rects[0].top;
@@ -475,7 +475,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 				j = 0;
 			} else {
 				
-                prints("Not a real rect\n");
+                //prints("Not a real rect\n");
 				j++;
 			}
 		}
@@ -484,7 +484,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     for(k = 0; k < total_count; k++) {
 
 #ifdef RECT_TEST    
-        printf("%u, %u, %u, %u\n", out_rects[k].top, out_rects[k].left, out_rects[k].bottom, out_rects[k].right);
+        //printf("%u, %u, %u, %u\n", out_rects[k].top, out_rects[k].left, out_rects[k].bottom, out_rects[k].right);
 #endif //RECT_TEST
     
         if(!(out_rects[k].top == 0 &&
@@ -506,18 +506,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-         prints("[WYG] Couldn't allocate a new window\n");
+         //prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
     if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-         prints("[WYG] Window list realloc failed\n");
+         //prints("[WYG] Window list realloc failed\n");
         return 0;
     }
     
-     prints("[WYG] Created new window, setting initial values\n");
+     //prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
     new_window->next_sibling = (window*)0;
@@ -533,7 +533,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-         prints("[WYG] Could not create a new window context\n");
+         //prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return 0;
     } 
@@ -544,12 +544,12 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
     
-     prints("[WYG] Installing new window into window list\n");
+     //prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
     
-     prints("[WYG] Successfully created new window ");
-      printDecimal(new_window->handle);
+     //prints("[WYG] Successfully created new window ");
+      //printDecimal(new_window->handle);
      pchar('\n');
     return new_window->handle;
 }
@@ -574,26 +574,26 @@ void showModes(void) {
     unsigned short i;
     screen_mode* mode;
 
-    prints("Enumerating modes...");
+    //prints("Enumerating modes...");
     mode_count = enumerateModes();
-    prints("done\n");
+    //prints("done\n");
 
-    prints("\nAvailible modes:\n");
+    //prints("\nAvailible modes:\n");
     for(i = 1; i <= mode_count; i++) {
 
         mode = getModeDetails(i);
-        prints("    ");
-        printDecimal((unsigned int)i);
-        prints(") ");
-        printDecimal((unsigned int)mode->width);
+        //prints("    ");
+        //printDecimal((unsigned int)i);
+        //prints(") ");
+        //printDecimal((unsigned int)mode->width);
         pchar('x');
-        printDecimal((unsigned int)mode->height);
-        prints(", ");
-        printDecimal((unsigned int)mode->depth);
-        prints("bpp");
+        //printDecimal((unsigned int)mode->height);
+        //prints(", ");
+        //printDecimal((unsigned int)mode->depth);
+        //prints("bpp");
 
         if(mode->is_linear)
-            prints(" linear");
+            //prints(" linear");
 
         pchar('\n');
     }
@@ -605,7 +605,7 @@ bitmap* getWindowContext(unsigned int handle) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find the window to get its context\n");   
+         //prints("[WYG] Couldn't find the window to get its context\n");   
         return (bitmap*)0;
     }
         
@@ -618,7 +618,7 @@ void updateOverlapped(rect* window_bounds) {
     int i;
     rect comp_rect; 
     
-    prints("[WYG] Looking for previously overlapped windows\n");
+    //prints("[WYG] Looking for previously overlapped windows\n");
         
     for(i = 0; i < window_count; i++) {
         
@@ -632,7 +632,7 @@ void updateOverlapped(rect* window_bounds) {
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top) {
             
-            prints("[WYG] Found an overlapped window\n");   
+            //prints("[WYG] Found an overlapped window\n");   
             drawWindow(registered_windows[i], 0);
         }
     }
@@ -645,7 +645,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find the window to set its location\n");   
+         //prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
     
@@ -682,7 +682,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     
     if(!child_window || !parent_window) {
      
-         prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
+         //prints("[WYG] Couldn't find the parent or child window to perform window install\n");   
         return;
     }
     
@@ -734,7 +734,7 @@ void markHandleVisible(unsigned int handle, unsigned char is_visible) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find window to mark it visible\n");   
+         //prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
     
@@ -747,7 +747,7 @@ void markWindowDirty(unsigned int handle) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find window to mark it dirty\n");   
+         //prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
         
@@ -762,7 +762,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find window to mark it dirty\n");   
+         //prints("[WYG] Couldn't find window to mark it dirty\n");   
         return;
     }
     
@@ -829,7 +829,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
      //Window title
     if(cur_window->title) {
         
-         prints(cur_window->title);
+         //prints(cur_window->title);
         
         int base_x, base_y, off_x, titlebar_width;
         
@@ -861,8 +861,8 @@ void drawFrame(window* cur_window) {
     
     int i;
     
-     prints("[WYG] Drawing frame for window ");
-      printDecimal(cur_window->handle);
+     //prints("[WYG] Drawing frame for window ");
+      //printDecimal(cur_window->handle);
      pchar('\n');
     
     //Outer border
@@ -912,7 +912,7 @@ void drawFrame(window* cur_window) {
 //is that small, repeated redraw requests are filling up the 
 //message buffer and slowing everything to a crawl (this is 
 //currently happening on our terminal which is redrawing with
-//each printed character)
+//each //printed character)
 //   The obvious answer is twofold: Firstly, we need to prevent
 //a window from requesting another redraw until the current 
 //redraw has completed. Secondly, we need to allow for
@@ -947,7 +947,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
             
             return_rects = (rect*)malloc(sizeof(rect)*(rect_count[0]));
             if(!return_rects)
-                prints("[WYG] Couldn't allocate space for the rectangles\n");
+                //prints("[WYG] Couldn't allocate space for the rectangles\n");
             rect_count[0] = 0;
         } else {
             
@@ -990,8 +990,8 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
     rect winrect;
     int i;
     
-     prints("[WYG] Drawing window ");
-      printDecimal(cur_window->handle);
+     //prints("[WYG] Drawing window ");
+      //printDecimal(cur_window->handle);
      pchar('\n');
     
     if(cur_window->flags & WIN_VISIBLE) {
@@ -999,14 +999,14 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         cur_window->needs_redraw = 0;
         
         //Start by drawing this window
-        prints("[WYG] Drawing window frame\n");
+        //prints("[WYG] Drawing window frame\n");
         if(!(cur_window->flags & WIN_UNDECORATED) && cur_window->frame_needs_redraw)
             drawFrame(cur_window);
         
         //Create a rectangle for the window to be drawn
         if(use_current_blit) {
             
-            prints("[WYG] Setting base rectangle using winrect\n");
+            //prints("[WYG] Setting base rectangle using winrect\n");
             //Convert the current blit window to desktop space
             winrect.top = cur_window->y + cur_window->context->top;
             winrect.left = cur_window->x + cur_window->context->left;
@@ -1014,7 +1014,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.right = cur_window->x + cur_window->context->right;
         } else {
                 
-            prints("[WYG] Setting base rectangle using whole ctx\n");
+            //prints("[WYG] Setting base rectangle using whole ctx\n");
             winrect.top = cur_window->y;
             winrect.left = cur_window->x;
             winrect.bottom = cur_window->y + cur_window->context->height - 1;
@@ -1022,21 +1022,21 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         }
         
         rect_count = 0;
-        prints("[WYG] Counting overlapping windows\n");
+        //prints("[WYG] Counting overlapping windows\n");
         getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 0); //count the rects 
-        prints("[WYG] Building overlapping rectangles\n");
+        //prints("[WYG] Building overlapping rectangles\n");
         splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects        
-        prints("[WYG] Drawing occluded window\n");
+        //prints("[WYG] Drawing occluded window\n");
         drawOccluded(cur_window, winrect, splitrects, rect_count);   
-        prints("[WYG] Finished doing occluded draw\n");    
+        //prints("[WYG] Finished doing occluded draw\n");    
         
         //getch();
                 
         free(splitrects);       
     }
     
-     prints("[WYG] Finished drawing window ");
-      printDecimal(cur_window->handle);
+     //prints("[WYG] Finished drawing window ");
+      //printDecimal(cur_window->handle);
      pchar('\n');
     
     return;
@@ -1048,7 +1048,7 @@ void drawHandle(unsigned int handle) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find the window to be raised\n");   
+         //prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -1147,7 +1147,7 @@ void raiseHandle(unsigned int handle) {
     
     if(!dest_window) {
      
-         prints("[WYG] Couldn't find the window to be raised\n");   
+         //prints("[WYG] Couldn't find the window to be raised\n");   
         return;
     }
     
@@ -1206,7 +1206,7 @@ void destroy(window* dest_window) {
             //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
             if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
                 
-                 prints("[WYG] Window list realloc failed\n");
+                 //prints("[WYG] Window list realloc failed\n");
                 return;
             }
         
@@ -1256,7 +1256,7 @@ void main(void) {
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
-    prints("[WYG] Starting WYG GUI services.\n");
+    //prints("[WYG] Starting WYG GUI services.\n");
 
     //First thing, register as a WYG service with the registrar
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_WYG);
@@ -1264,7 +1264,7 @@ void main(void) {
 
     if(!temp_msg.payload) {
 
-        prints("\n[WYG] failed to register WYG service.\n");
+        //prints("\n[WYG] failed to register WYG service.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1274,7 +1274,7 @@ void main(void) {
 
     if(!initGfx()) {
         
-        prints("\n[WYG] failed to get the GFX server.\n");
+        //prints("\n[WYG] failed to get the GFX server.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1282,13 +1282,13 @@ void main(void) {
 
     //Prompt user for a screen mode
     showModes();
-    prints("mode: ");
+    //prints("mode: ");
     scans(10, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
 
     if(!setScreenMode(num)) {
 
-        prints("[WYG] Could not set screen mode.\n");
+        //prints("[WYG] Could not set screen mode.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1299,7 +1299,7 @@ void main(void) {
         mode = getModeDetails(num);
     } else {
 
-        prints("[WYG] Staying in text mode.\n");
+        //prints("[WYG] Staying in text mode.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1307,7 +1307,7 @@ void main(void) {
     
     if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
         
-        prints("[WYG] Couldn't allocate window LUT.\n");
+        //prints("[WYG] Couldn't allocate window LUT.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1332,7 +1332,7 @@ void main(void) {
     //Create a drawing context for the root window
     if(!(root_window.context = newBitmap(root_window.w, root_window.h))) {
         
-        prints("[WYG] Could not allocate a context for the root window.\n");
+        //prints("[WYG] Could not allocate a context for the root window.\n");
         free((void*)registered_windows);
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
@@ -1362,10 +1362,10 @@ void main(void) {
     //Now we can start the main message loop 
     while(1) {
 
-        prints("[WYG] Waiting for message...");
+        //prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        prints("got message ");
-         printDecimal(temp_msg.command);
+        //prints("got message ");
+         //printDecimal(temp_msg.command);
         pchar('\n');
 
         src_pid = temp_msg.source;
