@@ -2,22 +2,26 @@
 #include <stdio.h>
 #include <string.h>
 #include "../../process/process.h"
+#include "../../process/message.h"
 
 #define PROC_TABLE_OFFSET 0x2029A0
 
 typedef void (*sys_command)(process*, unsigned char*);
 void rawDump(process* proc, unsigned char* ram);
 void ctxDump(process* proc, unsigned char* ram);
+void msgDump(process* proc, unsigned char* ram);
 
-#define CMD_COUNT 2
+#define CMD_COUNT 3
 
 char* cmdWord[CMD_COUNT] = {
     "dump",
+	"msg",
 	"context"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&rawDump,
+	(sys_command)&msgDump,
 	(sys_command)&ctxDump
 };
 
@@ -30,6 +34,32 @@ void ctxDump(process* proc, unsigned char* ram) {
 	printf("      ebp: %08x  esi: %08x  edi: %08x\n", proc->ctx.ebp, proc->ctx.esi, proc->ctx.edi);
 	printf("      es: %04x  cs: %04x  ss: %04x  ds: %04x  fs: %04x  gs: %04x\n", proc->ctx.es, proc->ctx.cs, proc->ctx.ss, proc->ctx.ds, proc->ctx.fs, proc->ctx.gs);
 	printf("      err: %08x  vif: %02x  type: %02x\n", proc->ctx.err, proc->ctx.vif, proc->ctx.type);
+}
+
+void msgDump(process* proc, unsigned char* ram) {
+	
+	unsigned int cur_msg_idx = (unsigned int)proc->root_msg;
+	message* cur_msg;
+	
+	if(!cur_msg_idx) {
+		
+		printf("Empty message queue\n");
+		return;
+	}
+	
+	printf("Message queue for process %u\n-----------------------------\n", proc->id);
+			
+	while(cur_msg_idx) {
+		
+		cur_msg = (message*)(&ram[cur_msg_idx]);
+		
+		printf("from pid: %08x\n", cur_msg->source);
+		printf("command:  %08x\n", cur_msg->command);
+		printf("payload: %08x\n", cur_msg->source);
+		printf("-----------------------------\n");
+		
+		cur_msg_idx = (unsigned int)cur_msg->next;
+	}
 }
 
 void rawDump(process* proc, unsigned char* ram) {
