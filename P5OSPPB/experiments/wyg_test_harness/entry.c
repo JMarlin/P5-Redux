@@ -222,6 +222,7 @@ void makeWindows() {
     while(1) {
 
         cmd_prints("::");
+        prints("::");
         cmd_scans(50, inbuf);
         
         //If the command function returns 1 it signals that we need to exit
@@ -343,7 +344,8 @@ void cmd_pchar(unsigned char c) {
         cmd_x = 0;
         cmd_y++;
     } else {
-
+        
+        putchar(c);
         drawCharacter(cmd_bmp, c, (cmd_x*8), (cmd_y*12), RGB(0, 0, 0));
         cmd_x++;
 

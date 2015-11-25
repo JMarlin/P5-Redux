@@ -203,11 +203,15 @@ void drawBitmap(bitmap* bmp) {
     destrect.w = srcrect.w;
     destrect.h = srcrect.h; 
     
+    printf("srcrect: %u, %u, %u x %u\n", srcrect.x, srcrect.y, srcrect.w, srcrect.h);
+    printf("destrect: %u, %u, %u x %u\n", destrect.x, destrect.y, destrect.w, destrect.h);
+    
     printf("Creating texture\n");
-    SDL_Texture* static_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, bmp->right - bmp->left, bmp->bottom - bmp->top);
+    SDL_Texture* static_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, bmp->width, bmp->height);
     
     printf("Inserting pixel data into texture\n");
-    SDL_UpdateTexture(static_texture, 0, (void*)bmp->data, 4*bmp->width); 
+    if(!!SDL_UpdateTexture(static_texture, 0, (void*)bmp->data, 4*bmp->width))
+        printf("Couldn't fill texture: %s\n", SDL_GetError());
      
     printf("Copying texture to renderer\n");
     if(!!SDL_RenderCopy(renderer, static_texture, &srcrect, &destrect)) 

@@ -228,7 +228,7 @@ void drawBmpRect(window* win, rect r) {
 
 #ifdef RECT_TEST 
   
-    setColor(RGB(255, 0, 0));
+    setColor(RGB(0, 255, 0));
     setCursor(r.left, r.top);
     drawRect(r.right - r.left, r.bottom - r.top);
     
@@ -258,6 +258,11 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 	baserect.left = rdest.left;
 	baserect.bottom = rdest.bottom;
 	baserect.right = rdest.right;
+
+#ifdef RECT_TEST    
+    printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
+    printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
+#endif //RECT_TEST
 
 	if(rknife.left > baserect.left && rknife.left < baserect.right)
 		rect_count++;
@@ -354,7 +359,29 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 	rect* out_rects = (rect*)0;
 	rect* working_rects = (rect*)0;
 	int i, j, k;
+
+#ifdef RECT_TEST
 	
+    //Clear everything 
+    setColor(RGB(255, 255, 255));
+    setCursor(0, 0);
+    fillRect(root_window.context->width, root_window.context->height);
+    
+    //Draw the base window
+    setColor(RGB(0, 0, 255));
+    setCursor(baserect.left, baserect.top);
+    drawRect(baserect.right - baserect.left, baserect.bottom - baserect.top);
+    
+    //Draw the overlapping windows
+    for(i = 0; i < rect_count; i++) {
+        
+        setColor(RGB(255, 0, 0));
+        setCursor(splitrects[i].left, splitrects[i].top);
+        drawRect(splitrects[i].right - splitrects[i].left, splitrects[i].bottom - splitrects[i].top);
+    }
+    
+#endif //RECT_TEST
+    
     //If there's nothing occluding us, just render the bitmap and get out of here
     if(!rect_count) {
     
@@ -374,12 +401,8 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 	
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	for(i = 0; i < rect_count; i++) {
-		
-        prints("Outer loop\n");
         
 		for(j = 0; j < total_count;) {
-			
-            prints("Inner loop\n");
             
 			//Only bother with this combination of rectangles if the rectangle to be split (out_rects[]) 
 			//is not a blank (zero-dimension) -- we don't have to check for intersection as the calling function
@@ -387,12 +410,20 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 			if(!(out_rects[j].top == 0 &&
 				 out_rects[j].left == 0 &&
 				 out_rects[j].bottom == 0 &&
-				 out_rects[j].right == 0)) {
+				 out_rects[j].right == 0)&&
+                 (splitrects[i].left <= out_rects[j].right &&
+			      splitrects[i].right >= out_rects[j].left &&
+			      splitrects[i].top <= out_rects[j].bottom && 
+			      splitrects[i].bottom >= out_rects[j].top)) {
 			
-                prints("Splitting rects\n");
 				rect* split_rects = splitRect(out_rects[j], splitrects[i], &split_count);
-			
-                prints("Done splitting\n");
+
+#ifdef RECT_TEST
+			            
+                for(k = 0; k < split_count; k++)
+                    printf("split %u, %u, %u, %u\n", split_rects[k].top, split_rects[k].left, split_rects[k].bottom, split_rects[k].right);
+
+#endif //RECT_TEST
             
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!split_count) {
@@ -450,12 +481,20 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 		}
 	}
 	
-    for(k = 0; k < total_count; k++)
+    for(k = 0; k < total_count; k++) {
+
+#ifdef RECT_TEST    
+        printf("%u, %u, %u, %u\n", out_rects[k].top, out_rects[k].left, out_rects[k].bottom, out_rects[k].right);
+#endif //RECT_TEST
+    
         if(!(out_rects[k].top == 0 &&
              out_rects[k].left == 0 &&
              out_rects[k].bottom == 0 &&
-             out_rects[k].right == 0)) 
+             out_rects[k].right == 0)) {
+                    
                 drawBmpRect(win, out_rects[k]);
+             }
+    }
 		
 	free(out_rects);
 }
@@ -949,6 +988,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
     unsigned int rect_count;
     rect* splitrects;
     rect winrect;
+    int i;
     
      prints("[WYG] Drawing window ");
       printDecimal(cur_window->handle);
@@ -985,10 +1025,13 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         prints("[WYG] Counting overlapping windows\n");
         getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 0); //count the rects 
         prints("[WYG] Building overlapping rectangles\n");
-        splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects
+        splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects        
         prints("[WYG] Drawing occluded window\n");
         drawOccluded(cur_window, winrect, splitrects, rect_count);   
         prints("[WYG] Finished doing occluded draw\n");    
+        
+        //getch();
+                
         free(splitrects);       
     }
     
