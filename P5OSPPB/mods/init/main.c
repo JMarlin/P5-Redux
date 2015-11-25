@@ -23,7 +23,7 @@ void main(void) {
     startAndWait(":uhci.mod");
 
     //Start WYG server
-    prints("[init] Starting UHCI server...\n");
+    prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
 
     //Finally, start up the user 'login' process
