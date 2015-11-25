@@ -287,7 +287,7 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
     //prints(" rect bytes\n");
 	outrect = (rect*)malloc(sizeof(rect)*rect_count);
     if(!outrect)
-        //prints("Couldn't allocate rect space\n");
+        prints("Couldn't allocate rect space\n");
 	rect_count = 0;
 	
     //prints("Doing left edge split\n");
@@ -393,7 +393,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     //prints("[WYG] Allocating space for output rectangles\n");
 	out_rects = (rect*)malloc(sizeof(rect));
     if(!out_rects)
-        //prints("[WYG] Couldn't allocate memory\n");
+        prints("[WYG] Couldn't allocate memory\n");
 	out_rects[0].top = baserect.top;
 	out_rects[0].left = baserect.left;
 	out_rects[0].bottom = baserect.bottom;
@@ -448,7 +448,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
                 //prints("[WYG] Reallocating space for output rectangles\n");
 				out_rects = (rect*)realloc(out_rects, sizeof(rect) * (split_count + total_count));
                 if(!out_rects)
-                    //prints("[WYG] Couldn't allocate memory\n");
+                    prints("[WYG] Couldn't allocate memory\n");
 					
 				//Replace the rectangle that got split with the first result rectangle 
 				out_rects[j].top = split_rects[0].top;
@@ -506,14 +506,14 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-         //prints("[WYG] Couldn't allocate a new window\n");
+         prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
     
     //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
     if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-         //prints("[WYG] Window list realloc failed\n");
+         prints("[WYG] Window list realloc failed\n");
         return 0;
     }
     
@@ -947,7 +947,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
             
             return_rects = (rect*)malloc(sizeof(rect)*(rect_count[0]));
             if(!return_rects)
-                //prints("[WYG] Couldn't allocate space for the rectangles\n");
+                prints("[WYG] Couldn't allocate space for the rectangles\n");
             rect_count[0] = 0;
         } else {
             
@@ -1206,7 +1206,7 @@ void destroy(window* dest_window) {
             //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
             if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
                 
-                 //prints("[WYG] Window list realloc failed\n");
+                 prints("[WYG] Window list realloc failed\n");
                 return;
             }
         
@@ -1307,7 +1307,7 @@ void main(void) {
     
     if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
         
-        //prints("[WYG] Couldn't allocate window LUT.\n");
+        prints("[WYG] Couldn't allocate window LUT.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
