@@ -396,6 +396,7 @@ keyInfo* processSet1Code(unsigned char code, unsigned char* was_break) {
         
         if(code & 0x80) {
         
+            prints("(`)");
             *was_break = 1;
             code |= 0x7F;        
         }
@@ -523,10 +524,10 @@ void main(void) {
 
 	prints("Done.\n");
 
-	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
-
     //Detect the scancode set the keyboard is using
     detectScancodeSet();
+
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Clear the keyboard buffer
     keyboard_clearBuffer();
