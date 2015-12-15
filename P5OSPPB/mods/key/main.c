@@ -147,9 +147,14 @@ void keyboard_inputWait() {
     while(keyboard_getStatus() & SR_IBSTAT);
 }
 
+void keyboard_hasData() {
+    
+    return !!(keyboard_getStatus() & SR_OBSTAT);
+}
+
 void keyboard_outputWait() {
 
-    while(!(keyboard_getStatus() & SR_OBSTAT));
+    while(!keyboard_hasData());
 }
 
 unsigned char keyboard_getData() {
@@ -241,13 +246,18 @@ void main(void) {
     //Init the default keymapping
     setupKeyTable();
 
+    //Clear the keyboard buffer
+    keyboard_clearBuffer();
+
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
 
-		//Clear the keyboard buffer
-		keyboard_clearBuffer();
 		waitForIRQ(1);
-        tempch = processKey();
-		if(tempch) pchar(tempch);
+        
+        while(keyboard_hasData()) {
+            
+            tempch = processKey();
+		    if(tempch) pchar(tempch);
+        }
 	}
 }
