@@ -211,7 +211,7 @@ void main(void) {
 	message temp_msg;
 	unsigned char current_creg;
 	unsigned int parent_pid;
-    unsigned char tmpch;
+    unsigned char tempch;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
