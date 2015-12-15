@@ -211,62 +211,6 @@ keyInfo levelTwoCodes[] = {
 #define SCANSTATE_DEFAULT 0
 #define SCANSTATE_BREAK 1
 
-keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
-    
-    int i;
-    
-    for(i = 0; key_collection[i].type != KEY_TYPE_TERMINATE; i++) {
-            
-        if(key_collection[i].make == code)
-            return &key_collection[i];
-    }
-    
-    return (keyInfo*)0;
-}
-
-keyInfo* processNextCode(unsigned char* was_break) {
-    
-    static unsigned char state = SCANSTATE_DEFAULT;
-    static keyInfo** currentSet = &standardCodes; 
-    keyInfo* returnCode = (keyInfo*)0;
-    unsigned char tempData;
-    
-    *was_break = 0;
-    
-    //Don't block if there's nothing in the buffer
-    if(!(keyboard_getStatus() & SR_OBSTAT))
-        return returnCode;
-
-    tempData = inb(KBC_DREG);
-    
-    switch(state) {
-          
-        case SCANSTATE_DEFAULT:
-            if(tempData == 0xF0) {
-                
-                state = SCANSTATE_BREAK;
-            } else if(tempData == 0xE0) {
-                
-                currentSet = &levelTwoCodes;
-            } else {
-                
-                returnCode = findCode(currentSet, tempData);
-                currentSet = &standardCodes;
-            } 
-        break;
-         
-        case SCANSTATE_BREAK:
-        
-            returnCode = findCode(currentSet, tempData);
-            currentSet = &standardCodes;
-            was_break = 1;
-            state = SCANSTATE_DEFAULT;
-        break;
-    }
-    
-    return returnCode;
-}
-
 void outb(unsigned short _port, unsigned char _data) {
 
 	asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
@@ -327,6 +271,63 @@ void keyboard_clearBuffer() {
 		inb(KBC_DREG);
 	}
 }
+
+keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
+    
+    int i;
+    
+    for(i = 0; key_collection[i].type != KEY_TYPE_TERMINATE; i++) {
+            
+        if(key_collection[i].make == code)
+            return &key_collection[i];
+    }
+    
+    return (keyInfo*)0;
+}
+
+keyInfo* processNextCode(unsigned char* was_break) {
+    
+    static unsigned char state = SCANSTATE_DEFAULT;
+    static keyInfo* currentSet = &standardCodes; 
+    keyInfo* returnCode = (keyInfo*)0;
+    unsigned char tempData;
+    
+    *was_break = 0;
+    
+    //Don't block if there's nothing in the buffer
+    if(!(keyboard_getStatus() & SR_OBSTAT))
+        return returnCode;
+
+    tempData = inb(KBC_DREG);
+    
+    switch(state) {
+          
+        case SCANSTATE_DEFAULT:
+            if(tempData == 0xF0) {
+                
+                state = SCANSTATE_BREAK;
+            } else if(tempData == 0xE0) {
+                
+                currentSet = &levelTwoCodes;
+            } else {
+                
+                returnCode = findCode(currentSet, tempData);
+                currentSet = &standardCodes;
+            } 
+        break;
+         
+        case SCANSTATE_BREAK:
+        
+            returnCode = findCode(currentSet, tempData);
+            currentSet = &standardCodes;
+            was_break = 1;
+            state = SCANSTATE_DEFAULT;
+        break;
+    }
+    
+    return returnCode;
+}
+
 
 unsigned char processKey() {
 	
