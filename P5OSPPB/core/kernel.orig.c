@@ -22,49 +22,31 @@ extern char _imagename;
 
 void kernel_finish_startup(void);
 
-
 int main(void) {
+
+    int key_stat;
+    int tempCh = 0;
 
     __asm__ ("cli");
 
-    initScreen();
     setColor(0x1F);
+    initScreen();
     clear();
-    DEBUG("Setting up interrupt table...");
+    prints("Setting up interrupt table...");
     initIDT();
     installExceptionHandlers();
-    DEBUG("Done.\nSetting up the GDT...");
+    prints("Done.\nSetting up the GDT...");
     initGdt();
-    DEBUG("Done.\nInitializing process mgmt...");
-    startProcessManagement();
-    init_timer();
-    timer_on();
-    DEBUG("Done.\nTurning on paging...");
-    init_mmu();
-    init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
-                                         //has to jump into a v86 process and back.
-}
-
-void kernel_finish_startup(void) {
-
-    unsigned int i, doffset, *sizes;
-    unsigned char *dcount;
-    context* ctx;
-    block_dev* ram0;
-    int tempCh = 0;
-    int key_stat;
-
-    DEBUG("Done.\nSetting up keyboard...");
+    prints("Done.\nSetting up keyboard...");
 
     if((key_stat = keyboard_init()) != 1) {
-        DEBUG("Failed (");
-        DEBUG_HB((unsigned char)(key_stat & 0xFF));
-        DEBUG(")\n[P5]: No input device availible.\n");
+        prints("Failed (");
+        printHexByte((unsigned char)(key_stat & 0xFF));
+        prints(")\n[P5]: No input device availible.\n");
     } else {
-        DEBUG("Done.\n");
+        prints("Done.\n");
     }
 
-    prints("WELCOME TO P5\n");
     prints("Please press enter to detect your keyboard type...");
     setupKeyTable();
     while(!(tempCh = getch()));
@@ -72,6 +54,39 @@ void kernel_finish_startup(void) {
         setupKeyTable_set1();
 
     pchar('\n');
+    prints("\nInitializing process mgmt...");
+    startProcessManagement();
+    prints("Done.\nSetting up the timer...");
+    init_timer(); //Mask all PIC channels
+    //__asm__ ("sti");
+    prints("Done.\nTurning on paging...");
+    init_mmu();
+    init_memory(&kernel_finish_startup); //We do this weirdness because init_memory
+                                         //has to jump into a v86 process and back.
+}
+
+void kernel_resume_from_mips_calc(unsigned int mips);
+void kernel_finish_startup(void) {
+
+    prints("Done.\n");
+    timer_on(); //Unmask timer channel
+    do_mips_calc(&kernel_resume_from_mips_calc); //Will do mips calculation and return to the below function
+}
+
+void kernel_resume_from_mips_calc(unsigned int mips) {
+
+    unsigned int i, doffset, *sizes;
+    unsigned char *dcount;
+    context* ctx;
+    block_dev* ram0;
+
+    prints("WELCOME TO P5\n");
+    prints("Calculated IPS: 0x");
+    printHexDword(mips);
+    prints(".\n");
+    //Throttle timer doesn't seem to work so great
+    //throttle_timer(mips/4000); //update timer to give us 4,000 instruction time slices
+
     dcount = (unsigned char*)((char*)0x100000+_pkgoffset);
     sizes = (unsigned int*)((char*)0x100001+_pkgoffset);
 
@@ -89,24 +104,22 @@ void kernel_finish_startup(void) {
     }
 
     //Print kernel size and version
-    DEBUG("Image: ");
-    DEBUG(&_imagename);
-    DEBUG("\nSize: ");
-    DEBUG_HD(_pkgoffset);
-    DEBUG("b\n");
-    DEBUG("Initializing filesystem\n");
+    prints("Image: ");
+    prints(&_imagename);
+    prints("\nSize: ");
+    printHexDword(_pkgoffset);
+    prints("b\n");
+    prints("Initializing filesystem\n");
     fs_init();
 
     //create a ramdisk device from the extents of the kernel payload
     //then install its fs driver and finally mount the ramdisk on root
-    DEBUG("Calculating offset to ramdisk\n");
+    prints("Setting up ramdisk...");
     doffset = 0x100005 + _pkgoffset;
-    DEBUG("Creating new ramdisk block device ram0...");
     ram0 = blk_ram_new(doffset, sizes[0]);
-    DEBUG("Done\nInstalling ramfs filesystem driver...");
     fs_install_driver(get_ramfs_driver());
-    DEBUG("Done\nAttaching ramfs filesystem on ram0...");
     fs_attach(FS_RAMFS, ram0, ":");
+    prints("Done.\nStarting registrar.\n");
 
     //Start the registrar and thereby the rest of the OS
     enterProc(exec_process(":registrar.mod", 1));
@@ -114,7 +127,6 @@ void kernel_finish_startup(void) {
     prints("PANIC: Registrar could not be started.\n");
     while(1);
 }
-
 
 //Start usr prompt
 //NEEDS TO BE PURGED FROM THE CODEBASE

@@ -20,4 +20,6 @@ cd ../idle
 ./build.sh
 cd ../wyg
 ./build.sh
+cd ../key
+./build.sh
 cd ..

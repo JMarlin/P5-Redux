@@ -39,20 +39,6 @@ int main(void) {
     initGdt();
     prints("Done.\nSetting up keyboard...");
 
-    if((key_stat = keyboard_init()) != 1) {
-        prints("Failed (");
-        printHexByte((unsigned char)(key_stat & 0xFF));
-        prints(")\n[P5]: No input device availible.\n");
-    } else {
-        prints("Done.\n");
-    }
-
-    prints("Please press enter to detect your keyboard type...");
-    setupKeyTable();
-    while(!(tempCh = getch()));
-    if(tempCh == 'A')
-        setupKeyTable_set1();
-
     pchar('\n');
     prints("\nInitializing process mgmt...");
     startProcessManagement();

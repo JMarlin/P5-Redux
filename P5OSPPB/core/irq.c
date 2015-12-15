@@ -61,13 +61,13 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
     prints("\nRegistered IRQ slot #");
     printHexDword(irq_number);
     prints("/interrupt 0x");
-    printHexDword(irq_number + 0xE1);
+    printHexDword(irq_number + 0xE0);
     pchar('\n');
     irq_process[irq_number] = requesting_proc;
 
     //map the handler into the right interrupt vector, assuming it's not
     //already set up (E0 is irq 0)
-    installInterrupt(irq_number + 0xE1, irq_handler[irq_number], 3);
+    installInterrupt(irq_number + 0xE0, irq_handler[irq_number], 3);
 
     //Open up the associated PIC channel
     enable_irq(irq_number);
@@ -83,7 +83,7 @@ process* irq_handle(unsigned char irq_number) {
     printHexDword(irq_number);
     prints(" triggered\n");
 
-    irq_number -= 0xE1;
+    irq_number -= 0xE0;
 
     //Get the heck out of here if the irq isn't registered
     if(!irq_process[irq_number])
