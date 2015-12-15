@@ -479,8 +479,14 @@ void detectScancodeSet() {
     while(keyboard_getData() != PS2_OK);
     
     //Get the current scancode
-    if(keyboard_getData() == 2)
+    if(keyboard_getData() == 2) {
+        
+        prints("Using scancode set 2\n");
         set_number = 2;
+    } else {
+        
+        prints("Using scancode set 1\n");
+    }
 }
 
 void main(void) {
@@ -535,6 +541,8 @@ void main(void) {
             if(temp_key = processNextCode(&was_break)) {
                 
                 if(was_break) {
+                    
+                    prints('(*)');
                     
                     if(temp_key->type == KEY_TYPE_CTRL) {
                         
