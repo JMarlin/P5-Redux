@@ -66,46 +66,46 @@
 #define PS2_FAIL 0xFC //Command failed
 
 //Key types (keys are pretty much either control keys or character keys)
-#define KEY_TYPE_CTRL
-#define KEY_TYPE_CHAR
-#define KEY_TYPE_TERMINATE
+#define KEY_TYPE_CTRL 0 
+#define KEY_TYPE_CHAR 1
+#define KEY_TYPE_TERMINATE 2
 
 //Control key constants
-#define KCTRL_LSHIFT
-#define KCTRL_RSHIFT
-#define KCTRL_ESC
-#define KCTRL_CAPS
-#define KCTRL_LCTRL
-#define KCTRL_LSYS
-#define KCTRL_LALT
-#define KCTRL_RALT
-#define KCTRL_RCTRL
-#define KCTRL_RSYS
-#define KCTRL_RMENU
-#define KCTRL_UP
-#define KCTRL_DOWN
-#define KCTRL_LEFT
-#define KCTRL_RIGHT
-#define KCTRL_NUMLK
-#define KCTRL_SCRLK
-#define KCTRL_INS
-#define KCTRL_HOME
-#define KCTRL_PGUP
-#define KCTRL_PGDN
-#define KCTRL_END
-#define KCTRL_DEL
-#define KCTRL_F1
-#define KCTRL_F2
-#define KCTRL_F3
-#define KCTRL_F4
-#define KCTRL_F5
-#define KCTRL_F6
-#define KCTRL_F7
-#define KCTRL_F8
-#define KCTRL_F9
-#define KCTRL_F10
-#define KCTRL_F11
-#define KCTRL_F12
+#define KCTRL_LSHIFT 0
+#define KCTRL_RSHIFT 1
+#define KCTRL_ESC    2
+#define KCTRL_CAPS   3
+#define KCTRL_LCTRL  4
+#define KCTRL_LSYS   5 
+#define KCTRL_LALT   6
+#define KCTRL_RALT   7
+#define KCTRL_RCTRL  8 
+#define KCTRL_RSYS   9
+#define KCTRL_RMENU  10
+#define KCTRL_UP     11
+#define KCTRL_DOWN   12
+#define KCTRL_LEFT   13
+#define KCTRL_RIGHT  14
+#define KCTRL_NUMLK  15
+#define KCTRL_SCRLK  16
+#define KCTRL_INS    17
+#define KCTRL_HOME   18
+#define KCTRL_PGUP   19
+#define KCTRL_PGDN   20
+#define KCTRL_END    21
+#define KCTRL_DEL    22
+#define KCTRL_F1     23
+#define KCTRL_F2     24
+#define KCTRL_F3     25
+#define KCTRL_F4     26
+#define KCTRL_F5     27
+#define KCTRL_F6     28
+#define KCTRL_F7     29
+#define KCTRL_F8     30
+#define KCTRL_F9     31
+#define KCTRL_F10    32
+#define KCTRL_F11    33
+#define KCTRL_F12    35
 
 typedef struct keyInfo {
     unsigned char type; 
