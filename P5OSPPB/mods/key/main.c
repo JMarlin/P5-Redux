@@ -147,7 +147,7 @@ void keyboard_inputWait() {
     while(keyboard_getStatus() & SR_IBSTAT);
 }
 
-void keyboard_hasData() {
+unsigned char keyboard_hasData() {
     
     return !!(keyboard_getStatus() & SR_OBSTAT);
 }
