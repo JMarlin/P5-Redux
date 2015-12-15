@@ -181,6 +181,8 @@ void keyboard_clearBuffer() {
 
 unsigned char processKey() {
 	
+    unsigned char tempData;
+    
     //Don't block if there's nothing in the buffer
     if(!(keyboard_getStatus() & SR_OBSTAT))
         return 0;
