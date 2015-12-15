@@ -35,15 +35,6 @@ void timer_off() {
     //outb(PIC1_DATA, inb(PIC1_DATA) | 0x01);
 }
 
-
-void send_pic_eoi(unsigned char irq) {
-	if(irq > 7)
-		outb(PIC2_COMMAND, 0x20);
-
-	outb(PIC1_COMMAND, 0x20);
-}
-
-
 void timer_int_ack() {
 
     send_pic_eoi(0);
