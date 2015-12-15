@@ -70,7 +70,7 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
     prints("/interrupt 0x");
     printHexDword(irq_number + 0xE0);
     pchar('\n');
-    irq_process[irq_number] = requesting_proc;
+    irq_process[irq_number - 1] = requesting_proc;
 
     //map the handler into the right interrupt vector, assuming it's not
     //already set up (E0 is irq 0)
