@@ -9,7 +9,7 @@ void main(void) {
     //Start the idle process
     prints("[init] Starting idle process...\n");
     startSuperProc(":idle.mod");
-
+/*
     //Start up all of the initial-boot servers
     prints("[init] Starting VESA server...\n");
     startAndWait(":vesa.mod");
@@ -29,6 +29,11 @@ void main(void) {
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
+*/
+
+    //Start key server
+    prints("[init] Starting key server...\n");
+    startAndWaitUsr(":key.mod");
 
     terminate();
 }

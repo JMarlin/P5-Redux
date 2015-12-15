@@ -67,7 +67,7 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
 
     //map the handler into the right interrupt vector, assuming it's not
     //already set up (E0 is irq 0)
-    installInterrupt(irq_number + 0xE0, irq_handler[irq_number], 3);
+    installInterrupt(irq_number + 0xE0, irq_handler[irq_number - 1], 3);
 
     //Open up the associated PIC channel
     enable_irq(irq_number);
