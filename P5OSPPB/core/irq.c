@@ -47,6 +47,13 @@ handler irq_handler[15] = {
     &irq_handler_15
 };
 
+void send_pic_eoi(unsigned char irq) {
+	if(irq > 7)
+		outb(PIC2_COMMAND, 0x20);
+
+	outb(PIC1_COMMAND, 0x20);
+}
+
 //Open an IRQ channel on the PIC and set up the IRQ handler to pass a message to
 //the registered process
 //NOTE: irq_number is offset by one (eg: irq_number 0 implies irq 1) because
@@ -86,13 +93,19 @@ process* irq_handle(unsigned char irq_number) {
     irq_number -= 0xE0;
 
     //Get the heck out of here if the irq isn't registered
-    if(!irq_process[irq_number])
+    if(!irq_process[irq_number - 1]) {
+        
+        prints("Nothing registered for this IRQ");   
         return (process*)0;
+    }
 
     //Otherwise, write a message to the handling process and enter it
-    passMessage(0, irq_process[irq_number]->id, KS_REG_IRQ_1 + irq_number, 0);
+    passMessage(0, irq_process[irq_number - 1]->id, KS_REG_IRQ_1 + irq_number - 1, 0);
+    
+    //Tell the PIC we're ready to accept further interrupts on this channel
+    send_pic_eoi(irq_number);
 
-    return irq_process[irq_number];
+    return irq_process[irq_number - 1];
 }
 
 //NEED TO UPDATE THESE TO HANDLE IRQs ABOVE 7

@@ -36,8 +36,7 @@ void timer_off() {
 }
 
 
-void send_pic_eoi(unsigned char irq)
-{
+void send_pic_eoi(unsigned char irq) {
 	if(irq > 7)
 		outb(PIC2_COMMAND, 0x20);
 
