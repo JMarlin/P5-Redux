@@ -65,62 +65,206 @@
 #define PS2_OK   0xFA //ACK or Success
 #define PS2_FAIL 0xFC //Command failed
 
-unsigned char keyTable[132] = "";
+//Key types (keys are pretty much either control keys or character keys)
+#define KEY_TYPE_CTRL
+#define KEY_TYPE_CHAR
+#define KEY_TYPE_TERMINATE
 
-void setupKeyTable() {
-    int i = 0;
+//Control key constants
+#define KCTRL_LSHIFT
+#define KCTRL_RSHIFT
+#define KCTRL_ESC
+#define KCTRL_CAPS
+#define KCTRL_LCTRL
+#define KCTRL_LSYS
+#define KCTRL_LALT
+#define KCTRL_RALT
+#define KCTRL_RCTRL
+#define KCTRL_RSYS
+#define KCTRL_RMENU
+#define KCTRL_UP
+#define KCTRL_DOWN
+#define KCTRL_LEFT
+#define KCTRL_RIGHT
+#define KCTRL_NUMLK
+#define KCTRL_SCRLK
+#define KCTRL_INS
+#define KCTRL_HOME
+#define KCTRL_PGUP
+#define KCTRL_PGDN
+#define KCTRL_END
+#define KCTRL_DEL
+#define KCTRL_F1
+#define KCTRL_F2
+#define KCTRL_F3
+#define KCTRL_F4
+#define KCTRL_F5
+#define KCTRL_F6
+#define KCTRL_F7
+#define KCTRL_F8
+#define KCTRL_F9
+#define KCTRL_F10
+#define KCTRL_F11
+#define KCTRL_F12
 
-    for(i=0;i<132;i++)
-        keyTable[i] = 0;
+typedef struct keyInfo {
+    unsigned char type; 
+    unsigned char value;
+    unsigned char shifted;
+    unsigned char make;
+} keyInfo;
 
-    keyTable[0x1E] = 'A';
-    keyTable[0x30] = 'B';
-    keyTable[0x2E] = 'C';
-    keyTable[0x20] = 'D';
-    keyTable[0x12] = 'E';
-    keyTable[0x21] = 'F';
-    keyTable[0x22] = 'G';
-    keyTable[0x23] = 'H';
-    keyTable[0x17] = 'I';
-    keyTable[0x24] = 'J';
-    keyTable[0x25] = 'K';
-    keyTable[0x26] = 'L';
-    keyTable[0x32] = 'M';
-    keyTable[0x31] = 'N';
-    keyTable[0x18] = 'O';
-    keyTable[0x19] = 'P';
-    keyTable[0x10] = 'Q';
-    keyTable[0x13] = 'R';
-    keyTable[0x1f] = 'S';
-    keyTable[0x14] = 'T';
-    keyTable[0x16] = 'U';
-    keyTable[0x2f] = 'V';
-    keyTable[0x11] = 'W';
-    keyTable[0x2D] = 'X';
-    keyTable[0x15] = 'Y';
-    keyTable[0x2c] = 'Z';
-    keyTable[0x0b] = '0';
-    keyTable[0x02] = '1';
-    keyTable[0x03] = '2';
-    keyTable[0x04] = '3';
-    keyTable[0x05] = '4';
-    keyTable[0x06] = '5';
-    keyTable[0x07] = '6';
-    keyTable[0x08] = '7';
-    keyTable[0x09] = '8';
-    keyTable[0x0A] = '9';
-    keyTable[0x29] = '`';
-    keyTable[0x0c] = '-';
-    keyTable[0x0d] = '=';
-    keyTable[0x2b] = '\\';
-    keyTable[0x1c] = '\n';
-    keyTable[0x1a] = '[';
-    keyTable[0x1b] = ']';
-    keyTable[0x27] = ';';
-    keyTable[0x28] = '\'';
-    keyTable[0x33] = ',';
-    keyTable[0x34] = '.';
-    keyTable[0x35] = '/';
+keyInfo standardCodes[] = {
+    {KEY_TYPE_CHAR, 'a', 'A', 0x1C},
+    {KEY_TYPE_CHAR, 'b', 'B', 0x32},
+    {KEY_TYPE_CHAR, 'c', 'C', 0x21},
+    {KEY_TYPE_CHAR, 'd', 'D', 0x23},
+    {KEY_TYPE_CHAR, 'e', 'E', 0x24},
+    {KEY_TYPE_CHAR, 'f', 'F', 0x2B},
+    {KEY_TYPE_CHAR, 'g', 'G', 0x34},
+    {KEY_TYPE_CHAR, 'h', 'H', 0x33},
+    {KEY_TYPE_CHAR, 'i', 'I', 0x43},
+    {KEY_TYPE_CHAR, 'j', 'J', 0x3B},
+    {KEY_TYPE_CHAR, 'k', 'K', 0x42},
+    {KEY_TYPE_CHAR, 'l', 'L', 0x4B},
+    {KEY_TYPE_CHAR, 'm', 'M', 0x3A},
+    {KEY_TYPE_CHAR, 'n', 'N', 0x31},
+    {KEY_TYPE_CHAR, 'o', 'O', 0x44},
+    {KEY_TYPE_CHAR, 'p', 'P', 0x4D},
+    {KEY_TYPE_CHAR, 'q', 'Q', 0x15},
+    {KEY_TYPE_CHAR, 'r', 'R', 0x2D},
+    {KEY_TYPE_CHAR, 's', 'S', 0x1B},
+    {KEY_TYPE_CHAR, 't', 'T', 0x2C},
+    {KEY_TYPE_CHAR, 'u', 'U', 0x3C},
+    {KEY_TYPE_CHAR, 'v', 'V', 0x2A},
+    {KEY_TYPE_CHAR, 'w', 'W', 0x1D},
+    {KEY_TYPE_CHAR, 'x', 'X', 0x22},
+    {KEY_TYPE_CHAR, 'y', 'Y', 0x35},
+    {KEY_TYPE_CHAR, 'z', 'Z', 0x1A},
+    {KEY_TYPE_CHAR, '0', ')', 0x45},
+    {KEY_TYPE_CHAR, '1', '!', 0x16},
+    {KEY_TYPE_CHAR, '2', '@', 0x1E},
+    {KEY_TYPE_CHAR, '3', '#', 0x26},
+    {KEY_TYPE_CHAR, '4', '$', 0x25},
+    {KEY_TYPE_CHAR, '5', '%', 0x2E},
+    {KEY_TYPE_CHAR, '6', '^', 0x36},
+    {KEY_TYPE_CHAR, '7', '&', 0x3D},
+    {KEY_TYPE_CHAR, '8', '*', 0x3E},
+    {KEY_TYPE_CHAR, '9', '(', 0x46},
+    {KEY_TYPE_CHAR, '`', '~', 0x0E},
+    {KEY_TYPE_CHAR, '-', '_', 0x4E},
+    {KEY_TYPE_CHAR, '=', '+', 0x55},
+    {KEY_TYPE_CHAR, '\\', '|', 0x5D},
+    {KEY_TYPE_CHAR, '\b', '\b', 0x66},
+    {KEY_TYPE_CHAR, ' ', ' ', 0x29},
+    {KEY_TYPE_CHAR, '\t', '\t', 0x0D},
+    {KEY_TYPE_CTRL, KCTRL_CAPS, 0, 0x58},
+    {KEY_TYPE_CTRL, KCTRL_LSHIFT, 0, 0x12},
+    {KEY_TYPE_CTRL, KCTRL_LCTRL, 0, 0x14},
+    {KEY_TYPE_CTRL, KCTRL_LALT, 0, 0x11},
+    {KEY_TYPE_CTRL, KCTRL_RSHIFT, 0, 0x59},
+    {KEY_TYPE_CHAR, '\n', '\n', 0x5A},
+    {KEY_TYPE_CTRL, KCTRL_ESC, 0, 0x76},
+    {KEY_TYPE_CTRL, KCTRL_F1, 0, 0x05},
+    {KEY_TYPE_CTRL, KCTRL_F2, 0, 0x06},
+    {KEY_TYPE_CTRL, KCTRL_F3, 0, 0x04},
+    {KEY_TYPE_CTRL, KCTRL_F4, 0, 0x0C},
+    {KEY_TYPE_CTRL, KCTRL_F5, 0, 0x03},
+    {KEY_TYPE_CTRL, KCTRL_F6, 0, 0x0B},
+    {KEY_TYPE_CTRL, KCTRL_F7, 0, 0x83},
+    {KEY_TYPE_CTRL, KCTRL_F8, 0, 0x0A},
+    {KEY_TYPE_CTRL, KCTRL_F9, 0, 0x01},
+    {KEY_TYPE_CTRL, KCTRL_F10, 0, 0x09},
+    {KEY_TYPE_CTRL, KCTRL_F11, 0, 0x78},
+    {KEY_TYPE_CTRL, KCTRL_F12, 0, 0x07},
+    {KEY_TYPE_CTRL, KCTRL_SCRLK, 0, 0x7E},
+    {KEY_TYPE_CHAR, '[', '{', 0x54},
+    {KEY_TYPE_CTRL, KCTRL_NUMLK, 0, 0x77},
+    {KEY_TYPE_CHAR, ']', '}', 0x5B},
+    {KEY_TYPE_CHAR, ';', ':', 0x4C},
+    {KEY_TYPE_CHAR, '\'', '\"', 0x52},
+    {KEY_TYPE_CHAR, ',', '<', 0x41},
+    {KEY_TYPE_CHAR, '.', '>', 0x49},
+    {KEY_TYPE_CHAR, '/', '?', 0x4A},
+    {KEY_TYPE_TERMINATE, 0, 0, 0}
+};
+
+keyInfo levelTwoCodes[] = {
+    {KEY_TYPE_CTRL, KCTRL_LSYS, 0, 0x1F},
+    {KEY_TYPE_CTRL, KCTRL_RCTRL, 0, 0x14},
+    {KEY_TYPE_CTRL, KCTRL_RSYS, 0, 0x27},
+    {KEY_TYPE_CTRL, KCTRL_RALT, 0, 0x11},
+    {KEY_TYPE_CTRL, KCTRL_RMENU, 0, 0x2F},
+    {KEY_TYPE_CTRL, KCTRL_INS, 0, 0x70},
+    {KEY_TYPE_CTRL, KCTRL_HOME, 0, 0x6C},
+    {KEY_TYPE_CTRL, KCTRL_PGUP, 0, 0x7D},
+    {KEY_TYPE_CTRL, KCTRL_DEL, 0, 0x71},
+    {KEY_TYPE_CTRL, KCTRL_END, 0, 0x69},
+    {KEY_TYPE_CTRL, KCTRL_PGDN, 0, 0x7A},
+    {KEY_TYPE_CTRL, KCTRL_UP, 0, 0x75},
+    {KEY_TYPE_CTRL, KCTRL_LEFT, 0, 0x6B},
+    {KEY_TYPE_CTRL, KCTRL_DOWN, 0, 0x72},
+    {KEY_TYPE_CTRL, KCTRL_RIGHT, 0, 0x74},
+    {KEY_TYPE_TERMINATE, 0, 0, 0}
+};
+
+#define SCANSTATE_DEFAULT 0
+#define SCANSTATE_BREAK 1
+
+keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
+    
+    int i;
+    
+    for(i = 0; key_collection[i].type != KEY_TYPE_TERMINATE; i++) {
+            
+        if(key_collection[i].make == code)
+            return &key_collection[i];
+    }
+    
+    return (keyInfo*)0;
+}
+
+keyInfo* processNextCode(unsigned char* was_break) {
+    
+    static unsigned char state = SCANSTATE_DEFAULT;
+    static keyInfo** currentSet = &standardCodes; 
+    keyInfo* returnCode = (keyInfo*)0;
+    unsigned char tempData;
+    
+    *was_break = 0;
+    
+    //Don't block if there's nothing in the buffer
+    if(!(keyboard_getStatus() & SR_OBSTAT))
+        return returnCode;
+
+    tempData = inb(KBC_DREG);
+    
+    switch(state) {
+          
+        case SCANSTATE_DEFAULT:
+            if(tempData == 0xF0) {
+                
+                state = SCANSTATE_BREAK;
+            } else if(tempData == 0xE0) {
+                
+                currentSet = &levelTwoCodes;
+            } else {
+                
+                returnCode = findCode(currentSet, tempData);
+                currentSet = &standardCodes;
+            } 
+        break;
+         
+        case SCANSTATE_BREAK:
+        
+            returnCode = findCode(currentSet, tempData);
+            currentSet = &standardCodes;
+            was_break = 1;
+            state = SCANSTATE_DEFAULT;
+        break;
+    }
+    
+    return returnCode;
 }
 
 void outb(unsigned short _port, unsigned char _data) {
@@ -211,12 +355,24 @@ unsigned char processKey() {
     return 0;
 }
 
+unsigned char capitalize(unsigned char c) {
+    
+    if(c >= 'a' && c <= 'b')
+        return c - 0x20;
+        
+    return c;
+}
+
 void main(void) {
 
+    unsigned char shift_count = 0;
+    unsigned char caps = 0;
+    unsigned char was_break = 0;
+    
 	message temp_msg;
 	unsigned char current_creg;
 	unsigned int parent_pid;
-    unsigned char tempch;
+    keyInfo* temp_key;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -256,8 +412,53 @@ void main(void) {
         
         while(keyboard_hasData()) {
             
-            tempch = processKey();
-		    if(tempch) pchar(tempch);
+            if(temp_key = processNextCode(&was_break)) {
+                
+                if(was_break) {
+                    
+                    if(temp_key->type == KEY_TYPE_CTRL) {
+                        
+                        switch(temp_key->value) {
+                            
+                            case KCTRL_LSHIFT:
+                            case KCTRL_RSHIFT:
+                                shift_count--;
+                            break;
+                            
+                            default: 
+                            break;
+                        }    
+                    }
+                } else {
+                    
+                    if(temp_key->type == KEY_TYPE_CHAR) {
+                    
+                        if(shift_count)
+                            pchar(temp_key->shifted);
+                        else if(caps)
+                            pchar(capitalize(temp_key->value));
+                        else
+                            pchar(temp_key->value);
+                    } else {
+                        
+                        switch(temp_key->value) {
+                            
+                            case KCTRL_LSHIFT:
+                            case KCTRL_RSHIFT:
+                                shift_count++;
+                            break;
+                            
+                            case KCTRL_CAPS:
+                                caps = !caps;
+                            break;
+                            
+                            default: 
+                            break;
+                        }
+                    }
+                }
+                
+            }
         }
 	}
 }
