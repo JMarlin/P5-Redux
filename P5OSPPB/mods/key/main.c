@@ -397,7 +397,7 @@ keyInfo* processSet1Code(unsigned char code, unsigned char* was_break) {
         if(code & 0x80) {
         
             was_break[0] = 1;
-            code |= 0x7F;        
+            code &= 0x7F;        
         }
         
         returnCode = findCode(currentSet, code);
@@ -541,8 +541,6 @@ void main(void) {
             if(temp_key = processNextCode(&was_break)) {
                 
                 if(was_break) {
-                    
-                    prints("(*)");
                     
                     if(temp_key->type == KEY_TYPE_CTRL) {
                         
