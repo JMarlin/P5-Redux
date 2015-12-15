@@ -5,6 +5,7 @@
 #include "../process/process.h"
 #include "../process/message.h"
 #include "../kserver/kserver.h"
+#include "../core/global.h"
 
 //Tables which will keep track of IRQ registration
 process* irq_process[15] = {
@@ -65,11 +66,11 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
         return 0;
 
     //map the process
-    prints("\nRegistered IRQ slot #");
-    printHexDword(irq_number);
-    prints("/interrupt 0x");
-    printHexDword(irq_number + 0xE0);
-    pchar('\n');
+    DEBUG("\nRegistered IRQ slot #");
+    DEBUG_HD(irq_number);
+    DEBUG("/interrupt 0x");
+    DEBUG_HD(irq_number + 0xE0);
+    DEBUG_PCHAR('\n');
     irq_process[irq_number - 1] = requesting_proc;
 
     //map the handler into the right interrupt vector, assuming it's not
@@ -86,16 +87,16 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
 //This is the magic sauce which forces a message back to the registered proc
 process* irq_handle(unsigned char irq_number) {
 
-    prints("\nIRQ ");
-    printHexDword(irq_number);
-    prints(" triggered\n");
+    DEBUG("\nIRQ ");
+    DEBUG_HD(irq_number);
+    DEBUG(" triggered\n");
 
     irq_number -= 0xE0;
 
     //Get the heck out of here if the irq isn't registered
     if(!irq_process[irq_number - 1]) {
         
-        prints("Nothing registered for this IRQ");   
+        DEBUG("Nothing registered for this IRQ");   
         return (process*)0;
     }
 

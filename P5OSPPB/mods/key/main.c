@@ -65,6 +65,64 @@
 #define PS2_OK   0xFA //ACK or Success
 #define PS2_FAIL 0xFC //Command failed
 
+unsigned char keyTable[132] = "";
+
+void setupKeyTable() {
+    int i = 0;
+
+    for(i=0;i<132;i++)
+        keyTable[i] = 0;
+
+    keyTable[0xE] = '`';
+    keyTable[0x15] = 'Q';
+    keyTable[0x16] = '1';
+    keyTable[0x1A] = 'Z';
+    keyTable[0x1B] = 'S';
+    keyTable[0x1C] = 'A';
+    keyTable[0x1D] = 'W';
+    keyTable[0x1E] = '2';
+    keyTable[0x21] = 'C';
+    keyTable[0x22] = 'X';
+    keyTable[0x23] = 'D';
+    keyTable[0x24] = 'E';
+    keyTable[0x25] = '4';
+    keyTable[0x26] = '3';
+    keyTable[0x29] = ' ';
+    keyTable[0x2A] = 'V';
+    keyTable[0x2B] = 'F';
+    keyTable[0x2C] = 'T';
+    keyTable[0x2D] = 'R';
+    keyTable[0x2E] = '5';
+    keyTable[0x31] = 'N';
+    keyTable[0x32] = 'B';
+    keyTable[0x33] = 'H';
+    keyTable[0x34] = 'G';
+    keyTable[0x35] = 'Y';
+    keyTable[0x36] = '6';
+    keyTable[0x3A] = 'M';
+    keyTable[0x3B] = 'J';
+    keyTable[0x3C] = 'U';
+    keyTable[0x3D] = '7';
+    keyTable[0x3E] = '8';
+    keyTable[0x41] = ',';
+    keyTable[0x42] = 'K';
+    keyTable[0x43] = 'I';
+    keyTable[0x44] = 'O';
+    keyTable[0x45] = '0';
+    keyTable[0x46] = '9';
+    keyTable[0x49] = '.';
+    keyTable[0x4A] = '/';
+    keyTable[0x4B] = 'L';
+    keyTable[0x4C] = ';';
+    keyTable[0x4D] = 'P';
+    keyTable[0x4E] = '-';
+    keyTable[0x52] = '\'';
+    keyTable[0x54] = '[';
+    keyTable[0x55] = '=';
+    keyTable[0x5A] = '\n';
+    keyTable[0x5B] = ']';
+}
+
 void outb(unsigned short _port, unsigned char _data) {
 
 	asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
@@ -119,8 +177,31 @@ void keyboard_clearBuffer() {
 		//Read bits into space
 		inb(KBC_DREG);
 	}
+}
 
-	prints("Keyboard buffer cleared.\n");
+unsigned char processKey() {
+	
+    //Don't block if there's nothing in the buffer
+    if(!(keyboard_getStatus() & SR_OBSTAT))
+        return 0;
+
+    tempData = inb(KBC_DREG);
+
+    //Ignore 'up' keys
+    if(tempData == 0xF0) {
+        keyboard_getData();
+        return 0;
+    }
+
+    //Convert the 'down' scancode to 
+    if(tempData < 132) {
+        return keyTable[tempData];
+    } else {
+        return 0;
+    }
+
+    //This should make realines cycle forever waiting for input
+    return 0;
 }
 
 void main(void) {
@@ -128,6 +209,7 @@ void main(void) {
 	message temp_msg;
 	unsigned char current_creg;
 	unsigned int parent_pid;
+    unsigned char tmpch;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -154,12 +236,16 @@ void main(void) {
 
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
+    //Init the default keymapping
+    setupKeyTable();
+
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
 
 		//Clear the keyboard buffer
 		keyboard_clearBuffer();
 		waitForIRQ(1);
-		prints("\n[KEY PRESSED]\n");
+        tempch = processKey();
+		if(tempch) pchar(tempch);
 	}
 }
