@@ -288,7 +288,7 @@ keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
 keyInfo* processNextCode(unsigned char* was_break) {
     
     static unsigned char state = SCANSTATE_DEFAULT;
-    static keyInfo* currentSet = &standardCodes; 
+    static keyInfo* currentSet = standardCodes; 
     keyInfo* returnCode = (keyInfo*)0;
     unsigned char tempData;
     
@@ -308,52 +308,24 @@ keyInfo* processNextCode(unsigned char* was_break) {
                 state = SCANSTATE_BREAK;
             } else if(tempData == 0xE0) {
                 
-                currentSet = &levelTwoCodes;
+                currentSet = levelTwoCodes;
             } else {
                 
                 returnCode = findCode(currentSet, tempData);
-                currentSet = &standardCodes;
+                currentSet = standardCodes;
             } 
         break;
          
         case SCANSTATE_BREAK:
         
             returnCode = findCode(currentSet, tempData);
-            currentSet = &standardCodes;
-            was_break = 1;
+            currentSet = standardCodes;
+            *was_break = 1;
             state = SCANSTATE_DEFAULT;
         break;
     }
     
     return returnCode;
-}
-
-
-unsigned char processKey() {
-	
-    unsigned char tempData;
-    
-    //Don't block if there's nothing in the buffer
-    if(!(keyboard_getStatus() & SR_OBSTAT))
-        return 0;
-
-    tempData = inb(KBC_DREG);
-
-    //Ignore 'up' keys
-    if(tempData == 0xF0) {
-        keyboard_getData();
-        return 0;
-    }
-
-    //Convert the 'down' scancode to 
-    if(tempData < 132) {
-        return keyTable[tempData];
-    } else {
-        return 0;
-    }
-
-    //This should make realines cycle forever waiting for input
-    return 0;
 }
 
 unsigned char capitalize(unsigned char c) {
