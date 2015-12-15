@@ -542,7 +542,7 @@ void main(void) {
                 
                 if(was_break) {
                     
-                    prints('(*)');
+                    prints("(*)");
                     
                     if(temp_key->type == KEY_TYPE_CTRL) {
                         
