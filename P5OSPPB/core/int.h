@@ -22,6 +22,5 @@ void blankInterrupt(unsigned char number);
 void initIDT();
 void installInterrupt(unsigned char number, intHandler handler, unsigned char dpl);
 void installExceptionHandlers();
-void send_pic_eoi(unsigned char irq);
 
 #endif //INT_H

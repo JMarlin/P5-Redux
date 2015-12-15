@@ -13,5 +13,6 @@ void enable_irq(unsigned char channel);
 void disable_irq(unsigned char channel);
 void init_pic();
 unsigned int irq_register(unsigned int irq_number, process *requesting_proc);
+void send_pic_eoi(unsigned char irq);
 
 #endif //IRQ_H
