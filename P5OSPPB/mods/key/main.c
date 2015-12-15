@@ -386,7 +386,7 @@ keyInfo* processSet1Code(unsigned char code, unsigned char* was_break) {
     static keyInfo* currentSet = standardCodes1; 
     keyInfo* returnCode = (keyInfo*)0;
     
-    *was_break = 0;
+    (*was_break) = 0;
     
 
     if(code == 0xE0) {
@@ -396,8 +396,7 @@ keyInfo* processSet1Code(unsigned char code, unsigned char* was_break) {
         
         if(code & 0x80) {
         
-            prints("(`)");
-            *was_break = 1;
+            (*was_break) = 1;
             code |= 0x7F;        
         }
         
@@ -414,7 +413,7 @@ keyInfo* processSet2Code(unsigned char code, unsigned char* was_break) {
     static keyInfo* currentSet = standardCodes2; 
     keyInfo* returnCode = (keyInfo*)0;
     
-    *was_break = 0;
+    (*was_break) = 0;
         
     switch(state) {
           
@@ -436,7 +435,7 @@ keyInfo* processSet2Code(unsigned char code, unsigned char* was_break) {
         
             returnCode = findCode(currentSet, code);
             currentSet = standardCodes2;
-            *was_break = 1;
+            (*was_break) = 1;
             state = SCANSTATE_DEFAULT;
         break;
     }
