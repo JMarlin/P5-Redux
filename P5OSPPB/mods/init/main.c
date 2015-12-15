@@ -33,7 +33,7 @@ void main(void) {
 
     //Start key server
     prints("[init] Starting key server...\n");
-    startAndWaitUsr(":key.mod");
+    startAndWait(":key.mod");
 
     terminate();
 }
