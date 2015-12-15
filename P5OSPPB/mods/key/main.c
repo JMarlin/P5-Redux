@@ -372,9 +372,6 @@ void main(void) {
 
 	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
-    //Init the default keymapping
-    setupKeyTable();
-
     //Clear the keyboard buffer
     keyboard_clearBuffer();
 
