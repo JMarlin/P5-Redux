@@ -92,7 +92,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             if(i == 256)
                 return;
             
-            passMessage(0, source, KS_START_THREAD, (unsigned int)makeThread(&procTable[i], (void*)payload))
+            passMessage(0, source, KS_START_THREAD, (unsigned int)makeThread(&procTable[i], (void*)payload));
                 
             break;
 
