@@ -1043,7 +1043,7 @@ process* makeThread(process* parent, void* entry_point) {
     
     //Clone proc structures
     //Clone context 
-    ret_proc->ctx.esp = = 0xB00FFF;
+    ret_proc->ctx.esp = 0xB00FFF;
     ret_proc->ctx.cr3 = parent->ctx.cr3;
     ret_proc->ctx.eip = (unsigned int)entry_point;
     ret_proc->ctx.eflags = parent->ctx.eflags;

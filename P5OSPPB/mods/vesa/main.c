@@ -65,6 +65,7 @@ ModeInfoBlock curMode;
 unsigned int client_pid = 0;
 unsigned char curBank = 0;
 
+/*
 void dumpMode(ModeInfoBlock* mode) {
 
     unsigned char fake[10];
@@ -112,6 +113,7 @@ void dumpMode(ModeInfoBlock* mode) {
 
     scans(5, fake);
 }
+*/
 
 void main(void) {
 

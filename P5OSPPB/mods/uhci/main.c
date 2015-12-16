@@ -102,7 +102,9 @@ void main(void) {
 
     prints("scanning\n");
     prints("Do UHCI enumeration? [Y/N]: ");
-    scans(9, inbuf);
+    //scans(9, inbuf);
+    inbuf[0] = 'N';
+    inbuf[1] = 0;
 
     if(inbuf[0] == 'Y' || inbuf[0] == 'y') {
 

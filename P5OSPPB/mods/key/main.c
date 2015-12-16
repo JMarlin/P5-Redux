@@ -1,5 +1,6 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
+#include "../include/key.h"
 
 //KBC registers
 #define KBC_DREG 0x60 //IO Port for the data register (r/w)
