@@ -1033,6 +1033,7 @@ process* makeThread(process* parent, void* entry_point) {
     pageRange* new_page;
     unsigned char* stack;
     unsigned char* tmp_stack;
+    unsigned int* pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
     
     //Find a free proc entry 
     for(i = 0; i < 256 && procTable[i].id; i++);
