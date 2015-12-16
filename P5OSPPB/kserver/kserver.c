@@ -13,6 +13,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
     unsigned int *pageTable = (unsigned int*)PAGE_TABLE_ADDRESS;
     int i;
     unsigned char tmp_char;
+    process* new_proc;
 
     switch(command) {
 
@@ -92,7 +93,12 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             if(i == 256)
                 return;
             
-            passMessage(0, source, KS_START_THREAD, (unsigned int)makeThread(&procTable[i], (void*)payload));
+            new_proc = makeThread(&procTable[i], (void*)payload);
+            passMessage(0, source, KS_START_THREAD, (unsigned int)new_proc);
+            
+            //If process creation was successful, also message the client
+            if(new_proc)
+                passMessage(0, new_proc->id, KS_START_THREAD, 0);
                 
             break;
 

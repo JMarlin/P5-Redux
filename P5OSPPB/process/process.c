@@ -1031,6 +1031,8 @@ process* makeThread(process* parent, void* entry_point) {
     int i;
     process* ret_proc;
     pageRange* new_page;
+    unsigned char* old_stack;
+    unsigned char* new_stack;
     
     //Find a free proc entry 
     for(i = 0; i < 256 && procTable[i].id; i++);
@@ -1043,17 +1045,17 @@ process* makeThread(process* parent, void* entry_point) {
     
     //Clone proc structures
     //Clone context 
-    ret_proc->ctx.esp = 0xB00FFF;
+    ret_proc->ctx.esp = parent->ctx.esp; //0xB00FFF;
     ret_proc->ctx.cr3 = parent->ctx.cr3;
-    ret_proc->ctx.eip = (unsigned int)entry_point;
+    ret_proc->ctx.eip = ret_proc->ctx.eip; //(unsigned int)entry_point;
     ret_proc->ctx.eflags = parent->ctx.eflags;
-    ret_proc->ctx.eax = 0;
-    ret_proc->ctx.ecx = 0;
-    ret_proc->ctx.edx = 0;
-    ret_proc->ctx.ebx = 0;
-    ret_proc->ctx.ebp = 0;
-    ret_proc->ctx.esi = 0;
-    ret_proc->ctx.edi = 0;
+    ret_proc->ctx.eax = parent->ctx.eax;
+    ret_proc->ctx.ecx = parent->ctx.ecx;
+    ret_proc->ctx.edx = parent->ctx.edx;
+    ret_proc->ctx.ebx = parent->ctx.ebx;
+    ret_proc->ctx.ebp = parent->ctx.ebp;
+    ret_proc->ctx.esi = parent->ctx.esi;
+    ret_proc->ctx.edi = parent->ctx.edi;
     ret_proc->ctx.es = parent->ctx.es;
     ret_proc->ctx.cs = parent->ctx.cs;
     ret_proc->ctx.ss = parent->ctx.ss;
@@ -1111,5 +1113,11 @@ process* makeThread(process* parent, void* entry_point) {
     
     ret_proc->root_page->next = parent->root_page->next;
 
+    //Copy the old stack into the new stack to preserve sanity
+    old_stack = (unsigned char*)(parent->root_page->base_page << 12);
+    new_stack = (unsigned char*)(ret_proc->root_page->base_page << 12);
+    for(i = 0; i < 4096; i++)
+        new_stack[i] = old_stack[i];
+ 
     return ret_proc;
 }

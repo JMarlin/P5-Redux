@@ -618,7 +618,8 @@ void main(void) {
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Start the thread that will listen for client requests
-    startThread((void*)clientThread);
+    if(!startThread())
+        clientThread();
 
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
