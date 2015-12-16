@@ -1031,8 +1031,8 @@ process* makeThread(process* parent, void* entry_point) {
     int i;
     process* ret_proc;
     pageRange* new_page;
-    unsigned char* old_stack;
-    unsigned char* new_stack;
+    unsigned char* stack;
+    unsigned char* tmp_stack;
     
     //Find a free proc entry 
     for(i = 0; i < 256 && procTable[i].id; i++);
@@ -1114,10 +1114,21 @@ process* makeThread(process* parent, void* entry_point) {
     ret_proc->root_page->next = parent->root_page->next;
 
     //Copy the old stack into the new stack to preserve sanity
-    old_stack = (unsigned char*)(parent->root_page->base_page << 12);
-    new_stack = (unsigned char*)(ret_proc->root_page->base_page << 12);
+    stack = (unsigned char*)0xB00000;
+    tmp_stack = (unsigned char*)kmalloc(4096);
+    
+    //Get the old stack     
     for(i = 0; i < 4096; i++)
-        new_stack[i] = old_stack[i];
+        tmp_stack[i] = stack[i];
+        
+    //Write to the new stack
+    apply_page_range(ret_proc->base, ret_proc->root_page, ret_proc->flags & PF_SUPER);
+    for(i = 0; i < 4096; i++)
+        stack[i] = tmp_stack[i];
+        
+    //Clean up 
+    apply_page_range(parent->base, parent->root_page, parent->flags & PF_SUPER);
+    kfree((void*)tmp_stack);
  
     return ret_proc;
 }
