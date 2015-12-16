@@ -554,9 +554,6 @@ void clientThread() {
         
         getMessage(&temp_msg);
         
-        
-        //prints("[got a message]\n");
-        /*
         pchar('m');
         
         if(temp_msg.command == KEY_GETCH) {
@@ -568,7 +565,6 @@ void clientThread() {
             //Once we have one, post it back
             postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
         }
-        */
     }
 }
 
