@@ -485,26 +485,18 @@ unsigned char buffer_retrieve() {
     
     unsigned char c;
     
-    if(buffer_empty)
+    if(read_index == write_index)
         return 0;
             
     c = key_buffer[read_index++];
-    buffer_full = 0;
-    
-    if(read_index = write_index)
-        buffer_empty = 1;
 }
 
 void buffer_insert(unsigned char c) {
     
-    if(buffer_full || c == 0)
+    if((write_index == (read_index - 1)) || c == 0)
         return;
         
     key_buffer[write_index++] = c;
-    buffer_empty = 0;
-    
-    if(write_index = read_index)
-        buffer_full = 1;    
 }
 
 unsigned char capitalize(unsigned char c) {
@@ -617,9 +609,7 @@ void main(void) {
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
 
-		waitForIRQ(1);
-        
-        pchar('i');
+		waitForIRQ(1);        
         
         while(keyboard_hasData()) {
             
