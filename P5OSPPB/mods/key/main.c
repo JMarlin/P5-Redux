@@ -313,8 +313,6 @@ keyInfo levelTwoCodes2[] = {
 #define SCANSTATE_DEFAULT 0
 #define SCANSTATE_BREAK 1
 
-unsigned char lastkey = 0;
-
 void outb(unsigned short _port, unsigned char _data) {
 
 	asm volatile ( "outb %0, %1" : : "a"(_data), "Nd"(_port) );
@@ -499,13 +497,10 @@ unsigned char buffer_retrieve() {
 
 void buffer_insert(unsigned char c) {
     
-    lastkey = c;
-    return;
-    
     if(buffer_full || c == 0)
         return;
         
-    key_buffer[write_index++];
+    key_buffer[write_index++] = c;
     buffer_empty = 0;
     
     if(write_index = read_index)
@@ -564,10 +559,7 @@ void clientThread() {
         if(temp_msg.command == KEY_GETCH) {
             
             //Wait until there's a character in the buffer 
-            //while(!(c = buffer_retrieve()));
-            while(lastkey == 0);
-            c = lastkey;
-            lastkey = 0;
+            while(!(c = buffer_retrieve()));
             
             pchar('o');
             //Once we have one, post it back
