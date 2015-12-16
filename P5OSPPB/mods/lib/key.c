@@ -16,14 +16,9 @@ int initKey() {
 }
 
 unsigned char getch() {
-	
-	prints("Getting key...");
-	
+		
 	postMessage(key_pid, KEY_GETCH, 0);
-	prints("message posted...");
 	getMessageFrom(&temp_msg, key_pid, KEY_GETCH);
-	
-	prints("got key\n");
 	
 	return (unsigned char)(temp_msg.payload & 0xFF);
 }
