@@ -464,7 +464,7 @@ keyInfo* processNextCode(unsigned char* was_break) {
 
 unsigned char capitalize(unsigned char c) {
     
-    if(c >= 'a' && c <= 'b')
+    if(c >= 'a' && c <= 'z')
         return c - 0x20;
         
     return c;
