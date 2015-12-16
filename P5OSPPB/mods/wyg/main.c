@@ -1307,6 +1307,13 @@ void main(void) {
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
+    
+    if(!initKey()) {
+        
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        terminate();
+    }
 
     //Prompt user for a screen mode
     showModes();

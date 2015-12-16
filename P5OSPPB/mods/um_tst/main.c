@@ -246,6 +246,12 @@ void main(void) {
         while(1); //Hang 
     }
     
+    if(!initKey()) {
+        
+        prints("usr.mod could not init Key.");
+        while(1); //Hang
+    }
+    
     makeWindows();
 }
 
