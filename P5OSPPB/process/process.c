@@ -1111,6 +1111,8 @@ process* makeThread(process* parent, void* entry_point) {
         return (process*)0;
     }
     
+    //Mark the cloned stack page in-use
+    pageTable[ret_proc->root_page->base_page] |= 0x00000800;
     ret_proc->root_page->next = parent->root_page->next;
 
     //Copy the old stack into the new stack to preserve sanity
