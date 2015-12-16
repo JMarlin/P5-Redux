@@ -546,6 +546,7 @@ void clientThread() {
     //We do this here so that we have this thread's PID instead of the parent's 
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
     getMessage(&temp_msg);
+    prints("[KEY] Registered.");
     
     //We should make sure the registration works, but for now we're just assuming it did
     
@@ -553,7 +554,8 @@ void clientThread() {
         
         getMessage(&temp_msg);
         
-        prints("[got a message]\n");
+        
+        //prints("[got a message]\n");
         /*
         pchar('m');
         
