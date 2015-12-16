@@ -1,11 +1,92 @@
 #include "../include/p5.h"
 #include "../include/memory.h"
 
+typedef struct memblock {
+    void* base;
+    unsigned int size;
+    struct memblock* next;
+	struct memblock* prev;
+} memblock;
+
 memblock* root_block = (memblock*)0;
 
 //This is currently very naive implementation which does not allow for
 //free()ing and allocates new chunks of memory in a completely linear 
 //fashion
+
+//We store memblocks linked in order of ascending address, 
+//So this just looks through the list and finds the first gap
+//between two linked blocks
+//Oops. I guess this is just going to replace the old malloc code
+void* getFirstFreeArea(unsigned int requested_size) {
+	
+	memblock* current_block;
+	memblock* new_block;
+	memblock* last_block = (memblock*)0;
+	void* free_base;
+	unsigned int available_space = 0;
+	
+	requested_size += sizeof(memblock);
+	current_block = root_block;
+	
+	while(current_block) {
+		
+		if(current_block->prev) {
+			
+			available_space = (unsigned int)current_block->base - ((unsigned int)current_block->prev->base + current_block->prev->size);
+			
+			if(available_space >= requested_size) {
+			    
+				//Set up the new block 
+				new_block = (memblock*)((unsigned int)current_block->prev->base + current_block->prev->size);
+				new_block->base = (void*)((unsigned int)current_block->prev->base + current_block->prev->size);
+				new_block->size = requested_size;
+				
+				//Insert it into the chain
+				new_block->prev = current_block->prev;
+				new_block->next = current_block;
+				current_block->prev->next = new_block;
+                current_block->prev = new_block;
+				
+				//And return its usable base 
+				return (void*)((unsigned int)new_block->base + sizeof(memblock));
+			}
+		}
+		
+		last_block = current_block;
+		current_block = current_block->next;
+	}
+	
+	//No interleaving space found,
+	//Check for space at the end of the memory area
+	if(last_block) {
+		
+		//If we have an end block, we can get the first
+		//memory location after it
+		free_base = (void*)((unsigned int)last_block->base + last_block->size);
+	} else {
+	
+		//Otherwise, we need to figure out what the start of usable space is
+		free_base = (void*)(getImageSize(getCurrentPid()) + 0xB00000);
+	} 
+	
+	//Now that we have start of memory, we can check to see if we need
+	//additional space allocated by the OS or not to contain the new data
+	trailing_space = ((((unsigned int)free_base) / 0x1000) * 0x1000) + ((((unsigned int)free_base) % 0x1000 > 0) ? 0x1000 : 0 ) - ((unsigned int)free_base); 
+	
+	//If we don't have enough space, pop a new page on 
+	if(trailing_space < requested_size {
+		
+		if(!appendPage())
+			return (void*)0;
+		
+		allocated_pages++;
+	}
+	
+	//and then create the new memory block, assigning it to the preceeding block 
+	//next pointer or to the root pointer if there were no preceeding blocks
+}
+
 void* malloc(unsigned int byte_count) {
 	
 	//Make sure we set up the environment the first time malloc is called
