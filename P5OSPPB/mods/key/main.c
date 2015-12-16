@@ -553,11 +553,14 @@ void clientThread() {
         
         getMessage(&temp_msg);
         
+        pchar('m');
+        
         if(temp_msg.command == KEY_GETCH) {
             
             //Wait until there's a character in the buffer 
             while(!(c = buffer_retrieve()));
             
+            pchar('o');
             //Once we have one, post it back
             postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
         }
@@ -616,6 +619,8 @@ void main(void) {
 	while(1) {
 
 		waitForIRQ(1);
+        
+        pchar('i');
         
         while(keyboard_hasData()) {
             
