@@ -21,5 +21,6 @@ void free_physical(unsigned int physBase, unsigned int size);
 void* allocate_shared_pages(unsigned int count);
 void* allocate_shared_page(void);
 void del_page_tree(pageRange* root_page);
+unsigned int find_free_page();
 
 #endif //PAGING_H

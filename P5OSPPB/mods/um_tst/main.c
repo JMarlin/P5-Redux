@@ -3,6 +3,7 @@
 #include "../include/pci.h"
 #include "../include/wyg.h"
 #include "../vesa/font.h"
+#include "../include/key.h"
 
 #define CMD_COUNT 8
 
@@ -58,6 +59,33 @@ sys_command cmdFunc[CMD_COUNT] = {
 };
 
 char inbuf[50];
+
+void scans(int c, char* b) {
+
+    unsigned char temp_char;
+    int index = 0;
+
+    for(index = 0 ; index < c-1 ; ) {
+        temp_char = getch();
+
+        if(temp_char != 0) {
+            b[index] = temp_char;
+            pchar(b[index]);
+
+            if(b[index] == '\n') {
+                b[index] = 0;
+                break;
+            }
+
+            index++;
+
+            if(index == c-1)
+                pchar('\n');
+        }
+    }
+
+    b[index+1] = 0;
+}
 
 int strcmp(char* s1, char* s2) {
 

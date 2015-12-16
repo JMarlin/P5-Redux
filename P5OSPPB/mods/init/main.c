@@ -9,7 +9,7 @@ void main(void) {
     //Start the idle process
     prints("[init] Starting idle process...\n");
     startSuperProc(":idle.mod");
-/*
+
     //Start up all of the initial-boot servers
     prints("[init] Starting VESA server...\n");
     startAndWait(":vesa.mod");
@@ -19,8 +19,12 @@ void main(void) {
     startAndWait(":pci.mod");
 
     //Start UHCI server
-    prints("[init] Starting UHCI server...\n");
-    startAndWait(":uhci.mod");
+//    prints("[init] Starting UHCI server...\n");
+//    startAndWait(":uhci.mod");
+    
+    //Start key server
+    prints("[init] Starting key server...\n");
+    startAndWait(":key.mod");
 
     //Start WYG server
     prints("[init] Starting WYG server...\n");
@@ -29,11 +33,6 @@ void main(void) {
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
-*/
-
-    //Start key server
-    prints("[init] Starting key server...\n");
-    startAndWait(":key.mod");
 
     terminate();
 }

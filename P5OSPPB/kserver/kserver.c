@@ -36,19 +36,6 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             pchar((unsigned int)(payload & 0xFF));
             break;
 
-        //message 2: getch
-        //Run getch and return a KEY_RECIEVED message to
-        //the calling process with the return code in
-        //the payload
-        //For now, we'll just return the message right away
-        //with a zero value if there's nothing in the chamber
-        //for simplicity's sake, but in the future we'll queue
-        //this shit up and only send a KEY_RECIEVED message
-        //when a keypress is finally registered
-        case KS_GETCH:
-            passMessage(0, source, KS_GETCH, (unsigned int)getch());
-            break;
-
         //message 3: clear
         //Clear the screen
         case KS_CLEAR_SCREEN:
@@ -96,6 +83,17 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             else
                 passMessage(0, source, PROC_STARTED, exec_v86((unsigned char*)payload));
 
+            break;
+
+        //Spawns a thread from the calling process and enters it at the 
+        case KS_START_THREAD:
+            for(i = 0; i < 256 && (procTable[i].id != source); i++);
+
+            if(i == 256)
+                return;
+            
+            passMessage(0, source, KS_START_THREAD, makeThread(&procTable[i], (void*)entry_point))
+                
             break;
 
         //Toggle debug: sets or resets the process's debug flag

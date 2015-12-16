@@ -200,7 +200,7 @@ unsigned int find_free_page() {
     }
 
     if(i == maxPages)
-        return 0;
+        return 0; 
 }
 
 //Find the next availible set of contiguous pages of the required count

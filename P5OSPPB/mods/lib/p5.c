@@ -125,19 +125,6 @@ void terminate(void) {
     postMessage(0, 0, 0);
 }
 
-
-unsigned char getch() {
-
-    postMessage(0, 2, 0);
-
-    //We should probably add a method to ignore messages
-    //we don't care about but leave them in the queue
-    while(!getMessageFrom(&temp_msg, 0, KS_GETCH));
-
-    return (unsigned char)(temp_msg.payload & 0xFF);
-}
-
-
 void clearScreen() {
 
     postMessage(0, 3, 0);
@@ -178,34 +165,13 @@ unsigned int startV86(unsigned char* path) {
     return temp_msg.payload;
 }
 
-
-void scans(int c, char* b) {
-
-    unsigned char temp_char;
-    int index = 0;
-
-    for(index = 0 ; index < c-1 ; ) {
-        temp_char = getch();
-
-        if(temp_char != 0) {
-            b[index] = temp_char;
-            pchar(b[index]);
-
-            if(b[index] == '\n') {
-                b[index] = 0;
-                break;
-            }
-
-            index++;
-
-            if(index == c-1)
-                pchar('\n');
-        }
-    }
-
-    b[index+1] = 0;
+int startThread(void* entry_point) {
+    
+    postMessage(0, KS_START_THREAD, (unsigned int)entry_point);
+    getMessageFrom(&temp_msg, 0, KS_START_THREAD);
+    
+    return temp_msg.payload;
 }
-
 
 void prints(char* s) {
 

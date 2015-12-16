@@ -99,6 +99,7 @@ int request_new_page(process* proc);
 void next_process();
 void prep_next_process();
 void returnToProcess(process* proc);
+unsigned int makeThread(process* parent, void* entry_point);
 
 extern void _switchToKernel(void);
 extern void _returnToProc(void);

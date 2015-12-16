@@ -31,7 +31,6 @@ unsigned int registerIRQ(unsigned int irq_number);
 void waitForIRQ(unsigned int irq_number);
 void pchar(char c);
 void terminate(void);
-unsigned char getch();
 void clearScreen();
 unsigned int startProc(unsigned char* path);
 unsigned int startSuperProc(unsigned char* path);

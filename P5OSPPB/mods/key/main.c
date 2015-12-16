@@ -115,6 +115,11 @@ typedef struct keyInfo {
 } keyInfo;
 
 unsigned char set_number = 1;
+unsigned char key_buffer[256];
+unsigned char read_index;
+unsigned char write_index;
+unsigned char buffer_full;
+unsigned char buffer_empty;
 
 keyInfo standardCodes1[] = {
     {KEY_TYPE_CHAR, 'a', 'A', 0x1E},
@@ -462,6 +467,45 @@ keyInfo* processNextCode(unsigned char* was_break) {
         return processSet1Code(tempData, was_break);
 }
 
+void initKeyBuffer() {
+    
+    int i;
+    
+    for(i = 0; i < 256; i++)
+        key_buffer[i] = 0;
+        
+    read_index = 0;
+    write_index = 0;
+    buffer_full = 0;
+    buffer_empty = 1;
+}
+
+unsigned char buffer_retrieve() {
+    
+    unsigned char c;
+    
+    if(buffer_empty)
+        return 0;
+            
+    c = key_buffer[read_index++];
+    buffer_full = 0;
+    
+    if(read_index = write_index)
+        buffer_empty = 1;
+}
+
+void buffer_insert(unsigned char c) {
+    
+    if(buffer_full || c == 0)
+        return;
+        
+    key_buffer[write_index++];
+    buffer_empty = 0;
+    
+    if(write_index = read_index)
+        buffer_full = 1;    
+}
+
 unsigned char capitalize(unsigned char c) {
     
     if(c >= 'a' && c <= 'z')
@@ -474,6 +518,7 @@ void detectScancodeSet() {
     
     keyboard_clearBuffer();
     keyboard_sendData(PS2_SET_SCANCODE);
+    keyboard_sendData(0);
     
     //Wait for an ACK
     while(keyboard_getData() != PS2_OK);
@@ -486,6 +531,35 @@ void detectScancodeSet() {
     } else {
         
         prints("Using scancode set 1\n");
+    }
+}
+
+void clientThread() {
+    
+    message temp_msg;
+    unsigned char c;
+    
+    prints("[KEY] Started client thread\n");
+    
+    //First thing, register as a KEY service with the registrar
+    //We do this here so that we have this thread's PID instead of the parent's 
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
+    getMessage(&temp_msg);
+    
+    //We should make sure the registration works, but for now we're just assuming it did
+    
+    while(1) {
+        
+        getMessage(&temp_msg);
+        
+        if(temp_msg.command == KEY_GETCH) {
+            
+            //Wait until there's a character in the buffer 
+            while(!(c = buffer_retrieve()));
+            
+            //Once we have one, post it back
+            postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
+        }
     }
 }
 
@@ -520,16 +594,22 @@ void main(void) {
 	current_creg = keyboard_getData();
     keyboard_sendCommand(KBC_WRITE_CCB);
     keyboard_sendData(current_creg | CCB_PORT1_INT | CCB_PORT2_INT);
+    
+    //Detect the scancode set the keyboard is using
+    detectScancodeSet();
+    
+    //Clear the keyboard buffer
+    keyboard_clearBuffer();
+    
+    //Initialize the key buffer which will store the received key data
+    initKeyBuffer();
 
 	prints("Done.\n");
 
-    //Detect the scancode set the keyboard is using
-    detectScancodeSet();
-
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
-    //Clear the keyboard buffer
-    keyboard_clearBuffer();
+    //Start the thread that will listen for client requests
+    startThread((void*)clientThread);
 
 	//Now that everything is set up, we can loop waiting for interrupts
 	while(1) {
@@ -560,11 +640,11 @@ void main(void) {
                     if(temp_key->type == KEY_TYPE_CHAR) {
                     
                         if(shift_count)
-                            pchar(temp_key->shifted);
+                            buffer_insert(temp_key->shifted);
                         else if(caps)
-                            pchar(capitalize(temp_key->value));
+                            buffer_insert(capitalize(temp_key->value));
                         else
-                            pchar(temp_key->value);
+                            buffer_insert(temp_key->value);
                     } else {
                         
                         switch(temp_key->value) {

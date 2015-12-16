@@ -1025,3 +1025,91 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
 
     return proc->id;
 }
+
+process* makeThread(process* parent, void* entry_point) {
+    
+    int i;
+    process* ret_proc;
+    pageRange* new_page;
+    
+    //Find a free proc entry 
+    for(i = 0; i < 256 && procTable[i].id; i++);
+    
+    //Fail out if the process table is full
+    if(i == 256)
+        return (process*)0;
+    
+    ret_proc = &procTable[i];
+    
+    //Clone proc structures
+    //Clone context 
+    ret_proc->ctx.esp = = 0xB00FFF;
+    ret_proc->ctx.cr3 = parent->ctx.cr3;
+    ret_proc->ctx.eip = (unsigned int)entry_point;
+    ret_proc->ctx.eflags = parent->ctx.eflags;
+    ret_proc->ctx.eax = 0;
+    ret_proc->ctx.ecx = 0;
+    ret_proc->ctx.edx = 0;
+    ret_proc->ctx.ebx = 0;
+    ret_proc->ctx.ebp = 0;
+    ret_proc->ctx.esi = 0;
+    ret_proc->ctx.edi = 0;
+    ret_proc->ctx.es = parent->ctx.es;
+    ret_proc->ctx.cs = parent->ctx.cs;
+    ret_proc->ctx.ss = parent->ctx.ss;
+    ret_proc->ctx.ds = parent->ctx.ds;
+    ret_proc->ctx.fs = parent->ctx.fs;
+    ret_proc->ctx.gs = parent->ctx.gs;
+    ret_proc->ctx.err = parent->ctx.err;
+    ret_proc->ctx.vif = parent->ctx.vif;
+    ret_proc->ctx.type = parent->ctx.type;
+    
+    //Clone process struct 
+    ret_proc->id = nextProc++;
+    ret_proc->root_msg = (message*)0;
+    ret_proc->usr = parent->usr;
+    ret_proc->base = parent->base;
+    ret_proc->size = parent->size;
+    ret_proc->flags = parent->flags;
+    ret_proc->wait_pid = 0;
+    ret_proc->wait_cmd = 0;
+    ret_proc->called_count = 0;
+    ret_proc->cpu_pct = 0;
+    
+    //Clear status ailments (eg: the child thread won't be waiting for a message &c)
+    ret_proc->flags &= ~(PF_WAITMSG | PF_WOKENMSG);
+    
+    //Split the first page (the stack page) from the first page range entry of the parent proc 
+    if(parent->root_page->count > 1) {
+        
+        new_page = (pageRange*)kmalloc(sizeof(pageRange));
+        
+        //Clone the info for the first page into the new entry
+        new_page->count = 1;
+        new_page->base_page = parent->root_page->base_page;
+        new_page->next = parent->root_page;
+ 
+        //Update the old entry 
+        parent->root_page->count--;
+        parent->root_page->base_page++;
+        
+        //Replace the root page with the new root page 
+        parent->root_page = new_page;               
+    }
+    
+    //Create a page entry for the stack page of the new thread     
+    ret_proc->root_page = (pageRange*)kmalloc(sizeof(pageRange));
+    ret_proc->root_page->count = 1;
+    
+    //Try to allocate a new physical page, return failure if we can't 
+    if(!(ret_proc->root_page->base_page = find_free_page())) {
+        
+        ret_proc->id = 0;
+        kfree(ret_proc->root_page);
+        return (process*)0;
+    }
+    
+    ret_proc->root_page->next = parent->root_page->next;
+
+    return ret_proc;
+}

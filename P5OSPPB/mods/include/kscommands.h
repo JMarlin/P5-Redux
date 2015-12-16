@@ -8,7 +8,6 @@
 //Commands which the kernel server understands
 #define KS_QUIT 0
 #define KS_PCHAR 1
-#define KS_GETCH 2
 #define KS_CLEAR_SCREEN 3
 #define KS_EXEC 4
 #define KS_EXEC_SUPER 5
@@ -40,5 +39,6 @@
 #define KS_GET_IMAGE_SIZE 31
 #define KS_APPEND_PAGE 32
 #define KS_GET_SHARED_PAGE 33
+#define KS_START_THREAD 34
 
 #endif //KSCOMMANDS_H

@@ -14,6 +14,7 @@
 #include "../include/gfx.h"
 #include "../include/memory.h"
 #include "../include/wyg.h"
+#include "../include/key.h"
 #endif //HARNESS_TEST
 
 /* Windows are logically arranged as follows:
