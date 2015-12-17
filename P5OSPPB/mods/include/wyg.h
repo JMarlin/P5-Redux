@@ -26,7 +26,7 @@ struct bitmap;
 unsigned int initWYG(void);
 unsigned int createWindow(unsigned short width, unsigned short height, unsigned char flags);
 struct bitmap* getWindowContext(unsigned int handle);
-void moveWindow(unsigned int handle, unsigned short x, unsigned short y);
+void moveHandle(unsigned int handle, unsigned short x, unsigned short y);
 void installWindow(unsigned int child_handle, unsigned int parent_handle);
 void showWindow(unsigned int handle);
 void repaintWindow(unsigned int handle);
