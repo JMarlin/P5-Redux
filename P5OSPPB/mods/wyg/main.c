@@ -260,6 +260,8 @@ void drawMouse() {
     drawVLine(MOUSE_H);
     
     mouse_buffer_ok = 1;
+    
+    while(1);
 }
 
 void scans(int c, char* b) {
