@@ -18,7 +18,7 @@ memblock* root_block = (memblock*)0;
 //So this just looks through the list and finds the first gap
 //between two linked blocks
 //Oops. I guess this is just going to replace the old malloc code
-void* getFirstFreeArea(unsigned int requested_size) {
+void* malloc(unsigned int requested_size) {
 	
 	memblock* current_block;
 	memblock* new_block;
@@ -73,7 +73,7 @@ void* getFirstFreeArea(unsigned int requested_size) {
 	
 	//Now that we have start of memory, we can check to see if we need
 	//additional space allocated by the OS or not to contain the new data
-	trailing_space = ((((unsigned int)free_base) / 0x1000) * 0x1000) + ((((unsigned int)free_base) % 0x1000 > 0) ? 0x1000 : 0 ) - ((unsigned int)free_base); 
+	available_space = ((((unsigned int)free_base) / 0x1000) * 0x1000) + ((((unsigned int)free_base) % 0x1000 > 0) ? 0x1000 : 0 ) - ((unsigned int)free_base); 
 	
 	//If we don't have enough space, pop a new page on 
 	while(trailing_space < requested_size) {
@@ -82,7 +82,7 @@ void* getFirstFreeArea(unsigned int requested_size) {
 			return (void*)0;
 		
 		allocated_pages++;
-		trailing_space += 0x1000;
+		available_space += 0x1000;
 	}
 	
 	//and then create the new memory block, assigning it to the preceeding block 
@@ -203,8 +203,8 @@ void free(void* address) {
 	    return;
     
 	//To delete a memblock, just remove it from the chain 
-	memblock->prev->next = memblock->next;
-	memblock->next->prev = memblock->prev;
+	to_delete->prev->next = memblock->next;
+	to_delete->next->prev = memblock->prev;
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
