@@ -405,7 +405,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
         
         setColor(RGB(255, 0, 0));
         setCursor(splitrects[i].left, splitrects[i].top);
-        drawRect(splitrects[i].right - splitrects[i].left + 1, splitrects[i].bottom - splitrects[i].top + 1);
+        drawRect(splitrects[i].right - splitrects[i].left, splitrects[i].bottom - splitrects[i].top);
     }
     
 #endif //RECT_TEST
@@ -1009,7 +1009,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
                     return_rects[rect_count[0]].left = cur_window->x;
                     return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->height - 1);
                     return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->width - 1);
-                    //expandRectByFrame(&(return_rects[rect_count[0]]));
+                    expandRectByFrame(&(return_rects[rect_count[0]]));
                 }
                
                 rect_count[0]++;
