@@ -25,6 +25,7 @@ void* getFirstFreeArea(unsigned int requested_size) {
 	memblock* last_block = (memblock*)0;
 	void* free_base;
 	unsigned int available_space = 0;
+	static unsigned int allocated_pages = 0;
 	
 	requested_size += sizeof(memblock);
 	current_block = root_block;
@@ -39,7 +40,7 @@ void* getFirstFreeArea(unsigned int requested_size) {
 			    
 				//Set up the new block 
 				new_block = (memblock*)((unsigned int)current_block->prev->base + current_block->prev->size);
-				new_block->base = (void*)((unsigned int)current_block->prev->base + current_block->prev->size);
+				new_block->base = (void*)new_block;
 				new_block->size = requested_size;
 				
 				//Insert it into the chain
@@ -75,18 +76,37 @@ void* getFirstFreeArea(unsigned int requested_size) {
 	trailing_space = ((((unsigned int)free_base) / 0x1000) * 0x1000) + ((((unsigned int)free_base) % 0x1000 > 0) ? 0x1000 : 0 ) - ((unsigned int)free_base); 
 	
 	//If we don't have enough space, pop a new page on 
-	if(trailing_space < requested_size {
+	while(trailing_space < requested_size) {
 		
 		if(!appendPage())
 			return (void*)0;
 		
 		allocated_pages++;
+		trailing_space += 0x1000;
 	}
 	
 	//and then create the new memory block, assigning it to the preceeding block 
 	//next pointer or to the root pointer if there were no preceeding blocks
+	new_block = (memblock*)((unsigned int)free_base);
+	new_block->base = (void*)new_block;
+	new_block->size = requested_size;
+	new_block->next = (memblock*)0;
+	
+	if(last_block) {
+
+		new_block->prev = last_block;
+		last_block->next = new_block;
+	} else {
+	
+		new_block->prev = (memblock*)0;
+		root_block = new_block;
+	} 
+	
+	return (void*)((unsigned int)new_block->base + sizeof(memblock));
 }
 
+/*
+OLD CODE, so's we can figure out what we screwed up if anything with the new version
 void* malloc(unsigned int byte_count) {
 	
 	//Make sure we set up the environment the first time malloc is called
@@ -158,6 +178,7 @@ void* malloc(unsigned int byte_count) {
 		return (void*)((unsigned int)new_block->base + sizeof(memblock));
 	}
 }
+*/
 
 memblock* find_memblock(void* address) {
 	
@@ -176,6 +197,14 @@ memblock* find_memblock(void* address) {
 
 void free(void* address) {
 	
+	memblock* to_delete = find_memblock(address);
+	
+	if(!to_delete)
+	    return;
+    
+	//To delete a memblock, just remove it from the chain 
+	memblock->prev->next = memblock->next;
+	memblock->next->prev = memblock->prev;
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
