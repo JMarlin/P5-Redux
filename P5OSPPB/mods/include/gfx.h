@@ -15,6 +15,7 @@
 #define GFX_DRAWCHAR   11
 #define GFX_DRAWSTRING 12
 #define GFX_DRAWBMP 13
+#define GFX_CPSCREEN 14
 
 #define RGB(r, g, b) (((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF))
 #define RVAL(x) ((x & 0xFF0000) >> 16)
@@ -55,7 +56,6 @@ unsigned char setScreenMode(unsigned short modenum);
 void setColor(unsigned int color);
 void setCursor(unsigned short x, unsigned short y);
 void setPixel();
-unsigned int getPixel(unsigned short x, unsigned short y);
 void drawHLine(unsigned short length);
 void drawVLine(unsigned short length);
 void drawRect(unsigned short width, unsigned short height);

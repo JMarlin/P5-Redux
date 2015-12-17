@@ -189,21 +189,6 @@ void freeBitmap(bitmap* bmp) {
     free((void*)bmp);
 }
 
-unsigned int getPixel(unsigned short x, unsigned short y) {
-    
-    SDL_Rect pixrect;
-    unsigned int color;
-    
-    pixrect.x = x;
-    pixrect.y = y;
-    pixrect.w = 1;
-    pixrect.h = 1;
-    
-    SDL_RenderReadPixels(renderer, &pixrect, SDL_PIXELFORMAT_ARGB8888, (void*)&color, 4);
-    
-    return color;
-}
-
 void drawBitmap(bitmap* bmp) {
     
     SDL_Rect srcrect, destrect;

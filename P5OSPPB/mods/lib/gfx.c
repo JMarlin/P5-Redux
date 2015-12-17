@@ -159,3 +159,9 @@ void drawBitmap(bitmap* bmp) {
     postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
     getMessageFrom(&temp_msg, gfx_pid, GFX_DRAWBMP);
 }
+
+void copyScreen(bitmap* bmp) {
+    
+    postMessage(gfx_pid, GFX_CPSCREEN, (unsigned int)bmp);
+    getMessageFrom(&temp_msg, gfx_pid, GFX_CPSCREEN);
+}

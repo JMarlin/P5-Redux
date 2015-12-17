@@ -230,6 +230,11 @@ void main(void) {
                 VdrawBitmap(pen_x, pen_y, (bitmap*)temp_msg.payload);
                 postMessage(oldsrc, GFX_DRAWBMP, 1);
             break;
+            
+            case GFX_CPSCREEN:
+                VcopyScreen(pen_x, pen_y, (bitmap*)temp_msg.payload);
+                postMessage(oldsrc, GFX_CPSCREEN, 1);
+            break;
 
             default:
             break;
@@ -533,6 +538,20 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
         for(xo = bmp->left; xo <= bmp->right; xo++) {
 
             plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
+        }
+    }
+}
+
+void VcopyScreen(int x, int y, bitmap* bmp) {
+    
+    //This will break if we're not using a raw framebuffer
+    int xo, yo;
+    
+    for(yo = 0; yo < bmp->height; yo++) {
+
+        for(xo = 0; xo < bmp->width; xo++) {
+
+            bmp[xo + (yo * bmp->width)] = v[(x + xo) + ((y + yo) * (curMode.pitch/4))];
         }
     }
 }
