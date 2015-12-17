@@ -17,10 +17,10 @@
 #include "../include/key.h"
 #endif //HARNESS_TEST
 
-#define FRAME_SIZE_TOP 28
-#define FRAME_SIZE_LEFT 4
-#define FRAME_SIZE_BOTTOM 4
-#define FRAME_SIZE_RIGHT 4
+#define FRAME_SIZE_TOP 27 //28
+#define FRAME_SIZE_LEFT 3 //4
+#define FRAME_SIZE_BOTTOM 3 //4
+#define FRAME_SIZE_RIGHT 3 //4
 
 /* Windows are logically arranged as follows:
 desktop.first_child:  window_a.first_child:  button_1.first_child:  -
