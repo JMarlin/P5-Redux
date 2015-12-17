@@ -1549,7 +1549,7 @@ void main(void) {
             case WYG_MOVE_WINDOW:
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
-                moveWindow(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
+                moveHandle(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
             break;
 
             case WYG_INSTALL_WINDOW:
