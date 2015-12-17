@@ -92,35 +92,6 @@ unsigned int startV86(unsigned char* path) {
     return 0;
 }
 
-
-void scans(int c, char* b) {
-
-    unsigned char temp_char; 
-    int index = 0;
-
-    for(index = 0 ; index < c-1 ; ) {
-        temp_char = getch();
-
-        if(temp_char != 0) {
-            b[index] = temp_char;
-            pchar(b[index]);
-
-            if(b[index] == '\n') {
-                b[index] = 0;
-                break;
-            }
-
-            index++;
-
-            if(index == c-1)
-                pchar('\n');
-        }
-    }
-
-    b[index+1] = 0;
-}
-
-
 void prints(char* s) {
 
     int index = 0;
