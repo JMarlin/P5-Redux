@@ -133,8 +133,8 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     //Default the window to max
     return_bmp->top = 0;
     return_bmp->left = 0;
-    return_bmp->bottom = return_bmp->height;
-    return_bmp->right = return_bmp->width;
+    return_bmp->bottom = return_bmp->height - 1;
+    return_bmp->right = return_bmp->width - 1;
     
     //Plug in the data region
     //cmd_prints("Done\nInitializing data buffer...");

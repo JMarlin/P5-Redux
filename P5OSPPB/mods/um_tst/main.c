@@ -280,8 +280,8 @@ void repaintAll(unsigned int handle, bitmap* h_bmp) {
     //Set the blitting rect 
     h_bmp->top = 0;
     h_bmp->left = 0;
-    h_bmp->bottom = h_bmp->height;
-    h_bmp->right = h_bmp->width;   
+    h_bmp->bottom = h_bmp->height - 1;
+    h_bmp->right = h_bmp->width - 1;   
     
     //Redraw 
     repaintWindow(handle); 
@@ -293,8 +293,8 @@ void repaintRegion(unsigned int handle, bitmap* h_bmp, unsigned int x, unsigned 
     //Set the blitting rect 
     h_bmp->top = y;
     h_bmp->left = x;
-    h_bmp->bottom = y + h;
-    h_bmp->right = x + w;   
+    h_bmp->bottom = y + h - 1;
+    h_bmp->right = x + w - 1;   
     
     //Redraw 
     repaintWindow(handle); 

@@ -528,9 +528,9 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
 
     int xo, yo;
 
-    for(yo = bmp->top; yo < bmp->bottom; yo++) {
+    for(yo = bmp->top; yo <= bmp->bottom; yo++) {
 
-        for(xo = bmp->left; xo < bmp->right; xo++) {
+        for(xo = bmp->left; xo <= bmp->right; xo++) {
 
             plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
         }
