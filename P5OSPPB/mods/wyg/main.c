@@ -21,6 +21,8 @@
 #define FRAME_SIZE_LEFT 4
 #define FRAME_SIZE_BOTTOM 4
 #define FRAME_SIZE_RIGHT 4
+#define MOUSE_W 12
+#define MOUSE_H 12
 
 /* Windows are logically arranged as follows:
 desktop.first_child:  window_a.first_child:  button_1.first_child:  -
@@ -65,6 +67,10 @@ unsigned int next_handle;
 unsigned int window_count;
 window** registered_windows;
 unsigned char inited = 0;
+bitmap* old_mouse_bkg;
+unsigned short mouse_x;
+unsigned short mouse_y;
+unsigned char mouse_buffer_ok = 0;
 
 /*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
@@ -228,6 +234,33 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
+
+void eraseMouse() {
+    
+    if(!mouse_buffer_ok)
+        return;
+        
+    setCursor(mouse_x, mouse_y);
+    drawBitmap(old_mouse_bkg);
+}
+
+void drawMouse() {
+    
+    setCursor(mouse_x, mouse_y);
+    copyScreen(old_mouse_bkg);
+    
+    setColor(0);
+    setCursor(mouse_x + (MOUSE_W / 2), mouse_y);
+    drawVLine(MOUSE_H);
+    setCursor(mouse_x + (MOUSE_W / 2) + 1, mouse_y);
+    drawVLine(MOUSE_H);
+    setCursor(mouse_x, mouse_y + (MOUSE_H / 2));
+    drawVLine(MOUSE_W);
+    setCursor(mouse_x, mouse_y + (MOUSE_H / 2) + 1);
+    drawVLine(MOUSE_H);
+    
+    mouse_buffer_ok = 1;
+}
 
 void scans(int c, char* b) {
 
@@ -713,7 +746,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
          //prints("[WYG] Couldn't find the window to set its location\n");   
         return;
     }
-    
+        
     //If a window is moved, we must ensure that it is the active window 
     raiseWindow(dest_window);
     
@@ -738,6 +771,23 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     } 
         
     return;
+}
+
+void moveHandle(unsigned int handle, unsigned short new_x, unsigned short new_y) {
+    
+    window* dest_window = getWindowByHandle(handle);
+    
+    if(!dest_window) {
+     
+         //prints("[WYG] Couldn't find window to mark it visible\n");   
+        return;
+    }
+    
+    eraseMouse();
+    
+    moveWindow(dest_window, new_x, new_y);
+    
+    drawMouse();
 }
 
 void installWindow(unsigned int child_handle, unsigned int parent_handle) {
@@ -791,6 +841,8 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
     } 
     
+    drawWindow(dest_window, 0);
+    
     return;
 }
 
@@ -804,7 +856,11 @@ void markHandleVisible(unsigned int handle, unsigned char is_visible) {
         return;
     }
     
+    eraseMouse();
+    
     markWindowVisible(dest_window, is_visible);
+    
+    drawMouse();
 }
 
 void markWindowDirty(unsigned int handle) {
@@ -1122,8 +1178,12 @@ void drawHandle(unsigned int handle) {
         return;
     }
     
+    eraseMouse();
+    
     //Draw the window, assume we want to use the blit window set up by the client   
     drawWindow(dest_window, 1);
+    
+    drawMouse();
 }
 
 void drawDeactivated(window* owner) {
@@ -1221,12 +1281,20 @@ void raiseHandle(unsigned int handle) {
         return;
     }
     
+    eraseMouse();
+    
     raiseWindow(dest_window);
+    
+    drawMouse();
 }
 
 void refreshTree() {
     
+    eraseMouse();
+    
     drawWindow(&root_window, 0);
+    
+    drawMouse();
 }
 
 void destroy(window* dest_window) {
@@ -1300,8 +1368,12 @@ void destroyHandle(unsigned int handle) {
     
     if(!dest_window) 
         return;
+    
+    eraseMouse();
         
     destroy(dest_window);
+    
+    drawMouse();
 }
 
 #ifdef HARNESS_TEST
@@ -1410,6 +1482,20 @@ void main(void) {
     if(!(root_window.context = newBitmap(root_window.w, root_window.h))) {
         
         //prints("[WYG] Could not allocate a context for the root window.\n");
+        free((void*)registered_windows);
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        terminate();
+    } 
+
+    //Set up the initial mouse position
+    mouse_x = root_window.w / 2 - 1;
+    mouse_y = root_window.h / 2 - 1;
+
+    //Create a bitmap to store the mouse dirtyrect
+    if(!(old_mouse_bkg = newBitmap(MOUSE_W, MOUSE_H))) {
+        
+        //prints("[WYG] Could not allocate a context for the mouse sirty buffer.\n");
         free((void*)registered_windows);
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering

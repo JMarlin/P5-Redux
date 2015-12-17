@@ -189,6 +189,21 @@ void freeBitmap(bitmap* bmp) {
     free((void*)bmp);
 }
 
+unsigned int getPixel(unsigned short x, unsigned short y) {
+    
+    SDL_Rect pixrect;
+    unsigned int color;
+    
+    pixrect.x = x;
+    pixrect.y = y;
+    pixrect.w = 1;
+    pixrect.h = 1;
+    
+    SDL_RenderReadPixels(renderer, &pixrect, SDL_PIXELFORMAT_ARGB8888, (void*)&color, 4);
+    
+    return color;
+}
+
 void drawBitmap(bitmap* bmp) {
     
     SDL_Rect srcrect, destrect;
@@ -220,4 +235,17 @@ void drawBitmap(bitmap* bmp) {
     
     printf("Cleaning up texture\n");
     SDL_DestroyTexture(static_texture);
+}
+
+void copyScreen(bitmap* bmp) {
+    
+    SDL_Rect pixrect;
+    unsigned int color;
+    
+    pixrect.x = pen_x;
+    pixrect.y = pen_y;
+    pixrect.w = bmp->width;
+    pixrect.h = bmp->height;
+    
+    SDL_RenderReadPixels(renderer, &pixrect, SDL_PIXELFORMAT_ARGB8888, (void*)(bmp->data), 4*pixrect.w);
 }

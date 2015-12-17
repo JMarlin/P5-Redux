@@ -55,6 +55,7 @@ unsigned char setScreenMode(unsigned short modenum);
 void setColor(unsigned int color);
 void setCursor(unsigned short x, unsigned short y);
 void setPixel();
+unsigned int getPixel(unsigned short x, unsigned short y);
 void drawHLine(unsigned short length);
 void drawVLine(unsigned short length);
 void drawRect(unsigned short width, unsigned short height);
@@ -64,5 +65,6 @@ void drawStr(char* str);
 bitmap* newBitmap(unsigned int width, unsigned int height);
 void freeBitmap(bitmap* bmp);
 void drawBitmap(bitmap* bmp);
+void copyScreen(bitmap* bmp);
 
 #endif //GFX_H
