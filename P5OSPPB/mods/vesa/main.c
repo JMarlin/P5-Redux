@@ -12,6 +12,7 @@ void VdrawRect(int x, int y, int width, int height, unsigned int color);
 void VfillRect(int x, int y, int width, int height, unsigned int color);
 void drawCharacter(unsigned char c, int x, int y, unsigned int color);
 void VdrawBitmap(int x, int y, bitmap* bmp);
+void VcopyScreen(int x, int y, bitmap* bmp);
 
 message temp_msg;
 unsigned int pen_color = RGB(255,0,0);
@@ -546,12 +547,13 @@ void VcopyScreen(int x, int y, bitmap* bmp) {
     
     //This will break if we're not using a raw framebuffer
     int xo, yo;
+    unsigned int* dstbuf = (unsigned int*)(bmp->data);
     
     for(yo = 0; yo < bmp->height; yo++) {
 
         for(xo = 0; xo < bmp->width; xo++) {
 
-            bmp[xo + (yo * bmp->width)] = v[(x + xo) + ((y + yo) * (curMode.pitch/4))];
+            dstbuf[xo + (yo * bmp->width)] = v[(x + xo) + ((y + yo) * (curMode.pitch/4))];
         }
     }
 }
