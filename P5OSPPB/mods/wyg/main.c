@@ -1009,7 +1009,7 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
                     return_rects[rect_count[0]].left = cur_window->x;
                     return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->height - 1);
                     return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->width - 1);
-                    expandRectByFrame(&return_rects[rect_count[0]]);
+                    expandRectByFrame(&(return_rects[rect_count[0]]));
                 }
                
                 rect_count[0]++;
@@ -1057,10 +1057,10 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         } else {
                 
             //prints("[WYG] Setting base rectangle using whole ctx\n");
-            winrect.top = cur_window->y + FRAME_SIZE_TOP;
-            winrect.left = cur_window->x + FRAME_SIZE_LEFT;
-            winrect.bottom = cur_window->y + cur_window->context->height - 1 + FRAME_SIZE_BOTTOM;
-            winrect.right = cur_window->x + cur_window->context->width - 1 + FRAME_SIZE_RIGHT;
+            winrect.top = cur_window->y;
+            winrect.left = cur_window->x;
+            winrect.bottom = cur_window->y + cur_window->context->height - 1;
+            winrect.right = cur_window->x + cur_window->context->width - 1;
             
             //Since we're doing the whole window, we should include the border 
             expandRectByFrame(&winrect);
