@@ -94,13 +94,13 @@ void setPixel() {
 
 void drawHLine(unsigned short length) {
 
-    SDL_RenderDrawLine(renderer, pen_x, pen_y, pen_x + length, pen_y);
+    SDL_RenderDrawLine(renderer, pen_x, pen_y, pen_x + length - 1, pen_y);
     SDL_RenderPresent(renderer);
 }
 
 void drawVLine(unsigned short length) {
 
-    SDL_RenderDrawLine(renderer, pen_x, pen_y, pen_x, pen_y + length);
+    SDL_RenderDrawLine(renderer, pen_x, pen_y, pen_x, pen_y + length - 1);
     SDL_RenderPresent(renderer);
 }
 
