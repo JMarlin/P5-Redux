@@ -255,9 +255,9 @@ void drawMouse() {
     setCursor(mouse_x + (MOUSE_W / 2) + 1, mouse_y);
     drawVLine(MOUSE_H);
     setCursor(mouse_x, mouse_y + (MOUSE_H / 2));
-    drawVLine(MOUSE_W);
+    drawHLine(MOUSE_W);
     setCursor(mouse_x, mouse_y + (MOUSE_H / 2) + 1);
-    drawVLine(MOUSE_H);
+    drawHLine(MOUSE_W);
     
     mouse_buffer_ok = 1;
     
