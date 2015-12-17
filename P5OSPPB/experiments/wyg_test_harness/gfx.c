@@ -195,8 +195,8 @@ void drawBitmap(bitmap* bmp) {
     
     srcrect.x = bmp->left;
     srcrect.y = bmp->top;
-    srcrect.w = bmp->right - bmp->left;
-    srcrect.h = bmp->bottom - bmp->top;
+    srcrect.w = bmp->right - bmp->left + 1;
+    srcrect.h = bmp->bottom - bmp->top + 1;
     
     destrect.x = srcrect.x + pen_x;
     destrect.y = srcrect.y + pen_y;
