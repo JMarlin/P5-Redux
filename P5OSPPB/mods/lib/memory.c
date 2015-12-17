@@ -76,7 +76,7 @@ void* malloc(unsigned int requested_size) {
 	available_space = ((((unsigned int)free_base) / 0x1000) * 0x1000) + ((((unsigned int)free_base) % 0x1000 > 0) ? 0x1000 : 0 ) - ((unsigned int)free_base); 
 	
 	//If we don't have enough space, pop a new page on 
-	while(trailing_space < requested_size) {
+	while(available_space < requested_size) {
 		
 		if(!appendPage())
 			return (void*)0;
@@ -203,8 +203,8 @@ void free(void* address) {
 	    return;
     
 	//To delete a memblock, just remove it from the chain 
-	to_delete->prev->next = memblock->next;
-	to_delete->next->prev = memblock->prev;
+	to_delete->prev->next = to_delete->next;
+	to_delete->next->prev = to_delete->prev;
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
