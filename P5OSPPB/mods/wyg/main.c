@@ -644,7 +644,7 @@ bitmap* getWindowContext(unsigned int handle) {
 void updateOverlapped(rect* window_bounds) {
     
     int i;
-    rect comp_rect; 
+    rect comp_rect, draw_rect; 
     
     //prints("[WYG] Looking for previously overlapped windows\n");
         
@@ -652,8 +652,8 @@ void updateOverlapped(rect* window_bounds) {
         
         comp_rect.top = registered_windows[i]->y;
         comp_rect.left = registered_windows[i]->x;
-        comp_rect.bottom = comp_rect.top + registered_windows[i]->h;
-        comp_rect.right = comp_rect.left + registered_windows[i]->w;
+        comp_rect.bottom = comp_rect.top + registered_windows[i]->h - 1;
+        comp_rect.right = comp_rect.left + registered_windows[i]->w - 1;
         
         if(window_bounds->left <= comp_rect.right &&
            window_bounds->right >= comp_rect.left &&
@@ -661,7 +661,31 @@ void updateOverlapped(rect* window_bounds) {
            window_bounds->bottom >= comp_rect.top) {
             
             //prints("[WYG] Found an overlapped window\n");   
-            drawWindow(registered_windows[i], 0);
+            if(window_bounds->top < comp_rect.top)
+                draw_rect.top = comp_rect.top; 
+            else 
+                draw_rect.top = window_bounds->top;
+                
+            if(window_bounds->left < comp_rect.left)
+                draw_rect.left = comp_rect.left; 
+            else 
+                draw_rect.left = window_bounds->left;
+                
+            if(window_bounds->bottom > comp_rect.bottom)
+                draw_rect.bottom = comp_rect.bottom; 
+            else 
+                draw_rect.bottom = window_bounds->bottom;
+                
+            if(window_bounds->right > comp_rect.right)
+                draw_rect.right = comp_rect.right; 
+            else 
+                draw_rect.right = window_bounds->right;
+            
+            registered_windows[i]->context->top = draw_rect.top - registered_windows[i]->y;
+            registered_windows[i]->context->left = draw_rect.left - registered_windows[i]->x;       
+            registered_windows[i]->context->bottom = draw_rect.bottom - registered_windows[i]->y;
+            registered_windows[i]->context->right = draw_rect.right - registered_windows[i]->x;        
+            drawWindow(registered_windows[i], 1);
         }
     }
 }
