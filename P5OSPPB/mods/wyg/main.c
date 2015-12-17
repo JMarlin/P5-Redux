@@ -405,7 +405,7 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
         
         setColor(RGB(255, 0, 0));
         setCursor(splitrects[i].left, splitrects[i].top);
-        drawRect(splitrects[i].right - splitrects[i].left, splitrects[i].bottom - splitrects[i].top);
+        drawRect(splitrects[i].right - splitrects[i].left + 1, splitrects[i].bottom - splitrects[i].top + 1);
     }
     
 #endif //RECT_TEST
@@ -1059,8 +1059,8 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             //prints("[WYG] Setting base rectangle using whole ctx\n");
             winrect.top = cur_window->y;
             winrect.left = cur_window->x;
-            winrect.bottom = cur_window->y + cur_window->context->height;
-            winrect.right = cur_window->x + cur_window->context->width;
+            winrect.bottom = cur_window->y + cur_window->context->height - 1;
+            winrect.right = cur_window->x + cur_window->context->width - 1;
             
             //Since we're doing the whole window, we should include the border 
             //expandRectByFrame(&winrect);
