@@ -736,17 +736,10 @@ void updateOverlapped(rect* window_bounds) {
     }
 }
 
-void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y) {
+void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y) {
     
-    window* dest_window = getWindowByHandle(handle);
     rect overlap_rect;
-    
-    if(!dest_window) {
-     
-         //prints("[WYG] Couldn't find the window to set its location\n");   
-        return;
-    }
-        
+            
     //If a window is moved, we must ensure that it is the active window 
     raiseWindow(dest_window);
     
