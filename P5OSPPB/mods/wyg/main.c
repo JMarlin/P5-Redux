@@ -1340,18 +1340,18 @@ void main(void) {
         terminate();
     }
 
+    if(!initKey()) {
+        
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        terminate();
+    }
+
 #endif //HARNESS_TEST
 
     if(!initGfx()) {
         
         //prints("\n[WYG] failed to get the GFX server.\n");
-        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
-        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
-        terminate();
-    }
-    
-    if(!initKey()) {
-        
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
