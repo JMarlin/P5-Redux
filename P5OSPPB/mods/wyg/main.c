@@ -645,6 +645,14 @@ bitmap* getWindowContext(unsigned int handle) {
     return dest_window->context;
 }
 
+void expandRectByFrame(rect* r) {
+    
+    r->top -= FRAME_SIZE_TOP;
+    r->left -= FRAME_SIZE_LEFT;
+    r->bottom += FRAME_SIZE_BOTTOM;
+    r->right += FRAME_SIZE_RIGHT;
+}
+
 //Redraws every window intersected by window_bounds
 void updateOverlapped(rect* window_bounds) {
     
@@ -913,14 +921,6 @@ void drawTitlebar(window* cur_window, unsigned char active) {
                 break;
         }
     }
-}
-
-void expandRectByFrame(rect* r) {
-    
-    r->top -= FRAME_SIZE_TOP;
-    r->left -= FRAME_SIZE_LEFT;
-    r->bottom += FRAME_SIZE_BOTTOM;
-    r->right += FRAME_SIZE_RIGHT;
 }
 
 void drawFrame(window* cur_window) {
