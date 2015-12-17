@@ -17,6 +17,11 @@
 #include "../include/key.h"
 #endif //HARNESS_TEST
 
+#define FRAME_SIZE_TOP 28
+#define FRAME_SIZE_LEFT 4
+#define FRAME_SIZE_BOTTOM 4
+#define FRAME_SIZE_RIGHT 4
+
 /* Windows are logically arranged as follows:
 desktop.first_child:  window_a.first_child:  button_1.first_child:  -
        .next_sibling:         .next_sibling: window_b.first_child:  button_2.first_child:  -
@@ -709,6 +714,7 @@ void moveWindow(unsigned int handle, unsigned short new_x, unsigned short new_y)
     overlap_rect.left = dest_window->x;
     overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
     overlap_rect.right = overlap_rect.left + dest_window->w - 1;
+    expandRectByFrame(&overlap_rect);
         
     dest_window->x = new_x;
     dest_window->y = new_y;
@@ -908,11 +914,6 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         }
     }
 }
-
-#define FRAME_SIZE_TOP 28
-#define FRAME_SIZE_LEFT 4
-#define FRAME_SIZE_BOTTOM 4
-#define FRAME_SIZE_RIGHT 4
 
 void expandRectByFrame(rect* r) {
     
