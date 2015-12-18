@@ -1,21 +1,22 @@
 #ifndef GFX_H
 #define GFX_H
 
+#define GFX_MSG_CLASS ((unsigned int)0x00100000)
 
-#define GFX_ENUMMODES   1
-#define GFX_MODEDETAIL  2
-#define GFX_SETMODE     3
-#define GFX_SETCOLOR    4
-#define GFX_SETCURSOR   5
-#define GFX_SETPIXEL    6
-#define GFX_DRAWHLINE   7
-#define GFX_DRAWVLINE   8
-#define GFX_DRAWRECT    9
-#define GFX_FILLRECT   10
-#define GFX_DRAWCHAR   11
-#define GFX_DRAWSTRING 12
-#define GFX_DRAWBMP 13
-#define GFX_CPSCREEN 14
+#define GFX_ENUMMODES   (GFX_MSG_CLASS | 1)
+#define GFX_MODEDETAIL  (GFX_MSG_CLASS | 2)
+#define GFX_SETMODE     (GFX_MSG_CLASS | 3)
+#define GFX_SETCOLOR    (GFX_MSG_CLASS | 4)
+#define GFX_SETCURSOR   (GFX_MSG_CLASS | 5)
+#define GFX_SETPIXEL    (GFX_MSG_CLASS | 6)
+#define GFX_DRAWHLINE   (GFX_MSG_CLASS | 7)
+#define GFX_DRAWVLINE   (GFX_MSG_CLASS | 8)
+#define GFX_DRAWRECT    (GFX_MSG_CLASS | 9)
+#define GFX_FILLRECT   (GFX_MSG_CLASS | 10)
+#define GFX_DRAWCHAR   (GFX_MSG_CLASS | 11)
+#define GFX_DRAWSTRING (GFX_MSG_CLASS | 12)
+#define GFX_DRAWBMP (GFX_MSG_CLASS | 13)
+#define GFX_CPSCREEN (GFX_MSG_CLASS | 14)
 
 #define RGB(r, g, b) (((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF))
 #define RVAL(x) ((x & 0xFF0000) >> 16)

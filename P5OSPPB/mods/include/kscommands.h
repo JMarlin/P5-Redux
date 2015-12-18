@@ -5,6 +5,8 @@
 #define PROC_STARTED 2
 #define PARAM_DONTCARE 0xFFFFFFFF
 
+//Kernel server message class code is 000
+
 //Commands which the kernel server understands
 #define KS_QUIT 0
 #define KS_PCHAR 1

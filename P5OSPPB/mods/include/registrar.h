@@ -3,15 +3,17 @@
 
 #define REGISTRAR_PID 1
 
+#define REGISTRAR_MSG_CLASS ((unsigned int)0x00400000)
+
 #define SVC_GFX 1
 #define SVC_PCI 2
 #define SVC_WYG 3
 #define SVC_KEY 4
 
-#define REG_REGISTER   1
-#define REG_LOOKUP     2
-#define REG_DEREGISTER 3
-#define REG_STATUS     4
-#define REG_PID        5
+#define REG_REGISTER   (REGISTRAR_MSG_CLASS | 1)
+#define REG_LOOKUP     (REGISTRAR_MSG_CLASS | 2)
+#define REG_DEREGISTER (REGISTRAR_MSG_CLASS | 3)
+#define REG_STATUS     (REGISTRAR_MSG_CLASS | 4)
+#define REG_PID        (REGISTRAR_MSG_CLASS | 5)
 
 #endif //REGISTRAR_H

@@ -1,19 +1,21 @@
 #ifndef WYG_H
 #define WYG_H
 
-#define WYG_CREATE_WINDOW 1
-#define WYG_GET_CONTEXT 2
-#define WYG_MOVE_WINDOW 3
-#define WYG_INSTALL_WINDOW 4
-#define WYG_SHOW_WINDOW 5
-#define WYG_REPAINT_WINDOW 6
-#define WYG_POINT 7
-#define WYG_WHANDLE 8
-#define WYG_GET_DIMS 9
-#define WYG_RAISE_WINDOW 10
-#define WYG_SET_TITLE 11
-#define WYG_GET_LOCATION 12
-#define WYG_DESTROY 13
+#define WYG_MSG_CLASS ((unsigned int)0x00600000)
+
+#define WYG_CREATE_WINDOW  (WYG_MSG_CLASS | 1)
+#define WYG_GET_CONTEXT    (WYG_MSG_CLASS | 2)
+#define WYG_MOVE_WINDOW    (WYG_MSG_CLASS | 3)
+#define WYG_INSTALL_WINDOW (WYG_MSG_CLASS | 4)
+#define WYG_SHOW_WINDOW    (WYG_MSG_CLASS | 5)
+#define WYG_REPAINT_WINDOW (WYG_MSG_CLASS | 6)
+#define WYG_POINT          (WYG_MSG_CLASS | 7)
+#define WYG_WHANDLE        (WYG_MSG_CLASS | 8)
+#define WYG_GET_DIMS       (WYG_MSG_CLASS | 9)
+#define WYG_RAISE_WINDOW   (WYG_MSG_CLASS | 10)
+#define WYG_SET_TITLE      (WYG_MSG_CLASS | 11)
+#define WYG_GET_LOCATION   (WYG_MSG_CLASS | 12)
+#define WYG_DESTROY        (WYG_MSG_CLASS | 13)
 
 #define ROOT_WINDOW 1
 
