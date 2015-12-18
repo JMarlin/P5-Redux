@@ -1017,7 +1017,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
     else 
         tb_color = RGB(238, 203, 137);
     
-    bmpFillRect(cur_window->context, cur_window->x, cur_window->y + 4, cur_window->w - 28, 20, tb_color);
+    bmpFillRect(cur_window->context, 4, 4, cur_window->w - 28, 20, tb_color);
     
     return;
     
