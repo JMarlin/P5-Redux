@@ -276,7 +276,7 @@ void bmpFillRect(bitmap* bmp, int x, int y, int width, int height, unsigned int 
     endx = width + x;
     endy = height + y;
 
-    for(i = 0; i < (bmp->h*bmp->w); i++)
+    for(i = 0; i < (bmp->height*bmp->width); i++)
         bmp->data[i] = RGB(255, 0, 0);
 
     return;
