@@ -90,3 +90,9 @@ void destroyWindow(unsigned int handle) {
 	postMessage(wyg_pid, WYG_DESTROY, handle);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_DESTROY);
 }
+
+void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom, unsigned char* right) {
+	
+	postMessage(wyg_pid, WYG_GET_FRAME_DIMS, 1);
+	getMessageFrom(&temp_msg, wyg_pid, WYG_GET_FRAME_DIMS);
+}

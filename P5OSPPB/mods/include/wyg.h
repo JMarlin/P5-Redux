@@ -16,6 +16,7 @@
 #define WYG_SET_TITLE      (WYG_MSG_CLASS | 11)
 #define WYG_GET_LOCATION   (WYG_MSG_CLASS | 12)
 #define WYG_DESTROY        (WYG_MSG_CLASS | 13)
+#define WYG_GET_FRAME_DIMS (WYG_MSG_CLASS | 14)
 
 #define ROOT_WINDOW 1
 
@@ -37,5 +38,6 @@ void focus(unsigned int handle);
 void setTitle(unsigned int handle, unsigned char* string);
 void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y);
 void destroyWindow(unsigned int handle);
+void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom, unsigned char* right);
 
 #endif //WYG_H

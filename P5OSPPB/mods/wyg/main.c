@@ -1603,6 +1603,10 @@ void main(void) {
                 destroyHandle(temp_msg.payload);
                 postMessage(src_pid, WYG_DESTROY, 1);
             break;
+            
+            case WYG_GET_FRAME_DIMS:
+                postMessage(src_pid, WYG_GET_FRAME_DIMS, (FRAME_SIZE_TOP << 24) | (FRAME_SIZE_LEFT << 16) | (FRAME_SIZE_BOTTOM << 8) | (FRAME_SIZE_RIGHT));
+            break;
 
             case MOUSE_SEND_UPDATE:
                 setColor(RGB(255, 0, 0));
