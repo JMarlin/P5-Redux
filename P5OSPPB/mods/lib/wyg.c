@@ -95,4 +95,9 @@ void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom
 	
 	postMessage(wyg_pid, WYG_GET_FRAME_DIMS, 1);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_GET_FRAME_DIMS);
+	
+	(*top) = (unsigned char)((temp_msg.payload >> 24) & 0xFF);
+	(*left) = (unsigned char)((temp_msg.payload >> 16) & 0xFF);
+	(*bottom) = (unsigned char)((temp_msg.payload >> 8) & 0xFF);
+	(*right) = (unsigned char)(temp_msg.payload & 0xFF);
 }
