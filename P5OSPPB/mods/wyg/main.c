@@ -15,6 +15,7 @@
 #include "../include/memory.h"
 #include "../include/wyg.h"
 #include "../include/key.h"
+#include "../include/mouse.h"
 #endif //HARNESS_TEST
 
 #define FRAME_SIZE_TOP 28
@@ -234,6 +235,17 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
+
+void displayString(int x, int y, unsigned char* s) {
+        
+    while((*s)) {
+        
+        setCursor(x, y);
+        drawChar(s++);
+        
+        x += 8;
+    }
+}
 
 void eraseMouse() {
     
@@ -1412,6 +1424,13 @@ void main(void) {
         terminate();
     }
 
+    if(!initMouse()) {
+        
+        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
+        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        terminate();
+    }
+
 #endif //HARNESS_TEST
 
     if(!initGfx()) {
@@ -1583,6 +1602,12 @@ void main(void) {
             case WYG_DESTROY:
                 destroyHandle(temp_msg.payload);
                 postMessage(src_pid, WYG_DESTROY, 1);
+            break;
+
+            case MOUSE_SEND_UPDATE:
+                setColor(RGB(255, 0, 0));
+                displayString(0, 0, "GOT A MOUSE EVENT!");
+                while(1);
             break;
 
             default:
