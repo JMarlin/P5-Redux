@@ -16,6 +16,7 @@
 #include "../include/wyg.h"
 #include "../include/key.h"
 #include "../include/mouse.h"
+#include "../vesa/font.h"
 #endif //HARNESS_TEST
 
 #define FRAME_SIZE_TOP 28
@@ -235,6 +236,71 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
+
+void bmpDrawHLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
+
+    int i, endx;
+
+    endx = x + length;
+
+    for(i = x; i < endx; i++)
+        bmp->data[y*bmp->width + i] = color;
+}
+
+void bmpDrawVLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
+
+    int i, endy;
+
+    endy = length + y;
+
+    for(i = y; i < endy; i++)
+        bmp->data[i*bmp->width + x] = color;
+}
+
+
+void bmpDrawRect(bitmap* bmp, int x, int y, int width, int height, unsigned int color) {
+
+    VdrawHLine(bmp, x, y, width, color);
+    VdrawVLine(bmp, x, y, height, color);
+    VdrawHLine(bmp, x, y + height - 1, width, color);
+    VdrawVLine(bmp, x + width - 1, y, height, color);
+}
+
+
+void bmpFillRect(bitmap* bmp, int x, int y, int width, int height, unsigned int color) {
+
+    int j, i;
+    int endx, endy;
+
+    endx = width + x;
+    endy = height + y;
+
+    for(i = y; i < endy; i++) {
+
+        for(j = x; j < endx; j++) {
+
+            bmp->data[i*bmp->width + j] = color; 
+        }
+    }
+}
+
+
+void bmpDrawCharacter(bitmap* bmp, unsigned char c, int x, int y, unsigned int color) {
+
+    int j, i;
+    unsigned char line;
+    c = c & 0x7F; //Reduce to base ASCII set
+
+    for(i = 0; i < 12; i++) {
+
+        line = font_array[i * 128 + c];
+        for(j = 0; j < 8; j++) {
+
+            if(line & 0x80) bmp->data[(y + i)*bmp->width + (x + j)] = color; 
+            line = line << 1;
+        }
+    }
+}
 
 void displayString(int x, int y, unsigned char* s) {
         
@@ -892,7 +958,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
     dest_window->frame_needs_redraw = 1;
 }
 
-void drawPanel(int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
+void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
 
     unsigned char r = RVAL(color);
     unsigned char g = GVAL(color);
@@ -912,40 +978,32 @@ void drawPanel(int x, int y, int width, int height, unsigned int color, int bord
     for(i = 0; i < border_width; i++) {
 
         //Top edge
-        setCursor(x+i, y+i);
-        setColor(light_color);
-        drawHLine(width-(2*i));
+        bmpDrawHLine(bmp, x+i, y+i, width-(2*i), light_color);
 
         //Left edge
-        setCursor(x+i, y+i+1);
-        drawVLine(height-((i+1)*2));
+        drawVLine(bmp, x+i, y+i+1, height-((i+1)*2), light_color);
 
         //Bottom edge
-        setCursor(x+i, (y+height)-(i+1));
-        setColor(shade_color);
-        drawHLine(width-(2*i));
+        drawHLine(bmp, x+i, (y+height)-(i+1), width-(2*i), shade_color);
 
         //Right edge
-        setCursor(x+width-i-1, y+i+1);
-        drawVLine(height-((i+1)*2));
+        drawVLine(bmp, x+width-i-1, y+i+1, height-((i+1)*2), shade_color);
     }
 }
 
 void drawTitlebar(window* cur_window, unsigned char active) {
     
     unsigned char* s;    
-    
-    //Not doing this for now, needs to be updated to draw directly into window context
-    return;
-    
+    unsigned int tb_color, text_color;
+    rect old_ctx_rect;
+        
     //Titlebar
     if(active)
-        setColor(RGB(182, 0, 0));
+        tb_color = RGB(182, 0, 0);
     else 
-        setColor(RGB(238, 203, 137));
+        tb_color = RGB(238, 203, 137);
     
-    setCursor(cur_window->x, cur_window->y - 24);
-    fillRect(cur_window->w - 20, 20);
+    bmpFillRect(cur_window->context, cur_window->x, cur_window->y + 4, cur_window->w - 28, 20, tb_color);
     
      //Window title
     if(cur_window->title) {
@@ -955,20 +1013,18 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         int base_x, base_y, off_x, titlebar_width;
         
         s = cur_window->title;
-        base_x = cur_window->x + 2;
-        base_y = cur_window->y - 20;
+        base_x = cur_window->x + 6;
+        base_y = cur_window->y + 8;
         off_x = 0;
-        titlebar_width = cur_window->w - 20;
+        titlebar_width = cur_window->w - 28;
         
         if(active)
-            setColor(RGB(255, 255, 255));
+            text_color = RGB(255, 255, 255);
         else
-            setColor(RGB(138, 103, 37));
+            text_color = RGB(138, 103, 37);
         
         while(*s) {
-            
-            setCursor(base_x + off_x, base_y);
-            drawChar(*(s++));
+            bmpDrawCharacter(cur_window->context, base_x + off_x, base_y, *(s++), text_color);
             off_x += 8;
             
             //Truncate the text if it's wider than the titlebar
@@ -976,6 +1032,23 @@ void drawTitlebar(window* cur_window, unsigned char active) {
                 break;
         }
     }
+    
+    old_ctx_rect.top = cur_window->context.top;
+    old_ctx_rect.left = cur_window->context.left;
+    old_ctx_rect.bottom = cur_window->context.bottom;
+    old_ctx_rect.right = cur_window->context.right;
+    
+    cur_window->context.top = 4;
+    cur_window->context.left = 4;
+    cur_window->context.bottom = 23;
+    cur_window->context.right = cur_window->context.right - 25;
+    
+    drawWindow(cur_window, 1);
+    
+    cur_window->context.top = old_ctx_rect.top;
+    cur_window->context.left = old_ctx_rect.left;
+    cur_window->context.bottom = old_ctx_rect.bottom;
+    cur_window->context.right = old_ctx_rect.right;
 }
 
 void drawFrame(window* cur_window) {
