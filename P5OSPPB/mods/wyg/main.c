@@ -276,10 +276,10 @@ void bmpFillRect(bitmap* bmp, int x, int y, int width, int height, unsigned int 
     endx = width + x;
     endy = height + y;
 
-    for(i = 0; i < (bmp->height*bmp->width); i++)
-        bmp->data[i] = RGB(255, 0, 0);
+    //for(i = 0; i < (bmp->height*bmp->width); i++)
+    //    bmp->data[i] = RGB(255, 0, 0);
 
-    return;
+    //return;
 
     for(i = y; i < endy; i++) {
 
@@ -781,7 +781,7 @@ void updateOverlapped(rect* window_bounds) {
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top && 
-           (registered_windows[i]->flags | WIN_VISIBLE)) {
+           (registered_windows[i]->flags & WIN_VISIBLE)) {
             
             //prints("[WYG] Found an overlapped window\n");   
             if(window_bounds->top < comp_rect.top)
@@ -897,7 +897,7 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
 
     if(is_visible) {
         
-        if(!(dest_window->flags | WIN_UNDECORATED)) 
+        if(!(dest_window->flags & WIN_UNDECORATED)) 
             drawFrame(dest_window);
                
         dest_window->flags |= WIN_VISIBLE;
