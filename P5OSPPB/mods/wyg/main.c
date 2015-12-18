@@ -1033,22 +1033,22 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         }
     }
     
-    old_ctx_rect.top = cur_window->context.top;
-    old_ctx_rect.left = cur_window->context.left;
-    old_ctx_rect.bottom = cur_window->context.bottom;
-    old_ctx_rect.right = cur_window->context.right;
+    old_ctx_rect.top = cur_window->context->top;
+    old_ctx_rect.left = cur_window->context->left;
+    old_ctx_rect.bottom = cur_window->context->bottom;
+    old_ctx_rect.right = cur_window->context->right;
     
-    cur_window->context.top = 4;
-    cur_window->context.left = 4;
-    cur_window->context.bottom = 23;
-    cur_window->context.right = cur_window->context.right - 25;
+    cur_window->context->top = 4;
+    cur_window->context->left = 4;
+    cur_window->context->bottom = 23;
+    cur_window->context->right = cur_window->context->right - 25;
     
     drawWindow(cur_window, 1);
     
-    cur_window->context.top = old_ctx_rect.top;
-    cur_window->context.left = old_ctx_rect.left;
-    cur_window->context.bottom = old_ctx_rect.bottom;
-    cur_window->context.right = old_ctx_rect.right;
+    cur_window->context->top = old_ctx_rect.top;
+    cur_window->context->left = old_ctx_rect.left;
+    cur_window->context->bottom = old_ctx_rect.bottom;
+    cur_window->context->right = old_ctx_rect.right;
 }
 
 void drawFrame(window* cur_window) {
