@@ -236,7 +236,7 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
-void drawFrame(window* cur_window, unsigned char active);
+void drawFrame(window* cur_window);
 
 void bmpDrawHLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
 
@@ -893,7 +893,7 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     if(is_visible) {
         
         if(!(dest_window->flags | WIN_UNDECORATED)) 
-            drawFrame(new_window, 0);
+            drawFrame(dest_window);
                
         dest_window->flags |= WIN_VISIBLE;
     } else {
