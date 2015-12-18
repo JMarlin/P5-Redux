@@ -260,10 +260,10 @@ void bmpDrawVLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
 
 void bmpDrawRect(bitmap* bmp, int x, int y, int width, int height, unsigned int color) {
 
-    VdrawHLine(bmp, x, y, width, color);
-    VdrawVLine(bmp, x, y, height, color);
-    VdrawHLine(bmp, x, y + height - 1, width, color);
-    VdrawVLine(bmp, x + width - 1, y, height, color);
+    bmpDrawHLine(bmp, x, y, width, color);
+    bmpDrawVLine(bmp, x, y, height, color);
+    bmpDrawHLine(bmp, x, y + height - 1, width, color);
+    bmpDrawVLine(bmp, x + width - 1, y, height, color);
 }
 
 
