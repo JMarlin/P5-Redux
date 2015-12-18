@@ -236,6 +236,7 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
+void drawFrame(window* cur_window, unsigned char active);
 
 void bmpDrawHLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
 
@@ -687,7 +688,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     //Clear new window to white
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
-    
+        
      //prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
     registered_windows[window_count++] = new_window;
@@ -774,7 +775,8 @@ void updateOverlapped(rect* window_bounds) {
         if(window_bounds->left <= comp_rect.right &&
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
-           window_bounds->bottom >= comp_rect.top) {
+           window_bounds->bottom >= comp_rect.top && 
+           (registered_windows[i]->flags | WIN_VISIBLE)) {
             
             //prints("[WYG] Found an overlapped window\n");   
             if(window_bounds->top < comp_rect.top)
@@ -888,10 +890,16 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     
     was_visible = dest_window->flags & WIN_VISIBLE;
 
-    if(is_visible)        
+    if(is_visible) {
+        
+        if(!(dest_window->flags | WIN_UNDECORATED)) 
+            drawFrame(new_window, 0);
+               
         dest_window->flags |= WIN_VISIBLE;
-    else
+    } else {
+        
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
+    }
     
     if(was_visible && !is_visible) {
         
@@ -901,9 +909,10 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
         overlap_rect.right = overlap_rect.left + dest_window->w - 1;
         
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
-    } 
-    
-    drawWindow(dest_window, 0);
+    } else {
+        
+        drawWindow(dest_window, 0);
+    }
     
     return;
 }
@@ -1005,6 +1014,8 @@ void drawTitlebar(window* cur_window, unsigned char active) {
     
     bmpFillRect(cur_window->context, cur_window->x, cur_window->y + 4, cur_window->w - 28, 20, tb_color);
     
+    return;
+    
      //Window title
     if(cur_window->title) {
         
@@ -1057,9 +1068,7 @@ void drawFrame(window* cur_window) {
     
     int i;
     
-    //For the moment, we're not going to draw frames at all
-    return;
-    
+    /*
      //prints("[WYG] Drawing frame for window ");
       //printDecimal(cur_window->handle);
      //pchar('\n');
@@ -1099,7 +1108,7 @@ void drawFrame(window* cur_window) {
     setColor(RGB(238, 203, 137));
     setCursor(cur_window->x + cur_window->w - 19, cur_window->y - 23);
     fillRect(18, 18);
-    
+    */
     drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
     
     cur_window->frame_needs_redraw = 0;
@@ -1199,8 +1208,6 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         
         //Start by drawing this window
         //prints("[WYG] Drawing window frame\n");
-        if(!(cur_window->flags & WIN_UNDECORATED) && cur_window->frame_needs_redraw)
-            drawFrame(cur_window);
         
         //Create a rectangle for the window to be drawn
         if(use_current_blit) {
