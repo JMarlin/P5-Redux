@@ -1429,9 +1429,7 @@ void main(void) {
 
     if(!initMouse()) {
         
-        postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
-        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
-        terminate();
+        //Don't need to terminate, but do need to display a warning to the user
     }
 
 #endif //HARNESS_TEST
