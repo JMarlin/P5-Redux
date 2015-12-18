@@ -1033,6 +1033,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         }
     }
     
+    /*
     old_ctx_rect.top = cur_window->context->top;
     old_ctx_rect.left = cur_window->context->left;
     old_ctx_rect.bottom = cur_window->context->bottom;
@@ -1049,6 +1050,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
     cur_window->context->left = old_ctx_rect.left;
     cur_window->context->bottom = old_ctx_rect.bottom;
     cur_window->context->right = old_ctx_rect.right;
+    */
 }
 
 void drawFrame(window* cur_window) {
