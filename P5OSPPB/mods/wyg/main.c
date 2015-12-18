@@ -1038,7 +1038,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
             text_color = RGB(138, 103, 37);
         
         while(*s) {
-            bmpDrawCharacter(cur_window->context, base_x + off_x, base_y, *(s++), text_color);
+            bmpDrawCharacter(cur_window->context, *(s++), base_x + off_x, base_y, text_color);
             off_x += 8;
             
             //Truncate the text if it's wider than the titlebar
