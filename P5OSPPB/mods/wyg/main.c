@@ -988,6 +988,9 @@ void drawFrame(window* cur_window) {
     
     int i;
     
+    //For the moment, we're not going to draw frames at all
+    return;
+    
      //prints("[WYG] Drawing frame for window ");
       //printDecimal(cur_window->handle);
      //pchar('\n');
