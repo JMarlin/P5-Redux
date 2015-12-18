@@ -33,6 +33,9 @@ void cmd_scans(int c, char* b);
 //Typedefs
 typedef void (*sys_command)(void);
 
+//Used for drawing area size calculations
+unsigned char frame_top, frame_left, frame_bottom, frame_right;
+
 //Variable declarations
 char* cmdWord[CMD_COUNT] = {
     "CLR",
@@ -181,11 +184,11 @@ void makeChild() {
     
     //Paint a pretty picture into window A
     ctx_b = getWindowContext(window_b);
-    
+        
     //This SHOULD tile the tile image across the window
-    for(x = 0; x < 400; x++)
-        for(y = 0; y < 400; y++)
-            ctx_b->data[y*(400) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
+    for(x = frame_left; x < (400 - frame_left - frame_right); x++)
+        for(y = frame_top; y < (400 - frame_top - frame_bottom); y++)
+            ctx_b->data[y*(400) + x] = tile_data[((y - frame_top)%tile_height)*tile_width + ((x - frame_left)%tile_width)];
     
     //Make them prettily cascade
     moveWindow(window_b, 100, 20);
@@ -213,7 +216,7 @@ void makeWindows() {
     
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
-    window_a = createWindow(w - 108, h - 132, WIN_FIXEDSIZE);
+    window_a = createWindow(w - 100, h - 100, WIN_FIXEDSIZE);
     
     //Set up their titles
     setTitle(window_a, "PTerm");
@@ -222,7 +225,7 @@ void makeWindows() {
     installWindow(window_a, ROOT_WINDOW);
         
     //Make them prettily cascade
-    moveWindow(window_a, 54, 66);
+    moveWindow(window_a, 50, 50);
     
     //Make them visible
     showWindow(window_a);
@@ -251,6 +254,9 @@ void main(void) {
         prints("usr.mod could not init Key.");
         while(1); //Hang
     }
+    
+    //Get the frame dimensions
+    getFrameDims(&frame_top, &frame_left, &frame_bottom, &frame_right);
     
     makeWindows();
 }
@@ -321,12 +327,12 @@ void drawCharacter(bitmap* b, char c, int x, int y, unsigned int color) {
         line = font_array[i * 128 + c];
         for(j = 0; j < 8; j++) {
 
-            if(line & 0x80) b->data[(y + i)*b->width + (x + j)] = color;
+            if(line & 0x80) b->data[(y + frame_top + i)*b->width + (x + frame_left + j)] = color;
             line = line << 1;
         }
     }
     
-    repaintRegion(cmd_window, cmd_bmp, x, y, 8, 12);
+    repaintRegion(cmd_window, cmd_bmp, x + frame_left, y + frame_top, 8, 12);
 }
 
 
@@ -393,8 +399,8 @@ void cmd_clear() {
 
     unsigned int x, y;
 
-    for(y = 0; y < cmd_height; y++)
-        for(x = 0; x < cmd_width; x++)
+    for(y = frame_top; y < cmd_height + frame_top - frame_bottom; y++)
+        for(x = frame_left; x < cmd_width + frame_left - frame_right; x++)
             cmd_bmp->data[y*cmd_bmp->width + x] = RGB(255, 255, 255);
             
     cmd_x = 0;
@@ -403,8 +409,8 @@ void cmd_clear() {
     repaintAll(cmd_window, cmd_bmp);
     
     //Now clear to green temporarily to see what's getting repainted and where
-    for(y = 0; y < cmd_height; y++)
-        for(x = 0; x < cmd_width; x++)
+    for(y = frame_top; y < cmd_height + frame_top - frame_bottom; y++)
+        for(x = frame_left; x < cmd_width + frame_left - frame_right; x++)
             cmd_bmp->data[y*cmd_bmp->width + x] = RGB(0, 255, 0);
 }
 
@@ -487,8 +493,8 @@ void cmd_init(unsigned int win) {
     cmd_x = 0;
     cmd_y = 0;
     getWindowLocation(cmd_window, &cmd_bx, &cmd_by);
-    cmd_width = cmd_bmp->width;
-    cmd_height = cmd_bmp->height;
+    cmd_width = cmd_bmp->width - frame_left - frame_right;
+    cmd_height = cmd_bmp->height - frame_top - frame_bottom;
     cmd_max_chars = (cmd_width/8) - 1;
     cmd_max_lines = (cmd_height/12) - 1;
     cmd_clear();
