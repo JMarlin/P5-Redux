@@ -690,14 +690,6 @@ bitmap* getWindowContext(unsigned int handle) {
     return dest_window->context;
 }
 
-void expandRectByFrame(rect* r) {
-    
-    r->top -= FRAME_SIZE_TOP;
-    r->left -= FRAME_SIZE_LEFT;
-    r->bottom += FRAME_SIZE_BOTTOM;
-    r->right += FRAME_SIZE_RIGHT;
-}
-
 //Redraws every window intersected by window_bounds
 void updateOverlapped(rect* window_bounds) {
     
@@ -760,7 +752,6 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
     overlap_rect.left = dest_window->x;
     overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
     overlap_rect.right = overlap_rect.left + dest_window->w - 1;
-    expandRectByFrame(&overlap_rect);
         
     dest_window->x = new_x;
     dest_window->y = new_y;
@@ -944,6 +935,9 @@ void drawTitlebar(window* cur_window, unsigned char active) {
     
     unsigned char* s;    
     
+    //Not doing this for now, needs to be updated to draw directly into window context
+    return;
+    
     //Titlebar
     if(active)
         setColor(RGB(182, 0, 0));
@@ -1098,7 +1092,6 @@ rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* 
                     return_rects[rect_count[0]].left = cur_window->x;
                     return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->height - 1);
                     return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->width - 1);
-                    expandRectByFrame(&(return_rects[rect_count[0]]));
                 }
                
                 rect_count[0]++;
@@ -1150,9 +1143,6 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.left = cur_window->x;
             winrect.bottom = cur_window->y + cur_window->context->height - 1;
             winrect.right = cur_window->x + cur_window->context->width - 1;
-            
-            //Since we're doing the whole window, we should include the border 
-            //expandRectByFrame(&winrect);
         }
         
         rect_count = 0;
