@@ -981,13 +981,13 @@ void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int
         bmpDrawHLine(bmp, x+i, y+i, width-(2*i), light_color);
 
         //Left edge
-        drawVLine(bmp, x+i, y+i+1, height-((i+1)*2), light_color);
+        bmpDrawVLine(bmp, x+i, y+i+1, height-((i+1)*2), light_color);
 
         //Bottom edge
-        drawHLine(bmp, x+i, (y+height)-(i+1), width-(2*i), shade_color);
+        bmpDrawHLine(bmp, x+i, (y+height)-(i+1), width-(2*i), shade_color);
 
         //Right edge
-        drawVLine(bmp, x+width-i-1, y+i+1, height-((i+1)*2), shade_color);
+        bmpDrawVLine(bmp, x+width-i-1, y+i+1, height-((i+1)*2), shade_color);
     }
 }
 
