@@ -22,8 +22,8 @@
 #define FRAME_SIZE_LEFT 4
 #define FRAME_SIZE_BOTTOM 4
 #define FRAME_SIZE_RIGHT 4
-#define MOUSE_W 12
-#define MOUSE_H 12
+#define MOUSE_WIDTH 12
+#define MOUSE_HEIGHT 12
 
 /* Windows are logically arranged as follows:
 desktop.first_child:  window_a.first_child:  button_1.first_child:  -
@@ -241,7 +241,7 @@ void displayString(int x, int y, unsigned char* s) {
     while((*s)) {
         
         setCursor(x, y);
-        drawChar(s++);
+        drawChar(*(s++));
         
         x += 8;
     }
@@ -262,14 +262,14 @@ void drawMouse() {
     copyScreen(old_mouse_bkg);
     
     setColor(0);
-    setCursor(mouse_x + (MOUSE_W / 2), mouse_y);
-    drawVLine(MOUSE_H);
-    setCursor(mouse_x + (MOUSE_W / 2) - 1, mouse_y);
-    drawVLine(MOUSE_H);
-    setCursor(mouse_x, mouse_y + (MOUSE_H / 2));
-    drawHLine(MOUSE_W);
-    setCursor(mouse_x, mouse_y + (MOUSE_H / 2) - 1);
-    drawHLine(MOUSE_W);
+    setCursor(mouse_x + (MOUSE_WIDTH / 2), mouse_y);
+    drawVLine(MOUSE_HEIGHT);
+    setCursor(mouse_x + (MOUSE_WIDTH / 2) - 1, mouse_y);
+    drawVLine(MOUSE_HEIGHT);
+    setCursor(mouse_x, mouse_y + (MOUSE_HEIGHT / 2));
+    drawHLine(MOUSE_WIDTH);
+    setCursor(mouse_x, mouse_y + (MOUSE_HEIGHT / 2) - 1);
+    drawHLine(MOUSE_WIDTH);
     
     mouse_buffer_ok = 1;
 }
@@ -1508,7 +1508,7 @@ void main(void) {
     mouse_y = root_window.h / 2 - 1;
 
     //Create a bitmap to store the mouse dirtyrect
-    if(!(old_mouse_bkg = newBitmap(MOUSE_W, MOUSE_H))) {
+    if(!(old_mouse_bkg = newBitmap(MOUSE_WIDTH, MOUSE_HEIGHT))) {
         
         //prints("[WYG] Could not allocate a context for the mouse sirty buffer.\n");
         free((void*)registered_windows);
