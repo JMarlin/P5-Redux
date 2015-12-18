@@ -1018,9 +1018,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         tb_color = RGB(238, 203, 137);
     
     bmpFillRect(cur_window->context, 4, 4, cur_window->w - 28, 20, tb_color);
-    
-    return;
-    
+        
      //Window title
     if(cur_window->title) {
         
@@ -1029,8 +1027,8 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         int base_x, base_y, off_x, titlebar_width;
         
         s = cur_window->title;
-        base_x = cur_window->x + 6;
-        base_y = cur_window->y + 8;
+        base_x = 4;
+        base_y = 4;
         off_x = 0;
         titlebar_width = cur_window->w - 28;
         
@@ -1049,7 +1047,6 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         }
     }
     
-    /*
     old_ctx_rect.top = cur_window->context->top;
     old_ctx_rect.left = cur_window->context->left;
     old_ctx_rect.bottom = cur_window->context->bottom;
@@ -1066,7 +1063,6 @@ void drawTitlebar(window* cur_window, unsigned char active) {
     cur_window->context->left = old_ctx_rect.left;
     cur_window->context->bottom = old_ctx_rect.bottom;
     cur_window->context->right = old_ctx_rect.right;
-    */
 }
 
 void drawFrame(window* cur_window) {
