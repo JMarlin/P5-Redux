@@ -218,8 +218,9 @@ void drawBitmap(bitmap* bmp) {
         printf("Couldn't render texture: %s\n", SDL_GetError());
     SDL_RenderPresent(renderer);
     
-    printf("Cleaning up texture\n");
+    printf("Cleaning up texture...");
     SDL_DestroyTexture(static_texture);
+    printf("done\n");
 }
 
 void copyScreen(bitmap* bmp) {

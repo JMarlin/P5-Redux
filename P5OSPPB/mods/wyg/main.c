@@ -8,6 +8,7 @@
 #define REGISTRAR_PID 0
 #define REG_DEREGISTER 0
 #define SVC_WYG 0
+extern char* font_array;
 #else 
 #include "../include/p5.h"
 #include "../include/registrar.h"
@@ -299,9 +300,11 @@ void bmpDrawCharacter(bitmap* bmp, unsigned char c, int x, int y, unsigned int c
 
     for(i = 0; i < 12; i++) {
 
+        prints("Reading a line from font cache...");
         line = font_array[i * 128 + c];
+        prints("done\n");
         for(j = 0; j < 8; j++) {
-
+            
             if(line & 0x80) bmp->data[(y + i)*bmp->width + (x + j)] = color; 
             line = line << 1;
         }
@@ -320,6 +323,9 @@ void displayString(int x, int y, unsigned char* s) {
 }
 
 void eraseMouse() {
+ 
+    prints("Erasing mouse\n");
+    return;
     
     if(!mouse_buffer_ok)
         return;
@@ -329,6 +335,9 @@ void eraseMouse() {
 }
 
 void drawMouse() {
+    
+    prints("Drawing mouse\n");
+    return;
     
     setCursor(mouse_x, mouse_y);
     copyScreen(old_mouse_bkg);
@@ -831,7 +840,7 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
     
     //Need to update the screen if we're visible    
     if(dest_window->flags & WIN_VISIBLE) {
-                
+             
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
         
         //Redraw the window at its new location
@@ -896,9 +905,11 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     was_visible = dest_window->flags & WIN_VISIBLE;
 
     if(is_visible) {
-        
-        if(!(dest_window->flags & WIN_UNDECORATED)) 
+                
+        if(!(dest_window->flags & WIN_UNDECORATED)) {
+         
             drawFrame(dest_window);
+        }
                
         dest_window->flags |= WIN_VISIBLE;
     } else {

@@ -123,7 +123,7 @@ int moveChild() {
     
     winx += 20;
     winy += 20;
-    moveWindow(window_b, winx, winy);
+    moveHandle(window_b, winx, winy);
     
     return 0;
 }
@@ -170,7 +170,7 @@ int makeChild() {
             ctx_b->data[y*(400) + x] = tile_data[(y%tile_height)*tile_width + (x%tile_width)];
     
     //Make them prettily cascade
-    moveWindow(window_b, 100, 20);
+    moveHandle(window_b, 100, 20);
     
     //Make them visible
     markHandleVisible(window_b);
@@ -202,21 +202,27 @@ void makeWindows() {
     w = root_window->w;
     h = root_window->h;
     
+    printf("Creating window\n");
     window_a = newWindow(w - 108, h - 132, WIN_FIXEDSIZE, 0);
     
     //Set up their titles
+    printf("Setting up title\n");
     setWindowTitle(window_a, "PTerm");
     
     //Install them into the root window
+    printf("Placing window into desktop\n");
     installWindow(window_a, ROOT_WINDOW);
         
     //Make them prettily cascade
-    moveWindow(window_a, 54, 66);
+    printf("Cascading window\n");
+    moveHandle(window_a, 54, 66);
     
     //Make them visible
+    printf("Showing window\n");
     markHandleVisible(window_a);
         
     //Set up the console commands
+    printf("Setting up console\n");
     cmd_init(window_a);
     
     while(1) {
