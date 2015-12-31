@@ -1040,8 +1040,8 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         int base_x, base_y, off_x, titlebar_width;
         
         s = cur_window->title;
-        base_x = 4;
-        base_y = 4;
+        base_x = 7;
+        base_y = 9;
         off_x = 0;
         titlebar_width = cur_window->w - 28;
         
@@ -1084,47 +1084,39 @@ void drawFrame(window* cur_window) {
     
     int i;
     
-    /*
+    
      //prints("[WYG] Drawing frame for window ");
       //printDecimal(cur_window->handle);
      //pchar('\n');
     
     //Outer border
-    drawPanel(cur_window->x - 4, cur_window->y - 28, cur_window->w + 8, cur_window->h + 32, RGB(238, 203, 137), 1, 0);
+    bmpDrawPanel(cur_window->ctx, 0, 0, cur_window->w, cur_window->h, RGB(238, 203, 137), 1, 0);
     
     //Title border
-    drawPanel(cur_window->x - 1, cur_window->y - 25, cur_window->w + 2, 22, RGB(238, 203, 137), 1, 1);
+    bmpDrawPanel(cur_window->ctx, 3, 3, cur_window->w - 6, 22, RGB(238, 203, 137), 1, 1);
     
     //Body border
-    drawPanel(cur_window->x - 1, cur_window->y - 1, cur_window->w + 2, cur_window->h + 2, RGB(238, 203, 137), 1, 1);
+    bmpDrawPanel(cur_window->ctx, 3, 25, cur_window->w - 6, cur_window->h - 32, RGB(238, 203, 137), 1, 1);
     
     //Left frame
-    setColor(RGB(238, 203, 137));
-    setCursor(cur_window->x - 3, cur_window->y - 27);
-    fillRect(2, cur_window->h + 30);
+    bmpFillRect(cur_window->ctx, 1, 1, 2, cur_window->h - 2, RGB(238, 203, 137)); 
     
     //Right frame
-    setCursor(cur_window->x + cur_window->w + 1, cur_window->y - 27);
-    fillRect(2, cur_window->h + 30);
+    bmpFillRect(cur_window->ctx, 1, cur_window->w - 2, 2, cur_window->h - 2, RGB(238, 203, 137)); 
     
     //Top frame
-    setCursor(cur_window->x - 1, cur_window->y - 27);
-    fillRect(cur_window->w + 2, 2);
+    bmpFillRect(cur_window->ctx, 3, 1, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Mid frame
-    setCursor(cur_window->x - 1, cur_window->y - 3);
-    fillRect(cur_window->w + 2, 2);
+    bmpFillRect(cur_window->ctx, 3, 25, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Bottom frame
-    setCursor(cur_window->x - 1, cur_window->y + cur_window->h + 1);
-    fillRect(cur_window->w + 2, 2);
+    bmpFillRect(cur_window->ctx, 3, cur_window->h - 2, cur_window->w - 6, 2, RGB(238, 203, 137)); 
         
     //Button
-    drawPanel(cur_window->x + cur_window->w - 20, cur_window->y - 24, 20, 20, RGB(238, 203, 137), 1, 0);
-    setColor(RGB(238, 203, 137));
-    setCursor(cur_window->x + cur_window->w - 19, cur_window->y - 23);
-    fillRect(18, 18);
-    */
+    bmpDrawPanel(cur_window->ctx, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
+    bmpFillRect(cur_window->ctx, cur_window->w - 23, 4, 18, 18, RGB(238, 203, 137)); 
+    
     drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
     
     cur_window->frame_needs_redraw = 0;
