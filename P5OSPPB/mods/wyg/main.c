@@ -1115,7 +1115,7 @@ void drawFrame(window* cur_window) {
         
     //Button
     bmpDrawPanel(cur_window->context, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
-    bmpFillRect(cur_window->context, cur_window->w - 23, 4, 18, 18, RGB(238, 203, 137)); 
+    //bmpFillRect(cur_window->context, cur_window->w - 23, 4, 18, 18, RGB(238, 203, 137)); 
     
     drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
     
