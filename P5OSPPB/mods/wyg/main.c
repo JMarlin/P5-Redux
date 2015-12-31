@@ -1111,7 +1111,7 @@ void drawFrame(window* cur_window) {
     bmpFillRect(cur_window->context, 3, 25, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Bottom frame
-    bmpFillRect(cur_window->context, 3, cur_window->h - 20, cur_window->w - 6, 2, RGB(238, 203, 137)); 
+    //bmpFillRect(cur_window->context, 3, cur_window->h - 20, cur_window->w - 6, 2, RGB(238, 203, 137)); 
         
     //Button
     bmpDrawPanel(cur_window->context, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
