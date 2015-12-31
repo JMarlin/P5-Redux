@@ -302,9 +302,9 @@ void bmpDrawCharacter(bitmap* bmp, unsigned char c, int x, int y, unsigned int c
 
     for(i = 0; i < 12; i++) {
 
-        prints("Reading a line from font cache...");
+        //prints("Reading a line from font cache...");
         line = font_array[i * 128 + c];
-        prints("done\n");
+        //prints("done\n");
         for(j = 0; j < 8; j++) {
             
             if(line & 0x80) bmp->data[(y + i)*bmp->width + (x + j)] = color; 
@@ -326,7 +326,7 @@ void displayString(int x, int y, unsigned char* s) {
 
 void eraseMouse() {
  
-    prints("Erasing mouse\n");
+    //prints("Erasing mouse\n");
     return;
     
     if(!mouse_buffer_ok)
@@ -338,7 +338,7 @@ void eraseMouse() {
 
 void drawMouse() {
     
-    prints("Drawing mouse\n");
+    //prints("Drawing mouse\n");
     return;
     
     setCursor(mouse_x, mouse_y);
