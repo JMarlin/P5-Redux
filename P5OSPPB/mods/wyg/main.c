@@ -1102,10 +1102,10 @@ void drawFrame(window* cur_window) {
     bmpFillRect(cur_window->context, 1, 1, 2, cur_window->h - 2, RGB(238, 203, 137)); 
     
     //Right frame
-    bmpFillRect(cur_window->context, cur_window->w - 2, 1, 2, cur_window->h - 2, RGB(238, 203, 137)); 
+    bmpFillRect(cur_window->context, cur_window->w - 3, 1, 2, cur_window->h - 2, RGB(238, 203, 137)); 
     
     //Top frame
-    //bmpFillRect(cur_window->context, 3, 1, cur_window->w - 6, 2, RGB(238, 203, 137)); 
+    bmpFillRect(cur_window->context, 3, 1, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Mid frame
     //bmpFillRect(cur_window->context, 3, 25, cur_window->w - 6, 2, RGB(238, 203, 137)); 
