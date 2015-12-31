@@ -294,6 +294,8 @@ void bmpFillRect(bitmap* bmp, int x, int y, int width, int height, unsigned int 
 
 void bmpDrawCharacter(bitmap* bmp, unsigned char c, int x, int y, unsigned int color) {
 
+    return;
+
     int j, i;
     unsigned char line;
     c = c & 0x7F; //Reduce to base ASCII set
