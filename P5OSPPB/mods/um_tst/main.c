@@ -5,7 +5,7 @@
 #include "../vesa/font.h"
 #include "../include/key.h"
 
-#define CMD_COUNT 8
+#define CMD_COUNT 9
 
 //Function declarations
 void usrClear(void);
@@ -18,6 +18,7 @@ void moveChild(void);
 //void cpuUsage(void);
 void startGui(unsigned short xres, unsigned short yres);
 void pciList(void);
+void crash(void);
 void cmd_pchar(unsigned char c);
 void cmd_prints(unsigned char* s);
 void cmd_clear();
@@ -46,7 +47,8 @@ char* cmdWord[CMD_COUNT] = {
     "WIN",
     "CLOSE",
     "FOCUS",
-    "MOV"
+    "MOV",
+    "CRASH"
 };
 
 sys_command cmdFunc[CMD_COUNT] = {
@@ -58,7 +60,8 @@ sys_command cmdFunc[CMD_COUNT] = {
     (sys_command)&makeChild,
     (sys_command)&closeChild,
     (sys_command)&focusCmd,
-    (sys_command)&moveChild
+    (sys_command)&moveChild,
+    (sys_command)&crash
 };
 
 char inbuf[50];
@@ -208,6 +211,12 @@ void closeChild() {
     }
     
     cmd_prints("Window doesn't exist\n");
+}
+
+void crash() {
+    
+    //Bring down the system by attempting to write to kernel space
+    ((unsigned char*)0x100000)[0] = 0xFF;
 }
 
 void makeWindows() {
