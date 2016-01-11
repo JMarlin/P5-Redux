@@ -97,7 +97,7 @@ void textModeFinish(unsigned int a, unsigned int b, unsigned int c) {
 void enterTextMode(void (*cb)(void)) {
     
     char* usrCode = (char*)0x80000;
-    tm_cb = cb;
+    tm_cb = &cb;
         
     //Put the code into the v86 code area
     resetProcessCounter();
