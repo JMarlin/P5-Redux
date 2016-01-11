@@ -536,6 +536,14 @@ void V86Entry(void) {
     }
 }
 
+void doKernelPanic(void) {
+    
+    initScreen();
+    prints("Kernel panic:\n");
+    prints("Unhandled interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
+    kernelDebug();
+    while(1); //Hang
+}
 
 void kernelEntry(void) {
 
@@ -668,11 +676,7 @@ void kernelEntry(void) {
             disable_irq(5);
             disable_irq(6);
             disable_irq(7); //We would do all of them, but right now this only supports the first PIC
-            enterTextMode();
-            initScreen();
-            prints("Unhandled interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
-            kernelDebug();
-            scans(5, fake);
+            enterTextMode(doKernelPanic);
             break;
     }
 

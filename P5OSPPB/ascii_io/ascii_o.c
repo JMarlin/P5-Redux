@@ -110,7 +110,7 @@ void enterTextMode(void (*cb)(void)) {
     usrCode[40] = 0xFF; // -\_int 0xff
 
     //Execute the loaded 16-bit code
-    v86_pid = exec_loaded_v86(100);
+    exec_loaded_v86(100);
 }
 
 
