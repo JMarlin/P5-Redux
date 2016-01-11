@@ -657,8 +657,20 @@ void kernelEntry(void) {
 
             break;
 
+        //In the default case, ensure that we're in text mode, clear the text mode screen and print the hang screen
         default:
-            prints("Interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
+            //Turn off all hardware interrupts 
+            disable_irq(0);
+            disable_irq(1);
+            disable_irq(2);
+            disable_irq(3);
+            disable_irq(4);
+            disable_irq(5);
+            disable_irq(6);
+            disable_irq(7); //We would do all of them, but right now this only supports the first PIC
+            enterTextMode();
+            initScreen();
+            prints("Unhandled interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
             kernelDebug();
             scans(5, fake);
             break;

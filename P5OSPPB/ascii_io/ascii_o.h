@@ -23,6 +23,7 @@ void kprints(unsigned char* s);
 void kprintHexByte(unsigned char byte);
 void kprintHexWord(unsigned short wd);
 void kprintHexDword(unsigned int dword);
+void enterTextMode(void (*cb)(void));
 
 #define KPCHAR(x) kpchar(x)
 #define KPRINTS(x) kprints(x)

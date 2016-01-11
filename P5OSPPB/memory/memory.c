@@ -68,7 +68,7 @@ void init_memory(void (*cb)(void)) {
 
     char* usrCode = (char*)0x80000;
     int i;
-
+ 
     init_done = cb;
     set_call_zero_cb(&get_next_memzone); //Make the interrupt out enter the func
 

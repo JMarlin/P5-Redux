@@ -85,6 +85,35 @@ void printHexDword(unsigned int dword) {
     printHexWord((unsigned short)(dword & 0xFFFF));
 }
 
+void (*tm_cb)(void);
+
+void textModeFinish(unsigned int a, unsigned int b, unsigned int c) {
+    
+    tm_cb();
+}
+
+void enterTextMode(void (*cb)(void)) {
+    
+    char* usrCode = (char*)0x80000;
+    tm_cb = cb;
+        
+    //Put the code into the v86 code area
+    set_call_zero_cb(&textModeFinish); //Make the interrupt 
+
+    //Do INT 0x10
+    usrCode[11] = 0xB0; // -|
+    usrCode[12] = 0x03; // -\_mov al, 0x03 (80x25 16-color text)
+    usrCode[31] = 0xCD; // -|
+    usrCode[32] = 0x10; // -\_int 0x10
+    //Do INT 0xFF #0, return to kernel init
+    usrCode[39] = 0xCD; // -|
+    usrCode[40] = 0xFF; // -\_int 0xff
+
+    //Execute the loaded 16-bit code
+    v86_pid = exec_loaded_v86(100);
+}
+
+
 
 void initScreen() {
 
