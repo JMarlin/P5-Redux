@@ -113,7 +113,7 @@ void enterTextMode(void (*cb)(void)) {
     usrCode[5] = 0xFF; // -\_int 0xff
 
     //Execute the loaded 16-bit code
-    exec_loaded_v86(100);
+    enterProc(exec_loaded_v86(100));
 }
 
 
