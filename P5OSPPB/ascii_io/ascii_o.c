@@ -92,22 +92,25 @@ void textModeFinish(unsigned int a, unsigned int b, unsigned int c) {
     tm_cb();
 }
 
+//THIS IS FOR FORCING THE SYSTEM BACK TO TEXT MODE IN THE EVENT OF AN EMERGENCY
+//IT OVERRIDES ALL PROCESS MANAGEMENT, SO ONLY USE IF THE SYSTEM HAS FAILED
 void enterTextMode(void (*cb)(void)) {
     
     char* usrCode = (char*)0x80000;
     tm_cb = cb;
         
     //Put the code into the v86 code area
+    resetProcessCounter();
     set_call_zero_cb(&textModeFinish); //Make the interrupt 
 
     //Do INT 0x10
-    usrCode[11] = 0xB0; // -|
-    usrCode[12] = 0x03; // -\_mov al, 0x03 (80x25 16-color text)
-    usrCode[31] = 0xCD; // -|
-    usrCode[32] = 0x10; // -\_int 0x10
+    usrCode[0] = 0xB0; // -|
+    usrCode[1] = 0x03; // -\_mov al, 0x03 (80x25 16-color text)
+    usrCode[2] = 0xCD; // -|
+    usrCode[3] = 0x10; // -\_int 0x10
     //Do INT 0xFF #0, return to kernel init
-    usrCode[39] = 0xCD; // -|
-    usrCode[40] = 0xFF; // -\_int 0xff
+    usrCode[4] = 0xCD; // -|
+    usrCode[5] = 0xFF; // -\_int 0xff
 
     //Execute the loaded 16-bit code
     exec_loaded_v86(100);
