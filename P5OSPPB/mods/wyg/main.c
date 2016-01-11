@@ -8,6 +8,7 @@
 #define REGISTRAR_PID 0
 #define REG_DEREGISTER 0
 #define SVC_WYG 0
+extern char* font_array;
 #else 
 #include "../include/p5.h"
 #include "../include/registrar.h"
@@ -17,7 +18,6 @@
 #include "../include/key.h"
 #include "../include/mouse.h"
 #include "../vesa/font.h"
-extern char* font_array;
 #endif //HARNESS_TEST
 
 #define FRAME_SIZE_TOP 28
