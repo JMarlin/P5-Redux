@@ -29,6 +29,7 @@ extern unsigned char _was_spurious;
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
 process* proc_backup = (process*)0;
+unsigned char exeption_backup = 0;
 
 void entry_debug(void) {
 
@@ -552,7 +553,7 @@ void doKernelPanic(void) {
     
     //initScreen();
     prints("Kernel panic:\n");
-    prints("Unhandled interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
+    prints("Unhandled interrupt #0x"); printHexByte(exeption_backup); prints(" triggered\n");
     kernelDebugWithProc(proc_backup);
     while(1); //Hang
 }
@@ -684,6 +685,7 @@ void kernelEntry(void) {
             //kernel exit and entry and therefore the info for the kernel panic 
             //is going to get overwritten
             proc_backup = p;
+            exeption_backup = _except_num;
             
             //Turn off all hardware interrupts 
             disable_irq(0);
