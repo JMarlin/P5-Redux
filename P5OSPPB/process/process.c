@@ -553,8 +553,17 @@ void V86Entry(void) {
 void doKernelPanic(void) {
     
     //initScreen();
-    prints("Kernel panic:\n");
-    prints("Unhandled interrupt #0x"); printHexByte(exeption_backup); prints(" triggered\n");
+    prints("Exception in process '");
+    
+    if(proc_backup->name) {
+    
+        prints(proc_backup->name);    
+    } else {
+        
+        prints("[unnamed]");
+    }
+    
+    prints("'\nUnhandled interrupt #0x"); printHexByte(exeption_backup); prints(" triggered\n");
     kernelDebugWithProc(proc_backup);
     while(1); //Hang
 }
