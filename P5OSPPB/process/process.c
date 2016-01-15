@@ -10,6 +10,7 @@
 #include "../core/global.h"
 #include "../timer/timer.h"
 #include "../memory/paging.h"
+#include "../memory/memory.h"
 #include "message.h"
 
 unsigned char fake[6];
@@ -723,6 +724,9 @@ void deleteProc(process* proc) {
         proc->root_page = (pageRange*)0;
     }
 
+    if(proc->name)
+        kfree(proc->name);
+
     proc->id = 0;
 }
 
@@ -752,9 +756,10 @@ void resetProcessCounter() {
 }
 
 
-process* newProcess() {
+process* newProcess(char* name) {
 
     process* proc;
+    int len = 0;
     int i;
 
     //fast-forward to the next free slot
@@ -762,25 +767,48 @@ process* newProcess() {
 
     if(i == 256)
         return (process*)0x0;
+    
 
     proc = &(procTable[i]);
-    procPtr = (unsigned char)i;
-    proc->id = nextProc++;
+    procPtr = (unsigned char)i;    
     proc->root_page = (pageRange*)0x0;
     proc->root_msg = (message*)0x0;
     proc->flags = 0;
     proc->cpu_pct = 0;
     proc->called_count = 0;
     proc->size = 0;
+
+    //If the process was passed a name, we'll copy the
+    //name into a fresh buffer to attach to the proc 
+    if(name) {
+        
+        while(name[len++]);
+        
+        if(!(proc->name = (char*)kmalloc(len + 1)))
+            return (process*)0x0;
+            
+        for(len = 0; name[len]; len++)
+            proc->name[len] = name[len];
+        
+        proc->name[len] = 0;
+    } else {
+        
+        proc->name = (char*)0;
+    }
+
+    //Finally, if we got this far, we give the proc a
+    //PID, thereby marking this entry as taken 
+    proc->id = nextProc++;
+
     return proc;
 }
 
 
-process* newUserProc() {
+process* newUserProc(char* name) {
 
     process* newP;
 
-    newP = newProcess();
+    newP = newProcess(name);
 
     if(!newP)
         return newP;
@@ -801,11 +829,11 @@ process* newUserProc() {
 }
 
 
-process* newSuperProc() {
+process* newSuperProc(char* name) {
 
     process* newP;
 
-    newP = newProcess();
+    newP = newProcess(name);
 
     if(!newP)
         return newP;
@@ -833,7 +861,7 @@ process* newV86Proc() {
 
     process* newP;
 
-    newP = newProcess();
+    newP = newProcess((char*)0);
 
     if(!newP)
         return newP;
@@ -996,7 +1024,6 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     char* usrBase = (char*)0xB01000;
     int tmpVal, i;
     int pageCount;
-    unsigned char pathBuf[255];
 
     for(i = 0; path[i]; i++)
         pathBuf[i] = path[i];
@@ -1005,11 +1032,11 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
 
     if(isSuper) {
 
-        if(!(proc = newSuperProc()))
+        if(!(proc = newSuperProc(path)))
             return 0;
     } else {
 
-        if(!(proc = newUserProc()))
+        if(!(proc = newUserProc(path)))
             return 0;
     }
 
@@ -1114,6 +1141,7 @@ process* makeThread(process* parent, void* entry_point) {
     ret_proc->wait_cmd = 0;
     ret_proc->called_count = 0;
     ret_proc->cpu_pct = 0;
+    ret_proc->name = parent->name;
     
     //Clear status ailments (eg: the child thread won't be waiting for a message &c)
     ret_proc->flags &= ~(PF_WAITMSG | PF_WOKENMSG);

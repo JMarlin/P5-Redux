@@ -50,6 +50,7 @@ typedef struct process {
     unsigned int wait_cmd;
     unsigned int called_count;
     unsigned int cpu_pct;
+    unsigned char* name;
 } process;
 
 extern int _old_esp;
