@@ -60,28 +60,34 @@ void entry_debug(void) {
 
 void kernelDebugWithProc(process* dbg_proc) {
 
-    //Kernel debug, should be moved to its own function
-    prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
+    unsigned char* current_pc;
+
+    if(dbg_proc->flags & PF_V86)
+        current_pc = (char*)(((((unsigned int)dbg_proc->ctx.cs)&0xFFFF) << 4) + (((unsigned int)dbg_proc->ctx.eip) &0xFFFF));
+    else
+        current_pc = (char*)dbg_proc->ctx.eip;
+        
     prints("Previous State:\n");
-    prints("eax: 0x"); printHexDword(p->ctx.eax); prints("  ebx: 0x"); printHexDword(p->ctx.ebx); prints("\n");
-    prints("ecx: 0x"); printHexDword(p->ctx.ecx); prints("  edx: 0x"); printHexDword(p->ctx.edx); prints("\n");
-    prints("esp: 0x"); printHexDword(p->ctx.esp); prints("  ebp: 0x"); printHexDword(p->ctx.ebp); prints("\n");
-    prints("esi: 0x"); printHexDword(p->ctx.esi); prints("  edi: 0x"); printHexDword(p->ctx.edi); prints("\n");
-    prints("cr3: 0x"); printHexDword(p->ctx.cr3); prints("  eip: 0x"); printHexDword(p->ctx.eip); prints("\n");
-    prints("eflags: 0x"); printHexDword(p->ctx.eflags); prints("\n");
-    prints("es: 0x"); printHexWord(p->ctx.es); prints("  cs: 0x"); printHexWord(p->ctx.cs); prints("\n");
-    prints("ss: 0x"); printHexWord(p->ctx.ss); prints("  ds: 0x"); printHexWord(p->ctx.ds); prints("\n");
-    prints("fs: 0x"); printHexWord(p->ctx.fs); prints("  gs: 0x"); printHexWord(p->ctx.gs); prints("\n");
+    prints("eax: 0x"); printHexDword(dbg_proc->ctx.eax); prints("  ebx: 0x"); printHexDword(dbg_proc->ctx.ebx); prints("\n");
+    prints("ecx: 0x"); printHexDword(dbg_proc->ctx.ecx); prints("  edx: 0x"); printHexDword(dbg_proc->ctx.edx); prints("\n");
+    prints("esp: 0x"); printHexDword(dbg_proc->ctx.esp); prints("  ebp: 0x"); printHexDword(dbg_proc->ctx.ebp); prints("\n");
+    prints("esi: 0x"); printHexDword(dbg_proc->ctx.esi); prints("  edi: 0x"); printHexDword(dbg_proc->ctx.edi); prints("\n");
+    prints("cr3: 0x"); printHexDword(dbg_proc->ctx.cr3); prints("  eip: 0x"); printHexDword(dbg_proc->ctx.eip); prints("\n");
+    prints("eflags: 0x"); printHexDword(dbg_proc->ctx.eflags); prints("\n");
+    prints("es: 0x"); printHexWord(dbg_proc->ctx.es); prints("  cs: 0x"); printHexWord(dbg_proc->ctx.cs); prints("\n");
+    prints("ss: 0x"); printHexWord(dbg_proc->ctx.ss); prints("  ds: 0x"); printHexWord(dbg_proc->ctx.ds); prints("\n");
+    prints("fs: 0x"); printHexWord(dbg_proc->ctx.fs); prints("  gs: 0x"); printHexWord(dbg_proc->ctx.gs); prints("\n");
 
     //Get the error code
-    prints("Error code: 0x"); printHexDword(p->ctx.err); prints("\n");
+    prints("Error code: 0x"); printHexDword(dbg_proc->ctx.err); prints("\n");
 
     //Get the command byte that the processor failed on:
-    prints("Current instructions (0x"); printHexDword((unsigned int)insPtr); prints("): 0x"); printHexByte(insPtr[0]);
-    prints(", 0x"); printHexByte(insPtr[1]);
-    prints(", 0x"); printHexByte(insPtr[2]);
-    prints(", 0x"); printHexByte(insPtr[3]);
-    prints(", 0x"); printHexByte(insPtr[4]);
+    prints("Current instructions (0x"); printHexDword((unsigned int)current_pc);
+    prints("): 0x"); printHexByte(current_pc[0]);
+    prints(", 0x"); printHexByte(current_pc[1]);
+    prints(", 0x"); printHexByte(current_pc[2]);
+    prints(", 0x"); printHexByte(current_pc[3]);
+    prints(", 0x"); printHexByte(current_pc[4]);
     prints("\n");
 }
 
