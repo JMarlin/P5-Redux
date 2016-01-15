@@ -1033,6 +1033,7 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     char* usrBase = (char*)0xB01000;
     int tmpVal, i;
     int pageCount;
+    unsigned char pathBuf[255];
 
     for(i = 0; path[i]; i++)
         pathBuf[i] = path[i];
