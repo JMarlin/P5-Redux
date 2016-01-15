@@ -28,6 +28,7 @@ extern unsigned char _was_spurious;
 
 //We'll ACTUALLY use this in the future
 process* p = (process*)0;
+process* proc_backup = (process*)0;
 
 void entry_debug(void) {
 
@@ -57,7 +58,7 @@ void entry_debug(void) {
     scans(5, fake);
 }
 
-void kernelDebug(void) {
+void kernelDebugWithProc(process* dbg_proc) {
 
     //Kernel debug, should be moved to its own function
     prints("INTERRUPT HAS RETURNED CONTROL TO THE KERNEL\n");
@@ -82,6 +83,11 @@ void kernelDebug(void) {
     prints(", 0x"); printHexByte(insPtr[3]);
     prints(", 0x"); printHexByte(insPtr[4]);
     prints("\n");
+}
+
+void kernelDebug() {
+
+    kernelDebugWithProc(p);
 }
 
 void analyzeProcUsage(process* proc) {
@@ -541,7 +547,7 @@ void doKernelPanic(void) {
     //initScreen();
     prints("Kernel panic:\n");
     prints("Unhandled interrupt #0x"); printHexByte(_except_num); prints(" triggered\n");
-    kernelDebug();
+    kernelDebugWithProc(proc_backup);
     while(1); //Hang
 }
 
@@ -667,6 +673,12 @@ void kernelEntry(void) {
 
         //In the default case, ensure that we're in text mode, clear the text mode screen and print the hang screen
         default:
+            //Back up the current process structure, since we're going to be 
+            //using enterTextMode to run a v86 interrupt, which will cause another
+            //kernel exit and entry and therefore the info for the kernel panic 
+            //is going to get overwritten
+            proc_backup = p;
+            
             //Turn off all hardware interrupts 
             disable_irq(0);
             disable_irq(1);
