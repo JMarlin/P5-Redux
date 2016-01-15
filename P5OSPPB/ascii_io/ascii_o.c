@@ -109,8 +109,10 @@ void enterTextMode(void (*cb)(void)) {
     usrCode[2] = 0xCD; // -|
     usrCode[3] = 0x10; // -\_int 0x10
     //Do INT 0xFF #0, return to kernel init
-    usrCode[4] = 0xCD; // -|
-    usrCode[5] = 0xFF; // -\_int 0xff
+    usrCode[4] = 0x31; //  |
+    usrCode[5] = 0xC0; // -\_xor ax, ax 
+    usrCode[6] = 0xCD; // -|
+    usrCode[7] = 0xFF; // -\_int 0xff
 
     //Execute the loaded 16-bit code
     enterProc(exec_loaded_v86(100));
