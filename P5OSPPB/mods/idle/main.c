@@ -1,3 +1,5 @@
+#include "../include/p5.h"
+
 void main(void) {
 
     //Spin forever and become the idle process
@@ -8,5 +10,6 @@ void main(void) {
     //we'll be locked into the kernel forever looping
     //through the scheduler trying to find a process to
     //swap in
+    prints("[Idle] Idle process started.\n");
     while(1);
 }
