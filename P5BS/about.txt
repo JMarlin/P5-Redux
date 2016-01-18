@@ -1,0 +1,49 @@
+P5BS: P5 - Bootstrap System
+----------------------------
+
+This system is aimed at creating a system that can be self-hosting as quickly as possible.
+The aim will be to write a barebones X86 assembler in C. That assembler will be used to
+write a basic, BIOS-based DOS which will support FAT file reading and writing and a basic 
+shell which is capable of loading and executing simple binaries. The assembler will then
+be rewritten in its own assembly subset and assembled into a binary that the DOS can run.
+Finally, a simple editor will be written in assembly. The final result of this will be a
+boot floppy which contains a binary of the DOS kernel, a binary of the assembler, a binary
+of the editor, and the source for all. With this complete, the entire system is self-hosting
+and we can proceed to work on the operating system from within the operating system. 
+
+By iteratively developing in a virtual machine, I would like to ultimately produce a
+pysical boot disk which can be used to deploy the basic self-hosting environment to a real
+machine consisting of the following:
+
+- DOS kernel:  Acts as a binary launcher, provides FAT I/O for applications, provides 
+               basic shell which can copy and delete files and run bins
+              
+- Assembler:   Is capable of assembling all of the components on the disk
+
+- Editor:      Simple editor capable of reading, modifying, and writing assembly sources
+
+- Boot bins:   Prebuilt MBR, bootsector and second-stage sector binary data
+
+- Boot gen:    Given a FAT disk partition, injects boot code into that disk's MBR, marks
+               the selected partition bootable, injects boot code into the partition's
+               boot sector and second stage sectors and ultimately sets that partition
+               up so that it is ready to load a DOS kernel image
+               
+- Drive clone: Given a path, recursively copies the files and structure contained within
+               that directory over the serial port to a client computer running a client
+               program (will be used to push changes to an internet-connected system so 
+               that changes made on the development box can be backed up to GIT)
+               
+ - Sources:    All of the code from which the above was built
+ 
+With the above, one should be able to do the following:
+ * Install a deployment of the base system onto a preformatted FAT partition (can be set 
+   up using an MS-DOS) by copying all of the files from the disk onto the partition and
+   then running the boot gen tool to make it bootable.
+ * Edit and assemble updated versions of the base software using the provided sources,
+   editor, and assembler, and keep source changes updated on git using the drive clone tool 
+ 
+From there, we should be able to deploy that base system on a live computer and then use 
+that system to update and improve itself -- Add more features to the assembler and the DOS,
+write a compiler for a higher-level language, and proceed to expand and improve the OS
+and the tools using the OS and tools themselves.   
