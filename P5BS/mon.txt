@@ -1,0 +1,118 @@
+JMP start
+
+int_ff:
+    POP AX
+    POP AX
+    POP AX
+    JMP main_loop
+    
+char2nyb:
+    MOV AL, AH  
+    CMP AL, 0x30
+    JL  c2n_fail
+    SUB AL, 0x30
+    CMP AL, 0x09
+    JG  c2n_af
+    XOR AH, AH 
+    RET
+c2n_af:
+    CMP AL, 0x31
+    JL c2n_fail
+    SUB AL, 0x27
+    CMP AL, 0x0F
+    JG c2n_fail
+    XOR AH, AH 
+    RET 
+c2n_fail:
+    MOV AL, AH 
+    MOV AH, 0x01
+    RET 
+    
+start:
+    XOR ES, ES 
+    MOV BX, 0x3FC
+    MOV ES:[BX], int_ff
+    INC BX
+    MOV ES:[BX], 0x7C00
+    MOV AX, 0x7C00
+    MOV ES, AX
+    MOV CX, 0x0200
+main_loop:
+    MOV AH, 0x0E
+    XOR BH, BH
+    MOV AL, 0x0A
+    INT 0x10
+    MOV AL, 0x0D
+    INT 0x10
+    MOV AL, 0x5D
+    XOR DX, DX 
+byte_loop:
+    SHL DL, 0x04 
+    XOR AH, AH
+    INT 0x16
+    CALL char2nyb
+    CMP AH, 0
+    JNE test_cmd
+    ADD DL, AL
+    INC DH 
+    CMP DH, 2
+    JNE byte_loop
+    MOV BX, CX 
+    MOV ES:[BX], DL
+    INC CX 
+    JMP main_loop
+test_cmd:
+    CMP DH, 0
+    JNE bad_input
+    CMP AL, 0x2D
+    JE  offset_loop
+    CMP AL, 0x3D
+    JE  segment_loop
+    CMP AL, 0x72
+    JE do_run
+    JMP bad_input
+offset_loop:
+    XOR BX, BX 
+oloop_top:
+    SHL BX, 4
+    XOR AH, AH
+    INT 0x16
+    CALL char2nyb
+    CMP AH, 0
+    JNE bad_input
+    ADD BX, AL
+    INC DH 
+    CMP DH, 0x04
+    JNE oloop_top
+    MOV CX, BX 
+    JMP main_loop
+segment_loop:
+    XOR BX, BX     
+sloop_top:
+    SHL BX, 4
+    XOR AH, AH
+    INT 0x16
+    CALL char2nyb
+    CMP AH, 0
+    JNE bad_input
+    ADD BX, AL
+    INC DH 
+    CMP DH, 0x04
+    JNE oloop_top
+    MOV ES, BX 
+    JMP main_loop    
+do_run:
+    PUSH ES  
+    PUSH CX 
+    RET //(far return 0xCB)    
+bad_input:
+    MOV AH, 0x0E
+    XOR BH, BH
+    MOV AL, 0x0A
+    INT 0x10
+    MOV AL, 0x0D
+    INT 0x10
+    MOV AL, 0x3F
+    INT 0x10
+    JMP main_loop    
+    
