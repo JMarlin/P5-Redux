@@ -49,10 +49,10 @@
 7C00:0050 | 33 D2          ;    XOR DX, DX 
                            ; byte_loop:
 7C00:0052 | C0 C2 04       ;    SHL DL, 0x04 
-7C00:0054 | 32 E4          ;    XOR AH, AH
-7C00:0056 | CD 16          ;    INT 0x16
-7C00:0058 | E8 XX XX       ;    CALL char2nyb
-;    CMP AH, 0
+7C00:0055 | 32 E4          ;    XOR AH, AH
+7C00:0057 | CD 16          ;    INT 0x16
+7C00:0059 | E8 XX XX       ;    CALL char2nyb
+7C00:005C | 3C 00          ;    CMP AH, 0
 ;    JNE test_cmd
 ;    ADD DL, AL
 ;    INC DH 
