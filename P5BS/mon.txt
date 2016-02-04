@@ -53,7 +53,7 @@
 7C00:0057 | CD 16          ;    INT 0x16
 7C00:0059 | E8 XX XX       ;    CALL char2nyb
 7C00:005C | 3C 00          ;    CMP AH, 0
-;    JNE test_cmd
+7C00:005E | 75 00          ;    JNE test_cmd
 ;    ADD DL, AL
 ;    INC DH 
 ;    CMP DH, 2

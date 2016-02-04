@@ -564,7 +564,44 @@ void doKernelPanic(void) {
     }
     
     prints("'\nUnhandled interrupt #0x"); printHexByte(exeption_backup); prints(" triggered\n");
-    kernelDebugWithProc(proc_backup);
+	
+	switch(exception_backup) {
+	
+	    case 0x0E:
+		    prints("Process attempted to ");
+		    
+			if(proc_backup->ctx.err & 0x08) {
+			
+			    prints("access a page with incorrectly set reserved bits.");
+			} else {
+				
+				if(proc_backup->ctx.err & 0x0F) {
+					
+					prints("fetch an instruction from ");	
+				} else {
+					
+					if(proc_backup->ctx.err & 0x02) 
+						prints("write to ");
+					else
+						prints("read from ");
+				}
+				
+				if(proc_backup->ctx.err & 0x01) 
+					prints("priviledged ");
+				else
+					prints("unmapped ");
+					
+				prints("memory.");
+			}
+			
+			pchar('\n');
+		break;
+		
+		default:
+		break;    	
+	}
+    
+	kernelDebugWithProc(proc_backup);
     while(1); //Hang
 }
 
