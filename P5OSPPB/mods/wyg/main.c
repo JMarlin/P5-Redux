@@ -1027,7 +1027,7 @@ void drawFrame(window* cur_window) {
     bmpDrawPanel(cur_window->context, 3, 3, cur_window->w - 6, 22, RGB(238, 203, 137), 1, 1);
     
     //Body border
-    bmpDrawPanel(cur_window->context, 3, 27, cur_window->w - 6, cur_window->h - 32, RGB(238, 203, 137), 1, 1);
+    bmpDrawPanel(cur_window->context, 3, 27, cur_window->w - 6, cur_window->h - 30, RGB(238, 203, 137), 1, 1);
     
     //Left frame
     bmpFillRect(cur_window->context, 1, 1, 2, cur_window->h - 2, RGB(238, 203, 137)); 
@@ -1042,7 +1042,7 @@ void drawFrame(window* cur_window) {
     bmpFillRect(cur_window->context, 3, 25, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Bottom frame
-    bmpFillRect(cur_window->context, 3, cur_window->h - 4, cur_window->w - 6, 2, RGB(238, 203, 137)); 
+    bmpFillRect(cur_window->context, 3, cur_window->h - 3, cur_window->w - 6, 2, RGB(238, 203, 137)); 
         
     //Button
     bmpDrawPanel(cur_window->context, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
