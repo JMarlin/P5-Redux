@@ -41,21 +41,11 @@ Linkage is in order of increasing z-value
 
 message temp_msg;
 
-typedef struct rect {
-    unsigned int top;
-    unsigned int right;
-    unsigned int bottom;
-    unsigned int left;
-} rect;
-
 typedef struct window {
     unsigned char flags;
     unsigned int handle;
     unsigned int pid;
     bitmap* context;
-    struct window* next_sibling;
-    struct window* parent; 
-    struct window* first_child;
     unsigned int w;
     unsigned int h;
     unsigned int x;
@@ -65,9 +55,8 @@ typedef struct window {
     unsigned char frame_needs_redraw;
 } window;
 
-window root_window;
-unsigned int next_handle;
-unsigned int window_count;
+window* root_window;
+List* window_list;
 window** registered_windows;
 unsigned char inited = 0;
 bitmap* old_mouse_bkg;
@@ -589,8 +578,9 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
 	free(out_rects);
 }
 
-unsigned int newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
+window* newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
+	static next_handle = 1; 
     window* new_window;
     unsigned int i, bufsz;
     
@@ -612,9 +602,6 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
      //prints("[WYG] Created new window, setting initial values\n");
     new_window->pid = pid;
     new_window->flags = flags;
-    new_window->next_sibling = (window*)0;
-    new_window->parent = (window*)0;
-    new_window->first_child = (window*)0;
     new_window->x = 0;
     new_window->y = 0;
     new_window->w = width;
@@ -627,7 +614,7 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
         
          //prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
-        return 0;
+        return (window*)0;
     } 
     
     bufsz = new_window->w * new_window->h;
@@ -638,12 +625,18 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
         
      //prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
-    registered_windows[window_count++] = new_window;
+	
+	if(!List_add(window_list, (void*)new_window)){
+		
+		freeBitmap(new_window->context);
+	    free((void*)new_window);
+        return (window*)0;	
+	}
     
      //prints("[WYG] Successfully created new window ");
       //printDecimal(new_window->handle);
      //pchar('\n');
-    return new_window->handle;
+    return new_window;
 }
 
 window* getWindowByHandle(unsigned int handle) {
@@ -1053,87 +1046,50 @@ void drawFrame(window* cur_window) {
     cur_window->frame_needs_redraw = 0;
 }
 
-//   Developing a proper redraw routine is going to be one of
-//the most key aspects of getting a responsive window manager.
-//One of the current major issues we're experiencing thus far
-//is that small, repeated redraw requests are filling up the 
-//message buffer and slowing everything to a crawl (this is 
-//currently happening on our terminal which is redrawing with
-//each //printed character)
-//   The obvious answer is twofold: Firstly, we need to prevent
-//a window from requesting another redraw until the current 
-//redraw has completed. Secondly, we need to allow for
-//specifying the region of the redraw within the window bitmap
-//to minimize the amount of time that the redraw call spends
-//blitting to the screen. For this, we can use the bitmap's
-//built-in blitting rectangle.
-//   The final component is to allow for the redrawing of 
-//background windows that may be semi-occluded by overlapping
-//siblings. This will be done by using a recursive splitting 
-//algorithm to break down the non-occluded rectilinear
-//polygon defining the visible area of the window into 
-//rectangles, each of which will then be sent to the GFX 
-//bitmap blitter to be inserted into the framebuffer -- this
-//will require finally implementing the blit rectangle in 
-//GFX as well. In this phase we'll be able to do things to
-//significantly improve performance such as throwing out a
-//window for redraw the moment it is determined to be 
-//completely occluded and generalizing that to the input 
-//blitting rectangle as well. EG: If the region we want
-//redrawn is under another window, don't bother drawing it.
+List* getOverlappingWindows(int lowest_z_level, rect* baserect) {
 
-rect* getOverlappingWindows(window* cur_window, unsigned int* rect_count, rect* rect_collection, rect* baserect, unsigned char initial, unsigned char create_rects) {
+    List* rect_list = List_new();
+    rect* new_rect;
 
-    rect* return_rects = (rect*)0;
+    if(!rects_list)
+	    return rects_list;
 
-    //See if I overlap, and then check my children 
-    if(cur_window) {
         
-        //Allocate space for rectangles if we haven't yet AND we're building them
-        if(create_rects && !rect_collection) {
-            
-            return_rects = (rect*)malloc(sizeof(rect)*(rect_count[0]));
-            if(!return_rects)
-                prints("[WYG] Couldn't allocate space for the rectangles\n");
-            rect_count[0] = 0;
-        } else {
-            
-            return_rects = rect_collection;
-        }
+	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
+		
+		//Count the window only if it overlaps
+		if(cur_window->x <= baserect->right &&
+		   (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
+		   cur_window->y <= baserect->bottom && 
+		   (cur_window->y + cur_window->context->height - 1) >= baserect->top) {
+		
+		        if(!(new_rect = (rect*)malloc(sizeof(rect)))) {
+					
+					List_delete(rect_list, rect_deleter);
+					return (List*)0;
+				}
+				    				
+				new_rect->top = cur_window->y;
+				new_rect->left = cur_window->x;
+				new_rect->bottom = (cur_window->y + cur_window->context->height - 1);
+				new_rect->right = (cur_window->x + cur_window->context->width - 1);
+				
+				if(!List_add(rect_list, new_rect)) {
+					
+					free((void*)new_rect);
+					List_delete(rect_list, rect_deleter);
+					return (List*)0;
+				}
+		}
+	}
         
-        //Count the window only if it overlaps
-        if(!initial && /* Don't check the current window if it's the overlapped window */
-           cur_window->x <= baserect->right &&
-           (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
-           cur_window->y <= baserect->bottom && 
-           (cur_window->y + cur_window->context->height - 1) >= baserect->top) {
-           
-                    //Create the rectangle, if we're into that junk
-                if(create_rects) {
-                    
-                    return_rects[rect_count[0]].top = cur_window->y;
-                    return_rects[rect_count[0]].left = cur_window->x;
-                    return_rects[rect_count[0]].bottom = (cur_window->y + cur_window->context->height - 1);
-                    return_rects[rect_count[0]].right = (cur_window->x + cur_window->context->width - 1);
-                }
-               
-                rect_count[0]++;
-           }
-        
-        //Get the overlapping children
-        getOverlappingWindows(cur_window->first_child, rect_count, return_rects, baserect, 0, create_rects);
-        
-        //Get the overlapping higher sibling windows 
-        getOverlappingWindows(cur_window->next_sibling, rect_count, return_rects, baserect, 0, create_rects);
-    }
-    
     return return_rects;
 }
 
 void drawWindow(window* cur_window, unsigned char use_current_blit) {
      
     unsigned int rect_count;
-    rect* splitrects;
+    List* splitrect_list;
     rect winrect;
     int i;
     
@@ -1166,18 +1122,15 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.right = cur_window->x + cur_window->context->width - 1;
         }
         
-        rect_count = 0;
-        //prints("[WYG] Counting overlapping windows\n");
-        getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 0); //count the rects 
         //prints("[WYG] Building overlapping rectangles\n");
-        splitrects = getOverlappingWindows(cur_window, &rect_count, (rect*)0, &winrect, 1, 1); //build the rects        
+        splitrect_list = getOverlappingWindows(List_get_index(cur_window) + 1, &winrect); //build the rects        
         //prints("[WYG] Drawing occluded window\n");
-        drawOccluded(cur_window, winrect, splitrects, rect_count);   
+        drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
         
         //getch();
                 
-        free(splitrects);       
+        List_delete(splitrect_list, rect_deleter);       
     }
     
      //prints("[WYG] Finished drawing window ");
@@ -1311,7 +1264,7 @@ void refreshTree() {
     
     eraseMouse();
     
-    drawWindow(&root_window, 0);
+    drawWindow(root_window, 0);
     
     drawMouse();
 }
@@ -1480,49 +1433,36 @@ void main(void) {
     
 	//cmd_init(mode->width, mode->height);
 	
-    if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
+    if(!(window_list = List_new())) {
         
-        prints("[WYG] Couldn't allocate window LUT.\n");
+        prints("[WYG] Couldn't allocate window list.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
     
-    next_handle = 1;
-    root_window.handle = next_handle++;
-    registered_windows[0] = &root_window;
-    window_count = 1;
-
     //Init the root window (aka the desktop)
-    root_window.flags = WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE;
-    root_window.next_sibling = (window*)0;
-    root_window.parent = (window*)0;
-    root_window.first_child = (window*)0;
-    root_window.pid = 0;
-    root_window.x = 0;
-    root_window.y = 0; //14;
-    root_window.w = mode->width;
-    root_window.h = mode->height;// - 14;
+    root_window = new_window(mode->width, mode->height, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
     
     //Create a drawing context for the root window
-    if(!(root_window.context = newBitmap(root_window.w, root_window.h))) {
+    if(!root_window) {
         
         //prints("[WYG] Could not allocate a context for the root window.\n");
-        free((void*)registered_windows);
+        //Need to do a list free here for the window_list
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     } 
 
     //Set up the initial mouse position
-    mouse_x = root_window.w / 2 - 1;
-    mouse_y = root_window.h / 2 - 1;
+    mouse_x = root_window->w / 2 - 1;
+    mouse_y = root_window->h / 2 - 1;
 
     //Create a bitmap to store the mouse dirtyrect
     if(!(old_mouse_bkg = newBitmap(MOUSE_WIDTH, MOUSE_HEIGHT))) {
         
-        //prints("[WYG] Could not allocate a context for the mouse sirty buffer.\n");
-        free((void*)registered_windows);
+        //prints("[WYG] Could not allocate a context for the mouse dirty buffer.\n");
+        //Need to do a list free here for the window_list
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
@@ -1531,8 +1471,8 @@ void main(void) {
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Paint the initial scene
-    for(i = 0; i < root_window.w * root_window.h; i++)
-        root_window.context->data[i] = RGB(11, 162, 193);
+    for(i = 0; i < root_window->w * root_window->h; i++)
+        root_window->context->data[i] = RGB(11, 162, 193);
         
     refreshTree();
     
