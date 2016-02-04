@@ -550,6 +550,21 @@ void V86Entry(void) {
     }
 }
 
+unsigned int getCR2(void) {
+	
+	unsigned int cr2;
+	
+	__asm__ __volatile__ (
+        "mov %%cr0, %%eax\n\t"
+        "mov %%eax, %0\n\t"
+    : "=m" (cr2)
+    : /* no input */
+    : "%eax"
+    );
+	
+	return cr2;
+}
+
 void doKernelPanic(void) {
     
     //initScreen();
@@ -572,7 +587,7 @@ void doKernelPanic(void) {
 		    
 			if(proc_backup->ctx.err & 0x08) {
 			
-			    prints("access a page with incorrectly set reserved bits.");
+			    prints("access a page with incorrectly set reserved bits ");
 			} else {
 				
 				if(proc_backup->ctx.err & 0x0F) {
@@ -591,10 +606,12 @@ void doKernelPanic(void) {
 				else
 					prints("unmapped ");
 					
-				prints("memory.");
+				prints("memory ");
 			}
 			
-			pchar('\n');
+			prints("at 0x");
+			printHexDword(getCR2());
+			prints(".\n");
 		break;
 		
 		default:
