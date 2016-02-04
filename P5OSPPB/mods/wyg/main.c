@@ -75,12 +75,10 @@ unsigned short mouse_x;
 unsigned short mouse_y;
 unsigned char mouse_buffer_ok = 0;
 
-/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
+///*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
-unsigned char cmd_y;
 int cmd_width;
-int cmd_height;
-int cmd_max_chars, cmd_max_lines;
+int cmd_max_chars;
 
 void drawCharacter(char c, int x, int y, unsigned int color) {
 
@@ -89,88 +87,31 @@ void drawCharacter(char c, int x, int y, unsigned int color) {
     drawChar(c);
 }
 
-void cmd_getCursor(unsigned char *x, unsigned char *y) {
+void cmd_pchar(unsigned char c) {
 
-    if(!inited)
+    if(!inited || cmd_x > cmd_max_chars)
         return;
 
-    *x = cmd_x;
-    *y = cmd_y;
+	drawCharacter(c, (cmd_x*8) + 1, 1, RGB(0, 0, 0));
+	cmd_x++;    
 }
 
-void cmd_putCursor(unsigned char x, unsigned char y) {
-
-    if(!inited)
-        return;
-
-    cmd_x = x;
-    cmd_y = y;
-}
-
-void cmd_clear() {
+void cmd_prints(unsigned char* s) {
 
     if(!inited)
         return;
 
     setCursor(0, 0);
     setColor(RGB(255, 255, 255));
-    fillRect(cmd_width, cmd_height);
+    fillRect(cmd_width, 14);    
+
     cmd_x = 0;
-    cmd_y = 0;
-}
-
-void cmd_//pchar(unsigned char c) {
-
-    if(!inited)
-        return;
-
-    if(c == '\n') {
-
-        cmd_x = 0;
-        cmd_y++;
-        
-        if(cmd_y > cmd_max_lines) 
-            cmd_clear();
-    } else {
-
-        drawCharacter(c, (cmd_x*8), (cmd_y*12), RGB(0, 0, 0));
-        cmd_x++;
-
-        if(cmd_x > cmd_max_chars) {
-
-            cmd_x = 0;
-            cmd_y++;
-            
-            if(cmd_y > cmd_max_lines) 
-                cmd_clear();
-        }
-    }
-}
-
-void cmd_//prints(unsigned char* s) {
-
-    if(!inited)
-        return;
 
     while(*s)
-        cmd_//pchar(*s++);
+        cmd_pchar(*s++);
 }
 
-void cmd_//printClear(int count) {
-
-    if(!inited)
-        return;
-
-    setCursor((cmd_x*8), (cmd_y*12));
-    setColor(0);
-    fillRect(8*count, 12);
-    cmd_x += count;
-}
-
-void cmd_ //printDecimal(unsigned int dword) {
-
-    if(!inited)
-        return;
+void cmd_printDecimal(unsigned int dword) {
 
     unsigned char digit[12];
     int i, j;
@@ -191,49 +132,37 @@ void cmd_ //printDecimal(unsigned int dword) {
     }
 
     for(j = i - 1; j >= 0; j--)
-        cmd_//pchar(digit[j] + '0');
+        cmd_pchar(digit[j] + '0');
 }
 
-void cmd_//printHexByte(unsigned char byte) {
+void cmd_printHexByte(unsigned char byte) {
 
-    if(!inited)
-        return;
-
-    cmd_//pchar(digitToHex((byte & 0xF0)>>4));
-    cmd_//pchar(digitToHex(byte & 0xF));
+    cmd_pchar(digitToHex((byte & 0xF0)>>4));
+    cmd_pchar(digitToHex(byte & 0xF));
 }
 
 
-void cmd_//printHexWord(unsigned short wd) {
+void cmd_printHexWord(unsigned short wd) {
 
-    if(!inited)
-        return;
-
-    cmd_//printHexByte((unsigned char)((wd & 0xFF00)>>8));
-    cmd_//printHexByte((unsigned char)(wd & 0xFF));
+    cmd_printHexByte((unsigned char)((wd & 0xFF00)>>8));
+    cmd_printHexByte((unsigned char)(wd & 0xFF));
 }
 
 
-void cmd_//printHexDword(unsigned int dword) {
+void cmd_printHexDword(unsigned int dword) {
 
-    if(!inited)
-        return;
-
-    cmd_//printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
-    cmd_//printHexWord((unsigned short)(dword & 0xFFFF));
+    cmd_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    cmd_printHexWord((unsigned short)(dword & 0xFFFF));
 }
 
 void cmd_init(unsigned short xres, unsigned short yres) {
 
     cmd_x = 0;
-    cmd_y = 0;
     cmd_width = xres;
-    cmd_height = yres;
-    cmd_max_chars = (cmd_width/8) - 1;
-    cmd_max_lines = (cmd_height/12) - 1;
+    cmd_max_chars = ((cmd_width - 2)/8) - 1;
     inited = 1;
 }
-!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
+//!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
@@ -665,6 +594,8 @@ unsigned int newWindow(unsigned int width, unsigned int height, unsigned char fl
     window* new_window;
     unsigned int i, bufsz;
     
+	cmd_prints("Creating a new window"); 
+	
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
          prints("[WYG] Couldn't allocate a new window\n");
@@ -1566,10 +1497,10 @@ void main(void) {
     root_window.parent = (window*)0;
     root_window.first_child = (window*)0;
     root_window.pid = 0;
-    root_window.x = 0;
+    root_window.x = 14;
     root_window.y = 0;
     root_window.w = mode->width;
-    root_window.h = mode->height;
+    root_window.h = mode->height - 14;
     
     //Create a drawing context for the root window
     if(!(root_window.context = newBitmap(root_window.w, root_window.h))) {
