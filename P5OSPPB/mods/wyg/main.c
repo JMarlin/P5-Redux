@@ -1478,6 +1478,8 @@ void main(void) {
         terminate();
     }
     
+	cmd_init(mode->width, mode->height);
+	
     if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
         
         prints("[WYG] Couldn't allocate window LUT.\n");
