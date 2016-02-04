@@ -1500,7 +1500,7 @@ void main(void) {
     root_window.first_child = (window*)0;
     root_window.pid = 0;
     root_window.x = 0;
-    root_window.y = 0 //14;
+    root_window.y = 0; //14;
     root_window.w = mode->width;
     root_window.h = mode->height;// - 14;
     
