@@ -1042,7 +1042,7 @@ void drawFrame(window* cur_window) {
     bmpFillRect(cur_window->context, 3, 25, cur_window->w - 6, 2, RGB(238, 203, 137)); 
     
     //Bottom frame
-    bmpFillRect(cur_window->context, 3, cur_window->h - 3, cur_window->w - 6, 2, RGB(238, 203, 137)); 
+    bmpFillRect(cur_window->context, 3, cur_window->h - 4, cur_window->w - 6, 2, RGB(238, 203, 137)); 
         
     //Button
     bmpDrawPanel(cur_window->context, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
@@ -1478,7 +1478,7 @@ void main(void) {
         terminate();
     }
     
-	cmd_init(mode->width, mode->height);
+	//cmd_init(mode->width, mode->height);
 	
     if(!(registered_windows = (window**)malloc(sizeof(window*)))) {
         
@@ -1500,9 +1500,9 @@ void main(void) {
     root_window.first_child = (window*)0;
     root_window.pid = 0;
     root_window.x = 0;
-    root_window.y = 14;
+    root_window.y = 0 //14;
     root_window.w = mode->width;
-    root_window.h = mode->height - 14;
+    root_window.h = mode->height;// - 14;
     
     //Create a drawing context for the root window
     if(!(root_window.context = newBitmap(root_window.w, root_window.h))) {
