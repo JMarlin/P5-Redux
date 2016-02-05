@@ -1334,7 +1334,9 @@ void main(void) {
     //Paint the initial scene
     for(i = 0; i < root_window->w * root_window->h; i++)
         root_window->context->data[i] = RGB(11, 162, 193);
-            
+    
+	drawWindow(root_window, 0);
+	        
     //Start debug console
     //init(root_window.w, 48);
 
