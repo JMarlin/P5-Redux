@@ -612,6 +612,16 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     return new_window;
 }
 
+unsigned int newWindowHandle(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
+	
+	window* ret_window = newWindowHandle(width, height, flags, pid);
+	
+	if(ret_window)
+	    return ret_window->handle;
+	
+	return 0;
+}
+
 window* getWindowByHandle(unsigned int handle) {
     
 	window* out_window;
@@ -1363,7 +1373,7 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
-                postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindow((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
+                postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindowHandle((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
             break;
             
             case WYG_GET_CONTEXT:
