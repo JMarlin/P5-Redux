@@ -614,7 +614,7 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 
 unsigned int newWindowHandle(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
 	
-	window* ret_window = newWindowHandle(width, height, flags, pid);
+	window* ret_window = newWindow(width, height, flags, pid);
 	
 	if(ret_window)
 	    return ret_window->handle;
