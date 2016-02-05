@@ -935,7 +935,10 @@ void drawTitlebar(window* cur_window, int do_refresh) {
     unsigned char* s;    
     unsigned int tb_color, text_color;
     Rect old_ctx_rect;
-        
+    
+	if(cur_window->flags & WIN_UNDECORATED)
+	    return;
+	    
     //Titlebar
     if(cur_window->active)
         tb_color = RGB(182, 0, 0);
