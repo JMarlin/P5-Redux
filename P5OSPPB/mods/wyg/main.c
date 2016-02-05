@@ -722,7 +722,7 @@ void updateOverlapped(Rect* window_bounds) {
 
 void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y) {
     
-    rect overlap_rect;
+    Rect overlap_rect;
             
     //If a window is moved, we must ensure that it is the active window 
     raiseWindow(dest_window);
@@ -803,7 +803,7 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
 void markWindowVisible(window* dest_window, unsigned char is_visible) {
     
     unsigned char was_visible;
-    rect overlap_rect;
+    Rect overlap_rect;
     
     was_visible = dest_window->flags & WIN_VISIBLE;
     
@@ -870,7 +870,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
         
     dest_window->title = newstr;
     
-    drawTitlebar(dest_window)
+    drawTitlebar(dest_window);
 }
 
 void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
@@ -906,7 +906,7 @@ void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int
     }
 }
 
-void drawTitlebar(window* cur_window, do_refresh) {
+void drawTitlebar(window* cur_window, int do_refresh) {
     
     unsigned char* s;    
     unsigned int tb_color, text_color;
@@ -1011,10 +1011,10 @@ void drawFrame(window* cur_window) {
     cur_window->frame_needs_redraw = 0;
 }
 
-List* getOverlappingWindows(int lowest_z_level, rect* baserect) {
+List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 
     List* rect_list = List_new();
-    rect* new_rect;
+    Rect* new_rect;
 
     if(!rects_list)
 	    return rects_list;
