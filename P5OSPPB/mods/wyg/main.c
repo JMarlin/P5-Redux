@@ -44,6 +44,7 @@ Linkage is in order of increasing z-value
 message temp_msg;
 
 typedef struct window {
+	unsigned char active;
     unsigned char flags;
     unsigned int handle;
     unsigned int pid;
@@ -243,39 +244,6 @@ void displayString(int x, int y, unsigned char* s) {
     }
 }
 
-void eraseMouse() {
- 
-    //prints("Erasing mouse\n");
-    return;
-    
-    if(!mouse_buffer_ok)
-        return;
-        
-    setCursor(mouse_x, mouse_y);
-    drawBitmap(old_mouse_bkg);
-}
-
-void drawMouse() {
-    
-    //prints("Drawing mouse\n");
-    return;
-    
-    setCursor(mouse_x, mouse_y);
-    copyScreen(old_mouse_bkg);
-    
-    setColor(0);
-    setCursor(mouse_x + (MOUSE_WIDTH / 2), mouse_y);
-    drawVLine(MOUSE_HEIGHT);
-    setCursor(mouse_x + (MOUSE_WIDTH / 2) - 1, mouse_y);
-    drawVLine(MOUSE_HEIGHT);
-    setCursor(mouse_x, mouse_y + (MOUSE_HEIGHT / 2));
-    drawHLine(MOUSE_WIDTH);
-    setCursor(mouse_x, mouse_y + (MOUSE_HEIGHT / 2) - 1);
-    drawHLine(MOUSE_WIDTH);
-    
-    mouse_buffer_ok = 1;
-}
-
 void scans(int c, char* b) {
 
     unsigned char temp_char;
@@ -304,21 +272,21 @@ void scans(int c, char* b) {
 }
 
 //#define RECT_TEST 1
-void drawBmpRect(window* win, rect r) {
+void drawBmpRect(window* win, Rect* r) {
 
 #ifdef RECT_TEST 
   
     setColor(RGB(0, 255, 0));
-    setCursor(r.left, r.top);
-    drawRect(r.right - r.left, r.bottom - r.top);
+    setCursor(r->left, r->top);
+    drawRect(r->right - r->left, r->bottom - r->top);
     
 #else     
 
     //Adjust the rectangle coordinate from global space to window space 
-    win->context->top = r.top - win->y;
-    win->context->left = r.left - win->x;
-    win->context->bottom = r.bottom - win->y;
-    win->context->right = r.right - win->x;   
+    win->context->top = r->top - win->y;
+    win->context->left = r->left - win->x;
+    win->context->bottom = r->bottom - win->y;
+    win->context->right = r->right - win->x;   
     
     //Do the blit
     setCursor(win->x, win->y);
@@ -327,106 +295,91 @@ void drawBmpRect(window* win, rect r) {
 #endif //RECT_TEST
 }
 
-rect* splitRect(rect rdest, rect rknife, int* out_count) {
+List* splitRect(Rect* rdest, Rect* rknife) {
 	
-	rect baserect;
-	rect* outrect;
-	int rect_count = 0;
-	unsigned int i;
+	Rect baserect;
+	List* outrect;
+	Rect* new_rect;
 	
-	baserect.top = rdest.top;
-	baserect.left = rdest.left;
-	baserect.bottom = rdest.bottom;
-	baserect.right = rdest.right;
+	baserect.top = rdest->top;
+	baserect.left = rdest->left;
+	baserect.bottom = rdest->bottom;
+	baserect.right = rdest->right;
 
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
     //printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
 #endif //RECT_TEST
-
-	if(rknife.left > baserect.left && rknife.left < baserect.right)
-		rect_count++;
-		
-	if(rknife.right > baserect.left && rknife.right < baserect.right)
-		rect_count++;
-	
-	if(rknife.top < baserect.bottom && rknife.top > baserect.top)
-		rect_count++;		
-		
-	if(rknife.bottom < baserect.bottom && rknife.bottom > baserect.top)
-		rect_count++;	
-	
-	if(rect_count == 0) {
-		
-		out_count[0] = 0;
-		return (rect*)0;
-	}
 		
     //prints("Allocating space for ");
      //printDecimal(sizeof(rect)*rect_count);
     //prints(" rect bytes\n");
-	outrect = (rect*)malloc(sizeof(rect)*rect_count);
-    if(!outrect)
+	outrect = List_new();
+    if(!outrect) {
+		
         prints("Couldn't allocate rect space\n");
-	rect_count = 0;
+		return outrect;
+	}
 	
     //prints("Doing left edge split\n");
 	//Split by left edge
-	if(rknife.left > baserect.left && rknife.left < baserect.right) {
+	if(rknife->left > baserect.left && rknife->left < baserect.right) {
 		
-		outrect[rect_count].top = baserect.top;
-		outrect[rect_count].bottom = baserect.bottom;
-		outrect[rect_count].right = rknife.left - 1;
-		outrect[rect_count].left = baserect.left;
+		new_rect = Rect_new(baserect.top, baserect.bottom, rknife.left - 1, baserect.left);
 		
-		baserect.left = rknife.left;
+		if(!new_rect) {
+			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
 		
-		rect_count++;
+		baserect.left = rknife->left;
 	}
 
     //prints("Doing top edge split\n");
 	//Split by top edge
-	if(rknife.top < baserect.bottom && rknife.top > baserect.top) {
+	if(rknife->top < baserect.bottom && rknife->top > baserect.top) {
 		
-		outrect[rect_count].top = baserect.top;
-		outrect[rect_count].bottom = rknife.top - 1;
-		outrect[rect_count].right = baserect.right;
-		outrect[rect_count].left = baserect.left;
+		new_rect = Rect_new(baserect.top, rknife->top - 1, baserect.right, baserect.left);
 		
-		baserect.top = rknife.top;
+		if(!new_rect) {
+			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
 		
-		rect_count++;
+		baserect.top = rknife->top;
 	}
 
     //prints("Doing right edge split\n");
 	//Split by right edge
-	if(rknife.right > baserect.left && rknife.right < baserect.right) {
+	if(rknife->right > baserect.left && rknife->right < baserect.right) {
 		
-		outrect[rect_count].top = baserect.top;
-		outrect[rect_count].bottom = baserect.bottom;
-		outrect[rect_count].right = baserect.right;
-		outrect[rect_count].left = rknife.right + 1;
+		new_rect = Rect_new(baserect.top, baserect.bottom, baserect.right, rknife->right + 1);
 		
-		baserect.right = rknife.right;
+		if(!new_rect) {
+			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
 		
-		rect_count++;
+		baserect.right = rknife->right;
 	}
 
     //prints("Doing bottom edge split\n");
-	//Split by right edge
-	if(rknife.bottom > baserect.top && rknife.bottom < baserect.bottom) {
+	//Split by bottom edge
+	if(rknife->bottom > baserect.top && rknife->bottom < baserect.bottom) {
 		
-		outrect[rect_count].top = rknife.bottom + 1;
-		outrect[rect_count].bottom = baserect.bottom;
-		outrect[rect_count].right = baserect.right;
-		outrect[rect_count].left = baserect.left;
+		new_rect = Rect_new(rknife->bottom + 1, baserect.bottom, baserect.right, baserect.left);
 		
-		baserect.bottom = rknife.bottom;
+		if(!new_rect) {
+			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
 		
-		rect_count++;
+		baserect.bottom = rknife->bottom;
 	}
-
-	out_count[0] = rect_count;
 
 	return outrect;	
 }
@@ -446,12 +399,12 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     //Clear everything 
     setColor(RGB(255, 255, 255));
     setCursor(0, 0);
-    fillRect(root_window.context->width, root_window.context->height);
+    fillRect(root_window->context->width, root_window->context->height);
     
     //Draw the base window
     setColor(RGB(0, 0, 255));
-    setCursor(baserect.left, baserect.top);
-    drawRect(baserect.right - baserect.left, baserect.bottom - baserect.top);
+    setCursor(baserect->left, baserect->top);
+    drawRect(baserect->right - baserect->left, baserect->bottom - baserect->top);
     
     //Draw the overlapping windows
     List_for_each(splitrect_list, rect, Rect*) {
@@ -477,7 +430,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     if(!out_rects) {
         
         prints("[WYG] Couldn't allocate space for output rect list\n");
-        return;
+		return;
     }
     
     rect = Rect_new(baserect->top, baserect->left, baserect->bottom, baserect->right);
@@ -485,31 +438,26 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     if(!rect) {
         
         prints("[WYG] Couldn't allocate space for temp rectangle\n");
+		List_delete(out_rects);
         return;
     }
     
     if(!List_add(out_rects, (void*)rect) {
         
         prints("[WYG] Couldn't insert out rect into list\n");
+		List_delete(out_rects);
         return;
     }
-        
+	        
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	List_for_each(splitrect_list, split_rect, Rect*) {
         
 		List_for_each(out_rects, out_rect, Rect*) {
             
-			//Only bother with this combination of rectangles if the rectangle to be split (out_rects[]) 
-			//is not a blank (zero-dimension) -- we don't have to check for intersection as the calling function
-            //already does that
-			if(!(out_rect->top == 0 &&
-				 out_rect->left == 0 &&
-				 out_rect->bottom == 0 &&
-				 out_rect->right == 0)&&
-                 (split_rect->left <= out_rect->right &&
-			      split_rect->right >= out_rect->left &&
-			      split_rect->top <= out_rect->bottom && 
-			      split_rect->bottom >= out_rect->top)) {
+			if((split_rect->left <= out_rect->right &&
+			   split_rect->right >= out_rect->left &&
+			   split_rect->top <= out_rect->bottom && 
+			   split_rect->bottom >= out_rect->top)) {
 			
                 List* clip_list = splitRect(out_rect, split_rect);
 
@@ -520,26 +468,30 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 
 #endif //RECT_TEST
             
+			    if(!clip_list) {
+					
+					List_delete(out_rects, Rect_deleter);
+					return;
+				}
+			
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!clip_list->count) {
 					
-					//We use zero-dimension rects to represent blank entries
-					//Ideally we would want to break out of the function the second
-					//we've rejected the last rect, but in this case our memory model
-					//makes that a little difficult. We could do this very quickly 
-					//if we switched to some kind of linked list
 					List_remove(out_rects, (void*)out_rect, Rect_deleter);
+					
+					//If we deleted the last output rectangle, we are completely 
+					//occluded and can return early
+					if(out_rects->count == 0) {
+						
+						List_delete(clip_list, Rect_deleter);
+						List_delete(out_rects, Rect_deleter);
+						return;
+					}
+					
+					//Otherwise, go back to the top of the loop and test the next out_rect
 					continue;
 				}
-				
-				//From here on out, the first result rectangle is alredy allocated for because it takes the
-				//place of the rectangle that was split
-				split_count--;
-                //prints("[WYG] Reallocating space for output rectangles\n");
-				out_rects = (rect*)realloc(out_rects, sizeof(rect) * (split_count + total_count));
-                if(!out_rects)
-                    prints("[WYG] Couldn't allocate memory\n");
-					
+							
 				//Replace the rectangle that got split with the first result rectangle 
                 rect = List_get_at(clip_list, 0);
 				out_rect->top = rect->top;
@@ -552,14 +504,18 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                     
                     new_rect = Rect_new(rect->top, rect->left, rect->bottom, rect->right);
                     
-                    if(!new_rect)
-                        return; //This should free everything nicely
+                    if(!new_rect) {
+					    
+						List_delete(clip_list, Rect_deleter);
+						List_delete(out_rects, Rect_deleter);	
+                        return;
+					}
                     
                     List_add(out_rects, (void*)new_rect);
 				}
 				
 				//Free the space that was used for the split 
-				List_delete(split_rects, Rect_deleter);
+				List_delete(clip_list, Rect_deleter);
 				
 				//Restart the list 
 				List_rewind(out_rects);
@@ -581,8 +537,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 
 window* newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
     
-	static next_handle = 1; 
-    window* new_window;
+	static int next_handle = 1; 
+    window *new_window, *temp_window;
     unsigned int i, bufsz;
     
 	cmd_prints("Creating a new window"); 
@@ -601,7 +557,8 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     }
     
      //prints("[WYG] Created new window, setting initial values\n");
-    new_window->pid = pid;
+    new_window->active = 1;
+	new_window->pid = pid;
     new_window->flags = flags;
     new_window->x = 0;
     new_window->y = 0;
@@ -627,13 +584,33 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
      //prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
 	
+	//De-activate the old active window
+	if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
+			
+	    temp_window->active = 0;
+	}
+		
 	if(!List_add(window_list, (void*)new_window)){
 		
 		freeBitmap(new_window->context);
 	    free((void*)new_window);
-        return (window*)0;	
+		
+		//re-activate the old active window
+		if(temp_window)
+		    temp_window->active = 1;
+        
+		return (window*)0;	
 	}
-    
+    	
+	//Give the new window its initial decoration
+	if(!(new_window->flags & WIN_UNDECORATED))
+	    drawFrame(new_window);
+		
+	drawWindow(new_window, 0);
+	
+	//Update the titlebar on the old active window 
+	drawTitlebar(temp_window, 0);
+		
      //prints("[WYG] Successfully created new window ");
       //printDecimal(new_window->handle);
      //pchar('\n');
@@ -642,12 +619,12 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 
 window* getWindowByHandle(unsigned int handle) {
     
-    int i;
-    
-    for(i = 0; i < window_count; i++) {
+	window* out_window;
+	    
+    List_for_each(window_list, out_window, window*) {
         
-        if(registered_windows[i] && registered_windows[i]->handle == handle)
-            return registered_windows[i];
+		if(out_window->handle == handle)
+		    return out_window;
     }
     
     return (window*)0;
@@ -699,25 +676,26 @@ bitmap* getWindowContext(unsigned int handle) {
 }
 
 //Redraws every window intersected by window_bounds
-void updateOverlapped(rect* window_bounds) {
+void updateOverlapped(Rect* window_bounds) {
     
     int i;
-    rect comp_rect, draw_rect; 
-    
+    Rect comp_rect, draw_rect; 
+    window* cur_window;
+	
     //prints("[WYG] Looking for previously overlapped windows\n");
         
-    for(i = 0; i < window_count; i++) {
+    List_for_each(window_list, cur_window, window*) {
         
-        comp_rect.top = registered_windows[i]->y;
-        comp_rect.left = registered_windows[i]->x;
-        comp_rect.bottom = comp_rect.top + registered_windows[i]->h - 1;
-        comp_rect.right = comp_rect.left + registered_windows[i]->w - 1;
+        comp_rect.top = cur_window->y;
+        comp_rect.left = cur_window->x;
+        comp_rect.bottom = comp_rect.top + cur_window->h - 1;
+        comp_rect.right = comp_rect.left + cur_window->w - 1;
         
-        if(window_bounds->left <= comp_rect.right &&
+        if((cur_window->flags & WIN_VISIBLE) && 
+		   window_bounds->left <= comp_rect.right &&
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
-           window_bounds->bottom >= comp_rect.top && 
-           (registered_windows[i]->flags & WIN_VISIBLE)) {
+           window_bounds->bottom >= comp_rect.top) {
             
             //prints("[WYG] Found an overlapped window\n");   
             if(window_bounds->top < comp_rect.top)
@@ -740,11 +718,11 @@ void updateOverlapped(rect* window_bounds) {
             else 
                 draw_rect.right = window_bounds->right;
             
-            registered_windows[i]->context->top = draw_rect.top - registered_windows[i]->y;
-            registered_windows[i]->context->left = draw_rect.left - registered_windows[i]->x;       
-            registered_windows[i]->context->bottom = draw_rect.bottom - registered_windows[i]->y;
-            registered_windows[i]->context->right = draw_rect.right - registered_windows[i]->x;        
-            drawWindow(registered_windows[i], 1);
+            cur_window->context->top = draw_rect.top - cur_window->y;
+            cur_window->context->left = draw_rect.left - cur_window->x;       
+            cur_window->context->bottom = draw_rect.bottom - cur_window->y;
+            cur_window->context->right = draw_rect.right - cur_window->x;        
+            drawWindow(cur_window, 1);
         }
     }
 }
@@ -767,7 +745,10 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
     
     //Need to update the screen if we're visible    
     if(dest_window->flags & WIN_VISIBLE) {
-             
+        
+		//Should update this so that we don't redraw stuff that's going to
+		//be under the window's new location because we're going to draw
+		//over that when we draw the window at the new location anyhow     
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
         
         //Redraw the window at its new location
@@ -787,16 +768,17 @@ void moveHandle(unsigned int handle, unsigned short new_x, unsigned short new_y)
          //prints("[WYG] Couldn't find window to mark it visible\n");   
         return;
     }
-    
-    eraseMouse();
-    
+       
     moveWindow(dest_window, new_x, new_y);
-    
-    drawMouse();
 }
 
 void installWindow(unsigned int child_handle, unsigned int parent_handle) {
     
+	//Right now, we removed all of the parent-child relationships in the window object,
+	//so this doesn't really do anything. In the future, we should probably do 
+	//something with it, though
+	
+	/*
     window* child_window = getWindowByHandle(child_handle);
     window* parent_window = getWindowByHandle(parent_handle);
     window* sibling_window;
@@ -821,7 +803,8 @@ void installWindow(unsigned int child_handle, unsigned int parent_handle) {
         
     sibling_window->next_sibling = child_window;
     
-    return;   
+    return;
+	*/   
 }
 
 void markWindowVisible(window* dest_window, unsigned char is_visible) {
@@ -830,31 +813,22 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     rect overlap_rect;
     
     was_visible = dest_window->flags & WIN_VISIBLE;
+    
+	if(!!was_visible && !!is_visible)
+	    return;
 
     if(is_visible) {
-                
-        if(!(dest_window->flags & WIN_UNDECORATED)) {
-         
-            drawFrame(dest_window);
-        }
                
         dest_window->flags |= WIN_VISIBLE;
+		drawWindow(dest_window, 0);
     } else {
         
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
-    }
-    
-    if(was_visible && !is_visible) {
-        
-        overlap_rect.top = dest_window->y;
+		overlap_rect.top = dest_window->y;
         overlap_rect.left = dest_window->x;
         overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
         overlap_rect.right = overlap_rect.left + dest_window->w - 1;
-        
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
-    } else {
-        
-        drawWindow(dest_window, 0);
     }
     
     return;
@@ -870,11 +844,7 @@ void markHandleVisible(unsigned int handle, unsigned char is_visible) {
         return;
     }
     
-    eraseMouse();
-    
     markWindowVisible(dest_window, is_visible);
-    
-    drawMouse();
 }
 
 void markWindowDirty(unsigned int handle) {
@@ -907,7 +877,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
         
     dest_window->title = newstr;
     
-    dest_window->frame_needs_redraw = 1;
+    drawTitlebar(dest_window)
 }
 
 void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
@@ -943,14 +913,14 @@ void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int
     }
 }
 
-void drawTitlebar(window* cur_window, unsigned char active) {
+void drawTitlebar(window* cur_window, do_refresh) {
     
     unsigned char* s;    
     unsigned int tb_color, text_color;
     rect old_ctx_rect;
         
     //Titlebar
-    if(active)
+    if(cur_window->active)
         tb_color = RGB(182, 0, 0);
     else 
         tb_color = RGB(238, 203, 137);
@@ -970,7 +940,7 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         off_x = 0;
         titlebar_width = cur_window->w - 28;
         
-        if(active)
+        if(cur_window->active)
             text_color = RGB(255, 255, 255);
         else
             text_color = RGB(138, 103, 37);
@@ -985,24 +955,25 @@ void drawTitlebar(window* cur_window, unsigned char active) {
         }
     }
     
-    /*
-    old_ctx_rect.top = cur_window->context->top;
-    old_ctx_rect.left = cur_window->context->left;
-    old_ctx_rect.bottom = cur_window->context->bottom;
-    old_ctx_rect.right = cur_window->context->right;
-    
-    cur_window->context->top = 4;
-    cur_window->context->left = 4;
-    cur_window->context->bottom = 23;
-    cur_window->context->right = cur_window->context->right - 25;
-    
-    drawWindow(cur_window, 1);
-    
-    cur_window->context->top = old_ctx_rect.top;
-    cur_window->context->left = old_ctx_rect.left;
-    cur_window->context->bottom = old_ctx_rect.bottom;
-    cur_window->context->right = old_ctx_rect.right;
-    */
+	if(do_refresh) {
+	
+		old_ctx_rect.top = cur_window->context->top;
+		old_ctx_rect.left = cur_window->context->left;
+		old_ctx_rect.bottom = cur_window->context->bottom;
+		old_ctx_rect.right = cur_window->context->right;
+		
+		cur_window->context->top = 4;
+		cur_window->context->left = 4;
+		cur_window->context->bottom = 23;
+		cur_window->context->right = cur_window->context->right - 25;
+		
+		drawWindow(cur_window, 1);
+		
+		cur_window->context->top = old_ctx_rect.top;
+		cur_window->context->left = old_ctx_rect.left;
+		cur_window->context->bottom = old_ctx_rect.bottom;
+		cur_window->context->right = old_ctx_rect.right;
+	}
 }
 
 void drawFrame(window* cur_window) {
@@ -1042,7 +1013,7 @@ void drawFrame(window* cur_window) {
     bmpDrawPanel(cur_window->context, cur_window->w - 24, 4, 20, 20, RGB(238, 203, 137), 1, 0);
     bmpFillRect(cur_window->context, cur_window->w - 23, 5, 18, 18, RGB(238, 203, 137)); 
     
-    drawTitlebar(cur_window, cur_window->next_sibling == (window*)0);
+    drawTitlebar(cur_window, 0);
     
     cur_window->frame_needs_redraw = 0;
 }
@@ -1151,97 +1122,46 @@ void drawHandle(unsigned int handle) {
         return;
     }
     
-    eraseMouse();
-    
     //Draw the window, assume we want to use the blit window set up by the client   
     drawWindow(dest_window, 1);
-    
-    drawMouse();
-}
-
-void drawDeactivated(window* owner) {
-    
-    window* cur_sibling;
-    
-    //Find the active child of the owner
-    cur_sibling = owner->first_child;
-    
-    //No children, we can quit
-    if(!cur_sibling)
-        return;
-        
-    while(cur_sibling->next_sibling)
-        cur_sibling = cur_sibling->next_sibling;
-        
-    //cur_sibling is now the active sibling and can have its titlebar redrawn
-    if(cur_sibling->flags & WIN_VISIBLE && !(cur_sibling->flags & WIN_UNDECORATED))
-        drawTitlebar(cur_sibling, 0);
-    
-    //Iterate down the active branch until we're out of children
-    drawDeactivated(cur_sibling);
 }
 
 void raiseWindow(window* dest_window) {
     
-    window* parent;
-    window* owning_sibling;
     window* old_active;
-        
-    //If the window isn't visible, it will need to be in order to be raised 
-    dest_window->flags |= WIN_VISIBLE;
-    
+            
     //Can't raise the root window
     if(dest_window->handle == 1)
-        return ;
-        
-    //We don't need to do anything if the window is parentless or already at the end of its chain
-    if(!dest_window->parent || !dest_window->next_sibling)
         return;
-    
-    //Deactivate the titlebars of all previously active siblings
-    drawDeactivated(dest_window->parent);
-    
-    //Set up the window iterators    
-    parent = dest_window->parent;
-    owning_sibling = parent->first_child;
-    
-    //This only happens if the dest window is the bottommost child
-    if(owning_sibling == dest_window) {
         
-        //Find the end window
-        while(owning_sibling->next_sibling)
-            owning_sibling = owning_sibling->next_sibling;
-        
-        parent->first_child = dest_window->next_sibling;
-        owning_sibling->next_sibling = dest_window;
-        dest_window->next_sibling = (window*)0;
-        
-    } else {
+    //Get the previously active window 
+	old_active = (window*)List_get_at(window_list, window_list->count - 1);
     
-        while(owning_sibling->next_sibling != dest_window && owning_sibling)
-            owning_sibling = owning_sibling->next_sibling;        
-                    
-        owning_sibling->next_sibling = dest_window->next_sibling;
-        dest_window->next_sibling = (window*)0;
-        
-        while(owning_sibling->next_sibling)
-            owning_sibling = owning_sibling->next_sibling;
-            
-        owning_sibling->next_sibling = dest_window;
-        
-        //Go up the tree and make sure the parent is raised
-        raiseWindow(dest_window->parent);
-    }
+	//If we were already active we don't need to do anything else 
+	if(old_active == dest_window)
+	    return;
+	
+	//extract the current window from its position in the list and
+	//re-insert it at the end 
+    if(!List_pop(old_active))
+	    return;
     
-    //Go up the tree and make sure the parent is raised
-    raiseWindow(dest_window->parent);
-    
-    //Redraw the tree of active windows if we've hit the root 
-    if(dest_window->parent->handle == 1) {
-    
-        dest_window->frame_needs_redraw;    
-        drawWindow(dest_window, 0);
-    }
+	if(!List_add(old_active))
+	    return;
+		
+	//Update the titlebar on the old and new active windows 
+	old_active->active = 0;
+	dest_window->active = 1;
+	drawTitlebar(old_active, 1);
+	
+	//If the window isn't visible, it will need to be in order to be
+	//raised, otherwise we just redraw (would be more efficient in
+	//the future to just redraw those portions that were occluded
+	//prior to raising)
+    if(!(dest_window->flags &= WIN_VISIBLE))
+	    markWindowVisible(dest_window);
+	else
+	    drawWindow(dest_window, 0);
 }
 
 void raiseHandle(unsigned int handle) {
@@ -1254,78 +1174,14 @@ void raiseHandle(unsigned int handle) {
         return;
     }
     
-    eraseMouse();
-    
     raiseWindow(dest_window);
-    
-    drawMouse();
 }
 
-void refreshTree() {
-    
-    eraseMouse();
-    
-    drawWindow(root_window, 0);
-    
-    drawMouse();
-}
-
-void destroy(window* dest_window) {
-
-    window *cur_child, *next;
-    int i;
-            
-    //Start by hiding the window 
-    markWindowVisible(dest_window, 0);
-    
-    //Destroy everything that belongs to this window
-    cur_child = dest_window->first_child;
-    
-    while(cur_child) {
-        
-        next = cur_child->next_sibling;
-        destroy(cur_child);
-        cur_child = next;
-    }
-    
-    //Now that everything we own has been destroyed, we can destory ourself
-    //Find our parent and use that to find the node before us 
-    cur_child = dest_window->parent->first_child;
-    
-    while(cur_child->next_sibling != dest_window && cur_child != dest_window)
-        cur_child = cur_child->next_sibling;
-        
-    if(cur_child == dest_window) {
-        
-        //The deleted window is the lowest window, so we need to repoint the parent window 
-        dest_window->parent->first_child = dest_window->next_sibling;
-    } else {
-        
-        //Otherwise we reparent the next sibling to the previous sibling 
-        cur_child->next_sibling = dest_window->next_sibling;
-    }
-    
-    //Remove this bitmap from the handle list     
-    for(i = 0; i < window_count; i++) {
-        if(registered_windows[i] == dest_window) {
-            
-            window_count--;
-            
-            for(; i < window_count; i++)
-                registered_windows[i] = registered_windows[i+1];
-        
-            //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-            if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count)))) {
-                
-                 prints("[WYG] Window list realloc failed\n");
-                return;
-            }
-        
-            break;
-        }
-    }
-    
-    //Free the context
+void window_deleter(void* item) {
+	
+	window* win = (window*)item;
+	
+	//Free the context
     freeBitmap(dest_window->context);
     
     //Free the title (if we ever decide to error on unsuccessful frees, this could be an issue for static or undefined titles)
@@ -1335,18 +1191,34 @@ void destroy(window* dest_window) {
     free((void*)dest_window);
 }
 
+void destroy(window* dest_window) {
+
+    window *cur_child, *next, *active_window;
+    int i;
+            
+    //Start by hiding the window 
+    markWindowVisible(dest_window, 0);
+	List_remove(window_list, (void*)dest_window, window_deleter);
+    active_window = (window*)List_get_at(window_list, window_list->count - 1);
+	
+	if(!active_window)
+	    return;
+		
+	if(!active_window->active) {
+		
+		active_window->active;
+		drawTitlebar(active_window, 1);
+	}
+}
+
 void destroyHandle(unsigned int handle) {
     
     window* dest_window = getWindowByHandle(handle);
     
     if(!dest_window) 
         return;
-    
-    eraseMouse();
         
     destroy(dest_window);
-    
-    drawMouse();
 }
 
 #ifdef HARNESS_TEST
@@ -1474,9 +1346,7 @@ void main(void) {
     //Paint the initial scene
     for(i = 0; i < root_window->w * root_window->h; i++)
         root_window->context->data[i] = RGB(11, 162, 193);
-        
-    refreshTree();
-    
+            
     //Start debug console
     //init(root_window.w, 48);
 

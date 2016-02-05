@@ -47,18 +47,19 @@ void List_delete(List* list, deleter del_func) {
 	free((void*)list);
 }
 
-void List_remove(List* list, void* value, deleter del_func) {
-    
-    ListItem* cur_item = list->root_item;
+void* List_pop(List* list, void* value) {
+	
+	ListItem* cur_item = list->root_item;
+	void* ret_val;
     
     if(!value || list->count == 0) 
-        return;
+        return (void*)0;
         
     while(cur_item && (cur_item->value != value))
         cur_item = cur_item->next;
         
     if(!cur_item)
-        return;
+        return (void*)0;
     
     if(cur_item == list->current_item) {
         
@@ -75,7 +76,7 @@ void List_remove(List* list, void* value, deleter del_func) {
         }
     }
     
-    del_func(value);
+
     
     if(cur_item->prev)
         cur_item->prev->next = cur_item->next;
@@ -84,8 +85,17 @@ void List_remove(List* list, void* value, deleter del_func) {
         cur_item->next->prev = cur_item->prev;
     
     list->count--;
-        
-    free((void*)cur_item);
+	ret_val = cur_item->value;
+	free((void*)cur_item);
+	return ret_val;
+}
+
+void List_remove(List* list, void* value, deleter del_func) {
+    
+    void* popval = List_pop(list, value);
+	
+	if(popval)
+    	del_func(value);        
 }
 
 void List_rewind(List* list) {

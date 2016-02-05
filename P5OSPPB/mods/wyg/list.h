@@ -28,6 +28,7 @@ int List_add(List* list, void* value);
 int List_has_next(List* list);
 int List_get_index(List* list, void* value);
 void* List_get_at(List* list, int index);
+void* List_pop(List* list, void* value);
 void List_remove(List* list, void* value, deleter del_func);
 
 //Iterates through the values stored in list, placing each into variable value which is of type type 
