@@ -756,7 +756,9 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
 		//Should update this so that we don't redraw stuff that's going to
 		//be under the window's new location because we're going to draw
 		//over that when we draw the window at the new location anyhow     
+		cmd_prints("Updating overlapped");
         updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
+		cmd_prints("Overlapped updated");
         
         //Redraw the window at its new location
         dest_window->frame_needs_redraw = 1;
