@@ -158,6 +158,7 @@ void cmd_init(unsigned short xres, unsigned short yres) {
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
 void drawFrame(window* cur_window);
+void drawTitlebar(window* cur_window, int do_refresh);
 
 void bmpDrawHLine(bitmap* bmp, int x, int y, int length, unsigned int color) {
 
