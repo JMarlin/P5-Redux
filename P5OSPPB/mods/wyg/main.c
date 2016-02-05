@@ -1028,27 +1028,27 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 		
 		        if(!(new_rect = Rect_new(cur_window->y, cur_window->x, (cur_window->y + cur_window->context->height - 1), (cur_window->x + cur_window->context->width - 1)))) {
 					
-					List_delete(rect_list, rect_deleter);
+					List_delete(rect_list, Rect_deleter);
 					return (List*)0;
 				}
 				
 				if(!List_add(rect_list, new_rect)) {
 					
 					free((void*)new_rect);
-					List_delete(rect_list, rect_deleter);
+					List_delete(rect_list, Rect_deleter);
 					return (List*)0;
 				}
 		}
 	}
         
-    return return_rects;
+    return rect_list;
 }
 
 void drawWindow(window* cur_window, unsigned char use_current_blit) {
      
     unsigned int rect_count;
     List* splitrect_list;
-    rect winrect;
+    Rect winrect;
     int i;
     
      //prints("[WYG] Drawing window ");
@@ -1129,10 +1129,10 @@ void raiseWindow(window* dest_window) {
 	
 	//extract the current window from its position in the list and
 	//re-insert it at the end 
-    if(!List_pop(old_active))
+    if(!List_pop(window_list, (void*)old_active))
 	    return;
     
-	if(!List_add(old_active))
+	if(!List_add(window_list, (void*)old_active))
 	    return;
 		
 	//Update the titlebar on the old and new active windows 
