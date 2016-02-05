@@ -19,6 +19,8 @@ extern char* font_array;
 #include "../include/mouse.h"
 #include "../vesa/font.h"
 #endif //HARNESS_TEST
+#include "list.h"
+#include "rect.h"
 
 #define FRAME_SIZE_TOP 28
 #define FRAME_SIZE_LEFT 4
@@ -57,7 +59,6 @@ typedef struct window {
 
 window* root_window;
 List* window_list;
-window** registered_windows;
 unsigned char inited = 0;
 bitmap* old_mouse_bkg;
 unsigned short mouse_x;
@@ -430,14 +431,15 @@ rect* splitRect(rect rdest, rect rknife, int* out_count) {
 	return outrect;	
 }
 
-void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) {
+void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	
 	int split_count = 0;
 	int total_count = 1;
 	int working_total = 0;
-	rect* out_rects = (rect*)0;
-	rect* working_rects = (rect*)0;
+	List* out_rects;
+	Rect* working_rects = (rect*)0;
 	int i, j, k;
+    Rect *new_rect, *rect, *split_rect, *out_rect;
 
 #ifdef RECT_TEST
 	
@@ -452,17 +454,17 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     drawRect(baserect.right - baserect.left, baserect.bottom - baserect.top);
     
     //Draw the overlapping windows
-    for(i = 0; i < rect_count; i++) {
+    List_for_each(splitrect_list, rect, Rect*) {
         
         setColor(RGB(255, 0, 0));
-        setCursor(splitrects[i].left, splitrects[i].top);
-        drawRect(splitrects[i].right - splitrects[i].left, splitrects[i].bottom - splitrects[i].top);
+        setCursor(rect->left, rect->top);
+        drawRect(rect->right - rect->left, rect->bottom - rect->top);
     }
     
 #endif //RECT_TEST
     
     //If there's nothing occluding us, just render the bitmap and get out of here
-    if(!rect_count) {
+    if(!splitrect_list->count) {
     
         //prints("[WYG] Nothing overlapping us\n");
         drawBmpRect(win, baserect);
@@ -470,54 +472,63 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
     }
     
     //prints("[WYG] Allocating space for output rectangles\n");
-	out_rects = (rect*)malloc(sizeof(rect));
-    if(!out_rects)
-        prints("[WYG] Couldn't allocate memory\n");
-	out_rects[0].top = baserect.top;
-	out_rects[0].left = baserect.left;
-	out_rects[0].bottom = baserect.bottom;
-	out_rects[0].right = baserect.right;
-	
-	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
-	for(i = 0; i < rect_count; i++) {
+	out_rects = List_new();
+    
+    if(!out_rects) {
         
-		for(j = 0; j < total_count;) {
+        prints("[WYG] Couldn't allocate space for output rect list\n");
+        return;
+    }
+    
+    rect = Rect_new(baserect->top, baserect->left, baserect->bottom, baserect->right);
+    
+    if(!rect) {
+        
+        prints("[WYG] Couldn't allocate space for temp rectangle\n");
+        return;
+    }
+    
+    if(!List_add(out_rects, (void*)rect) {
+        
+        prints("[WYG] Couldn't insert out rect into list\n");
+        return;
+    }
+        
+	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
+	List_for_each(splitrect_list, split_rect, Rect*) {
+        
+		List_for_each(out_rects, out_rect, Rect*) {
             
 			//Only bother with this combination of rectangles if the rectangle to be split (out_rects[]) 
 			//is not a blank (zero-dimension) -- we don't have to check for intersection as the calling function
             //already does that
-			if(!(out_rects[j].top == 0 &&
-				 out_rects[j].left == 0 &&
-				 out_rects[j].bottom == 0 &&
-				 out_rects[j].right == 0)&&
-                 (splitrects[i].left <= out_rects[j].right &&
-			      splitrects[i].right >= out_rects[j].left &&
-			      splitrects[i].top <= out_rects[j].bottom && 
-			      splitrects[i].bottom >= out_rects[j].top)) {
+			if(!(out_rect->top == 0 &&
+				 out_rect->left == 0 &&
+				 out_rect->bottom == 0 &&
+				 out_rect->right == 0)&&
+                 (split_rect->left <= out_rect->right &&
+			      split_rect->right >= out_rect->left &&
+			      split_rect->top <= out_rect->bottom && 
+			      split_rect->bottom >= out_rect->top)) {
 			
-				rect* split_rects = splitRect(out_rects[j], splitrects[i], &split_count);
+                List* clip_list = splitRect(out_rect, split_rect);
 
 #ifdef RECT_TEST
 			            
-                for(k = 0; k < split_count; k++)
+                //for(k = 0; k < split_count; k++)
                     //printf("split %u, %u, %u, %u\n", split_rects[k].top, split_rects[k].left, split_rects[k].bottom, split_rects[k].right);
 
 #endif //RECT_TEST
             
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
-				if(!split_count) {
+				if(!clip_list->count) {
 					
 					//We use zero-dimension rects to represent blank entries
 					//Ideally we would want to break out of the function the second
 					//we've rejected the last rect, but in this case our memory model
 					//makes that a little difficult. We could do this very quickly 
 					//if we switched to some kind of linked list
-					out_rects[j].top = 0;
-					out_rects[j].left = 0;
-					out_rects[j].bottom = 0;
-					out_rects[j].right = 0;
-					
-					j++;
+					List_remove(out_rects, (void*)out_rect, Rect_deleter);
 					continue;
 				}
 				
@@ -530,52 +541,42 @@ void drawOccluded(window* win, rect baserect, rect* splitrects, int rect_count) 
                     prints("[WYG] Couldn't allocate memory\n");
 					
 				//Replace the rectangle that got split with the first result rectangle 
-				out_rects[j].top = split_rects[0].top;
-				out_rects[j].left = split_rects[0].left;
-				out_rects[j].bottom = split_rects[0].bottom;
-				out_rects[j].right = split_rects[0].right;
+                rect = List_get_at(clip_list, 0);
+				out_rect->top = rect->top;
+				out_rect->left = rect->left;
+				out_rect->bottom = rect->bottom;
+				out_rect->right = rect->right;
 				
 				//Append the rest of the result rectangles to the output collection
-				for(k = 0; k < split_count; k++) {
-					
-					out_rects[total_count + k].top = split_rects[k+1].top;
-					out_rects[total_count + k].left = split_rects[k+1].left;
-					out_rects[total_count + k].bottom = split_rects[k+1].bottom;
-					out_rects[total_count + k].right = split_rects[k+1].right;
+				List_for_each_skip(clip_list, rect, Rect*, 1) {
+                    
+                    new_rect = Rect_new(rect->top, rect->left, rect->bottom, rect->right);
+                    
+                    if(!new_rect)
+                        return; //This should free everything nicely
+                    
+                    List_add(out_rects, (void*)new_rect);
 				}
 				
 				//Free the space that was used for the split 
-				free(split_rects);
-				
-				//Update the count of rectangles 
-				total_count += split_count;
+				List_delete(split_rects, Rect_deleter);
 				
 				//Restart the list 
-				j = 0;
-			} else {
-				
-                //prints("Not a real rect\n");
-				j++;
-			}
+				List_rewind(out_rects);
+			} 
 		}
 	}
 	
-    for(k = 0; k < total_count; k++) {
+    List_for_each(out_rects, out_rect, Rect*) {
 
 #ifdef RECT_TEST    
         //printf("%u, %u, %u, %u\n", out_rects[k].top, out_rects[k].left, out_rects[k].bottom, out_rects[k].right);
 #endif //RECT_TEST
-    
-        if(!(out_rects[k].top == 0 &&
-             out_rects[k].left == 0 &&
-             out_rects[k].bottom == 0 &&
-             out_rects[k].right == 0)) {
                     
-                drawBmpRect(win, out_rects[k]);
-             }
+        drawBmpRect(win, out_rect);     
     }
 		
-	free(out_rects);
+	List_delete(out_rects, Rect_deleter);
 }
 
 window* newWindow(unsigned int width, unsigned int height, unsigned char flags, unsigned int pid) {
@@ -1130,7 +1131,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         
         //getch();
                 
-        List_delete(splitrect_list, rect_deleter);       
+        List_delete(splitrect_list, Rect_deleter);       
     }
     
      //prints("[WYG] Finished drawing window ");

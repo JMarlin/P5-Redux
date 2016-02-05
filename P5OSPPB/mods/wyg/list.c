@@ -47,6 +47,47 @@ void List_delete(List* list, deleter del_func) {
 	free((void*)list);
 }
 
+void List_remove(List* list, void* value, deleter del_func) {
+    
+    ListItem* cur_item = list->root_item;
+    
+    if(!value || list->count == 0) 
+        return;
+        
+    while(cur_item && (cur_item->value != value))
+        cur_item = cur_item->next;
+        
+    if(!cur_item)
+        return;
+    
+    if(cur_item == list->current_item) {
+        
+        if(cur_item->prev) {
+            
+            list->current_item = cur_item->prev; 
+        } else if(cur_item->next) {
+            
+            list->current_item = cur_item->next;
+        } else {
+            
+            list->current_item = (ListItem*)0;
+            list->root_item = (ListItem*)0;
+        }
+    }
+    
+    del_func(value);
+    
+    if(cur_item->prev)
+        cur_item->prev->next = cur_item->next;
+        
+    if(cur_item->next)
+        cur_item->next->prev = cur_item->prev;
+    
+    list->count--;
+        
+    free((void*)cur_item);
+}
+
 void List_rewind(List* list) {
     
     list->current_item = list->root_item;
@@ -100,22 +141,23 @@ void* List_get_next(List* list) {
 
 void List_seek_to(List* list, int index) {
 	
-	int i = 0;
-	void* dont_care;
-	
-	if(index >= list->count)
-	    index = list->count - 1;
-		
-	if(index <= 0)
-	    index = 0;
-		
-	List_for_each(list, dont_care, void*) {
-		
-		if(i == index)
-		    return;
-			
-		i++;
-	}
+	list->current_item = List_get_at(list, index);
+}
+
+void* List_get_at(List* list, int index) {
+    
+    ListItem* cur_item = list->root_item;
+    
+    if(index <= 0) 
+        return cur_item;
+    
+    if(index >= list->count)
+        index = list->count - 1;  
+    
+    while(index--)
+        cur_item = cur_item->next;
+    
+    return cur_item->value;
 }
 
 //Finds the first instance of the pointer value in the list, -1 if not found
