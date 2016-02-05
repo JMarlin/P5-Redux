@@ -1302,7 +1302,7 @@ void main(void) {
         terminate();
     }
     
-	//cmd_init(mode->width, mode->height);
+	cmd_init(mode->width, mode->height);
 	
     if(!(window_list = List_new())) {
         
@@ -1313,8 +1313,9 @@ void main(void) {
     }
     
     //Init the root window (aka the desktop)
-    root_window = newWindow(mode->width, mode->height, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
-    
+    root_window = newWindow(mode->width, mode->height - 14, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
+    moveWindow(root_window, 0, 14);
+	
     //Create a drawing context for the root window
     if(!root_window) {
         
@@ -1360,6 +1361,7 @@ void main(void) {
 #else 
 
     //Now we can start the main message loop 
+	cmd_prints("Wyg started");
     while(1) {
 
         //prints("[WYG] Waiting for message...");
@@ -1373,6 +1375,7 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
+			    cmd_prints("Request to create a new window");
                 postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindowHandle((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
             break;
             
