@@ -1081,7 +1081,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         }
         
         //prints("[WYG] Building overlapping rectangles\n");
-        splitrect_list = getOverlappingWindows(List_get_index(cur_window) + 1, &winrect); //build the rects        
+        splitrect_list = getOverlappingWindows(List_get_index(window_list, (void*)cur_window) + 1, &winrect); //build the rects        
         //prints("[WYG] Drawing occluded window\n");
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
@@ -1145,7 +1145,7 @@ void raiseWindow(window* dest_window) {
 	//the future to just redraw those portions that were occluded
 	//prior to raising)
     if(!(dest_window->flags &= WIN_VISIBLE))
-	    markWindowVisible(dest_window);
+	    markWindowVisible(dest_window, 1);
 	else
 	    drawWindow(dest_window, 0);
 }
@@ -1168,13 +1168,14 @@ void window_deleter(void* item) {
 	window* win = (window*)item;
 	
 	//Free the context
-    freeBitmap(dest_window->context);
+    freeBitmap((void*)win->context);
     
     //Free the title (if we ever decide to error on unsuccessful frees, this could be an issue for static or undefined titles)
-    free((void*)dest_window->title);
+    if(win->title)
+		free((void*)win->title);
     
     //And finally free ourself 
-    free((void*)dest_window);
+    free((void*)win);
 }
 
 void destroy(window* dest_window) {
@@ -1301,7 +1302,7 @@ void main(void) {
     }
     
     //Init the root window (aka the desktop)
-    root_window = new_window(mode->width, mode->height, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
+    root_window = newWindow(mode->width, mode->height, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
     
     //Create a drawing context for the root window
     if(!root_window) {
