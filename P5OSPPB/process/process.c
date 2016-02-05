@@ -750,7 +750,7 @@ void kernelEntry(void) {
             //is going to get overwritten
             proc_backup = p;
             exception_backup = _except_num;
-            
+            			
             //Turn off all hardware interrupts 
             disable_irq(0);
             disable_irq(1);
@@ -760,7 +760,7 @@ void kernelEntry(void) {
             disable_irq(5);
             disable_irq(6);
             disable_irq(7); //We would do all of them, but right now this only supports the first PIC
-			while(1);
+			//while(1);
 			enterTextMode(&doKernelPanic);
             break;
     }
