@@ -871,7 +871,7 @@ void setWindowTitle(unsigned int handle, unsigned char* newstr) {
         
     dest_window->title = newstr;
     
-    drawTitlebar(dest_window);
+    drawTitlebar(dest_window, 1);
 }
 
 void bmpDrawPanel(bitmap* bmp, int x, int y, int width, int height, unsigned int color, int border_width, int invert) {
@@ -1026,16 +1026,11 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 		   cur_window->y <= baserect->bottom && 
 		   (cur_window->y + cur_window->context->height - 1) >= baserect->top) {
 		
-		        if(!(new_rect = (rect*)malloc(sizeof(rect)))) {
+		        if(!(new_rect = Rect_new(cur_window->y, cur_window->x, (cur_window->y + cur_window->context->height - 1), (cur_window->x + cur_window->context->width - 1)))) {
 					
 					List_delete(rect_list, rect_deleter);
 					return (List*)0;
 				}
-				    				
-				new_rect->top = cur_window->y;
-				new_rect->left = cur_window->x;
-				new_rect->bottom = (cur_window->y + cur_window->context->height - 1);
-				new_rect->right = (cur_window->x + cur_window->context->width - 1);
 				
 				if(!List_add(rect_list, new_rect)) {
 					
