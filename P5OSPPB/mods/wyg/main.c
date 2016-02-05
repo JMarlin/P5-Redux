@@ -546,11 +546,11 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 	
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-         prints("[WYG] Couldn't allocate a new window\n");
+        cmd_prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
         
-    //prints("[WYG] Created new window, setting initial values\n");
+    cmd_prints("[WYG] Created new window, setting initial values\n");
     new_window->active = 1;
 	new_window->pid = pid;
     new_window->flags = flags;
@@ -564,7 +564,7 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-         //prints("[WYG] Could not create a new window context\n");
+        cmd_prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return (window*)0;
     } 
@@ -575,15 +575,17 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
         
-     //prints("[WYG] Installing new window into window list\n");
+    cmd_prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
 	
+	cmd_prints("Getting previous active window");
 	//De-activate the old active window
 	if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
 			
 	    temp_window->active = 0;
 	}
-		
+	
+	cmd_prints("Adding the new window to the window list");	
 	if(!List_add(window_list, (void*)new_window)){
 		
 		freeBitmap(new_window->context);
@@ -595,19 +597,22 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
         
 		return (window*)0;	
 	}
-    	
+    
+	cmd_prints("Rendering frame into new widow");	
 	//Give the new window its initial decoration
 	if(!(new_window->flags & WIN_UNDECORATED))
 	    drawFrame(new_window);
-		
+	
+	cmd_prints("Forcing redraw of new decorated window");	
 	drawWindow(new_window, 0);
 	
 	//Update the titlebar on the old active window 
+	cmd_prints("Updating the old active window's titlebar");
 	if(temp_window)
 		drawTitlebar(temp_window, 0);
-		
-     //prints("[WYG] Successfully created new window ");
-      //printDecimal(new_window->handle);
+	
+	cmd_prints("[WYG] Successfully created new window ");
+    cmd_printDecimal(new_window->handle);
      //pchar('\n');
     return new_window;
 }
