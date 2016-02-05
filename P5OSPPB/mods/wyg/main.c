@@ -390,7 +390,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	int total_count = 1;
 	int working_total = 0;
 	List* out_rects;
-	Rect* working_rects = (rect*)0;
+	Rect* working_rects = (Rect*)0;
 	int i, j, k;
     Rect *new_rect, *rect, *split_rect, *out_rect;
 
@@ -438,14 +438,14 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     if(!rect) {
         
         prints("[WYG] Couldn't allocate space for temp rectangle\n");
-		List_delete(out_rects);
+		List_delete(out_rects, Rect_deleter);
         return;
     }
     
-    if(!List_add(out_rects, (void*)rect) {
+    if(!List_add(out_rects, (void*)rect)) {
         
         prints("[WYG] Couldn't insert out rect into list\n");
-		List_delete(out_rects);
+		List_delete(out_rects, Rect_deleter);
         return;
     }
 	        
@@ -548,15 +548,8 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
          prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
-    
-    //This is currently BAD. If we can't realloc, it destroys the entire engine state in the process.    
-    if(!(registered_windows = (window**)realloc((void*)registered_windows, sizeof(window*) * (window_count + 1)))) {
         
-         prints("[WYG] Window list realloc failed\n");
-        return 0;
-    }
-    
-     //prints("[WYG] Created new window, setting initial values\n");
+    //prints("[WYG] Created new window, setting initial values\n");
     new_window->active = 1;
 	new_window->pid = pid;
     new_window->flags = flags;
