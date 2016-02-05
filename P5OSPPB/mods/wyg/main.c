@@ -681,9 +681,9 @@ bitmap* getWindowContext(unsigned int handle) {
 }
 
 //Redraws every window intersected by window_bounds
-void updateOverlapped(Rect* window_bounds) {
+void updateOverlapped(Rect* window_bounds, window* avoid_window) {
     
-    int i;
+    int i = 0;
     Rect comp_rect, draw_rect; 
     window* cur_window;
 	
@@ -691,6 +691,9 @@ void updateOverlapped(Rect* window_bounds) {
         
     List_for_each(window_list, cur_window, window*) {
         
+		if(cur_window == avoid_window)
+		    continue;
+		
         comp_rect.top = cur_window->y;
         comp_rect.left = cur_window->x;
         comp_rect.bottom = comp_rect.top + cur_window->h - 1;
@@ -757,7 +760,7 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
 		//be under the window's new location because we're going to draw
 		//over that when we draw the window at the new location anyhow     
 		cmd_prints("Updating overlapped");
-        updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
+        updateOverlapped(&overlap_rect, dest_window); //Redraw all of the siblings that this window was covering up
 		cmd_prints("Overlapped updated");
         
         //Redraw the window at its new location
@@ -837,7 +840,7 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
         overlap_rect.left = dest_window->x;
         overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
         overlap_rect.right = overlap_rect.left + dest_window->w - 1;
-        updateOverlapped(&overlap_rect); //Redraw all of the siblings that this window was covering up
+        updateOverlapped(&overlap_rect, dest_window); //Redraw all of the siblings that this window was covering up
     }
     
     return;
