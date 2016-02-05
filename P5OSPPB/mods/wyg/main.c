@@ -603,7 +603,8 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 	drawWindow(new_window, 0);
 	
 	//Update the titlebar on the old active window 
-	drawTitlebar(temp_window, 0);
+	if(temp_window)
+		drawTitlebar(temp_window, 0);
 		
      //prints("[WYG] Successfully created new window ");
       //printDecimal(new_window->handle);
