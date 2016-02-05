@@ -911,7 +911,7 @@ void drawTitlebar(window* cur_window, int do_refresh) {
     
     unsigned char* s;    
     unsigned int tb_color, text_color;
-    rect old_ctx_rect;
+    Rect old_ctx_rect;
         
     //Titlebar
     if(cur_window->active)
@@ -1016,10 +1016,7 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 
     List* rect_list = List_new();
     Rect* new_rect;
-
-    if(!rects_list)
-	    return rects_list;
-
+	window* cur_window;
         
 	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
 		
