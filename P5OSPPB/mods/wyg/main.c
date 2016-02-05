@@ -737,7 +737,9 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
     Rect overlap_rect;
             
     //If a window is moved, we must ensure that it is the active window 
-    raiseWindow(dest_window);
+    cmd_prints("Raising window");
+	raiseWindow(dest_window);
+	cmd_prints("Window raised");
     
     //Create a rectangle covering the old location for later intersection
     overlap_rect.top = dest_window->y;
