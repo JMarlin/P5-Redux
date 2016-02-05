@@ -325,7 +325,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	//Split by left edge
 	if(rknife->left > baserect.left && rknife->left < baserect.right) {
 		
-		new_rect = Rect_new(baserect.top, baserect.bottom, rknife.left - 1, baserect.left);
+		new_rect = Rect_new(baserect.top, baserect.bottom, rknife->left - 1, baserect.left);
 		
 		if(!new_rect) {
 			
