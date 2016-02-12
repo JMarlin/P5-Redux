@@ -405,7 +405,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     Rect *new_rect, *rect, *split_rect, *out_rect;
 
     cmd_prints("Stack vars allocated");
-	while(1);
+	
 
 #ifdef RECT_TEST
 	
@@ -434,6 +434,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
         cmd_prints("Nothing overlapping window #");
 		cmd_printDecimal(win->handle);
+		while(1);
         drawBmpRect(win, baserect);
         return;
     }
