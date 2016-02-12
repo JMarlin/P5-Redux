@@ -291,7 +291,14 @@ void drawBmpRect(window* win, Rect* r) {
     win->context->right = r->right - win->x;   
     
     //Do the blit
-	cmd_prints("Setting the gfx cursor and blitting");
+	cmd_prints("Blitting to ");
+	cmd_printDecimal(win->context->top);
+	cmd_pchar(',');
+	cmd_printDecimal(win->context->left);
+	cmd_pchar(',');
+	cmd_printDecimal(win->context->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(win->context->right);
     setCursor(win->x, win->y);
     drawBitmap(win->context);
 	cmd_prints("Blitting complete");
