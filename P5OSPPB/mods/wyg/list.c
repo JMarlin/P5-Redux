@@ -158,11 +158,11 @@ void* List_get_at(List* list, int index) {
     
     ListItem* cur_item = list->root_item;
     
-    if(index < 0) 
-	    index = 0;
-    
-    if(index >= list->count)
+	if(index >= list->count)
         index = list->count - 1;  
+    
+	if(index < 0) 
+	    index = 0;
     
     while(index) {
 		
