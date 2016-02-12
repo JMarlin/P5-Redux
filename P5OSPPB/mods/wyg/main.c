@@ -581,8 +581,12 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 	cmd_prints("Getting previous active window");
 	//De-activate the old active window
 	if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
-			
+		
+		cmd_prints("Found a previous window");	
 	    temp_window->active = 0;
+	} else {
+		
+		cmd_prints("No previous window");
 	}
 	
 	cmd_prints("Adding the new window to the window list");	

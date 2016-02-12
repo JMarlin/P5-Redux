@@ -170,7 +170,7 @@ void* List_get_at(List* list, int index) {
 	    index--;
 	}
     
-    return cur_item ? cur_item->value : cur_item;
+    return cur_item ? cur_item->value : (void*)0;
 }
 
 //Finds the first instance of the pointer value in the list, -1 if not found
