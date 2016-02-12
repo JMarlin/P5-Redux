@@ -438,7 +438,16 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     cmd_prints("I was provided this many rects: ");
 	cmd_printDecimal(splitrect_list->count);
 	
-
+    cmd_prints("Base rect is: ");
+	cmd_printDecimal(baserect->top);
+	cmd_pchar(',');
+	cmd_printDecimal(baserect->left);
+	cmd_pchar(',');
+	cmd_printDecimal(baserect->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(baserect->right);
+	while(1);
+	
 #ifdef RECT_TEST
 	
     //Clear everything 
