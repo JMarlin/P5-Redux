@@ -333,7 +333,6 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	cons_prints(", ");
 	cons_printDecimal(rknife->right);
 	cons_prints(")\n");
-	scans(10, inbuf);
 	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
@@ -1129,7 +1128,6 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 	
 	if(!rect_list) {
 		
-		while(1);
 		return (List*)0;
 	}
 	    
