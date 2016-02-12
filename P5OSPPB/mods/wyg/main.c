@@ -362,6 +362,13 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 			return (List*)0;
 		}
 		
+		if(!List_add(outrect, new_rect)) {
+			
+			free((void*)new_rect);
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
+		
 		baserect.left = rknife->left;
 	}
 
@@ -373,6 +380,13 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		
 		if(!new_rect) {
 			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
+		
+		if(!List_add(outrect, new_rect)) {
+			
+			free((void*)new_rect);
 			List_delete(outrect, Rect_deleter);
 			return (List*)0;
 		}
@@ -392,6 +406,13 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 			return (List*)0;
 		}
 		
+		if(!List_add(outrect, new_rect)) {
+			
+			free((void*)new_rect);
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
+		
 		baserect.right = rknife->right;
 	}
 
@@ -403,6 +424,13 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		
 		if(!new_rect) {
 			
+			List_delete(outrect, Rect_deleter);
+			return (List*)0;
+		}
+		
+		if(!List_add(outrect, new_rect)) {
+			
+			free((void*)new_rect);
 			List_delete(outrect, Rect_deleter);
 			return (List*)0;
 		}
