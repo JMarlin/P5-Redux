@@ -1138,9 +1138,6 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 	Rect* new_rect;
 	window* cur_window;
     
-	cmd_prints("Entering foreachskip at ");    
-	cmd_printDecimal(lowest_z_level);
-	while(1);
 	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
 		
 		cmd_prints("Checking overlap against #");
