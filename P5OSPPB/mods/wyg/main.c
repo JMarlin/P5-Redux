@@ -332,7 +332,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	cons_printDecimal(rknife->bottom);
 	cons_prints(", ");
 	cons_printDecimal(rknife->right);
-	cons_putc(")\n");
+	cons_prints(")\n");
 	scans(10, inbuf);
 	
 #ifdef RECT_TEST    
