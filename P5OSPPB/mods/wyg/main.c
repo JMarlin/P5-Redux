@@ -1443,8 +1443,7 @@ void main(void) {
     }
     
     //Init the root window (aka the desktop)
-    root_window = newWindow(mode->width, mode->height - 14, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
-    moveWindow(root_window, 0, 14);
+    root_window = newWindow(mode->width, mode->height, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
 	
     //Create a drawing context for the root window
     if(!root_window) {
