@@ -410,6 +410,23 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.bottom = rknife->bottom;
 	}
 
+    cons_prints("Result: \n");
+	
+	List_for_each(outrect, new_rect, Rect*) {
+	
+	    cons_prints("    ");
+		cons_printDecimal(new_rect->top);
+		cons_prints(", ");
+		cons_printDecimal(new_rect->left);
+		cons_prints(", ");
+		cons_printDecimal(new_rect->bottom);
+		cons_prints(", ");
+		cons_printDecimal(new_rect->right);
+		cons_prints("\n");
+	}
+	
+	scans(10, inbuf);
+
 	return outrect;	
 }
 
