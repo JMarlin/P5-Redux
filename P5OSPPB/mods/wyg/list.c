@@ -164,8 +164,11 @@ void List_seek_to(List* list, int index) {
 	
 	ListItem* cur_item = list->root_item;
     
-	if(index >= list->count)
-        index = list->count - 1;  
+	if(index >= list->count) {
+    
+	    list->current_item = (ListItem*)0;
+		return;
+	}  
     
 	if(index < 0) 
 	    index = 0;
