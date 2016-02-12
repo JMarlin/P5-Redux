@@ -17,32 +17,42 @@ List* List_new(void) {
 
 //Deletes all elements of the list, and deletes the contained values
 //using the passed delete function
+extern void cmd_prints(char* s);
 void List_delete(List* list, deleter del_func) {
 	
 	ListItem* current_item = list->root_item;
 	ListItem* prev_item;
 	
+	cmd_prints("Checking to see if root item exists");
 	if(current_item) {
 		
 		//Fast forward to the end of the list
+		cmd_prints("Going to end of list");
 		while(current_item->next)
 		    current_item = current_item->next;
 			
 	    //Delete in reverse order
+		cmd_prints("Starting deletion");
 		while(current_item) {
-		
+		 
+		    cmd_prints("Getting previous item");
 		    //Temporarily store the previous element so that we don't lose it
 		    prev_item = current_item->prev;
 			
+			cmd_prints("Deleting current item");
 			//Use the supplied deleter to delete the lite item's value 
 			del_func(current_item->value);
 			
+			cmd_prints("Freeing list item container");
 			//Finally, get rid of the current ListItem and move back down the list
 			free((void*)current_item);
+			
+			cmd_prints("Rewinding by one");
 			current_item = prev_item;    	
 		}
 	}
 	
+	cmd_prints("Freeing entire list structure");
 	//Now that we've deleted all of the content, we can free the root object
 	free((void*)list);
 }
@@ -113,6 +123,7 @@ int List_add(List* list, void* value) {
     
     new_item->value = value;
     new_item->next = (ListItem*)0;
+	new_item->prev = (ListItem*)0;
         
     if(!list->root_item) {
         
