@@ -745,7 +745,10 @@ void kernelEntry(void) {
         //In the default case, ensure that we're in text mode, clear the text mode screen and print the hang screen
         default:
 		    //See if the process has installed an exception handler and, if so, enter it
-			if(p->exception_handler) {
+			//We also make sure that we're not already in an exception so that the user 
+			//process doesn't just lock up in a loop of exceptions if there's an error 
+			//in the exception handler itself
+			if(p->exception_handler && !(p->in_exception)) {
 			
 			    force_into_exception(p);
 				ret_p = p;
