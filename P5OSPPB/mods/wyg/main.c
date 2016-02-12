@@ -392,6 +392,9 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	if(!splitrect_list) {
 		cmd_prints("No list of splitting rectangles provided");
 		while(1);
+	} else {
+		cmd_prints("List of splitting rectangles provided");
+		while(1);
 	}
 	
 	int split_count = 0;
