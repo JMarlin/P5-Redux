@@ -711,9 +711,6 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top) {
             
-			cons_init();
-            cons_prints("[WYG] Found an overlapped window");   
-			while(1);
             if(window_bounds->top < comp_rect.top)
                 draw_rect.top = comp_rect.top; 
             else 
@@ -1121,6 +1118,12 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
 			return;
 		}        
         
+		cons_init();
+        cons_prints("[WYG] Found ");
+		cons_printDecimal(splitrect_list->count);
+		cons_prints(" windows overlapping us");   
+		while(1);
+		
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
         
