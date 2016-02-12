@@ -501,6 +501,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     if(!List_add(out_rects, (void*)rect)) {
         
         cmd_prints("[WYG] Couldn't insert out rect into list\n");
+		free((void*)rect);
 		List_delete(out_rects, Rect_deleter);
         return;
     }
