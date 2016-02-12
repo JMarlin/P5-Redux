@@ -302,7 +302,6 @@ void drawBmpRect(window* win, Rect* r) {
     setCursor(win->x, win->y);
     drawBitmap(win->context);
 	cmd_prints("Blitting complete");
-    while(1);
 #endif //RECT_TEST
 }
 
