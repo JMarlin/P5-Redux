@@ -1071,6 +1071,7 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 	if(!rect_list) {
 		
 		cmd_prints("Couldn't allocate a new list");
+		while(1);
 		return (List*)0;
 	}
 	
