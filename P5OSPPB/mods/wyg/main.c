@@ -465,7 +465,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
         cmd_prints("Nothing overlapping window #");
 		cmd_printDecimal(win->handle);
-		while(1);
         drawBmpRect(win, baserect);
         return;
     }
