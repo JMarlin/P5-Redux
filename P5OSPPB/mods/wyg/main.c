@@ -464,6 +464,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 		List_delete(out_rects, Rect_deleter);
         return;
     }
+	
+	cmd_prints("Starting split loop");
 	        
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	List_for_each(splitrect_list, split_rect, Rect*) {
