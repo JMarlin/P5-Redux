@@ -470,14 +470,17 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	List_for_each(splitrect_list, split_rect, Rect*) {
         
+		cmd_prints("Starting inner split loop");
 		List_for_each(out_rects, out_rect, Rect*) {
             
 			if((split_rect->left <= out_rect->right &&
 			   split_rect->right >= out_rect->left &&
 			   split_rect->top <= out_rect->bottom && 
 			   split_rect->bottom >= out_rect->top)) {
-			
+			    
+				cmd_prints("Getting intersections between current rect and knife rects");
                 List* clip_list = splitRect(out_rect, split_rect);
+				cmd_prints("Got intersections");
 
 #ifdef RECT_TEST
 			            
@@ -488,6 +491,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
             
 			    if(!clip_list) {
 					
+					cmd_prints("Intersection function returned nothing");
 					List_delete(out_rects, Rect_deleter);
 					return;
 				}
@@ -495,12 +499,14 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!clip_list->count) {
 					
+					cmd_prints("Rectangle was completely occluded");
 					List_remove(out_rects, (void*)out_rect, Rect_deleter);
 					
 					//If we deleted the last output rectangle, we are completely 
 					//occluded and can return early
 					if(out_rects->count == 0) {
 						
+						cmd_prints("Occluded the last availible rectangle");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);
 						return;
@@ -511,12 +517,14 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				}
 							
 				//Replace the rectangle that got split with the first result rectangle 
-                rect = List_get_at(clip_list, 0);
+                cmd_prints("Replacing base rectangle with first intersection result");
+				rect = List_get_at(clip_list, 0);
 				out_rect->top = rect->top;
 				out_rect->left = rect->left;
 				out_rect->bottom = rect->bottom;
 				out_rect->right = rect->right;
 				
+				cmd_prints("Appending remaining intersection results");
 				//Append the rest of the result rectangles to the output collection
 				List_for_each_skip(clip_list, rect, Rect*, 1) {
                     
@@ -524,15 +532,18 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                     
                     if(!new_rect) {
 					    
+						cmd_prints("Couldn't generate a new rectangle for list");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);	
                         return;
 					}
                     
+					cmd_prints("Adding new rectangle to output list");
                     List_add(out_rects, (void*)new_rect);
 				}
 				
 				//Free the space that was used for the split 
+				cmd_prints("Deleting used-up intersection results");
 				List_delete(clip_list, Rect_deleter);
 				
 				//Restart the list 
@@ -542,6 +553,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 		}
 	}
 	
+	cmd_prints("Drawing final results");
     List_for_each(out_rects, out_rect, Rect*) {
 
 #ifdef RECT_TEST    
@@ -550,7 +562,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                     
         drawBmpRect(win, out_rect);     
     }
-		
+	
+	cmd_prints("Deleting output rectangle list");	
 	List_delete(out_rects, Rect_deleter);
 }
 
