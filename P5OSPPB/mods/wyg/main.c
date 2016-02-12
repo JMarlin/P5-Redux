@@ -539,14 +539,29 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 		}
 	}
 	
+	cons_prints("Drawing sub-rects of window #");
+    cons_printDecimal(win->handle);
+	cons_putc('\n');
     List_for_each(out_rects, out_rect, Rect*) {
 
 #ifdef RECT_TEST    
         //printf("%u, %u, %u, %u\n", out_rects[k].top, out_rects[k].left, out_rects[k].bottom, out_rects[k].right);
 #endif //RECT_TEST
-                    
+        
+		
+		cons_prints("    (");
+		cons_printDecimal(out_rect->top);
+		cons_prints(", ");
+		cons_printDecimal(out_rect->left);
+		cons_prints(", ");
+		cons_printDecimal(out_rect->bottom);
+		cons_prints(", ");
+		cons_printDecimal(out_rect->right);
+		cons_prints(")\n");               
         drawBmpRect(win, out_rect);     
     }
+	
+	scans(10, inbuf);
 	
 	List_delete(out_rects, Rect_deleter);
 }
@@ -1119,16 +1134,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
 		
 			return;
 		}        
-        
-		if(splitrect_list->count) {
-			cons_init();
-			cons_prints("[WYG] Found ");
-			cons_printDecimal(splitrect_list->count);
-			cons_prints(" windows overlapping window #");
-			cons_printDecimal(cur_window->handle);   
-			scans(10, inbuf);
-		} 
-		
+        		
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
         
@@ -1505,7 +1511,9 @@ void main(void) {
     return;
 
 #else 
-
+    
+	cons_init();
+	
     //Now we can start the main message loop 
 	//cmd_prints("Wyg started");
     while(1) {
