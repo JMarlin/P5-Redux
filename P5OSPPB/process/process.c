@@ -831,7 +831,7 @@ void resetProcessCounter() {
 
 void force_into_exception(process* proc) {
 	
-	proc->ctx.eip = proc->exception_handler;
+	proc->ctx.eip = (unsigned int)proc->exception_handler;
 	proc->in_exception = 1;
 }
 
