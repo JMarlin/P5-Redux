@@ -703,7 +703,9 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top) {
             
-            //prints("[WYG] Found an overlapped window\n");   
+			cons_init();
+            cons_prints("[WYG] Found an overlapped window");   
+			while(1);
             if(window_bounds->top < comp_rect.top)
                 draw_rect.top = comp_rect.top; 
             else 
