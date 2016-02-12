@@ -354,7 +354,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	//Split by left edge
 	if(rknife->left > baserect.left && rknife->left < baserect.right) {
 		
-		new_rect = Rect_new(baserect.top, baserect.bottom, rknife->left - 1, baserect.left);
+		new_rect = Rect_new(baserect.top, baserect.left, baserect.bottom, rknife->left - 1);
 		
 		if(!new_rect) {
 			
@@ -376,7 +376,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	//Split by top edge
 	if(rknife->top < baserect.bottom && rknife->top > baserect.top) {
 		
-		new_rect = Rect_new(baserect.top, rknife->top - 1, baserect.right, baserect.left);
+		new_rect = Rect_new(baserect.top, baserect.left, rknife->top - 1, baserect.right);
 		
 		if(!new_rect) {
 			
@@ -398,7 +398,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	//Split by right edge
 	if(rknife->right > baserect.left && rknife->right < baserect.right) {
 		
-		new_rect = Rect_new(baserect.top, baserect.bottom, baserect.right, rknife->right + 1);
+		new_rect = Rect_new(baserect.top, rknife->right + 1, baserect.bottom, baserect.right);
 		
 		if(!new_rect) {
 			
@@ -420,7 +420,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	//Split by bottom edge
 	if(rknife->bottom > baserect.top && rknife->bottom < baserect.bottom) {
 		
-		new_rect = Rect_new(rknife->bottom + 1, baserect.bottom, baserect.right, baserect.left);
+		new_rect = Rect_new(rknife->bottom + 1, baserect.left, baserect.bottom, baserect.right);
 		
 		if(!new_rect) {
 			
