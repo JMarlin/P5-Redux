@@ -759,7 +759,7 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
             
     //If a window is moved, we must ensure that it is the active window 
     cmd_prints("Raising window");
-	markWindowVisible(dest_window);
+	markWindowVisible(dest_window, 1);
 	raiseWindow(dest_window);
 	cmd_prints("Window raised");
     
