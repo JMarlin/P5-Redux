@@ -1124,7 +1124,7 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
 			cons_printDecimal(splitrect_list->count);
 			cons_prints(" windows overlapping window #");
 			cons_printDecimal(cur_window->handle);   
-			while(1);
+			scans(1, inbuf);
 		} 
 		
         drawOccluded(cur_window, &winrect, splitrect_list);   
