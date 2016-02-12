@@ -126,6 +126,14 @@ void cmd_printDecimal(unsigned int dword) {
         cmd_pchar(digit[j] + '0');
 }
 
+void cons_init();
+void cons_putc(char c);
+void cons_prints(char* s);
+void cons_printDecimal(unsigned int dword);
+void cons_printHexByte(unsigned char byte);
+void cons_printHexWord(unsigned short wd);
+void cons_printHexDword(unsigned int dword);
+
 void cmd_printHexByte(unsigned char byte) {
 
     cmd_pchar(digitToHex((byte & 0xF0)>>4));
