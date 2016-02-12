@@ -607,7 +607,14 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 	drawWindow(new_window, 0);
 	
 	//Update the titlebar on the old active window 
-	cmd_prints("Updating the old active window's titlebar");
+	cmd_prints("Updating titlebar of old active window #");
+	cmd_printDecimal(temp_window->handle);
+	cmd_pchar(' ');
+	cmd_pchar('@');
+	cmd_pchar(' ');
+	cmd_pchar('0');
+	cmd_pchar('x');
+	cmd_printHexDword((unsigned int)temp_window);
 	if(temp_window)
 		drawTitlebar(temp_window, 0);
 	
