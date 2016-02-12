@@ -404,7 +404,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	int i, j, k;
     Rect *new_rect, *rect, *split_rect, *out_rect;
 
-    cmd_prints("Stack vars allocated");
+    cmd_prints("I was provided this many rects: ");
+	cmd_printDecimal(splitrect_list->count);
 	
 
 #ifdef RECT_TEST
