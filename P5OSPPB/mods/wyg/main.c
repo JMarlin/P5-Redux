@@ -283,7 +283,6 @@ void drawBmpRect(window* win, Rect* r) {
     
 #else     
  
-    cmd_prints("Adjusting the rectangle coordinate from global space to window space ");
     //Adjust the rectangle coordinate from global space to window space 
     win->context->top = r->top - win->y;
     win->context->left = r->left - win->x;
@@ -291,17 +290,8 @@ void drawBmpRect(window* win, Rect* r) {
     win->context->right = r->right - win->x;   
     
     //Do the blit
-	cmd_prints("Blitting to ");
-	cmd_printDecimal(win->context->top);
-	cmd_pchar(',');
-	cmd_printDecimal(win->context->left);
-	cmd_pchar(',');
-	cmd_printDecimal(win->context->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(win->context->right);
     setCursor(win->x, win->y);
     drawBitmap(win->context);
-	cmd_prints("Blitting complete");
 #endif //RECT_TEST
 }
 
@@ -316,25 +306,6 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
 	
-	cmd_prints("splitting ");
-	cmd_printDecimal(rdest->top);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->left);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->right);
-	cmd_pchar(' ');
-	cmd_pchar('w');
-	cmd_pchar('/');
-	cmd_pchar(' ');
-	cmd_printDecimal(rknife->top);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->left);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->right);
 	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
@@ -418,12 +389,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	
 	cmd_prints("In drawOccluded");
 	
-	if(!splitrect_list) {
-		cmd_prints("No list of splitting rectangles provided");
-		while(1);
-	} else {
-		cmd_prints("List of splitting rectangles provided");
-	}
+	if(!splitrect_list) 
+		return;
 	
 	int split_count = 0;
 	int total_count = 1;
@@ -432,9 +399,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	Rect* working_rects = (Rect*)0;
 	int i, j, k;
     Rect *new_rect, *rect, *split_rect, *out_rect;
-
-    cmd_prints("I was provided this many rects: ");
-	cmd_printDecimal(splitrect_list->count);
 		
 #ifdef RECT_TEST
 	
@@ -460,9 +424,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
     //If there's nothing occluding us, just render the bitmap and get out of here
     if(!splitrect_list->count) {
-    
-        cmd_prints("Nothing overlapping window #");
-		cmd_printDecimal(win->handle);
+		
         drawBmpRect(win, baserect);
         return;
     }
@@ -472,7 +434,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
     if(!out_rects) {
         
-        cmd_prints("[WYG] Couldn't allocate space for output rect list\n");
+        //prints("[WYG] Couldn't allocate space for output rect list\n");
 		return;
     }
     
@@ -480,25 +442,22 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
     if(!rect) {
         
-        cmd_prints("[WYG] Couldn't allocate space for temp rectangle\n");
+        //prints("[WYG] Couldn't allocate space for temp rectangle\n");
 		List_delete(out_rects, Rect_deleter);
         return;
     }
     
     if(!List_add(out_rects, (void*)rect)) {
         
-        cmd_prints("[WYG] Couldn't insert out rect into list\n");
+        //prints("[WYG] Couldn't insert out rect into list\n");
 		free((void*)rect);
 		List_delete(out_rects, Rect_deleter);
         return;
     }
-	
-	cmd_prints("Starting split loop");
-	        
+		        
 	//For each splitting rect, split each rect in out_rects, delete the rectangle that was split, and add the resultant split rectangles
 	List_for_each(splitrect_list, split_rect, Rect*) {
-        
-		cmd_prints("Starting inner split loop");
+		
 		List_for_each(out_rects, out_rect, Rect*) {
             
 			if((split_rect->left <= out_rect->right &&
@@ -506,9 +465,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 			   split_rect->top <= out_rect->bottom && 
 			   split_rect->bottom >= out_rect->top)) {
 			    
-				cmd_prints("Getting intersections between current rect and knife rects");
                 List* clip_list = splitRect(out_rect, split_rect);
-				cmd_prints("Got intersections");
 
 #ifdef RECT_TEST
 			            
@@ -519,7 +476,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
             
 			    if(!clip_list) {
 					
-					cmd_prints("Intersection function returned nothing");
 					List_delete(out_rects, Rect_deleter);
 					return;
 				}
@@ -527,14 +483,12 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				//If nothing was returned, we actually want to clip a rectangle in its entirety
 				if(!clip_list->count) {
 					
-					cmd_prints("Rectangle was completely occluded");
 					List_remove(out_rects, (void*)out_rect, Rect_deleter);
 					
 					//If we deleted the last output rectangle, we are completely 
 					//occluded and can return early
 					if(out_rects->count == 0) {
 						
-						cmd_prints("Occluded the last availible rectangle");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);
 						return;
@@ -545,14 +499,12 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				}
 							
 				//Replace the rectangle that got split with the first result rectangle 
-                cmd_prints("Replacing base rectangle with first intersection result");
 				rect = List_get_at(clip_list, 0);
 				out_rect->top = rect->top;
 				out_rect->left = rect->left;
 				out_rect->bottom = rect->bottom;
 				out_rect->right = rect->right;
 				
-				cmd_prints("Appending remaining intersection results");
 				//Append the rest of the result rectangles to the output collection
 				List_for_each_skip(clip_list, rect, Rect*, 1) {
                     
@@ -560,28 +512,23 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                     
                     if(!new_rect) {
 					    
-						cmd_prints("Couldn't generate a new rectangle for list");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);	
                         return;
 					}
                     
-					cmd_prints("Adding new rectangle to output list");
                     List_add(out_rects, (void*)new_rect);
 				}
 				
 				//Free the space that was used for the split 
-				cmd_prints("Deleting used-up intersection results");
 				List_delete(clip_list, Rect_deleter);
 				
 				//Restart the list 
-				cmd_prints("Rewinding list");
 				List_rewind(out_rects);
 			} 
 		}
 	}
 	
-	cmd_prints("Drawing final results");
     List_for_each(out_rects, out_rect, Rect*) {
 
 #ifdef RECT_TEST    
@@ -591,7 +538,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
         drawBmpRect(win, out_rect);     
     }
 	
-	cmd_prints("Deleting output rectangle list");	
 	List_delete(out_rects, Rect_deleter);
 }
 
@@ -600,16 +546,12 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 	static int next_handle = 1; 
     window *new_window, *temp_window;
     unsigned int i, bufsz;
-    
-	cmd_prints("Creating a new window"); 
-	
+    	
     if(!(new_window = (window*)malloc(sizeof(window)))) {
         
-        cmd_prints("[WYG] Couldn't allocate a new window\n");
         return 0;
     }
         
-    cmd_prints("[WYG] Created new window, setting initial values\n");
     new_window->active = 1;
 	new_window->pid = pid;
     new_window->flags = flags;
@@ -623,7 +565,6 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     //Create a drawing context for the new window
     if(!(new_window->context = newBitmap(new_window->w, new_window->h))) {
         
-        cmd_prints("[WYG] Could not create a new window context\n");
         free((void*)new_window);
         return (window*)0;
     } 
@@ -634,21 +575,14 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
     for(i = 0; i < bufsz; i++)
         new_window->context->data[i] = RGB(255, 255 ,255);
         
-    cmd_prints("[WYG] Installing new window into window list\n");
     new_window->handle = next_handle++;
 	
-	cmd_prints("Getting previous active window");
 	//De-activate the old active window
 	if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
 		
-		cmd_prints("Found a previous window");	
 	    temp_window->active = 0;
-	} else {
-		
-		cmd_prints("No previous window");
-	}
+	} 
 	
-	cmd_prints("Adding the new window to the window list");	
 	if(!List_add(window_list, (void*)new_window)){
 		
 		freeBitmap(new_window->context);
@@ -661,27 +595,16 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
 		return (window*)0;	
 	}
     
-	cmd_prints("Rendering frame into new widow");	
 	//Give the new window its initial decoration
 	if(!(new_window->flags & WIN_UNDECORATED))
 	    drawFrame(new_window);
 	
-	cmd_prints("Forcing redraw of new decorated window");	
 	drawWindow(new_window, 0);
 	
 	//Update the titlebar on the old active window 
-	cmd_prints("Updating titlebar of old active window #");
-	cmd_printDecimal(temp_window->handle);
-	cmd_pchar(' ');
-	cmd_pchar('@');
-	cmd_pchar(' ');
-	cmd_pchar('0');
-	cmd_pchar('x');
-	cmd_printHexDword((unsigned int)temp_window);
 	if(temp_window)
 		drawTitlebar(temp_window, 0);
 	
-	cmd_prints("[WYG] Successfully created new window ");
     cmd_printDecimal(new_window->handle);
      //pchar('\n');
     return new_window;
@@ -817,10 +740,8 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
     Rect overlap_rect;
             
     //If a window is moved, we must ensure that it is the active window 
-    cmd_prints("Raising window");
 	markWindowVisible(dest_window, 1);
 	raiseWindow(dest_window);
-	cmd_prints("Window raised");
     
     //Create a rectangle covering the old location for later intersection
     overlap_rect.top = dest_window->y;
@@ -837,9 +758,7 @@ void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y)
 		//Should update this so that we don't redraw stuff that's going to
 		//be under the window's new location because we're going to draw
 		//over that when we draw the window at the new location anyhow     
-		cmd_prints("Updating overlapped");
         updateOverlapped(&overlap_rect, dest_window); //Redraw all of the siblings that this window was covering up
-		cmd_prints("Overlapped updated");
         
         //Redraw the window at its new location
         dest_window->frame_needs_redraw = 1;
@@ -910,13 +829,9 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     if(is_visible) {
                
         dest_window->flags |= WIN_VISIBLE;
-		cmd_prints("Drawing newly visible window #");
-		cmd_printDecimal(dest_window->handle);
 		drawWindow(dest_window, 0);
     } else {
         
-		cmd_prints("Hiding newly visible window #");
-		cmd_printDecimal(dest_window->handle);
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
 		overlap_rect.top = dest_window->y;
         overlap_rect.left = dest_window->x;
@@ -924,9 +839,7 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
         overlap_rect.right = overlap_rect.left + dest_window->w - 1;
         updateOverlapped(&overlap_rect, dest_window); //Redraw all of the siblings that this window was covering up
     }
-    
-	cmd_prints("Finished showing window #");
-	
+    	
     return;
 }
 
@@ -1119,26 +1032,19 @@ void drawFrame(window* cur_window) {
 
 List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 
-    cmd_prints("In getOverlappingWindows");
-
     List* rect_list = List_new();
 	
 	if(!rect_list) {
 		
-		cmd_prints("Couldn't allocate a new list");
 		while(1);
 		return (List*)0;
 	}
-	
-	cmd_prints("New list allocated");
-    
+	    
 	Rect* new_rect;
 	window* cur_window;
     
 	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
 		
-		cmd_prints("Checking overlap against #");
-		cmd_printDecimal(cur_window->handle);
 		//Count the window only if it overlaps
 		if(cur_window->x <= baserect->right &&
 		   (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
@@ -1199,25 +1105,17 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.right = cur_window->x + cur_window->context->width - 1;
         }
         
-        cmd_prints("Getting all windows overlapping window #");
-		cmd_printDecimal(cur_window->handle);
         
 		if(!(splitrect_list = getOverlappingWindows(List_get_index(window_list, (void*)cur_window) + 1, &winrect))) { //build the rects
 		
-		    cmd_prints("Could not get overlapping windows for window #");
-			cmd_printDecimal(cur_window->handle);
 			return;
 		}        
         
-		cmd_prints("Drawing visible portions of window #");
-		cmd_printDecimal(cur_window->handle);
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
         
         //getch();
         
-		cmd_prints("Deleting list of windows overlapping window #");
-		cmd_printDecimal(cur_window->handle);        
         List_delete(splitrect_list, Rect_deleter);       
     }
     
@@ -1225,8 +1123,6 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
       //printDecimal(cur_window->handle);
      //pchar('\n');
     
-	cmd_prints("Done drawing window #");
-    cmd_printDecimal(cur_window->handle);
     return;
 }
 
@@ -1536,7 +1432,7 @@ void main(void) {
         terminate();
     }
     
-	cmd_init(mode->width, mode->height);
+	//cmd_init(mode->width, mode->height);
 	
     if(!(window_list = List_new())) {
         
@@ -1595,7 +1491,7 @@ void main(void) {
 #else 
 
     //Now we can start the main message loop 
-	cmd_prints("Wyg started");
+	//cmd_prints("Wyg started");
     while(1) {
 
         //prints("[WYG] Waiting for message...");
@@ -1609,7 +1505,7 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
-			    cmd_prints("Request to create a new window");
+			    //cmd_prints("Request to create a new window");
                 postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindowHandle((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
             break;
             
