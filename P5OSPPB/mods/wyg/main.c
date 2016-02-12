@@ -519,6 +519,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				List_delete(clip_list, Rect_deleter);
 				
 				//Restart the list 
+				cmd_prints("Rewinding list");
 				List_rewind(out_rects);
 			} 
 		}
