@@ -387,6 +387,8 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 
 void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	
+	cmd_prints("In drawOccluded");
+	
 	int split_count = 0;
 	int total_count = 1;
 	int working_total = 0;
@@ -1130,8 +1132,15 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
         
         cmd_prints("Getting all windows overlapping window #");
 		cmd_printDecimal(cur_window->handle);
-        splitrect_list = getOverlappingWindows(List_get_index(window_list, (void*)cur_window) + 1, &winrect); //build the rects        
-        cmd_prints("Drawing visible portions of window #");
+        
+		if(!(splitrect_list = getOverlappingWindows(List_get_index(window_list, (void*)cur_window) + 1, &winrect))) { //build the rects
+		
+		    cmd_prints("Could not get overlapping windows for window #");
+			cmd_printDecimal(cur_window->handle);
+			return;
+		}        
+        
+		cmd_prints("Drawing visible portions of window #");
 		cmd_printDecimal(cur_window->handle);
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
