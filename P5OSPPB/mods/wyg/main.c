@@ -316,6 +316,24 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
 	
+	cons_prints("Splitting rect (");
+	cons_printDecimal(rdest->top);
+	cons_prints(", ");
+	cons_printDecimal(rdest->left);
+	cons_prints(", ");
+	cons_printDecimal(rdest->bottom);
+	cons_prints(", ");
+	cons_printDecimal(rdest->right);
+	cons_prints(") with (");   
+	cons_printDecimal(rknife->top);
+	cons_prints(", ");
+	cons_printDecimal(rknife->left);
+	cons_prints(", ");
+	cons_printDecimal(rknife->bottom);
+	cons_prints(", ");
+	cons_printDecimal(rknife->right);
+	cons_putc(")\n");
+	scans(10, inbuf);
 	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
@@ -396,8 +414,6 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 }
 
 void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
-	
-	cmd_prints("In drawOccluded");
 	
 	if(!splitrect_list) 
 		return;
