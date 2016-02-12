@@ -394,7 +394,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 		while(1);
 	} else {
 		cmd_prints("List of splitting rectangles provided");
-		while(1);
 	}
 	
 	int split_count = 0;
@@ -404,6 +403,9 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 	Rect* working_rects = (Rect*)0;
 	int i, j, k;
     Rect *new_rect, *rect, *split_rect, *out_rect;
+
+    cmd_prints("Stack vars allocated");
+	while(1);
 
 #ifdef RECT_TEST
 	
