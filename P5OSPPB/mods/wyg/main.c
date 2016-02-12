@@ -570,7 +570,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				}
 							
 				//Replace the rectangle that got split with the first result rectangle 
-				rect = List_get_at(clip_list, 0);
+				rect = (Rect*)List_get_at(clip_list, 0);
 				out_rect->top = rect->top;
 				out_rect->left = rect->left;
 				out_rect->bottom = rect->bottom;
@@ -588,7 +588,13 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                         return;
 					}
                     
-                    List_add(out_rects, (void*)new_rect);
+                    if(!List_add(out_rects, (void*)new_rect)){
+						
+						free((void*)new_rect);
+						List_delete(clip_list, Rect_deleter);
+						List_delete(out_rects, Rect_deleter);	
+                        return;
+					}
 				}
 				
 				//Free the space that was used for the split 
@@ -598,6 +604,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				List_rewind(out_rects);
 			} 
 		}
+		
+		cons_prints("Moving on to next splitter\n");
 	}
 	
 	cons_prints("Drawing sub-rects of window #");
