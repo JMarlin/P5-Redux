@@ -851,9 +851,13 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     if(is_visible) {
                
         dest_window->flags |= WIN_VISIBLE;
+		cmd_prints("Drawing newly visible window #");
+		cmd_printDecimal(dest_window->handle);
 		drawWindow(dest_window, 0);
     } else {
         
+		cmd_prints("Hiding newly visible window #");
+		cmd_printDecimal(dest_window->handle);
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
 		overlap_rect.top = dest_window->y;
         overlap_rect.left = dest_window->x;
@@ -862,6 +866,8 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
         updateOverlapped(&overlap_rect, dest_window); //Redraw all of the siblings that this window was covering up
     }
     
+	cmd_prints("Finished showing window #");
+	
     return;
 }
 
