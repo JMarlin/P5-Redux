@@ -158,16 +158,19 @@ void* List_get_at(List* list, int index) {
     
     ListItem* cur_item = list->root_item;
     
-    if(index <= 0) 
-        return cur_item->value;
+    if(index < 0) 
+	    index = 0;
     
     if(index >= list->count)
         index = list->count - 1;  
     
-    while(index--)
+    while(index) {
+		
         cur_item = cur_item->next;
+	    index--;
+	}
     
-    return cur_item->value;
+    return cur_item ? cur_item->value : cur_item;
 }
 
 //Finds the first instance of the pointer value in the list, -1 if not found
