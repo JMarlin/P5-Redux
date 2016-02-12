@@ -1264,6 +1264,7 @@ void cons_putc(char c) {
 	
 	if(c == '\n') {
 	    
+		cons_x = 0;
 		cons_y++;
 	    return;
 	}
