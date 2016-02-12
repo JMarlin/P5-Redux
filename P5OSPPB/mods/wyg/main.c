@@ -1118,11 +1118,14 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
 			return;
 		}        
         
-		cons_init();
-        cons_prints("[WYG] Found ");
-		cons_printDecimal(splitrect_list->count);
-		cons_prints(" windows overlapping us");   
-		while(1);
+		if(splitrect_list->count) {
+			cons_init();
+			cons_prints("[WYG] Found ");
+			cons_printDecimal(splitrect_list->count);
+			cons_prints(" windows overlapping window #");
+			cons_printDecimal(cur_window->handle);   
+			while(1);
+		} 
 		
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
