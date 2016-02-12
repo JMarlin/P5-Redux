@@ -159,7 +159,7 @@ void* List_get_at(List* list, int index) {
     ListItem* cur_item = list->root_item;
     
     if(index <= 0) 
-        return cur_item;
+        return cur_item->value;
     
     if(index >= list->count)
         index = list->count - 1;  
