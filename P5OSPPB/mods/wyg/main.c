@@ -335,7 +335,6 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	cmd_printDecimal(rknife->bottom);
 	cmd_pchar(',');
 	cmd_printDecimal(rknife->right);
-	while(1);
 	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
