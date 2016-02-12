@@ -77,10 +77,7 @@ void* malloc(unsigned int requested_size) {
 	
 	//If we don't have enough space, pop a new page on 
 	while(available_space < requested_size) {
-		
-		//Testing to see if this is where we're getting screwed up again
-		return (void*)0;
-		
+				
 		if(!appendPage())
 			return (void*)0;
 		

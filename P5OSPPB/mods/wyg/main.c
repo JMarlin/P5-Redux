@@ -1067,8 +1067,16 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
     cmd_prints("In getOverlappingWindows");
 
     List* rect_list = List_new();
+	
+	if(!rect_list) {
+		
+		cmd_prints("Couldn't allocate a new list");
+		return (List*)0;
+	}
+	
 	cmd_prints("New list allocated");
-    Rect* new_rect;
+    
+	Rect* new_rect;
 	window* cur_window;
     
 	cmd_prints("Entering foreachskip");    
