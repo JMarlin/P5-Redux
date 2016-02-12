@@ -317,6 +317,27 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
 	
+	cmd_prints("splitting ");
+	cmd_printDecimal(rdest->top);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->left);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->right);
+	cmd_pchar(' ');
+	cmd_pchar('w');
+	cmd_pchar('/');
+	cmd_pchar(' ');
+	cmd_printDecimal(rknife->top);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->left);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->right);
+	while(1);
+	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
     //printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
@@ -519,7 +540,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 						cmd_prints("Occluded the last availible rectangle");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);
-						while(1);
 						return;
 					}
 					
