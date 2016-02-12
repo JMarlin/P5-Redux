@@ -316,6 +316,27 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.left = rdest->left;
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
+	
+	cmd_prints("splitting ");
+	cmd_printDecimal(rdest->top);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->left);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(rdest->right);
+	cmd_pchar(' ');
+	cmd_pchar('w');
+	cmd_pchar('/');
+	cmd_pchar(' ');
+	cmd_printDecimal(rknife->top);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->left);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->bottom);
+	cmd_pchar(',');
+	cmd_printDecimal(rknife->right);
+	while(1);
 
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
