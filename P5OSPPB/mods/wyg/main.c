@@ -349,7 +349,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		return outrect;
 	}
 	
-    //prints("Doing left edge split\n");
+    cons_prints("Doing left edge split\n");
 	//Split by left edge
 	if(rknife->left > baserect.left && rknife->left < baserect.right) {
 		
@@ -371,7 +371,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.left = rknife->left;
 	}
 
-    //prints("Doing top edge split\n");
+    cons_prints("Doing top edge split\n");
 	//Split by top edge
 	if(rknife->top < baserect.bottom && rknife->top > baserect.top) {
 		
@@ -393,7 +393,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.top = rknife->top;
 	}
 
-    //prints("Doing right edge split\n");
+    cons_prints("Doing right edge split\n");
 	//Split by right edge
 	if(rknife->right > baserect.left && rknife->right < baserect.right) {
 		
@@ -415,7 +415,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.right = rknife->right;
 	}
 
-    //prints("Doing bottom edge split\n");
+    cons_prints("Doing bottom edge split\n");
 	//Split by bottom edge
 	if(rknife->bottom > baserect.top && rknife->bottom < baserect.bottom) {
 		
