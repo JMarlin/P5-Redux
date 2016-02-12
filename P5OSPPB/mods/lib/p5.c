@@ -409,3 +409,8 @@ void getString(unsigned int src, unsigned char* outstring, unsigned int count) {
     //Make sure the string is zero-terminated
     outstring[s_index] = 0;
 }
+
+void installExceptionHandler(void* handler) {
+	
+	postMessage(0, KS_INSTALL_EXHDLR, (unsigned int)handler);
+}

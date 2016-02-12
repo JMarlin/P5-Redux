@@ -254,6 +254,16 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             passMessage(0, source, command, (unsigned int)request_new_page(&procTable[i]));
         break;
 
+        case KS_INSTALL_EXHDLR:
+		    for(i = 0; i < 256 && (procTable[i].id != source); i++);
+            
+            //Fail if the calling process doesn't exist anymore
+            if(i == 256)
+                return;
+			
+			procTable[i].exception_handler = (entry_func)payload;
+		break;
+
         default:
         break;
     }

@@ -37,6 +37,8 @@ typedef struct context {
 struct message;
 struct pageRange;
 
+typedef void (*entry_func)(void);
+
 typedef struct process {
     unsigned int id;
     struct pageRange* root_page;
@@ -51,6 +53,8 @@ typedef struct process {
     unsigned int called_count;
     unsigned int cpu_pct;
     unsigned char* name;
+	entry_func exception_handler;
+	unsigned char in_exception;
 } process;
 
 extern int _old_esp;
@@ -101,6 +105,7 @@ void next_process();
 void prep_next_process();
 void returnToProcess(process* proc);
 process* makeThread(process* parent, void* entry_point);
+void force_into_exception(process* proc);
 
 extern void _switchToKernel(void);
 extern void _returnToProc(void);

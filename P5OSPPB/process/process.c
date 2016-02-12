@@ -744,24 +744,33 @@ void kernelEntry(void) {
 
         //In the default case, ensure that we're in text mode, clear the text mode screen and print the hang screen
         default:
-            //Back up the current process structure, since we're going to be 
-            //using enterTextMode to run a v86 interrupt, which will cause another
-            //kernel exit and entry and therefore the info for the kernel panic 
-            //is going to get overwritten
-            proc_backup = p;
-            exception_backup = _except_num;
-            			
-            //Turn off all hardware interrupts 
-            disable_irq(0);
-            disable_irq(1);
-            disable_irq(2);
-            disable_irq(3);
-            disable_irq(4);
-            disable_irq(5);
-            disable_irq(6);
-            disable_irq(7); //We would do all of them, but right now this only supports the first PIC
-			while(1);
-			enterTextMode(&doKernelPanic);
+		    //See if the process has installed an exception handler and, if so, enter it
+			if(p->exception_handler) {
+			
+			    force_into_exception(p);
+				ret_p = p;
+			} else {    
+				
+				//Process had no exception handler, so we have to deal with it instead
+				//Back up the current process structure, since we're going to be 
+				//using enterTextMode to run a v86 interrupt, which will cause another
+				//kernel exit and entry and therefore the info for the kernel panic 
+				//is going to get overwritten
+				proc_backup = p;
+				exception_backup = _except_num;
+							
+				//Turn off all hardware interrupts 
+				disable_irq(0);
+				disable_irq(1);
+				disable_irq(2);
+				disable_irq(3);
+				disable_irq(4);
+				disable_irq(5);
+				disable_irq(6);
+				disable_irq(7); //We would do all of them, but right now this only supports the first PIC
+				while(1);
+				enterTextMode(&doKernelPanic);
+			}
             break;
     }
 
@@ -820,6 +829,12 @@ void resetProcessCounter() {
 }
 
 
+void force_into_exception(process* proc) {
+	
+	proc->ctx.eip = proc->exception_handler;
+	proc->in_exception = 1;
+}
+
 process* newProcess(char* name) {
 
     process* proc;
@@ -841,6 +856,8 @@ process* newProcess(char* name) {
     proc->cpu_pct = 0;
     proc->called_count = 0;
     proc->size = 0;
+	proc->in_exception = 0;
+	proc->exception_handler = (entry_func)0;
 
     //If the process was passed a name, we'll copy the
     //name into a fresh buffer to attach to the proc 

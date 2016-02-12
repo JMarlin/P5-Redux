@@ -1241,6 +1241,12 @@ void destroyHandle(unsigned int handle) {
     destroy(dest_window);
 }
 
+void exceptionHandler(void) {
+	
+	cmd_prints("Operating system raised an exception");
+	while(1);
+}
+
 #ifdef HARNESS_TEST
 void WYG_main(void) {
 #else 
@@ -1312,6 +1318,8 @@ void main(void) {
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
+
+    installExceptionHandler((void*)exceptionHandler);
 
     if(num) {
 
