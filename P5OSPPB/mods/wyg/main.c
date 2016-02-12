@@ -43,6 +43,8 @@ Linkage is in order of increasing z-value
 
 message temp_msg;
 
+unsigned char inbuf[12];
+
 typedef struct window {
 	unsigned char active;
     unsigned char flags;
@@ -1375,7 +1377,6 @@ void main(void) {
     unsigned int current_handle;
     int i;
     window* temp_window;
-    unsigned char inbuf[12];
     unsigned int src_pid;
     unsigned char* instr;
     unsigned int strlen;
