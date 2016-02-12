@@ -317,27 +317,6 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
 	
-	cmd_prints("splitting ");
-	cmd_printDecimal(rdest->top);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->left);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(rdest->right);
-	cmd_pchar(' ');
-	cmd_pchar('w');
-	cmd_pchar('/');
-	cmd_pchar(' ');
-	cmd_printDecimal(rknife->top);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->left);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(rknife->right);
-	while(1);
-
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
     //printf("against (%u, %u, %u, %u)\n", rknife.top, rknife.left, rknife.bottom, rknife.right);
@@ -437,17 +416,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 
     cmd_prints("I was provided this many rects: ");
 	cmd_printDecimal(splitrect_list->count);
-	
-    cmd_prints("Base rect is: ");
-	cmd_printDecimal(baserect->top);
-	cmd_pchar(',');
-	cmd_printDecimal(baserect->left);
-	cmd_pchar(',');
-	cmd_printDecimal(baserect->bottom);
-	cmd_pchar(',');
-	cmd_printDecimal(baserect->right);
-	while(1);
-	
+		
 #ifdef RECT_TEST
 	
     //Clear everything 
