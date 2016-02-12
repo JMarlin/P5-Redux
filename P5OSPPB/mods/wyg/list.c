@@ -151,7 +151,21 @@ void* List_get_next(List* list) {
 
 void List_seek_to(List* list, int index) {
 	
-	list->current_item = List_get_at(list, index);
+	ListItem* cur_item = list->root_item;
+    
+	if(index >= list->count)
+        index = list->count - 1;  
+    
+	if(index < 0) 
+	    index = 0;
+    
+    while(index) {
+		
+        cur_item = cur_item->next;
+	    index--;
+	}
+    
+    list->current_item = cur_item;
 }
 
 void* List_get_at(List* list, int index) {
