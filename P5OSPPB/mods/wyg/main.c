@@ -751,6 +751,8 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
     }
 }
 
+void markWindowVisible(window* dest_window, unsigned char is_visible);
+
 void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y) {
     
     Rect overlap_rect;
