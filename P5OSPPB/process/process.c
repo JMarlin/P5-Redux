@@ -670,10 +670,36 @@ void kernelEntry(void) {
                 }
             } else {
 
-                //Otherwise, for now we just dump the system state and move on
-                prints("(Non-V86)\n");
-                kernelDebug();
-                scans(5, fake);
+                //See if the process has installed an exception handler and, if so, enter it
+				//We also make sure that we're not already in an exception so that the user 
+				//process doesn't just lock up in a loop of exceptions if there's an error 
+				//in the exception handler itself
+				if(p->exception_handler && !(p->in_exception)) {
+				
+					force_into_exception(p);
+					ret_p = p;
+				} else {    
+					
+					//Process had no exception handler, so we have to deal with it instead
+					//Back up the current process structure, since we're going to be 
+					//using enterTextMode to run a v86 interrupt, which will cause another
+					//kernel exit and entry and therefore the info for the kernel panic 
+					//is going to get overwritten
+					proc_backup = p;
+					exception_backup = _except_num;
+								
+					//Turn off all hardware interrupts 
+					disable_irq(0);
+					disable_irq(1);
+					disable_irq(2);
+					disable_irq(3);
+					disable_irq(4);
+					disable_irq(5);
+					disable_irq(6);
+					disable_irq(7); //We would do all of them, but right now this only supports the first PIC
+					//while(1);
+					enterTextMode(&doKernelPanic);
+				}
             }
             break;
 
@@ -771,7 +797,7 @@ void kernelEntry(void) {
 				disable_irq(5);
 				disable_irq(6);
 				disable_irq(7); //We would do all of them, but right now this only supports the first PIC
-				while(1);
+				//while(1);
 				enterTextMode(&doKernelPanic);
 			}
             break;
