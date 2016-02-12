@@ -420,7 +420,8 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     //If there's nothing occluding us, just render the bitmap and get out of here
     if(!splitrect_list->count) {
     
-        //prints("[WYG] Nothing overlapping us\n");
+        cmd_prints("Nothing overlapping window #");
+		cmd_printDecimal(win->handle);
         drawBmpRect(win, baserect);
         return;
     }
@@ -430,7 +431,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
     if(!out_rects) {
         
-        prints("[WYG] Couldn't allocate space for output rect list\n");
+        cmd_prints("[WYG] Couldn't allocate space for output rect list\n");
 		return;
     }
     
@@ -438,14 +439,14 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
     
     if(!rect) {
         
-        prints("[WYG] Couldn't allocate space for temp rectangle\n");
+        cmd_prints("[WYG] Couldn't allocate space for temp rectangle\n");
 		List_delete(out_rects, Rect_deleter);
         return;
     }
     
     if(!List_add(out_rects, (void*)rect)) {
         
-        prints("[WYG] Couldn't insert out rect into list\n");
+        cmd_prints("[WYG] Couldn't insert out rect into list\n");
 		List_delete(out_rects, Rect_deleter);
         return;
     }
