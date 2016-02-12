@@ -282,7 +282,8 @@ void drawBmpRect(window* win, Rect* r) {
     drawRect(r->right - r->left, r->bottom - r->top);
     
 #else     
-
+ 
+    cmd_prints("Adjusting the rectangle coordinate from global space to window space ");
     //Adjust the rectangle coordinate from global space to window space 
     win->context->top = r->top - win->y;
     win->context->left = r->left - win->x;
@@ -290,8 +291,10 @@ void drawBmpRect(window* win, Rect* r) {
     win->context->right = r->right - win->x;   
     
     //Do the blit
+	cmd_prints("Setting the gfx cursor and blitting");
     setCursor(win->x, win->y);
     drawBitmap(win->context);
+	cmd_prints("Blitting complete");
     
 #endif //RECT_TEST
 }
