@@ -519,6 +519,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 						cmd_prints("Occluded the last availible rectangle");
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);
+						while(1);
 						return;
 					}
 					
