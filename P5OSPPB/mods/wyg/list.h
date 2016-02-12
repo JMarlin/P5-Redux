@@ -18,6 +18,7 @@ typedef struct List {
 } List; 
 
 typedef void (*deleter)(void* value);
+typedef void (*printer)(void* value);
 
 List* List_new(void);
 void List_delete(List* list, deleter del_func);
@@ -30,6 +31,7 @@ int List_get_index(List* list, void* value);
 void* List_get_at(List* list, int index);
 void* List_pop(List* list, void* value);
 void List_remove(List* list, void* value, deleter del_func);
+void List_print(List* list, printer print_func);
 
 //Iterates through the values stored in list, placing each into variable value which is of type type 
 #define List_for_each(list, value, type) for(List_rewind(list); ((value) = (type)List_get_next(list)); )

@@ -194,3 +194,13 @@ int List_has_next(List* list) {
     
     return !!(list->current_item);
 }
+
+void List_print(List* list, printer print_func) {
+    
+    void* value;
+    
+    List_for_each(list, value, void*) {
+            
+        print_func(value);
+    }
+}
