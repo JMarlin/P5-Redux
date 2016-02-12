@@ -1069,9 +1069,12 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
     List* rect_list = List_new();
     Rect* new_rect;
 	window* cur_window;
-        
+    
+	cmd_prints("Entering foreachskip");    
 	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
 		
+		cmd_prints("Checking overlap against #");
+		cmd_printDecimal(cur_window->handle);
 		//Count the window only if it overlaps
 		if(cur_window->x <= baserect->right &&
 		   (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
