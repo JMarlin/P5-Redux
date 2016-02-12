@@ -1126,14 +1126,18 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
             winrect.right = cur_window->x + cur_window->context->width - 1;
         }
         
-        //prints("[WYG] Building overlapping rectangles\n");
+        cmd_prints("Getting all windows overlapping window #");
+		cmd_printDecimal(dest_window->handle);
         splitrect_list = getOverlappingWindows(List_get_index(window_list, (void*)cur_window) + 1, &winrect); //build the rects        
-        //prints("[WYG] Drawing occluded window\n");
+        cmd_prints("Drawing visible portions of window #");
+		cmd_printDecimal(dest_window->handle);
         drawOccluded(cur_window, &winrect, splitrect_list);   
         //prints("[WYG] Finished doing occluded draw\n");    
         
         //getch();
-                
+        
+		cmd_prints("Deleting list of windows overlapping window #");
+		cmd_printDecimal(dest_window->handle);        
         List_delete(splitrect_list, Rect_deleter);       
     }
     
@@ -1141,6 +1145,8 @@ void drawWindow(window* cur_window, unsigned char use_current_blit) {
       //printDecimal(cur_window->handle);
      //pchar('\n');
     
+	cmd_prints("Done drawing window #");
+    cmd_printDecimal(dest_window->handle);
     return;
 }
 
