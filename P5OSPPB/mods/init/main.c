@@ -30,11 +30,11 @@ void main(void) {
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
-
+*/
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
-*/
+
     terminate();
 }
 

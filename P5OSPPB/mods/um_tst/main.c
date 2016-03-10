@@ -252,11 +252,11 @@ void makeWindows() {
 
 void main(void) {
 
-    if(!initWYG()) {
+    //if(!initWYG()) {
         
-        prints("usr.mod could not init WYG.");
-        while(1); //Hang 
-    }
+    //    prints("usr.mod could not init WYG.");
+    //    while(1); //Hang 
+    //}
   
     if(!initKey()) {
         
@@ -264,6 +264,11 @@ void main(void) {
         while(1); //Hang
     }
     
+	while(1) {
+		
+		scans(50, inbuf);
+	}
+	
 	//Get the frame dimensions
     getFrameDims(&frame_top, &frame_left, &frame_bottom, &frame_right);
     
