@@ -538,6 +538,8 @@ void keyIRQThread() {
     unsigned char was_break = 0;
     keyInfo* temp_key;
 	
+	prints("[PS2] Started interrupt thread\n");
+	
 	while(1) {
 
 		waitForIRQ(1);  
@@ -600,7 +602,7 @@ void keyMessageThread() {
     message temp_msg;
     unsigned char c;
     
-    prints("[PS2] Started client thread\n");
+    prints("[PS2] Started message thread\n");
     
     //First thing, register as a KEY service with the registrar
     //We do this here so that we have this thread's PID instead of the parent's 
@@ -695,19 +697,19 @@ void main(void) {
 
 	prints("Done.\n");
 
-    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+	//Start the thread that will listen for keyboard client requests
+    if(!startThread())
+        keyMessageThread();
 
     //Start the thread that will listen for keyboard interrupts 
     if(!startThread())
         keyIRQThread();
+
+	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 		
 	//Start the thread that will listen for mouse interrupts 
     //if(!startThread())
     //    mouseIRQThread();
-		
-	//Start the thread that will listen for keyboard client requests
-    if(!startThread())
-        keyMessageThread();
 		
 	//Start the thread that will listen for mouse client requests
     //if(!startThread())
