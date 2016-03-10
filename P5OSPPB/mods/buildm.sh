@@ -20,6 +20,6 @@ cd ../idle
 ./build.sh
 cd ../wyg
 ./build.sh
-cd ../key
+cd ../ps2
 ./build.sh
 cd ..
