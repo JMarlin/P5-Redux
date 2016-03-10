@@ -23,8 +23,8 @@ void main(void) {
 //    startAndWait(":uhci.mod");
     
     //Start key server
-    prints("[init] Starting ps2 server...\n");
-    startAndWait(":ps2.mod");
+    //prints("[init] Starting ps2 server...\n");
+    //startAndWait(":ps2.mod");
 
 /*  HANGING TO TEST THE PS2 SERVICE
     //Start WYG server
