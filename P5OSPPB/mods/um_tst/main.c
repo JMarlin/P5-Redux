@@ -252,6 +252,8 @@ void makeWindows() {
 
 void main(void) {
 
+	prints("\nUSR.MOD started.\n");
+
     //if(!initWYG()) {
         
     //    prints("usr.mod could not init WYG.");
