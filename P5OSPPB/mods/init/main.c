@@ -28,8 +28,8 @@ void main(void) {
 
 ///*  LETTING THE SYSTEM SIT AT IDLE TO TEST THE PS2 MOUSE INTERRUPTS
     //Start WYG server
-    prints("[init] Starting WYG server...\n");
-    startAndWaitUsr(":wyg.mod");
+    //prints("[init] Starting WYG server...\n");
+    //startAndWaitUsr(":wyg.mod");
 
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
