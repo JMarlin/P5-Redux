@@ -539,6 +539,16 @@ void keyIRQThread() {
     keyInfo* temp_key;
 	
 	prints("[PS2] Started interrupt thread\n");
+	prints("[PS2] Registering keyboard IRQ...");
+
+	//Try to register the IRQ
+	if(!registerIRQ(1)) {
+
+		prints("Failed.\n");
+    	terminate();
+	}
+	
+	prints("Done.\n");
 	
 	while(1) {
 
@@ -668,18 +678,9 @@ void main(void) {
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
-	prints("[key] Registering keyboard IRQ...");
-
-	//Try to register the IRQ
-	if(!registerIRQ(1)) {
-
-		prints("Failed.\n");
-		postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
-    	terminate();
-	}
 
 	//Enable interrupts on the keyboard controller
-	prints("Done.\n[key] Enabling keyboard interrupts...");
+	prints("[PS2] Enabling keyboard interrupts...");
 	keyboard_clearBuffer();
 	keyboard_sendCommand(KBC_READ_CCB);
 	current_creg = keyboard_getData();
