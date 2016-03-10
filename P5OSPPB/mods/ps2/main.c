@@ -625,6 +625,8 @@ void keyMessageThread() {
     
     //We should make sure the registration works, but for now we're just assuming it did
     
+	key_irq_regd = 2;
+	
     while(1) {
         
         getMessage(&temp_msg);
@@ -740,6 +742,8 @@ void main(void) {
 	//Start the thread that will listen for keyboard client requests
     if(!startThread())
         keyMessageThread();
+		
+	while(key_irq_regd != 2);
 		
 	//Start the thread that will listen for mouse interrupts 
     //if(!startThread())
