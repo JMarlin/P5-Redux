@@ -112,17 +112,17 @@ process* irq_handle(unsigned char irq_number) {
 
 void enable_irq(unsigned char channel) {
 
-	//if(channel > 7)
-    //	outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (channel - 8)));
-	//else 
+	if(channel > 7)
+    	outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (channel - 8)));
+	else 
 		outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
 }
 
 void disable_irq(unsigned char channel) {
 	
-	//if(channel > 7)
-    //	outb(PIC2_DATA, inb(PIC2_DATA) | (1 << (channel - 8)));
-	//else	
+	if(channel > 7)
+    	outb(PIC2_DATA, inb(PIC2_DATA) | (1 << (channel - 8)));
+	else	
 		outb(PIC1_DATA, inb(PIC1_DATA) | (1 << channel));
 }
 

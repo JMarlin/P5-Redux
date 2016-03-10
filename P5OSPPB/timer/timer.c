@@ -116,6 +116,7 @@ process* c_timer_handler() {
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {
 
+		pchar('|');
         tick_count = 0;
         needs_swap = 1;
     }
