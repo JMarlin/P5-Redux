@@ -1,6 +1,7 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
 #include "../include/key.h"
+//#include "../include/mouse.h"
 
 //KBC registers
 #define KBC_DREG 0x60 //IO Port for the data register (r/w)
@@ -527,86 +528,11 @@ void detectScancodeSet() {
     }
 }
 
-void clientThread() {
-    
-    message temp_msg;
-    unsigned char c;
-    
-    prints("[KEY] Started client thread\n");
-    
-    //First thing, register as a KEY service with the registrar
-    //We do this here so that we have this thread's PID instead of the parent's 
-    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
-    getMessage(&temp_msg);
-    prints("[KEY] Registered.");
-    
-    //We should make sure the registration works, but for now we're just assuming it did
-    
-    while(1) {
-        
-        getMessage(&temp_msg);
-        
-        if(temp_msg.command == KEY_GETCH) {
-            
-            //Wait until there's a character in the buffer 
-            while(!(c = buffer_retrieve()));
-            
-            //Once we have one, post it back
-            postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
-        }
-    }
-}
-
-void main(void) {
-
-    unsigned char shift_count = 0;
-    unsigned char caps = 0;
-    unsigned char was_break = 0;
-    
-	message temp_msg;
-	unsigned char current_creg;
-	unsigned int parent_pid;
-    keyInfo* temp_key;
-
-	//Get the 'here's my pid' message from init
-    getMessage(&temp_msg);
-    parent_pid = temp_msg.source;
-	prints("[key] Registering keyboard IRQ...");
-
-	//Try to register the IRQ
-	if(!registerIRQ(1)) {
-
-		prints("Failed.\n");
-		postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
-    	terminate();
-	}
-
-	//Enable interrupts on the keyboard controller
-	prints("Done.\n[key] Enabling keyboard interrupts...");
-	keyboard_clearBuffer();
-	keyboard_sendCommand(KBC_READ_CCB);
-	current_creg = keyboard_getData();
-    keyboard_sendCommand(KBC_WRITE_CCB);
-    keyboard_sendData(current_creg | CCB_PORT1_INT | CCB_PORT2_INT);
-    
-    //Detect the scancode set the keyboard is using
-    detectScancodeSet();
-    
-    //Clear the keyboard buffer
-    keyboard_clearBuffer();
-    
-    //Initialize the key buffer which will store the received key data
-    initKeyBuffer();
-
-	prints("Done.\n");
-
-    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
-
-    //Start the thread that will listen for client requests
-    if(!startThread())
-        clientThread();
-
-	//Now that everything is set up, we can loop waiting for interrupts
+//This thread will go to sleep waiting for the OS to wake it on a triggered IRQ 
+//and then will interpret the codes found in the PS2 keybuffer into ascii data 
+//and put it into the keyboard ring buffer
+void keyIRQThread() {
+	
 	while(1) {
 
 		waitForIRQ(1);        
@@ -658,8 +584,134 @@ void main(void) {
                         }
                     }
                 }
-                
             }
         }
 	}
+}
+
+void keyMessageThread() {
+    
+    message temp_msg;
+    unsigned char c;
+    
+    prints("[PS2] Started client thread\n");
+    
+    //First thing, register as a KEY service with the registrar
+    //We do this here so that we have this thread's PID instead of the parent's 
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
+    getMessage(&temp_msg);
+    prints("[PS2] Key service registered.");
+    
+    //We should make sure the registration works, but for now we're just assuming it did
+    
+    while(1) {
+        
+        getMessage(&temp_msg);
+        
+        if(temp_msg.command == KEY_GETCH) {
+            
+            //Wait until there's a character in the buffer 
+            while(!(c = buffer_retrieve()));
+            
+            //Once we have one, post it back
+            postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
+        }
+    }
+}
+
+/*
+void mouseMessageThread() {
+    
+    message temp_msg;
+    unsigned char c;
+    
+    prints("[PS2] Started client thread\n");
+    
+    //First thing, register as a KEY service with the registrar
+    //We do this here so that we have this thread's PID instead of the parent's 
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
+    getMessage(&temp_msg);
+    prints("[PS2] Mouse service registered.");
+    
+    //We should make sure the registration works, but for now we're just assuming it did
+    
+    while(1) {
+        
+        getMessage(&temp_msg);
+        
+        if(temp_msg.command == KEY_GETCH) {
+            
+            //Wait until there's a character in the buffer 
+            while(!(c = buffer_retrieve()));
+            
+            //Once we have one, post it back
+            postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
+        }
+    }
+}
+*/
+
+void main(void) {
+
+    unsigned char shift_count = 0;
+    unsigned char caps = 0;
+    unsigned char was_break = 0;
+    
+	message temp_msg;
+	unsigned char current_creg;
+	unsigned int parent_pid;
+    keyInfo* temp_key;
+
+	//Get the 'here's my pid' message from init
+    getMessage(&temp_msg);
+    parent_pid = temp_msg.source;
+	prints("[key] Registering keyboard IRQ...");
+
+	//Try to register the IRQ
+	if(!registerIRQ(1)) {
+
+		prints("Failed.\n");
+		postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+    	terminate();
+	}
+
+	//Enable interrupts on the keyboard controller
+	prints("Done.\n[key] Enabling keyboard interrupts...");
+	keyboard_clearBuffer();
+	keyboard_sendCommand(KBC_READ_CCB);
+	current_creg = keyboard_getData();
+    keyboard_sendCommand(KBC_WRITE_CCB);
+    keyboard_sendData(current_creg | CCB_PORT1_INT | CCB_PORT2_INT);
+    
+    //Detect the scancode set the keyboard is using
+    detectScancodeSet();
+    
+    //Clear the keyboard buffer
+    keyboard_clearBuffer();
+    
+    //Initialize the key buffer which will store the received key data
+    initKeyBuffer();
+
+	prints("Done.\n");
+
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+
+    //Start the thread that will listen for keyboard interrupts 
+    if(!startThread())
+        keyIRQThread();
+		
+	//Start the thread that will listen for mouse interrupts 
+    //if(!startThread())
+    //    mouseIRQThread();
+		
+	//Start the thread that will listen for keyboard client requests
+    if(!startThread())
+        keyMessageThread();
+		
+	//Start the thread that will listen for mouse client requests
+    //if(!startThread())
+    //    mouseMessageThread();
+
+    //With all of the threads started, the original core thread can exit
+	terminate();
 }

@@ -23,9 +23,10 @@ void main(void) {
 //    startAndWait(":uhci.mod");
     
     //Start key server
-    prints("[init] Starting key server...\n");
-    startAndWait(":key.mod");
+    prints("[init] Starting ps2 server...\n");
+    startAndWait(":ps2.mod");
 
+///*  LETTING THE SYSTEM SIT AT IDLE TO TEST THE PS2 MOUSE INTERRUPTS
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
@@ -33,7 +34,7 @@ void main(void) {
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
-
+//*/
     terminate();
 }
 
