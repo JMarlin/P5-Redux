@@ -734,8 +734,8 @@ void main(void) {
 	prints("Done.\n");
 
 	//Start the thread that will listen for keyboard interrupts 
-    //if(!startThread())
-    //    keyIRQThread();
+    if(!startThread())
+        keyIRQThread();
 
     //while(!key_irq_regd);
 
