@@ -533,6 +533,11 @@ void detectScancodeSet() {
 //and put it into the keyboard ring buffer
 void keyIRQThread() {
 	
+	unsigned char shift_count = 0;
+    unsigned char caps = 0;
+    unsigned char was_break = 0;
+    keyInfo* temp_key;
+	
 	while(1) {
 
 		waitForIRQ(1);        
@@ -652,15 +657,10 @@ void mouseMessageThread() {
 */
 
 void main(void) {
-
-    unsigned char shift_count = 0;
-    unsigned char caps = 0;
-    unsigned char was_break = 0;
-    
+	
 	message temp_msg;
 	unsigned char current_creg;
 	unsigned int parent_pid;
-    keyInfo* temp_key;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
