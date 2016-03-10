@@ -606,7 +606,7 @@ void keyMessageThread() {
     //We do this here so that we have this thread's PID instead of the parent's 
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
     getMessage(&temp_msg);
-    prints("[PS2] Key service registered.");
+    prints("[PS2] Key service registered.\n");
     
     //We should make sure the registration works, but for now we're just assuming it did
     
@@ -714,5 +714,6 @@ void main(void) {
     //    mouseMessageThread();
 
     //With all of the threads started, the original core thread can exit
+	while(1);
 	terminate();
 }
