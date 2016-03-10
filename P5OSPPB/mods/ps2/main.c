@@ -311,6 +311,8 @@ keyInfo levelTwoCodes2[] = {
     {KEY_TYPE_TERMINATE, 0, 0, 0}
 };
 
+unsigned char key_irq_regd = 0;
+
 #define SCANSTATE_DEFAULT 0
 #define SCANSTATE_BREAK 1
 
@@ -550,6 +552,8 @@ void keyIRQThread() {
 	
 	prints("Done.\n");
 	
+	key_irq_regd = 1;
+	
 	while(1) {
 
 		waitForIRQ(1);    
@@ -730,6 +734,8 @@ void main(void) {
 	//Start the thread that will listen for keyboard interrupts 
     if(!startThread())
         keyIRQThread();
+
+    while(!key_irq_regd);
 
 	//Start the thread that will listen for keyboard client requests
     if(!startThread())
