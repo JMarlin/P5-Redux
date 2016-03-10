@@ -552,8 +552,7 @@ void keyIRQThread() {
 	
 	while(1) {
 
-		waitForIRQ(1);  
-		prints("!");      
+		waitForIRQ(1);    
         
         while(keyboard_hasData()) {
             
