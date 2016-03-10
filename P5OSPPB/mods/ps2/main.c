@@ -727,13 +727,13 @@ void main(void) {
 
 	prints("Done.\n");
 
+	//Start the thread that will listen for keyboard interrupts 
+    if(!startThread())
+        keyIRQThread();
+
 	//Start the thread that will listen for keyboard client requests
     if(!startThread())
         keyMessageThread();
-
-    //Start the thread that will listen for keyboard interrupts 
-    if(!startThread())
-        keyIRQThread();
 		
 	//Start the thread that will listen for mouse interrupts 
     //if(!startThread())

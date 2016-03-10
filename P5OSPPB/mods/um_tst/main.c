@@ -266,6 +266,7 @@ void main(void) {
     
 	while(1) {
 		
+		prints("\n>> ");
 		scans(50, inbuf);
 	}
 	
