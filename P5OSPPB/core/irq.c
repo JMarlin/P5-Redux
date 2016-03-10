@@ -49,6 +49,7 @@ handler irq_handler[15] = {
 };
 
 void send_pic_eoi(unsigned char irq) {
+	
 	if(irq > 7)
 		outb(PIC2_COMMAND, 0x20);
 
@@ -109,15 +110,20 @@ process* irq_handle(unsigned char irq_number) {
     return irq_process[irq_number - 1];
 }
 
-//NEED TO UPDATE THESE TO HANDLE IRQs ABOVE 7
 void enable_irq(unsigned char channel) {
 
-    outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
+	if(channel > 7)
+    	outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (channel - 8)));
+	else 
+		outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
 }
 
 void disable_irq(unsigned char channel) {
-
-    outb(PIC1_DATA, inb(PIC1_DATA) | (1 << channel));
+	
+	if(channel > 7)
+    	outb(PIC2_DATA, inb(PIC2_DATA) | (1 << (channel - 8)));
+	else	
+		outb(PIC1_DATA, inb(PIC1_DATA) | (1 << channel));
 }
 
 void init_pic() {

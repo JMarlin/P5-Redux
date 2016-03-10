@@ -611,7 +611,7 @@ void keyMessageThread() {
     message temp_msg;
     unsigned char c;
     
-    prints("[PS2] Started message thread\n");
+    prints("[PS2] Started key message thread\n");
     
     //First thing, register as a KEY service with the registrar
     //We do this here so that we have this thread's PID instead of the parent's 
@@ -636,17 +636,17 @@ void keyMessageThread() {
     }
 }
 
-/*
+
 void mouseMessageThread() {
-    
+    /* For now, this thread does nothing
     message temp_msg;
     unsigned char c;
     
-    prints("[PS2] Started client thread\n");
+    prints("[PS2] Started mouse message thread\n");
     
     //First thing, register as a KEY service with the registrar
     //We do this here so that we have this thread's PID instead of the parent's 
-    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_KEY);
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_MOUSE);
     getMessage(&temp_msg);
     prints("[PS2] Mouse service registered.");
     
@@ -656,7 +656,7 @@ void mouseMessageThread() {
         
         getMessage(&temp_msg);
         
-        if(temp_msg.command == KEY_GETCH) {
+        if(temp_msg.command == MOUSE_GETEVENT) {
             
             //Wait until there's a character in the buffer 
             while(!(c = buffer_retrieve()));
@@ -665,8 +665,38 @@ void mouseMessageThread() {
             postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
         }
     }
+	*/
+	
+	terminate();
 }
-*/
+
+
+void mouseIRQThread() {
+	
+	unsigned char shift_count = 0;
+    unsigned char caps = 0;
+    unsigned char was_break = 0;
+    keyInfo* temp_key;
+	
+	prints("[PS2] Started mouse interrupt thread\n");
+	prints("[PS2] Registering mouse IRQ...");
+
+	//Try to register the IRQ
+	if(!registerIRQ(12)) {
+
+		prints("Failed.\n");
+    	terminate();
+	}
+	
+	prints("Done.\n");
+	
+	while(1) {
+
+		waitForIRQ(12);    
+		prints("M");
+	}
+}
+
 
 void main(void) {
 	
@@ -704,18 +734,17 @@ void main(void) {
     //Start the thread that will listen for keyboard interrupts 
     if(!startThread())
         keyIRQThread();
-
-	postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 		
 	//Start the thread that will listen for mouse interrupts 
-    //if(!startThread())
-    //    mouseIRQThread();
+    if(!startThread())
+        mouseIRQThread();
 		
 	//Start the thread that will listen for mouse client requests
-    //if(!startThread())
-    //    mouseMessageThread();
+    if(!startThread())
+        mouseMessageThread();
+
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //With all of the threads started, the original core thread can exit
-	while(1);
 	terminate();
 }

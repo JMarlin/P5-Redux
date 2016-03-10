@@ -26,7 +26,7 @@ void main(void) {
     prints("[init] Starting ps2 server...\n");
     startAndWait(":ps2.mod");
 
-
+/*  HANGING TO TEST THE PS2 SERVICE
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
@@ -34,7 +34,7 @@ void main(void) {
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");
-
+*/
     terminate();
 }
 
