@@ -736,12 +736,12 @@ void main(void) {
         keyIRQThread();
 		
 	//Start the thread that will listen for mouse interrupts 
-    if(!startThread())
-        mouseIRQThread();
+    //if(!startThread())
+    //    mouseIRQThread();
 		
 	//Start the thread that will listen for mouse client requests
-    if(!startThread())
-        mouseMessageThread();
+    //if(!startThread())
+    //    mouseMessageThread();
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
