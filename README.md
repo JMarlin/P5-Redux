@@ -10,3 +10,5 @@ The P5R* folders are a weird relic of the fact that this started as an embarassi
 So now you know.
 
 The rest of the source tree clutter I really have no excuse for.
+
+Oh, and don't ask about the name. It's completely meaningless. I came up with it when I was 15 for chrsit's sake.
