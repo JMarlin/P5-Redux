@@ -11,8 +11,8 @@ void main(void) {
     startSuperProc(":idle.mod");
 
     //Start up all of the initial-boot servers
-    prints("[init] Starting VESA server...\n");
-    startAndWait(":vesa.mod");
+    //prints("[init] Starting VESA server...\n");
+    //startAndWait(":vesa.mod");
 
     //Start PCI server
     prints("[init] Starting pci server...\n");
@@ -23,14 +23,18 @@ void main(void) {
 //    startAndWait(":uhci.mod");
     
     //Start key server
-    prints("[init] Starting ps2 server...\n");
-    startAndWait(":ps2.mod");
+    //prints("[init] Starting ps2 server...\n");
+    //startAndWait(":ps2.mod");
 
 /*  HANGING TO TEST THE PS2 SERVICE
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
 */
+    //Start UART handler
+    prints("[init] Starting UART server...\n");
+    startAndWait(":uart.mod");
+
     //Finally, start up the user 'login' process
     prints("[init] Servers ready. Starting user process.\n");
     startProc(":usr.mod");

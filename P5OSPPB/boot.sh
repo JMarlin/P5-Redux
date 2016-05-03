@@ -1,7 +1,7 @@
 cp bin/p5kern.bin ../kpkg/
 cd ../rampak/
 gcc -o rampak main.c
-./rampak p5.rd test.txt usr.mod init.mod registrar.mod vesa.mod v86.mod idle.mod wyg.mod pci.mod uhci.mod ps2.mod
+./rampak p5.rd test.txt usr.mod init.mod registrar.mod idle.mod pci.mod uart.mod
 cp p5.rd ../kpkg/
 cd ../kpkg/
 gcc -o kpkg main.c

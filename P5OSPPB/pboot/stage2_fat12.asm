@@ -32,6 +32,12 @@ main:
     ;;Get the CHS parameters of our boot drive
     call get_drive_params
 
+    ;;TEST
+    ;;Checking to see if forcing SPT = 18 lets us boot on PCjs
+    mov dl, 0x12
+    mov [drive_sector_count], dl 
+    ;;TEST
+
     ;;Display the drive parameters
     ;;Drive number
     mov dx, .drive_num_str
