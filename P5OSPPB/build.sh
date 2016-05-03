@@ -18,14 +18,14 @@ C_OPTS="-nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -m32 -g"
 
 cd core
 echo Starting core build...
-as -o ../build/syscalls.o syscall.s --32
+as -o ../build/syscalls.o syscall.s -g --32
 gcc -c -o ../build/syscall.o syscall.c $C_OPTS
-as -o ../build/init.o init.s --32
+as -o ../build/init.o init.s -g --32
 gcc -c -o ../build/kernel.o kernel.c $C_OPTS
 gcc -c -o ../build/util.o util.c -nostdlib -m32
 gcc -c -o ../build/int.o int.c $C_OPTS
-as -o ../build/expt.o expt.s --32
-as -o ../build/irqs.o irq.s --32
+as -o ../build/expt.o expt.s -g --32
+as -o ../build/irqs.o irq.s -g --32
 gcc -c -o ../build/irq.o irq.c $C_OPTS
 
 cd ../memory
@@ -33,7 +33,7 @@ echo Starting memory build...
 gcc -c -o ../build/memory.o memory.c $C_OPTS
 gcc -c -o ../build/gdt.o gdt.c $C_OPTS
 gcc -c -o ../build/paging.o paging.c $C_OPTS
-as -o ../build/pagings.o paging.s --32
+as -o ../build/pagings.o paging.s -g --32
 
 cd ../obj
 echo Starting obj build...
@@ -49,7 +49,7 @@ gcc -c -o ../build/serial.o serial.c $C_OPTS
 
 cd ../process
 echo Starting process build...
-as -o ../build/processs.o process.s --32
+as -o ../build/processs.o process.s -g --32
 gcc -c -o ../build/process.o process.c $C_OPTS
 gcc -c -o ../build/message.o message.c $C_OPTS
 
@@ -74,7 +74,7 @@ gcc -c -o ../build/ramfs.o ramfs.c $C_OPTS
 cd ../timer
 echo Starting timer build...
 gcc -c -o ../build/timer.o timer.c $C_OPTS
-as -o ../build/timers.o timer.s --32
+as -o ../build/timers.o timer.s -g --32
 
 cd ../build
 echo Linking binary
