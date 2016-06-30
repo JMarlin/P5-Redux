@@ -39,5 +39,6 @@ void setTitle(unsigned int handle, unsigned char* string);
 void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y);
 void destroyWindow(unsigned int handle);
 void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom, unsigned char* right);
+void updateMouse(short off_x, short off_y);
 
 #endif //WYG_H

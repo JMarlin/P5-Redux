@@ -143,6 +143,8 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     //Clear the bitmap
     for(i = 0; i < bmp_size; i++)
         return_bmp->data[i] = 0;
+
+    return_bmp->mask_color = 0;
     
     //cmd_prints("Done\n");
         

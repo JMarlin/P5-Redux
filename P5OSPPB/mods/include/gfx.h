@@ -38,7 +38,8 @@ typedef struct bitmap {
     unsigned int left;
     unsigned int bottom;
     unsigned int right;
-    
+
+    unsigned int mask_color; 
 } bitmap;
 
 typedef struct screen_mode {

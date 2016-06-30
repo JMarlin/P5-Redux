@@ -533,11 +533,21 @@ void drawString(unsigned char* s, int x, int y, unsigned int color) {
 void VdrawBitmap(int x, int y, bitmap* bmp) {
 
     int xo, yo;
+    unsigned int color;
+
+    //Improvement: If the bitmap isn't using a mask and the screen depth is 32, 
+    //then we should use some inline assembly to do a faster REP MOVSD directly 
+    //to video RAM. Should significantly improve refresh time
 
     for(yo = bmp->top; yo <= bmp->bottom; yo++) {
 
         for(xo = bmp->left; xo <= bmp->right; xo++) {
+ 
+            color = bmp->data[yo * bmp->width + xo];
 
+            if(bmp->mask_color && bmp->mask_color == color)
+                continue; 
+ 
             plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
         }
     }
