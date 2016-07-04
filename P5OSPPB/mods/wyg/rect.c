@@ -14,10 +14,10 @@ Rect* Rect_new(unsigned int top, unsigned int left, unsigned int bottom, unsigne
     if(!rect)
         return rect;
     
-	rect->top = top;
-	rect->left = left;
-	rect->bottom = bottom;
-	rect->right = right;
-	    
+    rect->top = top;
+    rect->left = left;
+    rect->bottom = bottom;
+    rect->right = right;
+
     return rect;
 }
