@@ -734,8 +734,8 @@ void main(void) {
 	prints("Done.\n");
 
 	//Start the thread that will listen for keyboard interrupts 
-    //if(!startThread())
-    //    keyIRQThread();
+    if(!startThread())
+        keyIRQThread();
 
     //while(!key_irq_regd);
 
@@ -756,5 +756,6 @@ void main(void) {
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //With all of the threads started, the original core thread can exit
-	terminate();
+	//while(1);
+    terminate();
 }

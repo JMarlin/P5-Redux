@@ -91,6 +91,159 @@ void kernelDebugWithProc(process* dbg_proc) {
     prints(", 0x"); printHexByte(current_pc[3]);
     prints(", 0x"); printHexByte(current_pc[4]);
     prints("\n");
+    
+    keyboard_init();
+    setupKeyTable();
+    
+    unsigned char* bp = (unsigned char*)0xB01000;
+    
+    while(1) {
+        
+        unsigned char inbuf[50];        
+        printHexDword((unsigned int)bp);
+        prints(">");
+        scans(48, inbuf);
+        
+        if(inbuf[0] == 'S' || inbuf[0] == 's') {
+            
+            prints("You suck\n");
+            continue;
+        } 
+        
+        if(inbuf[0] == 'N') {
+            
+            prints(p->name);
+            prints("\n");
+            continue;
+        }
+        
+        if(inbuf[0] == 'M') {
+            
+            unsigned char i;
+            
+            if(inbuf[1] < '0' || inbuf[1] > '9') {
+                
+                prints("Bad proc entry number\n");
+                continue;
+            }
+            
+            i = inbuf[1] - '0';
+            
+            if(p)
+                if(p->root_page)
+                    disable_page_range(p->base, p->root_page);
+
+            p = &procTable[i];
+
+            if(p->root_page) {
+                
+                apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
+                prints("Mapped page range for procTable[");
+                printHexByte(i);
+                prints("]\n");
+            } else {
+                
+                prints("No page mappings for that entry\n");    
+            }
+            
+            continue;
+        }
+        
+        if(inbuf[0] == 'L') {
+            
+            unsigned char i;
+            
+            for(i = 0; i < 10; i++) {
+                
+                if(procTable[i].id != 0 || 1) {
+                
+                    printHexByte(i);
+                    prints("] ");
+                    
+                    if(procTable[i].name)
+                        prints(procTable[i].name);
+                    else
+                        prints("????");
+                                            
+                    prints(", id: ");
+                    printHexDword(procTable[i].id);
+                    pchar('\n');
+                }
+            }
+            
+            continue;
+        }
+        
+        if(inbuf[0] == 'A') {
+            
+            int i;
+            unsigned char* nbp = 0;
+            unsigned int c = 0;
+            
+            for(i = 0; i < 8; i++) {
+                
+                if(inbuf[i + 1] < '0' || (inbuf[i + 1] > '9' && inbuf[i + 1] < 'A') || inbuf[i + 1] > 'F') {
+                    
+                    prints("Malformed address.\n");
+                    i = 9;
+                    break;
+                }
+                                
+                if(inbuf[i + 1] > '9')
+                    c = (inbuf[i + 1] - 'A' + 10);
+                else
+                    c = (inbuf[i + 1] - '0');
+                    
+                nbp += c << ((7 - i) * 4);
+            }
+            
+            if(i > 8)
+                continue;
+            
+            if(inbuf[i + 1]) {
+                
+                prints("Malformed address.\n");
+                continue;
+            }
+            
+            bp = nbp;
+            prints("New address: 0x");
+            printHexDword(bp);
+            pchar('\n');
+            continue;
+        }
+        
+        if(inbuf[0] == 'P') {
+            
+            unsigned char* pbp = bp;
+            
+            for(; pbp < bp + 200;) {
+            
+                unsigned char* end = pbp + 20;
+                
+                for(; pbp < end; pbp++) {
+                    
+                    printHexByte(*pbp);
+                    pchar(' ');
+                }
+                
+                for(pbp -= 20; pbp < end; pbp++) {
+                    
+                    if(*pbp < 0x20)
+                        pchar('.');
+                    else
+                        pchar(*pbp);
+                }
+            }    
+            
+            bp = pbp;
+            continue; 
+        }
+        
+        prints("kdbg: unknown command '");
+        prints(inbuf);
+        prints("'\n");
+    }
 }
 
 void kernelDebug() {
@@ -228,10 +381,17 @@ void V86Entry(void) {
                     KPRINTHEXWORD(p->ctx.cs);
                     KPCHAR(':');
                     KPRINTHEXWORD((unsigned short)(p->ctx.eip & 0xFFFF));
-                    KPCHAR(']');
                     _syscall_number = p->ctx.eax & 0xFFFF;
                     _syscall_param1 = p->ctx.ebx & 0xFFFF;
                     _syscall_param2 = p->ctx.ecx & 0xFFFF;
+                    KPCHAR('(');
+                    KPRINTHEXWORD(_syscall_number);
+                    KPCHAR('-');
+                    KPRINTHEXWORD(_syscall_param1);
+                    KPCHAR('-');
+                    KPRINTHEXWORD(_syscall_param2);
+                    KPCHAR(')');
+                    KPCHAR(']');
                     syscall_exec();
                     p->ctx.eip += 2;
                 } else {
@@ -624,6 +784,7 @@ void doKernelPanic(void) {
 
 void kernelEntry(void) {
 
+    static int panic_count = 0;
     unsigned int kflags;
     unsigned short* stack;
     process* ret_p = p;
@@ -661,6 +822,12 @@ void kernelEntry(void) {
         case EX_GPF:
         //Switch to the V86 monitor if the thread was a V86 thread
             if(p->flags & PF_V86) {
+ 
+                //if(p->flags & PF_NONSYS) {
+                    
+                    //prints("\nK: usr V86 GPF caught\n");
+                    //while(1);
+                //}
 
                 //In the case that needs_swap IS set, we know that
                 //this is actually just a force-swap by the timer
@@ -680,6 +847,14 @@ void kernelEntry(void) {
 					ret_p = p;
 				} else {    
 					
+                    if(panic_count) {
+                    
+                        prints("\nDOUBLE PANIC!\n");
+                        while(1);
+                    }
+                    
+                    panic_count++;
+                    
 					//Process had no exception handler, so we have to deal with it instead
 					//Back up the current process structure, since we're going to be 
 					//using enterTextMode to run a v86 interrupt, which will cause another
@@ -697,7 +872,6 @@ void kernelEntry(void) {
 					disable_irq(5);
 					disable_irq(6);
 					disable_irq(7); //We would do all of them, but right now this only supports the first PIC
-					while(1);
 					enterTextMode(&doKernelPanic);
 				}
             }
@@ -781,6 +955,14 @@ void kernelEntry(void) {
 				ret_p = p;
 			} else {    
 				
+                if(panic_count) {
+                    
+                    prints("\nDOUBLE PANIC!\n");
+                    while(1);
+                }
+                
+                panic_count++;
+                
 				//Process had no exception handler, so we have to deal with it instead
 				//Back up the current process structure, since we're going to be 
 				//using enterTextMode to run a v86 interrupt, which will cause another
@@ -968,11 +1150,11 @@ process* newSuperProc(char* name) {
 }
 
 
-process* newV86Proc() {
+process* newV86Proc(char* name) {
 
     process* newP;
 
-    newP = newProcess((char*)0);
+    newP = newProcess(name);
 
     if(!newP)
         return newP;
@@ -1074,7 +1256,7 @@ unsigned int exec_loaded_v86(unsigned int app_size) {
 
     process* proc;
 
-    if(!(proc = newV86Proc()))
+    if(!(proc = newV86Proc("[anon v86]")))
         return 0;
 
     proc->size = app_size;
@@ -1096,8 +1278,10 @@ unsigned int exec_v86(unsigned char* path) {
 
     pathBuf[i] = 0;
 
-    if(!(proc = newV86Proc()))
+    if(!(proc = newV86Proc(path)))
         return 0;
+
+    proc->flags |= PF_NONSYS;
 
     file_open(pathBuf, &exeFile);
 

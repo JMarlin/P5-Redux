@@ -152,10 +152,6 @@ unsigned char getch(void) {
 
     unsigned char tempData = '\0';
 
-    //We won't be using this anymore assuming we can get the
-    //keyboard server running
-    return 0;
-/*
     //Don't block if there's nothing in the buffer
     if(!(keyboard_getStatus() & SR_OBSTAT))
         return 0;
@@ -175,7 +171,6 @@ unsigned char getch(void) {
 
     //This should make realines cycle forever waiting for input
     return 0;
-*/
 }
 
 

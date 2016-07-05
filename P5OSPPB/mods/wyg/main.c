@@ -1744,7 +1744,7 @@ void main(void) {
 
 #else 
     
-	cons_init();
+	//cons_init();
 	
     //Now we can start the main message loop 
 	//cmd_prints("Wyg started");
