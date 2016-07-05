@@ -756,6 +756,6 @@ void main(void) {
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //With all of the threads started, the original core thread can exit
-	//while(1);
-    terminate();
+	while(1);
+    //terminate();
 }
