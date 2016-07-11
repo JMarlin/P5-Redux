@@ -644,7 +644,7 @@ void keyMessageThread() {
 
 
 void mouseMessageThread() {
-    /* For now, this thread does nothing
+    /*
     message temp_msg;
     unsigned char c;
     
@@ -673,7 +673,10 @@ void mouseMessageThread() {
     }
 	*/
 	
-	terminate();
+    key_irq_regd = 4;
+    
+    while(1);
+	//terminate();
 }
 
 
@@ -691,11 +694,13 @@ void mouseIRQThread() {
 	if(!registerIRQ(12)) {
 
 		prints("Failed.\n");
-    	terminate();
+    	while(1);
 	}
 	
 	prints("Done.\n");
 	
+    key_irq_regd = 3;
+    
 	while(1) {
 
 		waitForIRQ(12);    
@@ -737,7 +742,7 @@ void main(void) {
     if(!startThread())
         keyIRQThread();
 
-    //while(!key_irq_regd);
+    while(!key_irq_regd);
 
 	//Start the thread that will listen for keyboard client requests
     if(!startThread())
@@ -746,12 +751,16 @@ void main(void) {
 	while(key_irq_regd != 2);
 		
 	//Start the thread that will listen for mouse interrupts 
-    //if(!startThread())
-    //    mouseIRQThread();
+    if(!startThread())
+        mouseIRQThread();
+
+    while(key_irq_regd != 3);
 		
 	//Start the thread that will listen for mouse client requests
-    //if(!startThread())
-    //    mouseMessageThread();
+    if(!startThread())
+        mouseMessageThread();
+
+    while(key_irq_regd != 4);
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 

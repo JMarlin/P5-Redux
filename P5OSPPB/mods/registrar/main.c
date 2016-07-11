@@ -115,7 +115,7 @@ void main(void) {
 
 		        if(i == 20) {
 
-                    printTable();
+                    //printTable();
                 }
 
                 //Give the sender the PID, or zero if we didn't find it
