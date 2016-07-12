@@ -12,6 +12,7 @@
 #define SR_OBSTAT 0x01 //Output buffer status bit (0 empty/1 full)
 #define SR_IBSTAT 0x02 //Input buffer status bit (0 empty/1 full)
 #define SR_CMDDAT 0x08 //Bit selecting if dreg is for PS/2(0) or KBC(1)
+#define SR_PT2STAT 0x20 //Bit indicating that the incoming data is from port 2
 #define SR_TOERR  0x40 //Bit selecting if KBC should timeout(1) or not(0)
 #define SR_PARERR 0x80 //Bit selecting if KBC parity checks(1) or not(0)
 
@@ -368,6 +369,33 @@ void keyboard_sendCommand(unsigned char command) {
     outb(KBC_CREG, command);
 }
 
+unsigned char ps2aux_getData() {
+
+    unsigned char status;
+
+    //Wait for port 2 data to be available
+    while(1) {
+
+        status = keyboard_getStatus();
+
+        if(status & SR_OBSTAT) {
+            
+            if(status & SR_PT2STAT)
+                break;
+            else
+                keyboard_getData();
+        }
+    }
+
+    return keyboard_getData();
+}
+
+void ps2aux_sendData(unsigned char data) {
+
+    keyboard_sendCommand(KBC_WRITE_PORT2);
+    keyboard_sendData(data);
+}
+
 void keyboard_clearBuffer() {
 
 	while((keyboard_getStatus() & SR_OBSTAT)) {
@@ -375,6 +403,37 @@ void keyboard_clearBuffer() {
 		//Read bits into space
 		inb(KBC_DREG);
 	}
+}
+
+void keyboard_enableCompaqAux() {
+
+    unsigned char compaq_status;
+
+    //Get status byte 
+    keyboard_clearBuffer();
+    keyboard_sendCommand(KBC_READ_CCB); 
+    compaq_status = keyboard_getData();
+
+    //Check for additional bytes and ignore them
+    keyboard_clearBuffer();  
+
+    //Enable IRQ12, then disable mouse clock 
+    compaq_status |= 0x02;
+    //compaq_status &= ~(0x20);
+    compaq_status |= 0x20; //Enabling the mouse clock for testies
+
+    //Push the status value back to the reg 
+    keyboard_sendCommand(KBC_WRITE_CCB);
+    keyboard_sendData(compaq_status);
+
+    //Clear any acknowledge if it comes down the line
+    keyboard_clearBuffer(); 
+
+    //Finally send the 'enable aux' command 
+    keyboard_sendCommand(KBC_EN_PORT2);
+
+    //Again, clear any returned ack 
+    keyboard_getData();
 }
 
 keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
@@ -697,7 +756,18 @@ void mouseIRQThread() {
     	while(1);
 	}
 	
-	prints("Done.\n");
+    prints("done.\n");
+
+    prints("[PS2] Enabling aux PS2 port...");
+    keyboard_enableCompaqAux();
+    prints("done\n");
+
+    prints("[PS2] Sending mouse send packets command...");
+    ps2aux_sendData(0xF4);
+    if(ps2aux_getData() == PS2_OK)
+        prints("done\n");
+    else
+        prints("failed\n");
 	
     key_irq_regd = 3;
     
