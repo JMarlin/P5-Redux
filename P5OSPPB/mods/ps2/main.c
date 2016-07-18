@@ -740,8 +740,21 @@ void mouseMessageThread() {
 
 
 void mouseIRQThread() {
+
+    //I just updated the IRQ code in the kernel to enable IRQ2 on PIC2 
+    //IRQ channel enables to see if that's why we're not getting mouse
+    //interrupts. 
+    //First thought if that doesn't immediately change anything, though, 
+    //is to switch for a moment from waiting for mouse IRQs to simply
+    //make the loop sleep for a few miliseconds and then clear the buffer
+    //and request and update from the mouse and then check the input
+    //buffer for mouse commands. If that still doesn't turn up anything
+    //then we are most definitely doing something wrong still
+    //It may be a trickier problem than initially thought to get the
+    //PS2 mouse working what with the mouse and the keyboard sharing a
+    //single communications channel
 	
-	unsigned char shift_count = 0;
+    unsigned char shift_count = 0;
     unsigned char caps = 0;
     unsigned char was_break = 0;
     keyInfo* temp_key;
