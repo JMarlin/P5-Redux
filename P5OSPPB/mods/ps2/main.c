@@ -739,22 +739,55 @@ void mouseMessageThread() {
 }
 
 
-void mouseIRQThread() {
+inline void mouse_wait(unsigned char a_type) //unsigned char
+{
+  unsigned int _time_out=100000; //unsigned int
+  if(a_type==0)
+  {
+    while(_time_out--) //Data
+    {
+      if((inb(KBC_SREG) & 1)==1)
+      {
+        return;
+      }
+    }
+    return;
+  }
+  else
+  {
+    while(_time_out--) //Signal
+    {
+      if((inb(KBC_SREG) & 2)==0)
+      {
+        return;
+      }
+    }
+    return;
+  }
+}
 
-    //I just updated the IRQ code in the kernel to enable IRQ2 on PIC2 
-    //IRQ channel enables to see if that's why we're not getting mouse
-    //interrupts. 
-    //First thought if that doesn't immediately change anything, though, 
-    //is to switch for a moment from waiting for mouse IRQs to simply
-    //make the loop sleep for a few miliseconds and then clear the buffer
-    //and request and update from the mouse and then check the input
-    //buffer for mouse commands. If that still doesn't turn up anything
-    //then we are most definitely doing something wrong still
-    //It may be a trickier problem than initially thought to get the
-    //PS2 mouse working what with the mouse and the keyboard sharing a
-    //single communications channel
+inline void mouse_write(unsigned char a_write) //unsigned char
+{
+  //Wait to be able to send a command
+  mouse_wait(1);
+  //Tell the mouse we are sending a command
+  outb(KBC_SREG, 0xD4);
+  //Wait for the final part
+  mouse_wait(1);
+  //Finally write
+  outb(KBC_DREG, a_write);
+}
+
+unsigned char mouse_read()
+{
+  //Get's response from mouse
+  mouse_wait(0); 
+  return inb(KBC_DREG);
+}
+
+void mouseIRQThread() {
 	
-    unsigned char shift_count = 0;
+	unsigned char shift_count = 0;
     unsigned char caps = 0;
     unsigned char was_break = 0;
     keyInfo* temp_key;
@@ -770,27 +803,45 @@ void mouseIRQThread() {
 	}
 	
     prints("done.\n");
+    
+    unsigned char _status;  //unsigned char
 
-    prints("[PS2] Enabling aux PS2 port...");
-    keyboard_enableCompaqAux();
+    //Enable the auxiliary mouse device
+    prints("[PS2] Enabling mouse port...");
+    mouse_wait(1);
+    outb(0x64, 0xA8);
+
+    //Enable the interrupts
+    prints("done\n[PS2] Enabling mouse interrupts...");
+    mouse_wait(1);
+    outb(0x64, 0x20);
+    mouse_wait(0);
+    _status=(inb(0x60) | 2);
+    mouse_wait(1);
+    outb(0x64, 0x60);
+    mouse_wait(1);
+    outb(0x60, _status);
+
+    //Tell the mouse to use default settings
+    prints("done\n[PS2] Initializing mouse...");
+    mouse_write(0xF6);
+    mouse_read();  //Acknowledge
+
+    //Enable the mouse
+    prints("done\n[PS2] Enabling mouse...");
+    mouse_write(0xF4);
+    mouse_read();  //Acknowledge
     prints("done\n");
-
-    prints("[PS2] Sending mouse send packets command...");
-    ps2aux_sendData(0xF4);
-    if(ps2aux_getData() == PS2_OK)
-        prints("done\n");
-    else
-        prints("failed\n");
 	
     key_irq_regd = 3;
     
 	while(1) {
-
+ 
+        prints("?");
 		waitForIRQ(12);    
 		prints("M");
 	}
 }
-
 
 void main(void) {
 	
@@ -802,6 +853,7 @@ void main(void) {
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
 
+/*
 	//Enable interrupts on the keyboard controller
 	prints("[PS2] Enabling keyboard interrupts...");
 	keyboard_clearBuffer();
@@ -832,7 +884,8 @@ void main(void) {
         keyMessageThread();
 		
 	while(key_irq_regd != 2);
-		
+*/
+
 	//Start the thread that will listen for mouse interrupts 
     if(!startThread())
         mouseIRQThread();
