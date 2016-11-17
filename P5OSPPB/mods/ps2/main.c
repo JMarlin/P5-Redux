@@ -12,6 +12,7 @@
 #define SR_OBSTAT 0x01 //Output buffer status bit (0 empty/1 full)
 #define SR_IBSTAT 0x02 //Input buffer status bit (0 empty/1 full)
 #define SR_CMDDAT 0x08 //Bit selecting if dreg is for PS/2(0) or KBC(1)
+#define SR_PT2STAT 0x20 //Bit indicating that the incoming data is from port 2
 #define SR_TOERR  0x40 //Bit selecting if KBC should timeout(1) or not(0)
 #define SR_PARERR 0x80 //Bit selecting if KBC parity checks(1) or not(0)
 
@@ -368,6 +369,33 @@ void keyboard_sendCommand(unsigned char command) {
     outb(KBC_CREG, command);
 }
 
+unsigned char ps2aux_getData() {
+
+    unsigned char status;
+
+    //Wait for port 2 data to be available
+    while(1) {
+
+        status = keyboard_getStatus();
+
+        if(status & SR_OBSTAT) {
+            
+            if(status & SR_PT2STAT)
+                break;
+            else
+                keyboard_getData();
+        }
+    }
+
+    return keyboard_getData();
+}
+
+void ps2aux_sendData(unsigned char data) {
+
+    keyboard_sendCommand(KBC_WRITE_PORT2);
+    keyboard_sendData(data);
+}
+
 void keyboard_clearBuffer() {
 
 	while((keyboard_getStatus() & SR_OBSTAT)) {
@@ -375,6 +403,37 @@ void keyboard_clearBuffer() {
 		//Read bits into space
 		inb(KBC_DREG);
 	}
+}
+
+void keyboard_enableCompaqAux() {
+
+    unsigned char compaq_status;
+
+    //Get status byte 
+    keyboard_clearBuffer();
+    keyboard_sendCommand(KBC_READ_CCB); 
+    compaq_status = keyboard_getData();
+
+    //Check for additional bytes and ignore them
+    keyboard_clearBuffer();  
+
+    //Enable IRQ12, then disable mouse clock 
+    compaq_status |= 0x02;
+    //compaq_status &= ~(0x20);
+    compaq_status |= 0x20; //Enabling the mouse clock for testies
+
+    //Push the status value back to the reg 
+    keyboard_sendCommand(KBC_WRITE_CCB);
+    keyboard_sendData(compaq_status);
+
+    //Clear any acknowledge if it comes down the line
+    keyboard_clearBuffer(); 
+
+    //Finally send the 'enable aux' command 
+    keyboard_sendCommand(KBC_EN_PORT2);
+
+    //Again, clear any returned ack 
+    keyboard_getData();
 }
 
 keyInfo* findCode(keyInfo* key_collection, unsigned char code) {
@@ -644,7 +703,7 @@ void keyMessageThread() {
 
 
 void mouseMessageThread() {
-    /* For now, this thread does nothing
+    /*
     message temp_msg;
     unsigned char c;
     
@@ -673,9 +732,58 @@ void mouseMessageThread() {
     }
 	*/
 	
-	terminate();
+    key_irq_regd = 4;
+    
+    while(1);
+	//terminate();
 }
 
+
+inline void mouse_wait(unsigned char a_type) //unsigned char
+{
+  unsigned int _time_out=100000; //unsigned int
+  if(a_type==0)
+  {
+    while(_time_out--) //Data
+    {
+      if((inb(KBC_SREG) & 1)==1)
+      {
+        return;
+      }
+    }
+    return;
+  }
+  else
+  {
+    while(_time_out--) //Signal
+    {
+      if((inb(KBC_SREG) & 2)==0)
+      {
+        return;
+      }
+    }
+    return;
+  }
+}
+
+inline void mouse_write(unsigned char a_write) //unsigned char
+{
+  //Wait to be able to send a command
+  mouse_wait(1);
+  //Tell the mouse we are sending a command
+  outb(KBC_SREG, 0xD4);
+  //Wait for the final part
+  mouse_wait(1);
+  //Finally write
+  outb(KBC_DREG, a_write);
+}
+
+unsigned char mouse_read()
+{
+  //Get's response from mouse
+  mouse_wait(0); 
+  return inb(KBC_DREG);
+}
 
 void mouseIRQThread() {
 	
@@ -691,18 +799,49 @@ void mouseIRQThread() {
 	if(!registerIRQ(12)) {
 
 		prints("Failed.\n");
-    	terminate();
+    	while(1);
 	}
 	
-	prints("Done.\n");
-	
-	while(1) {
+    prints("done.\n");
+    
+    unsigned char _status;  //unsigned char
 
+    //Enable the auxiliary mouse device
+    prints("[PS2] Enabling mouse port...");
+    mouse_wait(1);
+    outb(0x64, 0xA8);
+
+    //Enable the interrupts
+    prints("done\n[PS2] Enabling mouse interrupts...");
+    mouse_wait(1);
+    outb(0x64, 0x20);
+    mouse_wait(0);
+    _status=(inb(0x60) | 2);
+    mouse_wait(1);
+    outb(0x64, 0x60);
+    mouse_wait(1);
+    outb(0x60, _status);
+
+    //Tell the mouse to use default settings
+    prints("done\n[PS2] Initializing mouse...");
+    mouse_write(0xF6);
+    mouse_read();  //Acknowledge
+
+    //Enable the mouse
+    prints("done\n[PS2] Enabling mouse...");
+    mouse_write(0xF4);
+    mouse_read();  //Acknowledge
+    prints("done\n");
+	
+    key_irq_regd = 3;
+    
+	while(1) {
+ 
+        prints("?");
 		waitForIRQ(12);    
 		prints("M");
 	}
 }
-
 
 void main(void) {
 	
@@ -714,6 +853,7 @@ void main(void) {
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
 
+/*
 	//Enable interrupts on the keyboard controller
 	prints("[PS2] Enabling keyboard interrupts...");
 	keyboard_clearBuffer();
@@ -734,27 +874,33 @@ void main(void) {
 	prints("Done.\n");
 
 	//Start the thread that will listen for keyboard interrupts 
-    //if(!startThread())
-    //    keyIRQThread();
+    if(!startThread())
+        keyIRQThread();
 
-    //while(!key_irq_regd);
+    while(!key_irq_regd);
 
 	//Start the thread that will listen for keyboard client requests
     if(!startThread())
         keyMessageThread();
 		
 	while(key_irq_regd != 2);
-		
+*/
+
 	//Start the thread that will listen for mouse interrupts 
-    //if(!startThread())
-    //    mouseIRQThread();
+    if(!startThread())
+        mouseIRQThread();
+
+    while(key_irq_regd != 3);
 		
 	//Start the thread that will listen for mouse client requests
-    //if(!startThread())
-    //    mouseMessageThread();
+    if(!startThread())
+        mouseMessageThread();
+
+    while(key_irq_regd != 4);
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //With all of the threads started, the original core thread can exit
-	terminate();
+	while(1);
+    //terminate();
 }

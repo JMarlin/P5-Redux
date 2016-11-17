@@ -112,10 +112,18 @@ process* irq_handle(unsigned char irq_number) {
 
 void enable_irq(unsigned char channel) {
 
-	if(channel > 7)
-    	outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (channel - 8)));
-	else 
-		outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
+        //The below was edited but not tested. The addition made was that 
+        //IRQ2 is enabled as well for all IRQs above 7 as IRQ2 is how the
+        //slave PIC communicates with the master PIC.
+
+	if(channel > 7) {
+            
+            outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (channel - 8)));
+            enable_irq(2);
+	} else { 
+	    
+	    outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << channel));
+	}
 }
 
 void disable_irq(unsigned char channel) {

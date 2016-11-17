@@ -1,14 +1,17 @@
 #ifdef HARNESS_TEST
-#include "../../mods/include/p5.h"
-#include "../../mods/include/gfx.h"
+#include "../p5-redux/P5OSPPB/mods/include/gfx.h"
+#include "../p5-redux/P5OSPPB/mods/include/p5.h"
+#include "../p5-redux/P5OSPPB/mods/include/key.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <stdio.h>
-#include "../../mods/include/wyg.h"
+#include <emscripten.h>
+#include "../p5-redux/P5OSPPB/mods/include/wyg.h"
 #define REGISTRAR_PID 0
 #define REG_DEREGISTER 0
 #define SVC_WYG 0
 extern char* font_array;
+extern void testMain();
 #else 
 #include "../include/p5.h"
 #include "../include/registrar.h"
@@ -41,6 +44,8 @@ Linkage is in order of increasing z-value
 
 #define new(x) (((x)*)malloc(sizeof(x)))
 
+void window_printer(void* value);
+
 message temp_msg;
 
 unsigned char inbuf[12];
@@ -60,7 +65,7 @@ typedef struct window {
     unsigned char frame_needs_redraw;
 } window;
 
-window* root_window;
+window *root_window, *mouse_window;
 List* window_list;
 unsigned char inited = 0;
 bitmap* old_mouse_bkg;
@@ -68,7 +73,7 @@ unsigned short mouse_x;
 unsigned short mouse_y;
 unsigned char mouse_buffer_ok = 0;
 
-///*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
+/*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
 int cmd_width;
 int cmd_max_chars;
@@ -163,7 +168,7 @@ void cmd_init(unsigned short xres, unsigned short yres) {
     cmd_max_chars = ((cmd_width - 2)/8) - 1;
     inited = 1;
 }
-//!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
+!!!!!!!!!! DEBUG SHIT !!!!!!!!!*/
 
 void drawWindow(window* cur_window, unsigned char use_current_blit);
 void raiseWindow(window* dest_window);
@@ -316,6 +321,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	baserect.bottom = rdest->bottom;
 	baserect.right = rdest->right;
 	
+/*
 	cons_prints("Splitting rect (");
 	cons_printDecimal(rdest->top);
 	cons_prints(", ");
@@ -333,6 +339,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	cons_prints(", ");
 	cons_printDecimal(rknife->right);
 	cons_prints(")\n");
+*/
 	
 #ifdef RECT_TEST    
     //printf("splitting (%u, %u, %u, %u)", baserect.top, baserect.left, baserect.bottom, baserect.right);
@@ -349,9 +356,9 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		return outrect;
 	}
 	
-    cons_prints("Doing left edge split\n");
+//    cons_prints("Doing left edge split\n");
 	//Split by left edge
-	if(rknife->left > baserect.left && rknife->left < baserect.right) {
+	if(rknife->left >= baserect.left && rknife->left <= baserect.right) {
 		
 		new_rect = Rect_new(baserect.top, baserect.left, baserect.bottom, rknife->left - 1);
 		
@@ -371,9 +378,9 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.left = rknife->left;
 	}
 
-    cons_prints("Doing top edge split\n");
+//    cons_prints("Doing top edge split\n");
 	//Split by top edge
-	if(rknife->top < baserect.bottom && rknife->top > baserect.top) {
+	if(rknife->top <= baserect.bottom && rknife->top >= baserect.top) {
 		
 		new_rect = Rect_new(baserect.top, baserect.left, rknife->top - 1, baserect.right);
 		
@@ -393,9 +400,9 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.top = rknife->top;
 	}
 
-    cons_prints("Doing right edge split\n");
+//    cons_prints("Doing right edge split\n");
 	//Split by right edge
-	if(rknife->right > baserect.left && rknife->right < baserect.right) {
+	if(rknife->right >= baserect.left && rknife->right <= baserect.right) {
 		
 		new_rect = Rect_new(baserect.top, rknife->right + 1, baserect.bottom, baserect.right);
 		
@@ -415,9 +422,9 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.right = rknife->right;
 	}
 
-    cons_prints("Doing bottom edge split\n");
+//    cons_prints("Doing bottom edge split\n");
 	//Split by bottom edge
-	if(rknife->bottom > baserect.top && rknife->bottom < baserect.bottom) {
+	if(rknife->bottom >= baserect.top && rknife->bottom <= baserect.bottom) {
 		
 		new_rect = Rect_new(rknife->bottom + 1, baserect.left, baserect.bottom, baserect.right);
 		
@@ -437,7 +444,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 		baserect.bottom = rknife->bottom;
 	}
 
-    cons_prints("Result: \n");
+/*    cons_prints("Result: \n");
 	
 	List_for_each(outrect, new_rect, Rect*) {
 	
@@ -453,7 +460,7 @@ List* splitRect(Rect* rdest, Rect* rknife) {
 	}
 	
 	scans(10, inbuf);
-
+*/
 	return outrect;	
 }
 
@@ -581,7 +588,6 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
                     new_rect = Rect_new(rect->top, rect->left, rect->bottom, rect->right);
                     
                     if(!new_rect) {
-					    
 						List_delete(clip_list, Rect_deleter);
 						List_delete(out_rects, Rect_deleter);	
                         return;
@@ -597,19 +603,19 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 				}
 				
 				//Free the space that was used for the split 
-				List_delete(clip_list, Rect_deleter);
+                                List_delete(clip_list, Rect_deleter);
 				
 				//Restart the list 
 				List_rewind(out_rects);
 			} 
 		}
 		
-		cons_prints("Moving on to next splitter\n");
+//		cons_prints("Moving on to next splitter\n");
 	}
 	
-	cons_prints("Drawing sub-rects of window #");
-    cons_printDecimal(win->handle);
-	cons_putc('\n');
+//	cons_prints("Drawing sub-rects of window #");
+//    cons_printDecimal(win->handle);
+//	cons_putc('\n');
     List_for_each(out_rects, out_rect, Rect*) {
 
 #ifdef RECT_TEST    
@@ -617,6 +623,7 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 #endif //RECT_TEST
         
 		
+/*
 		cons_prints("    (");
 		cons_printDecimal(out_rect->top);
 		cons_prints(", ");
@@ -626,10 +633,11 @@ void drawOccluded(window* win, Rect* baserect, List* splitrect_list) {
 		cons_prints(", ");
 		cons_printDecimal(out_rect->right);
 		cons_prints(")\n");               
-        drawBmpRect(win, out_rect);     
+*/  
+      drawBmpRect(win, out_rect);     
     }
 	
-	scans(10, inbuf);
+//	scans(10, inbuf);
 	
 	List_delete(out_rects, Rect_deleter);
 }
@@ -669,37 +677,47 @@ window* newWindow(unsigned int width, unsigned int height, unsigned char flags, 
         new_window->context->data[i] = RGB(255, 255 ,255);
         
     new_window->handle = next_handle++;
+
+    if(mouse_window)
+        List_pop(window_list, (void*)mouse_window);
+
+    //De-activate the old active window
+    if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
+
+        temp_window->active = 0;
+    } 
 	
-	//De-activate the old active window
-	if(temp_window = (window*)List_get_at(window_list, window_list->count - 1)) {
+	
+    if(!List_add(window_list, (void*)new_window)){
 		
-	    temp_window->active = 0;
-	} 
-	
-	if(!List_add(window_list, (void*)new_window)){
+	freeBitmap(new_window->context);
+        free((void*)new_window);
 		
-		freeBitmap(new_window->context);
-	    free((void*)new_window);
-		
-		//re-activate the old active window
-		if(temp_window)
-		    temp_window->active = 1;
-        
-		return (window*)0;	
-	}
-    
-	//Give the new window its initial decoration
-	if(!(new_window->flags & WIN_UNDECORATED))
-	    drawFrame(new_window);
-	
-	drawWindow(new_window, 0);
-	
-	//Update the titlebar on the old active window 
+ 	//re-activate the old active window
 	if(temp_window)
-		drawTitlebar(temp_window, 0);
+	    temp_window->active = 1;
+        
+	return (window*)0;	
+    }
+    
+    //Give the new window its initial decoration
+    if(!(new_window->flags & WIN_UNDECORATED))
+        drawFrame(new_window);
 	
-    cmd_printDecimal(new_window->handle);
-     //pchar('\n');
+    drawWindow(new_window, 0);
+	
+    //Update the titlebar on the old active window 
+    if(temp_window)
+ 	drawTitlebar(temp_window, 1);
+	
+    if(mouse_window) {
+
+        List_add(window_list, mouse_window);
+        drawWindow(mouse_window, 0);
+    }
+
+    //cmd_printDecimal(new_window->handle);
+    //pchar('\n');
     return new_window;
 }
 
@@ -780,10 +798,12 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
 	
     //prints("[WYG] Looking for previously overlapped windows\n");
         
-    List_for_each(window_list, cur_window, window*) {
+    for(i = 0; i < window_list->count; i++) {
+
+        cur_window = (window*)List_get_at(window_list, i);
         
-		if(cur_window == avoid_window)
-		    continue;
+	if(!cur_window || cur_window == avoid_window)
+	    continue;
 		
         comp_rect.top = cur_window->y;
         comp_rect.left = cur_window->x;
@@ -791,7 +811,7 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
         comp_rect.right = comp_rect.left + cur_window->w - 1;
         
         if((cur_window->flags & WIN_VISIBLE) && 
-		   window_bounds->left <= comp_rect.right &&
+	   window_bounds->left <= comp_rect.right &&
            window_bounds->right >= comp_rect.left &&
            window_bounds->top <= comp_rect.bottom && 
            window_bounds->bottom >= comp_rect.top) {
@@ -827,7 +847,7 @@ void updateOverlapped(Rect* window_bounds, window* avoid_window) {
 
 void markWindowVisible(window* dest_window, unsigned char is_visible);
 
-void moveWindow(window* dest_window, unsigned short new_x, unsigned short new_y) {
+void changeWindowPosition(window* dest_window, unsigned short new_x, unsigned short new_y) {
     
     Rect overlap_rect;
             
@@ -870,7 +890,7 @@ void moveHandle(unsigned int handle, unsigned short new_x, unsigned short new_y)
         return;
     }
        
-    moveWindow(dest_window, new_x, new_y);
+    changeWindowPosition(dest_window, new_x, new_y);
 }
 
 void installWindow(unsigned int child_handle, unsigned int parent_handle) {
@@ -921,11 +941,11 @@ void markWindowVisible(window* dest_window, unsigned char is_visible) {
     if(is_visible) {
                
         dest_window->flags |= WIN_VISIBLE;
-		drawWindow(dest_window, 0);
+	drawWindow(dest_window, 0);
     } else {
         
         dest_window->flags &= ~((unsigned char)WIN_VISIBLE);
-		overlap_rect.top = dest_window->y;
+	overlap_rect.top = dest_window->y;
         overlap_rect.left = dest_window->x;
         overlap_rect.bottom = overlap_rect.top + dest_window->h - 1;
         overlap_rect.right = overlap_rect.left + dest_window->w - 1;
@@ -1069,7 +1089,7 @@ void drawTitlebar(window* cur_window, int do_refresh) {
 		cur_window->context->top = 4;
 		cur_window->context->left = 4;
 		cur_window->context->bottom = 23;
-		cur_window->context->right = cur_window->context->right - 25;
+		cur_window->context->right = cur_window->w - 26;
 		
 		drawWindow(cur_window, 1);
 		
@@ -1137,7 +1157,9 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 	List_for_each_skip(window_list, cur_window, window*, lowest_z_level) {
 		
 		//Count the window only if it overlaps
-		if(cur_window->x <= baserect->right &&
+		if((cur_window->flags & WIN_VISIBLE) && 
+                   cur_window->context->mask_color == 0 &&
+                   cur_window->x <= baserect->right &&
 		   (cur_window->x + cur_window->context->width - 1) >= baserect->left &&
 		   cur_window->y <= baserect->bottom && 
 		   (cur_window->y + cur_window->context->height - 1) >= baserect->top) {
@@ -1154,10 +1176,15 @@ List* getOverlappingWindows(int lowest_z_level, Rect* baserect) {
 					List_delete(rect_list, Rect_deleter);
 					return (List*)0;
 				}
-		}
+		} 
 	}
         
     return rect_list;
+}
+
+//To be used in raise window code
+void drawWindowIntersects(window* cur_window, unsigned char use_current_blit) {
+
 }
 
 void drawWindow(window* cur_window, unsigned char use_current_blit) {
@@ -1235,44 +1262,58 @@ void raiseWindow(window* dest_window) {
     
     window* old_active;
             
-    //Can't raise the root window
-    if(dest_window->handle == 1)
+    //Can't raise the root window, mouse window, a null window pointer or if there's nothing but the root and
+    //mouse in the window list
+    if(dest_window == root_window || dest_window == mouse_window || !dest_window || window_list->count <= 2)
         return;
         
-    //Get the previously active window 
-	old_active = (window*)List_get_at(window_list, window_list->count - 1);
+    //Get the previously active window (will be one deeper than the mouse, hence
+    //-2 instead of normal -1)
+    old_active = (window*)List_get_at(window_list, window_list->count - 2);
     
-	//If we were already active we don't need to do anything else 
-	if(old_active == dest_window)
-	    return;
-	
-	//extract the current window from its position in the list and
-	//re-insert it at the end 
-    if(!List_pop(window_list, (void*)old_active))
-	    return;
-    
-	if(!List_add(window_list, (void*)old_active))
-	    return;
+    //If we were already active we don't need to do anything else 
+    if(old_active == dest_window)
+        return;
+
+    //extract the current window from its position in the list and
+    //re-insert it at the end, making sure to pop and restore the
+    //mouse window as well to keep it always on top
+    if(!List_pop(window_list, (void*)mouse_window))
+        return;
+
+    if(!List_pop(window_list, (void*)dest_window))
+        return;
+
+    if(!List_add(window_list, (void*)dest_window))
+        return;
+
+    if(!List_add(window_list, (void*)mouse_window))
+        return;
 		
-	//Update the titlebar on the old and new active windows 
-	old_active->active = 0;
-	dest_window->active = 1;
-	drawTitlebar(old_active, 1);
+    //Update the titlebar on the old and new active windows 
+    old_active->active = 0;
+    dest_window->active = 1;
+    drawTitlebar(old_active, 1);
+    drawTitlebar(dest_window, 1);
 	
-	//If the window isn't visible, it will need to be in order to be
-	//raised, otherwise we just redraw (would be more efficient in
-	//the future to just redraw those portions that were occluded
-	//prior to raising)
+    //If the window isn't visible, it will need to be in order to be
+    //raised, otherwise we just redraw (would be more efficient in
+    //the future to just redraw those portions that were occluded
+    //prior to raising)
     if(!(dest_window->flags &= WIN_VISIBLE))
-	    markWindowVisible(dest_window, 1);
-	else
-	    drawWindow(dest_window, 0);
+        markWindowVisible(dest_window, 1);
+    else
+        drawWindow(dest_window, 0);
 }
 
 void raiseHandle(unsigned int handle) {
+
+    //Can't raise the root or mouse windows
+    if(handle == 1 || handle == 2)
+        return;
     
     window* dest_window = getWindowByHandle(handle);
-    
+
     if(!dest_window) {
      
          //prints("[WYG] Couldn't find the window to be raised\n");   
@@ -1288,10 +1329,12 @@ void window_deleter(void* item) {
 	
 	//Free the context
     freeBitmap((void*)win->context);
-    
+
+#ifndef HARNESS_TEST    
     //Free the title (if we ever decide to error on unsuccessful frees, this could be an issue for static or undefined titles)
     if(win->title)
-		free((void*)win->title);
+	free((void*)win->title);
+#endif //HARNESS_TEST
     
     //And finally free ourself 
     free((void*)win);
@@ -1304,7 +1347,7 @@ void destroy(window* dest_window) {
             
     //Start by hiding the window 
     markWindowVisible(dest_window, 0);
-	List_remove(window_list, (void*)dest_window, window_deleter);
+    List_remove(window_list, (void*)dest_window, window_deleter);
     active_window = (window*)List_get_at(window_list, window_list->count - 1);
 	
 	if(!active_window)
@@ -1330,6 +1373,7 @@ void destroyHandle(unsigned int handle) {
 unsigned int cons_x, cons_y;
 unsigned int cons_max_c, cons_max_l;
 
+/*
 void cons_init() {
 	
 	cons_x = 0;
@@ -1414,29 +1458,132 @@ void cons_printHexDword(unsigned int dword) {
     cons_printHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
     cons_printHexWord((unsigned short)(dword & 0xFFFF));
 }
-
+*/
 
 void window_printer(void* value) {
 	
+
 	window* win = (window*)value;
-	
-	cons_prints("    window ");
-	cons_printDecimal(win->handle);
-	cons_prints(" @ 0x");
-	cons_printHexDword((unsigned int)win);
-	cons_putc('\n');
+
+/*    
+EM_ASM_({	
+	console.log("    window " +
+	            $0            +
+	            " @ 0x"       +
+	            $1
+        );
+}, win->handle, (unsigned int)win);
+*/
 }
 
 void exceptionHandler(void) {
-	
+
+/*	
 	cons_init();
 	cons_prints("Operating system raised an exception\n");
 	cons_prints("There were ");
 	cons_printDecimal(window_list->count);
 	cons_prints(" windows installed:\n");
 	List_print(window_list, window_printer);
+*/
 	while(1);
 }
+
+unsigned char mouse_down = 0;
+window* drag_window = (window*)0;
+int drag_x, drag_y;
+
+void putMouse(int x, int y, unsigned char buttons) {
+
+    int i;
+    window* cur_window;
+
+    changeWindowPosition(mouse_window, x, y);
+    
+    if(buttons) {
+
+        if(!mouse_down) {
+
+            mouse_down = 1;
+        
+            for(i = window_list->count - 2; i > 0; i--) {
+
+                cur_window = (window*)List_get_at(window_list, i);   
+
+                if(!cur_window || cur_window == root_window || cur_window == mouse_window) 
+                    continue;
+
+                if(x >= cur_window->x &&
+                   x < cur_window->x + cur_window->w &&
+                   y >= cur_window->y &&
+                   y < cur_window->y + cur_window->h) {
+
+                    drag_x = x - cur_window->x;
+                    drag_y = y - cur_window->y;
+                    drag_window = cur_window;
+                    break;
+                }
+            }
+        }
+    } else {
+       
+        mouse_down = 0;
+        drag_window = (window*)0;
+    }
+
+    if(mouse_down && drag_window) {
+   
+         changeWindowPosition(drag_window, x - drag_x, y - drag_y);
+    }
+}
+
+void moveMouse(short x_off, short y_off) {
+
+    mouse_x += x_off;
+    mouse_y += y_off;
+
+    if(mouse_x < 0)
+        mouse_x = 0;
+
+    if(mouse_x > root_window->w - 20)
+        mouse_x = root_window->w - 20;
+
+    if(mouse_y < 0)
+        mouse_y = 0;
+    
+    if(mouse_y > root_window->h - 20)
+        mouse_y = root_window->h - 20;
+
+    changeWindowPosition(mouse_window, mouse_x, mouse_y);
+}
+
+#define MOUSE_WIDTH 11
+#define MOUSE_HEIGHT 18
+#define MOUSE_BUFSZ (MOUSE_WIDTH * MOUSE_HEIGHT)
+#define CA 0x0
+#define CB 0xFFFFFF
+#define CD 0xFF000000
+
+unsigned int mouse_img[MOUSE_BUFSZ] = {
+CA, CD, CD, CD, CD, CD, CD, CD, CD, CD, CD,
+CA, CA, CD, CD, CD, CD, CD, CD, CD, CD, CD,
+CA, CB, CA, CD, CD, CD, CD, CD, CD, CD, CD,
+CA, CB, CB, CA, CD, CD, CD, CD, CD, CD, CD,
+CA, CB, CB, CB, CA, CD, CD ,CD, CD, CD, CD,
+CA, CB, CB, CB, CB, CA, CD, CD, CD, CD, CD,
+CA, CB, CB, CB, CB, CB, CA, CD, CD, CD, CD,
+CA, CB, CB, CB, CB, CB, CB, CA, CD, CD, CD,
+CA, CB, CB, CB, CB, CB, CB, CB, CA, CD, CD,
+CA, CB, CB, CB, CB, CB, CB, CB, CB, CA, CD,
+CA, CB, CB, CB, CB, CB, CB, CB, CB, CB, CA,
+CA, CA, CA, CA, CB, CB, CB, CA, CA, CA, CA,
+CD, CD, CD, CD, CA, CB, CB, CA, CD, CD, CD,
+CD, CD, CD, CD, CA, CB, CB, CA, CD, CD, CD,
+CD, CD, CD, CD, CD, CA, CB, CB, CA, CD, CD,
+CD, CD, CD, CD, CD, CA, CB, CB, CA, CD, CD,
+CD, CD, CD, CD, CD, CD, CA, CB, CA, CD, CD,
+CD, CD, CD, CD, CD, CD, CD, CA, CA, CD, CD 
+};
 
 #ifdef HARNESS_TEST
 void WYG_main(void) {
@@ -1495,11 +1642,19 @@ void main(void) {
         terminate();
     }
 
+#ifdef HARNESS_TEST
+
+    num = 1;
+
+#else
+
     //Prompt user for a screen mode
     showModes();
     prints("mode: ");
     scans(10, inbuf);
     num = inbuf[0] > '9' ? inbuf[0] - 'A' + 10 : inbuf[0] - '0';
+
+#endif //HARNESS_TEST
 
     if(!setScreenMode(num)) {
 
@@ -1509,7 +1664,7 @@ void main(void) {
         terminate();
     }
 
-    installExceptionHandler((void*)exceptionHandler);
+//    installExceptionHandler((void*)exceptionHandler);
 
     if(num) {
 
@@ -1549,23 +1704,33 @@ void main(void) {
     mouse_x = root_window->w / 2 - 1;
     mouse_y = root_window->h / 2 - 1;
 
-    //Create a bitmap to store the mouse dirtyrect
-    if(!(old_mouse_bkg = newBitmap(MOUSE_WIDTH, MOUSE_HEIGHT))) {
+    //Create the mouse window
+    mouse_window = newWindow(MOUSE_WIDTH, MOUSE_HEIGHT, WIN_UNDECORATED | WIN_FIXEDSIZE | WIN_VISIBLE, 0);
+
+    //Fail if the mouse couldn't be created
+    if(!mouse_window) {
         
-        //prints("[WYG] Could not allocate a context for the mouse dirty buffer.\n");
-        //Need to do a list free here for the window_list
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
-        postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
+        postMessage(parent_pid, 0, 0);
         terminate();
-    } 
+    }
+
+    changeWindowPosition(mouse_window, mouse_x, mouse_y);
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Paint the initial scene
     for(i = 0; i < root_window->w * root_window->h; i++)
         root_window->context->data[i] = RGB(11, 162, 193);
+
+    //Paint the mouse cursor
+    mouse_window->context->mask_color = CD;
+
+    for(i = 0; i < MOUSE_BUFSZ; i++)
+        mouse_window->context->data[i] = mouse_img[i];
     
-	drawWindow(root_window, 0);
+    drawWindow(root_window, 0);
+    drawWindow(mouse_window, 0);
 	        
     //Start debug console
     //init(root_window.w, 48);
@@ -1579,7 +1744,7 @@ void main(void) {
 
 #else 
     
-	cons_init();
+	//cons_init();
 	
     //Now we can start the main message loop 
 	//cmd_prints("Wyg started");

@@ -34,6 +34,7 @@
 7C00:002C | BB FC 03       ;    MOV BX, 0x3FC
 7C00:002F | 26 C7 07 XX XX ;    MOV ES:[BX], int_ff
 7C00:0034 | 43             ;    INC BX
+                                inc bx
 7C00:0035 | 26 C7 07 00 7C ;    MOV ES:[BX], 0x7C00
 7C00:003A | B8 00 7C       ;    MOV AX, 0x7C00
 7C00:003D | 8E C0          ;    MOV ES, AX
@@ -46,11 +47,15 @@
 7C00:004A | B0 0D          ;    MOV AL, 0x0D
 7C00:004C | CD 10          ;    INT 0x10
 7C00:004E | B0 5D          ;    MOV AL, 0x5D
+                                INT 0x10
 7C00:0050 | 33 D2          ;    XOR DX, DX 
                            ; byte_loop:
 7C00:0052 | C0 C2 04       ;    SHL DL, 0x04 
 7C00:0055 | 32 E4          ;    XOR AH, AH
 7C00:0057 | CD 16          ;    INT 0x16
+                                mov ah, e
+                                int 10
+                                xor ah, ah
 7C00:0059 | E8 XX XX       ;    CALL char2nyb
 7C00:005C | 3C 00          ;    CMP AH, 0
 7C00:005E | 75 00          ;    JNE test_cmd
@@ -78,6 +83,9 @@
 ;    SHL BX, 4
 ;    XOR AH, AH
 ;    INT 0x16
+     mov ah, e
+     int 10
+     xor ah, ah 
 ;    CALL char2nyb
 ;    CMP AH, 0
 ;    JNE bad_input
@@ -93,13 +101,16 @@
 ;    SHL BX, 4
 ;    XOR AH, AH
 ;    INT 0x16
+     mov ah, e 
+     int 10
+     xor ah, ah 
 ;    CALL char2nyb
 ;    CMP AH, 0
 ;    JNE bad_input
 ;    ADD BX, AL
 ;    INC DH 
 ;    CMP DH, 0x04
-;    JNE oloop_top
+;    JNE sloop_top
 ;    MOV ES, BX 
 ;    JMP main_loop    
 ; do_run:
