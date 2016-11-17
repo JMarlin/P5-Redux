@@ -949,7 +949,7 @@ void main(void) {
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
 
-/*
+
 	//Enable interrupts on the keyboard controller
 	prints("[PS2] Enabling keyboard interrupts...");
 	keyboard_clearBuffer();
@@ -980,7 +980,7 @@ void main(void) {
         keyMessageThread();
 		
 	while(key_irq_regd != 2);
-*/
+
 
     initMouseBuffer();
 	

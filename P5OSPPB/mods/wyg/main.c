@@ -1606,7 +1606,7 @@ void main(void) {
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
-    //prints("[WYG] Starting WYG GUI services.\n");
+    prints("[WYG] Starting WYG GUI services.\n");
 
     //First thing, register as a WYG service with the registrar
     postMessage(REGISTRAR_PID, REG_REGISTER, SVC_WYG);
@@ -1614,12 +1614,13 @@ void main(void) {
 
     if(!temp_msg.payload) {
 
-        //prints("\n[WYG] failed to register WYG service.\n");
+        prints("\n[WYG] failed to register WYG service.\n");
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
 
+    prints("[WYG] Getting key service...\n");
     if(!initKey()) {
         
         postMessage(REGISTRAR_PID, REG_DEREGISTER, SVC_WYG);
@@ -1627,6 +1628,7 @@ void main(void) {
         terminate();
     }
 
+    prints("[WYG] Getting mouse service...\n");
     if(!initMouse()) {
         
         //Don't need to terminate, but do need to display a warning to the user
@@ -1634,6 +1636,7 @@ void main(void) {
 
 #endif //HARNESS_TEST
 
+    prints("[WYG] Getting graphics service... \n");
     if(!initGfx()) {
         
         //prints("\n[WYG] failed to get the GFX server.\n");
