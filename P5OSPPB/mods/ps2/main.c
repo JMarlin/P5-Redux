@@ -889,6 +889,22 @@ void mouseIRQThread() {
 		    i++;
 		}
 		
+		if(mouse_data[0] & 0x10)
+		    prints("left ");
+	        else
+	            prints("right ");
+		
+		printHexByte(mouse_data[1]);
+		prints(", ");
+		
+		if(mouse_data[0] & 0x20)
+		    prints("up ");
+	        else
+	            prints("down ");
+		
+		printHexByte(mouse_data[2]);
+		prints("\n");
+		
 		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
 		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
 		mouse_buffer_insert(((unsigned long)rel_x) | (((unsigned long)rel_y) << 9));
