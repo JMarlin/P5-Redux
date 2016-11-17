@@ -44,14 +44,14 @@ void moveMouse(unsigned long packed_data) {
     if(mouse_x < 0)
         mouse_x = 0;
 
-    if(mouse_x > root_window->w - 20)
-        mouse_x = root_window->w - 20;
+    if(mouse_x > desktop->width - 20)
+        mouse_x = desktop->width - 20;
 
     if(mouse_y < 0)
         mouse_y = 0;
     
-    if(mouse_y > root_window->h - 20)
-        mouse_y = root_window->h - 20;
+    if(mouse_y > desktop->height - 20)
+        mouse_y = desktop->height - 20;
 
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
@@ -145,7 +145,7 @@ void main(void) {
 
     //Fill this in with the info particular to your project
     Context* context = Context_new(0, 0, 0);
-    context->buffer = (unsigned long)getFramebuffer();
+    context->buffer = (unsigned long*)getFramebuffer();
     context->width = mode->width;
     context->height = mode->height;
 
