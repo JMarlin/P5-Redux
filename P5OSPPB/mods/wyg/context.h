@@ -7,6 +7,7 @@ extern "C" {
 
 struct Context_struct;
 
+#include "../include/gfx.h"
 #include "inttypes.h"
 #include "list.h"
 #include "rect.h"
