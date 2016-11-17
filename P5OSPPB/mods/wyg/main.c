@@ -138,8 +138,8 @@ void main(void) {
 	//cmd_init(mode->width, mode->height);
 	    
     //Set up the initial mouse position
-    mouse_x = root_window->w / 2 - 1;
-    mouse_y = root_window->h / 2 - 1;
+    mouse_x = desktop->window.width / 2 - 1;
+    mouse_y = desktop->window.height / 2 - 1;
 
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
