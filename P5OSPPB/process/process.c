@@ -933,7 +933,6 @@ void kernelEntry(void) {
         case 0xED:
         case 0xEE:
         case 0xEF:
-			prints("I");
             ret_p = irq_handle(_except_num);
 
             //If there isn't a process registered to this IRQ, we stay in the
