@@ -229,7 +229,7 @@ void main(void) {
     while(1) {
 
         //prints("[WYG] Waiting for message...");
-        getMessage(&temp_msg);
+    //getMessage(&temp_msg);
         //prints("got message ");
          //printDecimal(temp_msg.command);
         ////pchar('\n');
@@ -309,5 +309,4 @@ void main(void) {
         }
     }
 
-    while(1);
 }
