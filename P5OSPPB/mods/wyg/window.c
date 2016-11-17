@@ -240,10 +240,11 @@ void Window_draw_border(Window* window) {
                       window->width - 28, 20, tb_color);
 
     //Draw the window title
-    Context_draw_text(window->context, window->title, (WIN_TITLEHEIGHT / 2) + screen_x - 6,
-                      (WIN_TITLEHEIGHT / 2) + screen_y - 6,
-                      window->parent->active_child == window ? 
-                          WIN_TEXTCOLOR : WIN_TEXTCOLOR_INACTIVE);
+    if(window->title)
+        Context_draw_text(window->context, window->title, (WIN_TITLEHEIGHT / 2) + screen_x - 6,
+                          (WIN_TITLEHEIGHT / 2) + screen_y - 6,
+                          window->parent->active_child == window ? 
+                              WIN_TEXTCOLOR : WIN_TEXTCOLOR_INACTIVE);
 
 }
 
