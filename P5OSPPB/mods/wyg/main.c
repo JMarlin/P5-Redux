@@ -240,32 +240,32 @@ void main(void) {
 
             case WYG_CREATE_WINDOW:
 			    //cmd_prints("Request to create a new window");
-                //postMessage(src_pid, WYG_CREATE_WINDOW, (unsigned int)newWindowHandle((temp_msg.payload & 0xFFF00000) >> 20, (temp_msg.payload & 0xFFF00) >> 8, temp_msg.payload & 0xFF, src_pid));
+                postMessage(src_pid, WYG_CREATE_WINDOW, 0);
             break;
             
             case WYG_GET_CONTEXT:
-                //postMessage(src_pid, WYG_GET_CONTEXT, (unsigned int)getWindowContext(temp_msg.payload));
+                postMessage(src_pid, WYG_GET_CONTEXT, 0);
             break;
             
             case WYG_GET_DIMS:
                 //temp_window = getWindowByHandle(temp_msg.payload);
-                //postMessage(src_pid, WYG_GET_DIMS, (unsigned int)((((temp_window->w & 0xFFFF) << 16)) | (temp_window->h & 0xFFFF)));
+                postMessage(src_pid, WYG_GET_DIMS, 0);
             break;
             
             case WYG_GET_LOCATION:
                 //temp_window = getWindowByHandle(temp_msg.payload);
-                //postMessage(src_pid, WYG_GET_LOCATION, (unsigned int)((((temp_window->x & 0xFFFF) << 16)) | (temp_window->y & 0xFFFF)));
+                postMessage(src_pid, WYG_GET_LOCATION, 0);
             break;
             
             case WYG_MOVE_WINDOW:
                 //current_handle = temp_msg.payload;
-                //getMessageFrom(&temp_msg, src_pid, WYG_POINT);
+                getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 //moveHandle(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
             break;
 
             case WYG_INSTALL_WINDOW:
                 //current_handle = temp_msg.payload;
-                //getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);
+                getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);
                 //installWindow(current_handle, temp_msg.payload);
             break;
 
@@ -279,25 +279,26 @@ void main(void) {
 
             case WYG_REPAINT_WINDOW:
                 //drawHandle(temp_msg.payload);
-                //postMessage(src_pid, WYG_REPAINT_WINDOW, 1);
+                postMessage(src_pid, WYG_REPAINT_WINDOW, 1);
             break;
 
             case WYG_SET_TITLE:
                 //current_handle = temp_msg.payload;
-                //postMessage(src_pid, WYG_SET_TITLE, 1);
-                //strlen = getStringLength(src_pid);
-                //instr = (unsigned char*)malloc(strlen);
-                //getString(src_pid, instr, strlen);
+                postMessage(src_pid, WYG_SET_TITLE, 1);
+                strlen = getStringLength(src_pid);
+                instr = (unsigned char*)malloc(strlen);
+                getString(src_pid, instr, strlen);
+                free(strlen);
                 //setWindowTitle(current_handle, instr);
             break;
             
             case WYG_DESTROY:
                 //destroyHandle(temp_msg.payload);
-                //postMessage(src_pid, WYG_DESTROY, 1);
+                postMessage(src_pid, WYG_DESTROY, 1);
             break;
             
             case WYG_GET_FRAME_DIMS:
-                //postMessage(src_pid, WYG_GET_FRAME_DIMS, (FRAME_SIZE_TOP << 24) | (FRAME_SIZE_LEFT << 16) | (FRAME_SIZE_BOTTOM << 8) | (FRAME_SIZE_RIGHT));
+                postMessage(src_pid, WYG_GET_FRAME_DIMS, 0);
             break;
 
             case MOUSE_SEND_UPDATE:
