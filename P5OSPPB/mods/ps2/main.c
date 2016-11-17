@@ -763,8 +763,15 @@ void mouseMessageThread() {
         
         if(temp_msg.command == MOUSE_REG_LISTENER) {
             
-            mouse_listener[listener_count] = temp_msg.source;
-            listener_count++;
+            if(listener_count < 255) {
+
+                mouse_listener[listener_count] = temp_msg.source;
+                listener_count++;
+                postMessage(temp_msg.source, MOUSE_REG_LISTENER, 1);
+            } else {
+
+                postMessage(temp_msg.source, MOUSE_REG_LISTENER, 0);
+            }        
 
             /*
             //Wait until there's a character in the buffer 
