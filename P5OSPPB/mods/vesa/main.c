@@ -237,6 +237,10 @@ void main(void) {
                 postMessage(oldsrc, GFX_CPSCREEN, 1);
             break;
 
+            case GFX_GETFB:
+                postMessage(oldsrc, GFX_GETFB, (unsigned int)v);
+            break;
+
             default:
             break;
         }

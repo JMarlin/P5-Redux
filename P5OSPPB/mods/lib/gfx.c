@@ -25,6 +25,14 @@ unsigned char enumerateModes() {
     return (unsigned char)(temp_msg.payload & 0xFF);
 }
 
+void* getFramebuffer() {
+
+    postMessage(gfx_pid, GFX_GETFB, 0);
+    getMessageFrom(&temp_msg, gfx_pid);
+
+    return (void*)temp_msg.payload;
+}
+
 //Important note: The modenum here is not a VESA or VGA mode number,
 //it's simply the index into the number of modes the GFX server has
 //enumerated

@@ -12,11 +12,12 @@
 #define GFX_DRAWHLINE   (GFX_MSG_CLASS | 7)
 #define GFX_DRAWVLINE   (GFX_MSG_CLASS | 8)
 #define GFX_DRAWRECT    (GFX_MSG_CLASS | 9)
-#define GFX_FILLRECT   (GFX_MSG_CLASS | 10)
-#define GFX_DRAWCHAR   (GFX_MSG_CLASS | 11)
-#define GFX_DRAWSTRING (GFX_MSG_CLASS | 12)
-#define GFX_DRAWBMP (GFX_MSG_CLASS | 13)
-#define GFX_CPSCREEN (GFX_MSG_CLASS | 14)
+#define GFX_FILLRECT    (GFX_MSG_CLASS | 10)
+#define GFX_DRAWCHAR    (GFX_MSG_CLASS | 11)
+#define GFX_DRAWSTRING  (GFX_MSG_CLASS | 12)
+#define GFX_DRAWBMP     (GFX_MSG_CLASS | 13)
+#define GFX_CPSCREEN    (GFX_MSG_CLASS | 14)
+#define GFX_GETFB       (GFX_MSG_CLASS | 15)
 
 #define RGB(r, g, b) (((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF))
 #define RVAL(x) ((x & 0xFF0000) >> 16)
@@ -68,5 +69,6 @@ bitmap* newBitmap(unsigned int width, unsigned int height);
 void freeBitmap(bitmap* bmp);
 void drawBitmap(bitmap* bmp);
 void copyScreen(bitmap* bmp);
+void* getFramebuffer();
 
 #endif //GFX_H
