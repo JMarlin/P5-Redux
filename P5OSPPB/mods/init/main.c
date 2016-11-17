@@ -29,15 +29,16 @@ void main(void) {
 // HANGING TO TEST THE PS2 SERVICE
     //Start WYG server
     prints("[init] Starting WYG server...\n");
-    startAndWaitUsr(":wyg.mod");
+    startProc(":wyg.mod");
+    //startAndWaitUsr(":wyg.mod");
     
     //Start UART handler
 //    prints("[init] Starting UART server...\n");
 //    startAndWait(":uart.mod");
 
     //Finally, start up the user 'login' process
-    prints("[init] Servers ready. Starting user process.\n");
-    startProc(":usr.mod");
+    //prints("[init] Servers ready. Starting user process.\n");
+    //startProc(":usr.mod");
     
     //while(1);
     terminate();
