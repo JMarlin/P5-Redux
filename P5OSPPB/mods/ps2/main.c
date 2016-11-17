@@ -738,7 +738,7 @@ void mouseMessageThread() {
 	//terminate();
 }
 
-inline void mouse_has_data() {
+inline int mouse_has_data() {
 
     return (inb(KBC_SREG) & 1) == 1;
 }
