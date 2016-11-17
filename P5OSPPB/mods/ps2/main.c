@@ -828,7 +828,7 @@ void mouseIRQThread() {
 	
     int i;
     unsigned short rel_x, rel_y;
-    unsigned char mouse_data[3];
+    char mouse_data[3];
 	
     prints("[PS2] Started mouse interrupt thread\n");
     prints("[PS2] Registering mouse IRQ...");
@@ -889,18 +889,26 @@ void mouseIRQThread() {
 		    i++;
 		}
 		
-		if(mouse_data[0] & 0x10)
+		if(mouse_data[0] & 0x10) {
+		
+	            mouse_data[1] = -mouse_data[1];
 		    prints("left ");
-	        else
+		} else {
+			
 	            prints("right ");
+		}
 		
 		printHexByte(mouse_data[1]);
 		prints(", ");
 		
-		if(mouse_data[0] & 0x20)
-		    prints("up ");
-	        else
-	            prints("down ");
+		if(mouse_data[0] & 0x20) {
+			
+		    mouse_data[2] = -mouse_data[2];
+		    prints("down ");
+		} else {
+			
+	            prints("up ");
+		}
 		
 		printHexByte(mouse_data[2]);
 		prints("\n");
