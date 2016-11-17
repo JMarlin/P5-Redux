@@ -889,6 +889,9 @@ void mouseIRQThread() {
 		    i++;
 		}
 		
+		if(i < 3)
+		    continue;
+		
 		if(mouse_data[0] & 0x10) {
 		
 	            mouse_data[1] = -mouse_data[1];
