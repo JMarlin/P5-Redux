@@ -288,7 +288,7 @@ void main(void) {
                 strlen = getStringLength(src_pid);
                 instr = (unsigned char*)malloc(strlen);
                 getString(src_pid, instr, strlen);
-                free(strlen);
+                free((void*)instr);
                 //setWindowTitle(current_handle, instr);
             break;
             
