@@ -123,6 +123,11 @@ unsigned char read_index;
 unsigned char write_index;
 unsigned char buffer_full;
 unsigned char buffer_empty;
+unsigned long mouse_buffer[256];
+unsigned char m_read_index;
+unsigned char m_write_index;
+unsigned char m_buffer_full;
+unsigned char m_buffer_empty;
 
 keyInfo standardCodes1[] = {
     {KEY_TYPE_CHAR, 'a', 'A', 0x1E},
@@ -561,6 +566,37 @@ void buffer_insert(unsigned char c) {
     key_buffer[write_index++] = c;
 }
 
+void initMouseBuffer() {
+    
+    int i;
+    
+    for(i = 0; i < 256; i++)
+        mouse_buffer[i] = 0;
+        
+    m_read_index = 0;
+    m_write_index = 0;
+    m_buffer_full = 0;
+    m_buffer_empty = 1;
+}
+
+unsigned long mouse_buffer_retrieve() {
+    
+    unsigned long c;
+    
+    if(m_read_index == m_write_index)
+        return 0;
+            
+    c = mouse_buffer[m_read_index++];
+}
+
+void mouse_buffer_insert(unsigned long c) {
+    
+    if((m_write_index == (m_read_index - 1)) || c == 0)
+        return;
+        
+    mouse_buffer[m_write_index++] = c;
+}
+
 unsigned char capitalize(unsigned char c) {
     
     if(c >= 'a' && c <= 'z')
@@ -703,9 +739,9 @@ void keyMessageThread() {
 
 
 void mouseMessageThread() {
-    /*
+    
     message temp_msg;
-    unsigned char c;
+    unsigned long c;
     
     prints("[PS2] Started mouse message thread\n");
     
@@ -724,13 +760,12 @@ void mouseMessageThread() {
         if(temp_msg.command == MOUSE_GETEVENT) {
             
             //Wait until there's a character in the buffer 
-            while(!(c = buffer_retrieve()));
+            while(!(c = mouse_buffer_retrieve()));
             
             //Once we have one, post it back
-            postMessage(temp_msg.source, KEY_GETCH, (unsigned int)c);
+            postMessage(temp_msg.source, MOUSE_GETEVENT, (unsigned long)c);
         }
     }
-	*/
 	
     key_irq_regd = 4;
     
@@ -791,20 +826,19 @@ unsigned char mouse_read()
 
 void mouseIRQThread() {
 	
-	unsigned char shift_count = 0;
-    unsigned char caps = 0;
-    unsigned char was_break = 0;
-    keyInfo* temp_key;
+    int i;
+    unsigned short rel_x, rel_y;
+    unsigned char mouse_data[3];
 	
-	prints("[PS2] Started mouse interrupt thread\n");
-	prints("[PS2] Registering mouse IRQ...");
+    prints("[PS2] Started mouse interrupt thread\n");
+    prints("[PS2] Registering mouse IRQ...");
 
-	//Try to register the IRQ
-	if(!registerIRQ(12)) {
+    //Try to register the IRQ
+    if(!registerIRQ(12)) {
 
-		prints("Failed.\n");
-    	while(1);
-	}
+	prints("Failed.\n");
+        while(1);
+    }
 	
     prints("done.\n");
     
@@ -841,14 +875,39 @@ void mouseIRQThread() {
     
 	while(1) {
  
-        prints("?");
 		waitForIRQ(12);    
-		prints("M");
+		
+		i = 0;
 		
 		while(mouse_has_data()) {
 		
-		    mouse_read();	 
+		    if(i < 3)	
+		        mouse_data[i] = mouse_read();	 
+		    else
+			mouse_read();
+			
+		    i++;
 		}
+		
+		if(mouse_data[0] & 0x10)
+		    prints("left ");
+	        else
+	            prints("right ");
+		
+		printHexByte(mouse_data[1]);
+		prints(", ");
+		
+		if(mouse_data[0] & 0x20)
+		    prints("up ");
+	        else
+	            prints("down ");
+		
+		printHexByte(mouse_data[2]);
+		prints("\n");
+		
+		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
+		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
+		mouse_buffer_insert(((unsigned long)rel_x) | (((unsigned long)rel_y) << 9));
 	}
 }
 
@@ -895,6 +954,8 @@ void main(void) {
 	while(key_irq_regd != 2);
 */
 
+    initMouseBuffer();
+	
 	//Start the thread that will listen for mouse interrupts 
     if(!startThread())
         mouseIRQThread();
