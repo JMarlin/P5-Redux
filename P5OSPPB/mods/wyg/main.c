@@ -1537,10 +1537,22 @@ void putMouse(int x, int y, unsigned char buttons) {
     }
 }
 
-void moveMouse(short x_off, short y_off) {
+void moveMouse(unsigned long packed_data) {
 
-    mouse_x += x_off;
-    mouse_y += y_off;
+    short x_off, y_off;
+
+    x_off = (short)(packed_data & 0xFF);
+    y_off = (short)((packed_data >> 9) & 0xFF);
+
+    if(packed_data & 0x100)
+        mouse_y -= x_off;
+    else
+        mouse_x += x_off;
+
+    if(packed_data & 0x20000)    
+        mouse_y += y_off;
+    else
+        mouse_y -= y_off;
 
     if(mouse_x < 0)
         mouse_x = 0;
@@ -1554,7 +1566,7 @@ void moveMouse(short x_off, short y_off) {
     if(mouse_y > root_window->h - 20)
         mouse_y = root_window->h - 20;
 
-    changeWindowPosition(mouse_window, mouse_x, mouse_y);
+    putMouse(mouse_x, mouse_y, 0);
 }
 
 #define MOUSE_WIDTH 11
@@ -1828,7 +1840,7 @@ void main(void) {
             case MOUSE_SEND_UPDATE:
                 setColor(RGB(255, 0, 0));
                 displayString(0, 0, "GOT A MOUSE EVENT!");
-                while(1);
+                moveMouse(temp_msg.payload);
             break;
 
             default:
