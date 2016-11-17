@@ -226,8 +226,6 @@ void main(void) {
     //Initial draw
     Window_paint((Window*)desktop, (List*)0, 1);
 
-while(1);
-
     while(1) {
 
         //prints("[WYG] Waiting for message...");
