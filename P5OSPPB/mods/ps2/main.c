@@ -128,6 +128,8 @@ unsigned char m_read_index;
 unsigned char m_write_index;
 unsigned char m_buffer_full;
 unsigned char m_buffer_empty;
+unsigned long mouse_listener[256];
+int listener_count;
 
 keyInfo standardCodes1[] = {
     {KEY_TYPE_CHAR, 'a', 'A', 0x1E},
@@ -752,20 +754,25 @@ void mouseMessageThread() {
     prints("[PS2] Mouse service registered.");
     
     key_irq_regd = 4;
-	
+
     //We should make sure the registration works, but for now we're just assuming it did
     
     while(1) {
         
         getMessage(&temp_msg);
         
-        if(temp_msg.command == MOUSE_GETEVENT) {
+        if(temp_msg.command == MOUSE_REG_LISTENER) {
             
+            mouse_listener[listener_count] = temp_msg.source;
+            listener_count++;
+
+            /*
             //Wait until there's a character in the buffer 
             while(!(c = mouse_buffer_retrieve()));
             
             //Once we have one, post it back
             postMessage(temp_msg.source, MOUSE_GETEVENT, (unsigned long)c);
+            */
         }
     }
     
@@ -828,8 +835,13 @@ void mouseIRQThread() {
 	
     int i;
     unsigned short rel_x, rel_y;
+    unsigned long out_data;
     char mouse_data[3];
 	
+    listener_count = 0;
+    for(i = 0; i < 256; i++)
+        mouse_listener[i] = 0;
+
     prints("[PS2] Started mouse interrupt thread\n");
     prints("[PS2] Registering mouse IRQ...");
 
@@ -919,7 +931,11 @@ void mouseIRQThread() {
 		
 		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
 		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
-		mouse_buffer_insert(((unsigned long)rel_x) | (((unsigned long)rel_y) << 9));
+        out_data = ((unsigned long)rel_x) | (((unsigned long)rel_y) << 9);
+		//mouse_buffer_insert(((unsigned long)rel_x) | (((unsigned long)rel_y) << 9));
+
+        for(i = 0; i < listener_count; i++)
+            postMessage(mouse_listener[i], MOUSE_SEND_UPDATE, out_data);
 	}
 }
 
