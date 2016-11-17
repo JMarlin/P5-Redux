@@ -93,13 +93,13 @@ void Desktop_process_mouse(Desktop* desktop, uint16_t mouse_x,
     Rect* mouse_rect;
 
     //Do the old generic mouse handling
-    Window_process_mouse((Window*)desktop, mouse_x, mouse_y, mouse_buttons);
+    //Window_process_mouse((Window*)desktop, mouse_x, mouse_y, mouse_buttons);
 
     //Window painting now happens inside of the window raise and move operations
     
     //Exit early if the mouse is turned off
-    if(!desktop->mouse_shown)
-        return;
+    //if(!desktop->mouse_shown)
+        //return;
 
     //Build a dirty rect list for the mouse area
     if(!(dirty_list = List_new()))
