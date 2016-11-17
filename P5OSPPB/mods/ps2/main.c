@@ -843,6 +843,7 @@ void mouseIRQThread() {
     int i;
     unsigned short rel_x, rel_y;
     unsigned long out_data;
+    unsigned char buttons;
     char mouse_data[3];
 	
     listener_count = 0;
@@ -935,10 +936,10 @@ void mouseIRQThread() {
 		//printHexByte(mouse_data[2]);
 		//prints("\n");
 		
-		
+		buttons = (unsigned char)(mouse_data[0] & 0x07);
 		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
 		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
-        out_data = ((unsigned long)rel_x) | (((unsigned long)rel_y) << 9);
+        out_data = ((unsigned long)rel_x) | (((unsigned long)rel_y) << 9) | (((unsigned long)buttons) << 24);
 		//mouse_buffer_insert(((unsigned long)rel_x) | (((unsigned long)rel_y) << 9));
 
         for(i = 0; i < listener_count; i++)

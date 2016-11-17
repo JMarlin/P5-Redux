@@ -69,8 +69,8 @@ window *root_window, *mouse_window;
 List* window_list;
 unsigned char inited = 0;
 bitmap* old_mouse_bkg;
-unsigned short mouse_x;
-unsigned short mouse_y;
+short mouse_x;
+short mouse_y;
 unsigned char mouse_buffer_ok = 0;
 
 /*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
@@ -1540,7 +1540,9 @@ void putMouse(int x, int y, unsigned char buttons) {
 void moveMouse(unsigned long packed_data) {
 
     short x_off, y_off;
+    unsigned char buttons;
 
+    buttons = (unsigned char)((packed_data >> 24) & 0xFF);
     x_off = (short)((unsigned char)(packed_data & 0xFF));
     y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
 
@@ -1566,7 +1568,7 @@ void moveMouse(unsigned long packed_data) {
     if(mouse_y > root_window->h - 20)
         mouse_y = root_window->h - 20;
 
-    putMouse(mouse_x, mouse_y, 0);
+    putMouse((unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
 
 #define MOUSE_WIDTH 11
