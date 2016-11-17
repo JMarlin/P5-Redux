@@ -910,31 +910,31 @@ void mouseIRQThread() {
 		
 		if(i < 3)
 		    continue;
-		/*
+		
 		if(mouse_data[0] & 0x10) {
 		
 	            mouse_data[1] = -mouse_data[1];
-		    prints("left ");
-		} else {
+		    //prints("left ");
+		} //else {
 			
-	            prints("right ");
-		}
+	    //        prints("right ");
+		//}
 		
-		printHexByte(mouse_data[1]);
-		prints(", ");
+		//printHexByte(mouse_data[1]);
+		//prints(", ");
 		
 		if(mouse_data[0] & 0x20) {
 			
 		    mouse_data[2] = -mouse_data[2];
-		    prints("down ");
-		} else {
+		//    prints("down ");
+		} //else {
 			
-	            prints("up ");
-		}
+	    //        prints("up ");
+		//}
 		
-		printHexByte(mouse_data[2]);
-		prints("\n");
-		*/
+		//printHexByte(mouse_data[2]);
+		//prints("\n");
+		
 		
 		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
 		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
