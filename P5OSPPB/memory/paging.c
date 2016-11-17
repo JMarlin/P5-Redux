@@ -539,7 +539,14 @@ void* reserve_physical(unsigned int physBase, unsigned int size) {
         //want to have a process accidentally free and map out a shared memory region
         //while another process is reading from it anyhow
         pageTable[cur_page] |= 0xC00; //OS-Reserved is when both os-special and in-use are set
-        map_pages(cur_page << 12, cur_page << 12, 0x1000, 3);
+        map_pages(cur_page << 12, cur_page << 12, 0x1000, 7); //3); //This is kernel access only
+                                                                //it's being downgraded as a test 
+                                                                //for directly accessing the 
+                                                                //framebuffer through gfx via
+                                                                //a user app, but we should just
+                                                                //update the physical allocation
+                                                                //code to allow for selecting
+                                                                //user or supervisor mode
     }
 
     return (void*)physBase;
