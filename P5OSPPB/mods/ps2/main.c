@@ -738,6 +738,10 @@ void mouseMessageThread() {
 	//terminate();
 }
 
+inline void mouse_has_data() {
+
+    return (inb(KBC_SREG) & 1) == 1;
+}
 
 inline void mouse_wait(unsigned char a_type) //unsigned char
 {
@@ -840,6 +844,11 @@ void mouseIRQThread() {
         prints("?");
 		waitForIRQ(12);    
 		prints("M");
+		
+		while(mouse_has_data()) {
+		
+		    mouse_read();	 
+		}
 	}
 }
 
