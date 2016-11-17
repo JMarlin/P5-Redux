@@ -1541,11 +1541,11 @@ void moveMouse(unsigned long packed_data) {
 
     short x_off, y_off;
 
-    x_off = (short)(packed_data & 0xFF);
-    y_off = (short)((packed_data >> 9) & 0xFF);
+    x_off = (short)((unsigned char)(packed_data & 0xFF));
+    y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
 
     if(packed_data & 0x100)
-        mouse_y -= x_off;
+        mouse_x -= x_off;
     else
         mouse_x += x_off;
 
