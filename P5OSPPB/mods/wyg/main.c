@@ -301,7 +301,7 @@ void main(void) {
             break;
 
             case MOUSE_SEND_UPDATE:
-                moveMouse(temp_msg.payload);
+                //moveMouse(temp_msg.payload);
             break;
 
             default:
