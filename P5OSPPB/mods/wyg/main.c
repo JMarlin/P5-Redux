@@ -196,10 +196,6 @@ void main(void) {
     
 	//cmd_init(mode->width, mode->height);
 	    
-    //Set up the initial mouse position
-    mouse_x = desktop->window.width / 2 - 1;
-    mouse_y = desktop->window.height / 2 - 1;
-
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Fill this in with the info particular to your project
@@ -210,6 +206,10 @@ void main(void) {
 
     //Create the desktop 
     desktop = Desktop_new(context);
+
+    //Set up the initial mouse position
+    mouse_x = desktop->window.width / 2 - 1;
+    mouse_y = desktop->window.height / 2 - 1;
 
     //Sprinkle it with windows 
     Window_create_window((Window*)desktop, 10, 10, 300, 200, 0);
