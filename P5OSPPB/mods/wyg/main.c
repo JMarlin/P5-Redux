@@ -2,10 +2,20 @@
 #include "desktop.h"
 #include "button.h"
 #include "inttypes.h"
-#include "../include/mouse.h"
+#include "../include/p5.h"
+#include "../include/registrar.h"
 #include "../include/gfx.h"
+#include "../include/memory.h"
+#include "../include/wyg.h"
+#include "../include/key.h"
+#include "../include/mouse.h"
 
 //================| Entry Point |================//
+
+short mouse_x;
+short mouse_y;
+message temp_msg;
+unsigned char inbuf[12];
 
 //Our desktop object needs to be sharable by our main function
 //as well as our mouse event callback
