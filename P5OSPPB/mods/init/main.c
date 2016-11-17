@@ -29,8 +29,7 @@ void main(void) {
 // HANGING TO TEST THE PS2 SERVICE
     //Start WYG server
     prints("[init] Starting WYG server...\n");
-    startProc(":wyg.mod");
-    //startAndWaitUsr(":wyg.mod");
+    startAndWaitUsr(":wyg.mod");
     
     //Start UART handler
 //    prints("[init] Starting UART server...\n");
@@ -40,8 +39,8 @@ void main(void) {
     //prints("[init] Servers ready. Starting user process.\n");
     //startProc(":usr.mod");
     
-    //while(1);
-    terminate();
+    while(1);
+    //terminate();
 }
 
 void startAndWaitUsr(char* file) {
