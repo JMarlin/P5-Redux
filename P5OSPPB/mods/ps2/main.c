@@ -751,6 +751,8 @@ void mouseMessageThread() {
     getMessage(&temp_msg);
     prints("[PS2] Mouse service registered.");
     
+    key_irq_regd = 4;
+	
     //We should make sure the registration works, but for now we're just assuming it did
     
     while(1) {
@@ -766,8 +768,6 @@ void mouseMessageThread() {
             postMessage(temp_msg.source, MOUSE_GETEVENT, (unsigned long)c);
         }
     }
-	
-    key_irq_regd = 4;
     
     while(1);
 	//terminate();
@@ -891,7 +891,7 @@ void mouseIRQThread() {
 		
 		if(i < 3)
 		    continue;
-		
+		/*
 		if(mouse_data[0] & 0x10) {
 		
 	            mouse_data[1] = -mouse_data[1];
@@ -915,6 +915,7 @@ void mouseIRQThread() {
 		
 		printHexByte(mouse_data[2]);
 		prints("\n");
+		*/
 		
 		rel_x = mouse_data[1] | (mouse_data[0] & 0x10 ? 0x100 : 0);
 		rel_y = mouse_data[2] | (mouse_data[0] & 0x20 ? 0x100 : 0);
