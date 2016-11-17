@@ -35,11 +35,11 @@ int String_compare(String* string_a, String* string_b) {
 
     int i;
 
-    for(i = 0; string_a[i]; i++)
-        if(string_a[i] != string_b[i])
+    for(i = 0; string_a->buf[i]; i++)
+        if(string_a->buf[i] != string_b->buf[i])
             return 0;
 
-    return string_a[i] == string_b[i];
+    return string_a->buf[i] == string_b->buf[i];
 }
 
 void String_delete_function(Object* string_object) {

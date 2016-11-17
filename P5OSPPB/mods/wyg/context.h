@@ -11,7 +11,6 @@ struct Context_struct;
 #include "list.h"
 #include "rect.h"
 #include "object.h"
-#include "../platform/platformwrapper.h"
 
 //================| Context Class Declaration |================//
 

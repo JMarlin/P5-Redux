@@ -28,7 +28,7 @@ unsigned char enumerateModes() {
 void* getFramebuffer() {
 
     postMessage(gfx_pid, GFX_GETFB, 0);
-    getMessageFrom(&temp_msg, gfx_pid);
+    getMessageFrom(&temp_msg, gfx_pid, GFX_GETFB);
 
     return (void*)temp_msg.payload;
 }

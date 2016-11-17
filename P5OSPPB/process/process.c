@@ -208,7 +208,7 @@ void kernelDebugWithProc(process* dbg_proc) {
             
             bp = nbp;
             prints("New address: 0x");
-            printHexDword(bp);
+            printHexDword((unsigned int)bp);
             pchar('\n');
             continue;
         }

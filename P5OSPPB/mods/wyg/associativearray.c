@@ -1,5 +1,5 @@
 #include "associativearray.h"
-#include <stdlib.h>
+#include "../include/memory.h"
 
 AssociativeArray* AssociativeArray_new() {
 
