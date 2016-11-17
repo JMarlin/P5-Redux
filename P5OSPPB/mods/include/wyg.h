@@ -23,6 +23,7 @@
 #define WIN_UNDECORATED 1
 #define WIN_FIXEDSIZE 2
 #define WIN_VISIBLE 4
+#define WIN_NODRAG 8
 
 struct bitmap;
 
@@ -32,6 +33,7 @@ struct bitmap* getWindowContext(unsigned int handle);
 void moveHandle(unsigned int handle, unsigned short x, unsigned short y);
 void installWindow(unsigned int child_handle, unsigned int parent_handle);
 void showWindow(unsigned int handle);
+void hideWindow(unsigned int handle);
 void repaintWindow(unsigned int handle);
 void getWindowDimensions(unsigned int handle, unsigned short *w, unsigned short *h); 
 void focus(unsigned int handle);
