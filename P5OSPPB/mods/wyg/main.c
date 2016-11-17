@@ -56,6 +56,65 @@ void moveMouse(unsigned long packed_data) {
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
 
+void scans(int c, char* b) {
+
+    unsigned char temp_char;
+    int index = 0;
+
+    for(index = 0 ; index < c-1 ; ) {
+        temp_char = getch();
+
+        if(temp_char != 0) {
+            b[index] = temp_char;
+            pchar(b[index]);
+
+            if(b[index] == '\n') {
+                b[index] = 0;
+                break;
+            }
+
+            index++;
+
+            if(index == c-1)
+                pchar('\n');
+        }
+    }
+
+    b[index+1] = 0;
+}
+
+void showModes(void) {
+
+
+    unsigned short mode_count;
+    unsigned short i;
+    screen_mode* mode;
+
+    prints("Enumerating modes...");
+    mode_count = enumerateModes();
+    prints("done\n");
+
+    prints("\nAvailible modes:\n");
+    for(i = 1; i <= mode_count; i++) {
+
+        mode = getModeDetails(i);
+        prints("    ");
+        printDecimal((unsigned int)i);
+        prints(") ");
+        printDecimal((unsigned int)mode->width);
+        pchar('x');
+        printDecimal((unsigned int)mode->height);
+        prints(", ");
+        printDecimal((unsigned int)mode->depth);
+        prints("bpp");
+
+        if(mode->is_linear)
+            prints(" linear");
+
+        pchar('\n');
+    }
+}
+
 //Create and draw a few rectangles and exit
 void main(void) {
 
