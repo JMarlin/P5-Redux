@@ -252,9 +252,7 @@ void makeWindows() {
 
 void main(void) {
 
-	prints("\nUSR.MOD started.\n");
-
-    while(1);
+    prints("\nUSR.MOD started.\n");
 
     if(!initWYG()) {
         

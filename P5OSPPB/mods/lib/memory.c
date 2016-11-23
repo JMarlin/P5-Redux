@@ -10,6 +10,15 @@ typedef struct memblock {
 
 memblock* root_block = (memblock*)0;
 
+void (*log_start)(void) = 0;
+void (*log_end)(void) = 0;
+
+void enable_debug(void (*cb_a)(void), void (*cb_b)(void)) {
+
+    log_start = cb_a;
+    log_end = cb_b;
+}
+
 //This is currently very naive implementation which does not allow for
 //free()ing and allocates new chunks of memory in a completely linear 
 //fashion
@@ -26,6 +35,8 @@ void* malloc(unsigned int requested_size) {
 	void* free_base;
 	unsigned int available_space = 0;
 	static unsigned int allocated_pages = 0;
+
+        if(log_start) log_start();
 	
 	requested_size += sizeof(memblock);
 	current_block = root_block;
@@ -50,6 +61,7 @@ void* malloc(unsigned int requested_size) {
                 current_block->prev = new_block;
 				
 				//And return its usable base 
+                                if(log_end) log_end();
 				return (void*)((unsigned int)new_block->base + sizeof(memblock));
 			}
 		}
@@ -78,8 +90,11 @@ void* malloc(unsigned int requested_size) {
 	//If we don't have enough space, pop a new page on 
 	while(available_space < requested_size) {
 				
-		if(!appendPage())
+		if(!appendPage()) {
+
+                        if(log_end) log_end();
 			return (void*)0;
+                }
 		
 		allocated_pages++;
 		available_space += 0x1000;
@@ -102,6 +117,7 @@ void* malloc(unsigned int requested_size) {
 		root_block = new_block;
 	} 
 	
+        if(log_end) log_end();
 	return (void*)((unsigned int)new_block->base + sizeof(memblock));
 }
 

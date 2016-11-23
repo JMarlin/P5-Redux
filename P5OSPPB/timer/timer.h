@@ -11,6 +11,7 @@ struct process;
 void timer_on();
 void timer_off();
 void init_timer();
+unsigned int get_elapsed_ms();
 void timer_int_ack();
 void c_spurious_handler();
 process* c_timer_handler();

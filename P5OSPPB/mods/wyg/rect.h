@@ -1,31 +1,14 @@
 #ifndef RECT_H
 #define RECT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "object.h"
-#include "list.h"
-#include "../include/memory.h"
-
-//================| Rect Class Declaration |================//
-
-typedef struct Rect_struct {
-    Object object;
-    int top;
-    int left;
-    int bottom;
-    int right;
+typedef struct Rect {
+    unsigned int top;
+    unsigned int right;
+    unsigned int bottom;
+    unsigned int left;
 } Rect;
 
-//Method declarations
-Rect* Rect_new(int top, int left, int bottom, int right);
-List* Rect_split(Rect* subject_rect, Rect* cutting_rect);
-Rect* Rect_intersect(Rect* rect_a, Rect* rect_b);
-
-#ifdef __cplusplus
-}
-#endif
+Rect* Rect_new(unsigned int top, unsigned int left, unsigned int bottom, unsigned int right);
+void Rect_deleter(void* value);
 
 #endif //RECT_H

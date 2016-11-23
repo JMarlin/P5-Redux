@@ -17,6 +17,7 @@ typedef struct timer_entry {
     unsigned int limit;
 } timer_entry;
 
+unsigned int ms_count = 0;
 unsigned int active_timer_count = 0;
 timer_entry event_timer[10];
 
@@ -108,10 +109,17 @@ process* find_elapsed_timers() {
     return ret_p;
 }
 
+unsigned int get_elapsed_ms() {
+
+    return ms_count;
+}
+
 process* c_timer_handler() {
 
     static unsigned int tick_count = 0;
     process* timer_proc = (process*)0;
+
+    ms_count++;
 
     //Check on our process switch regulation
     if(++tick_count >= TICK_THRESHOLD) {

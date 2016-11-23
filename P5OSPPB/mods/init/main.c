@@ -36,8 +36,8 @@ void main(void) {
 //    startAndWait(":uart.mod");
 
     //Finally, start up the user 'login' process
-    //prints("[init] Servers ready. Starting user process.\n");
-    //startProc(":usr.mod");
+    prints("[init] Servers ready. Starting user process.\n");
+    startProc(":usr.mod");
     
     while(1);
     //terminate();

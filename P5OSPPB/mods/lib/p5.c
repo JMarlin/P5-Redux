@@ -414,3 +414,11 @@ void installExceptionHandler(void* handler) {
 	
 	postMessage(0, KS_INSTALL_EXHDLR, (unsigned int)handler);
 }
+
+unsigned int getElapsedMs() {
+
+    postMessage(0, KS_GET_ELAPSED_MS, 0);
+    getMessageFrom(&temp_msg, 0, KS_GET_ELAPSED_MS);
+
+    return temp_msg.payload;
+}
