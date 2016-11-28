@@ -315,9 +315,9 @@ void drawBmpRect(window* win, Rect* r) {
     //setCursor(win->x, win->y);
     //drawBitmap(win->context);
 
-    for(y = win->y; y < win->y + win->height; y++) {
+    for(y = win->y; y < win->y + win->h; y++) {
 
-        for(x = win->x; x < win->x + win->width; x++) {
+        for(x = win->x; x < win->x + win->w; x++) {
 
             back_buffer->data[(y * root_window->w) + x] =
                 win->context->data[((y - win->y) * win->w) + (x - win->x)];
