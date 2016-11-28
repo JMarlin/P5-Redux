@@ -74,6 +74,7 @@ short mouse_y;
 unsigned char mouse_buffer_ok = 0;
 unsigned int alloc_ta, alloc_time;
 unsigned int draw_ta, draw_time;
+bitmap* back_buffer;
 
 /*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
@@ -292,6 +293,8 @@ void scans(int c, char* b) {
 //#define RECT_TEST 1
 void drawBmpRect(window* win, Rect* r) {
 
+    int x, y;
+
 #ifdef RECT_TEST 
   
     setColor(RGB(0, 255, 0));
@@ -300,7 +303,7 @@ void drawBmpRect(window* win, Rect* r) {
     
 #else     
 
-    draw_ta = getElapsedMs();
+    //draw_ta = getElapsedMs();
  
     //Adjust the rectangle coordinate from global space to window space 
     win->context->top = r->top - win->y;
@@ -309,10 +312,19 @@ void drawBmpRect(window* win, Rect* r) {
     win->context->right = r->right - win->x;   
     
     //Do the blit
-    setCursor(win->x, win->y);
-    drawBitmap(win->context);
+    //setCursor(win->x, win->y);
+    //drawBitmap(win->context);
 
-    draw_time += getElapsedMs() - draw_ta; 
+    for(y = win->context->top; y <= win->context->bottom; y++) {
+
+        for(x = win->context->left; x <= win->context->right; x++) {
+
+            back_buffer->data[((y + win->y) * root_window->w) + (x + win->x)] =
+                win->context->data[y * win->w + x];
+        }
+    }
+
+    //draw_time += getElapsedMs() - draw_ta; 
 
 #endif //RECT_TEST
 }
@@ -1616,6 +1628,13 @@ void malloc_end(void) {
     alloc_time += getElapsedMs() - alloc_ta;
 }
 
+void screenThread() {
+
+    setCursor(0, 0);
+    drawBitmap(back_buffer);
+    sleep(20);
+}
+
 void statusThread() {
 
     while(1) {
@@ -1648,11 +1667,12 @@ void main(void) {
 
 #ifndef HARNESS_TEST
 
+/*
     enable_debug(malloc_start, malloc_end);
 
     if(!startThread())
         statusThread();
-
+*/
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
@@ -1730,6 +1750,12 @@ void main(void) {
         terminate();
     }
     
+    back_buffer = newBitmap(mode->width, mode->height);
+
+    //Would realistically be on a vsync interrupt
+    if(!startThread())
+        screenThread();
+
 	//cmd_init(mode->width, mode->height);
 	
     if(!(window_list = List_new())) {
