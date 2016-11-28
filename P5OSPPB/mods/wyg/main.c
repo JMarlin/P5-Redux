@@ -320,12 +320,12 @@ void drawBmpRect(window* win, Rect* r) {
 
         for(x = r->left; x < r->right && x < root_window->w; x++) {
 
-            printDecimal(x);
-            prints(",");
-            printDecimal(y);
-            prints(",");
-            printDecimal(back_buffer->width);
-            prints("\n");
+            //printDecimal(x);
+            //prints(",");
+            //printDecimal(y);
+            //prints(",");
+            //printDecimal(back_buffer->width);
+            //prints("\n");
             tmp = win->context->data[((y - win->y) * win->w) + (x - win->x)];
             back_buffer->data[(y * back_buffer->width) + x] = tmp;
         }
