@@ -320,10 +320,10 @@ void drawBmpRect(window* win, Rect* r) {
 
         for(x = r->left; x < r->right && x < root_window->w; x++) {
 
-            printDecimal(x);
-            prints(",");
-            printDecimal(y);
-            prints("\n");
+            //printDecimal(x);
+            //prints(",");
+            //printDecimal(y);
+            //prints("\n");
             tmp = win->context->data[((y - win->y) * win->w) + (x - win->x)];
             back_buffer->data[(y * root_window->w) + x] = tmp;
         }
@@ -1635,9 +1635,12 @@ void malloc_end(void) {
 
 void screenThread() {
 
-    setCursor(0, 0);
-    drawBitmap(back_buffer);
-    sleep(20);
+    while(1) {
+
+        setCursor(0, 0);
+        drawBitmap(back_buffer);
+        sleep(20);
+    }
 }
 
 void statusThread() {
