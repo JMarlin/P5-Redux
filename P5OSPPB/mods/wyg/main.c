@@ -294,6 +294,7 @@ void scans(int c, char* b) {
 void drawBmpRect(window* win, Rect* r) {
 
     int x, y;
+    unsigned int tmp;
 
 #ifdef RECT_TEST 
   
@@ -319,8 +320,12 @@ void drawBmpRect(window* win, Rect* r) {
 
         for(x = r->left; x < r->right && x < root_window->w; x++) {
 
-            back_buffer->data[(y * root_window->w) + x] =
-                win->context->data[((y - win->y) * win->w) + (x - win->x)];
+            printDecimal(x);
+            prints(",");
+            printDecimal(y);
+            prints("\n");
+            tmp = win->context->data[((y - win->y) * win->w) + (x - win->x)];
+            back_buffer->data[(y * root_window->w) + x] = tmp;
         }
     }
 
