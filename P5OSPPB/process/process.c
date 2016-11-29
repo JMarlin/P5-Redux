@@ -63,6 +63,7 @@ void entry_debug(void) {
 void kernelDebugWithProc(process* dbg_proc) {
 
     unsigned char* current_pc;
+    process* ex_proc;
 
     if(dbg_proc->flags & PF_V86)
         current_pc = (char*)(((((unsigned int)dbg_proc->ctx.cs)&0xFFFF) << 4) + (((unsigned int)dbg_proc->ctx.eip) &0xFFFF));
@@ -103,13 +104,7 @@ void kernelDebugWithProc(process* dbg_proc) {
         printHexDword((unsigned int)bp);
         prints(">");
         scans(48, inbuf);
-        
-        if(inbuf[0] == 'S' || inbuf[0] == 's') {
-            
-            prints("You suck\n");
-            continue;
-        } 
-        
+                
         if(inbuf[0] == 'N') {
             
             prints(p->name);
@@ -117,7 +112,7 @@ void kernelDebugWithProc(process* dbg_proc) {
             continue;
         }
         
-        if(inbuf[0] == 'M') {
+        if(inbuf[0] == 'M' || inbuf[0] == 'T') {
             
             unsigned char i;
             
@@ -126,26 +121,67 @@ void kernelDebugWithProc(process* dbg_proc) {
                 prints("Bad proc entry number\n");
                 continue;
             }
-            
+
             i = inbuf[1] - '0';
+
+            if(inbuf[2] != 0) {
+
+                i *= 10;
+
+                if(inbuf[2] < '0' || inbuf[2] > '9') {
+
+                    prints("Bad proc entry number\n");
+                    continue;
+                }
+
+                i += (inbuf[2] - '0');
+            }
             
-            if(p)
-                if(p->root_page)
-                    disable_page_range(p->base, p->root_page);
+            if(!(procTable[i].root_page)) {
 
-            p = &procTable[i];
+                prints("No page mappings for that entry\n");
+                continue;
+            }    
 
-            if(p->root_page) {
-                
+            if(inbuf[0] == 'M') {
+            
+                if(p)
+                    if(p->root_page)
+                        disable_page_range(p->base, p->root_page);
+
+                p = &procTable[i];
+                    
                 apply_page_range(p->base, p->root_page, p->flags & PF_SUPER);
                 prints("Mapped page range for procTable[");
                 printHexByte(i);
                 prints("]\n");
             } else {
-                
-                prints("No page mappings for that entry\n");    
+
+                pageRange *current_range;
+                unsigned int current_base = ex_proc->base;
+
+                prints("Page tree for procTable[");
+                printHexByte(i);
+                prints("]:\n");
+                ex_proc = &procTable[i];
+                current_range = ex_proc->root_page;
+
+                while(current_range) {
+
+                    printHexDword((unsigned int)current_range);
+                    prints(") ");
+                    printHexDword(current_base);
+                    prints("-");
+                    printHexDword(current_base + ((1000 * current_range->count) - 1));
+                    prints(" @ ");
+                    printHexDword(current_range->base_page * 1000);
+                    printHexDword("-");
+                    printHexDword((current_range->base_page * 1000) + ((1000 * current_range->count) - 1));
+                    printHexDword("\n");
+                    current_range = current_range->next;
+                }
             }
-            
+                
             continue;
         }
         
@@ -153,9 +189,9 @@ void kernelDebugWithProc(process* dbg_proc) {
             
             unsigned char i;
             
-            for(i = 0; i < 10; i++) {
+            for(i = 0; i < 256; i++) {
                 
-                if(procTable[i].id != 0 || 1) {
+                if(procTable[i].id != 0) {
                 
                     printHexByte(i);
                     prints("] ");
