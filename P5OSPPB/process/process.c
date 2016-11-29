@@ -187,7 +187,7 @@ void kernelDebugWithProc(process* dbg_proc) {
         
         if(inbuf[0] == 'L') {
             
-            unsigned char i;
+            unsigned int i;
             
             for(i = 0; i < 256; i++) {
                 
