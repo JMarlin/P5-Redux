@@ -175,9 +175,9 @@ void kernelDebugWithProc(process* dbg_proc) {
                     printHexDword(current_base + ((1000 * current_range->count) - 1));
                     prints(" @ ");
                     printHexDword(current_range->base_page * 1000);
-                    printHexDword("-");
+                    prints("-");
                     printHexDword((current_range->base_page * 1000) + ((1000 * current_range->count) - 1));
-                    printHexDword("\n");
+                    prints("\n");
                     current_range = current_range->next;
                 }
             }
