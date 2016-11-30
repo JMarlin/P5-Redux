@@ -42,6 +42,7 @@ typedef void (*entry_func)(void);
 
 typedef struct process {
     unsigned int id;
+    unsigned int oid;
     struct pageRange* root_page;
     struct message* root_msg;
     context ctx;
@@ -92,7 +93,7 @@ void startProcessManagement();
 void endProc(process* proc);
 void deleteProc(process* proc);
 void kernelEntry(void);
-void resetProcessCounter(int preserve_ids);
+void resetProcessCounter();
 process* newUserProc();
 process* newSuperProc();
 //process* newV86Proc();

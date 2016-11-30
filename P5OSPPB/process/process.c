@@ -1048,6 +1048,7 @@ void deleteProc(process* proc) {
         kfree(proc->name);
 
     proc->id = 0;
+    proc->oid = 0;
 }
 
 
@@ -1062,16 +1063,15 @@ void clearContext(context* ctx) {
 
 
 //ONLY TO BE USED IN VERY SPECIFIC SCENARIOS
-void resetProcessCounter(int preserve_ids) {
+void resetProcessCounter() {
 
     int i;
 
     nextProc = 1;
     swap_count = 0;
 
-    if(!preserve_ids)
-        for(i = 0; i < 255; i++)
-            procTable[i].id = 0;
+    for(i = 0; i < 255; i++)
+        procTable[i].id = 0;
 
     p = (process*)0;
 }
@@ -1128,6 +1128,7 @@ process* newProcess(char* name) {
     //Finally, if we got this far, we give the proc a
     //PID, thereby marking this entry as taken 
     proc->id = nextProc++;
+    proc->oid = proc->id;
 
     return proc;
 }
@@ -1464,6 +1465,7 @@ process* makeThread(process* parent, void* entry_point) {
     
     //Clone process struct 
     ret_proc->id = nextProc++;
+    ret_proc->oid = ret_proc->id;
     ret_proc->root_msg = (message*)0;
     ret_proc->usr = parent->usr;
     ret_proc->base = parent->base;
