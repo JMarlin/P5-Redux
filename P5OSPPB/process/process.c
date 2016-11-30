@@ -158,12 +158,14 @@ void kernelDebugWithProc(process* dbg_proc) {
             } else {
 
                 pageRange *current_range;
-                unsigned int current_base = ex_proc->base;
+                unsigned int current_base;
+
+                ex_proc = &procTable[i];
+                current_base = ex_proc->base;
 
                 prints("Page tree for procTable[");
                 printHexByte(i);
                 prints("]:\n");
-                ex_proc = &procTable[i];
                 current_range = ex_proc->root_page;
 
                 while(current_range) {
