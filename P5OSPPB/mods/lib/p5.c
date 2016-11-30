@@ -309,11 +309,11 @@ unsigned int getImageSize(unsigned int pid) {
 
 unsigned int appendPage(void) {
     
-    prints("[lib] Sending append request\n");
+    //prints("[lib] Sending append request\n");
     postMessage(0, KS_APPEND_PAGE, 0);
-    prints("[lib] Waiting for response\n");
+    //prints("[lib] Waiting for response\n");
     getMessageFrom(&temp_msg, 0, KS_APPEND_PAGE);
-    prints("[lib] Got response\n");
+    //prints("[lib] Got response\n");
     
     return temp_msg.payload;
 }
