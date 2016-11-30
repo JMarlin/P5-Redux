@@ -191,7 +191,7 @@ void kernelDebugWithProc(process* dbg_proc) {
             
             for(i = 0; i < 256; i++) {
                 
-                if(procTable[i].id != 0) {
+                if(procTable[i].oid != 0) {
                 
                     printHexByte(i);
                     prints("] ");
@@ -201,8 +201,8 @@ void kernelDebugWithProc(process* dbg_proc) {
                     else
                         prints("????");
                                             
-                    prints(", id: ");
-                    printHexDword(procTable[i].id);
+                    prints(", oid: ");
+                    printHexDword(procTable[i].oid);
                     pchar('\n');
                 }
             }
