@@ -209,7 +209,7 @@ void c_calc_mips() {
         //Do MIPS calculation from counter and return to
         //kernel startup process
         _mips_counter = _mips_counter * 400; //4 instructions in the loop and 100Hz sample window
-        resetProcessCounter();
+        resetProcessCounter(0);
         installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3); //Reset the vector to the normal timer handler
         (*reentry_call)(_mips_counter);
     }

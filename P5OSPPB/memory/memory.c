@@ -310,7 +310,7 @@ void finish_mem_config() {
 
     //Reset the state changes made by creating all of those v86 procs
     //prints("Resetting process management\n");
-    resetProcessCounter();
+    resetProcessCounter(0);
 
     //Create a block which the rest of the kmalloc chain will
     //hang off of and which just happens to contain our kernel image

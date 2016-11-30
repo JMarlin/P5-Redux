@@ -92,7 +92,7 @@ void startProcessManagement();
 void endProc(process* proc);
 void deleteProc(process* proc);
 void kernelEntry(void);
-void resetProcessCounter();
+void resetProcessCounter(int preserve_ids);
 process* newUserProc();
 process* newSuperProc();
 //process* newV86Proc();

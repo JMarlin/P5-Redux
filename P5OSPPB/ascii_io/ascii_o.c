@@ -100,7 +100,7 @@ void enterTextMode(void (*cb)(void)) {
     tm_cb = cb;
         
     //Put the code into the v86 code area
-    resetProcessCounter();
+    resetProcessCounter(1);
     set_call_zero_cb(&textModeFinish); //Make the interrupt 
 
     //Do INT 0x10
