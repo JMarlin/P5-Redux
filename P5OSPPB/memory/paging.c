@@ -352,7 +352,9 @@ int append_page(pageRange* pr_base) {
     //prints("[kernel] Marking new page allocated\n");
     //Otherwise, we were able to successfully find a free page, so we
     //store its page number and mark it allocated
-    pr_current->count++;
+    pr_current = pr_current->next;
+    pr_current->next = (pageRange*)0;
+    pr_current->count = 1;
     pr_current->base_page = temp_page;
     pageTable[temp_page] |= 0x00000800;
     //prints("[kernel] Returning appended page\n");
@@ -459,6 +461,7 @@ void* reserve_physical(unsigned int physBase, unsigned int size) {
                         //and create a new range for the pages which follow
                         new_range = (pageRange*)kmalloc(sizeof(pageRange));
                         new_range->count = 1;
+                        new_range->next = (pageRange*)0;
 
                         //Look for a free page
                         for(k = 0xB00; k < maxPages; k++) {
