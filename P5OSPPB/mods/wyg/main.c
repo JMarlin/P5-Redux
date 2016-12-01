@@ -1640,6 +1640,16 @@ void screenThread() {
     while(1) {
 
         setCursor(0, 0);
+
+        if(back_buffer == 0xB1C000) {
+ 
+            
+            drawStr("BAD POINTER");
+            while(1);
+        }
+
+        setCursor(0, 0);
+        setColor(RGB(255, 0, 0));
         drawBitmap(back_buffer);
         sleep(20);
     }
