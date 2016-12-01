@@ -1494,6 +1494,10 @@ process* makeThread(process* parent, void* entry_point) {
         new_page->next = parent->root_page;
  
         //Update the old entry 
+        //NEED TO DOUBLE-CHECK THIS, this may not always work so easily
+        //because, while somewhat likely, it is not at all guaranteed that
+        //both of the first two pages of a process (stack+1st app page)
+        //will always be contiguous in physical RAM
         parent->root_page->count--;
         parent->root_page->base_page++;
         
@@ -1516,6 +1520,9 @@ process* makeThread(process* parent, void* entry_point) {
     //Mark the cloned stack page in-use
     pageTable[ret_proc->root_page->base_page] |= 0x00000800;
     ret_proc->root_page->next = parent->root_page->next;
+    prints("New thread next ptr = ");
+    printHexDword(ret_proc->root_page->next);
+    pchar('\n');
 
     //Copy the old stack into the new stack to preserve sanity
     stack = (unsigned char*)0xB00000;
