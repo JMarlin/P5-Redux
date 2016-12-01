@@ -1645,6 +1645,7 @@ void screenThread() {
  
             
             drawStr("BAD POINTER");
+            prints("BAD POINTER");
             while(1);
         }
 
