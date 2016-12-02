@@ -155,13 +155,13 @@ void* memcpy(void* old_address, void* new_address, int count) {
 	//count
 
 	__asm__ ( 
-		"movl %0, %ecx \n\t"
-		"movl %1, %esi \n\t"
-		"movl %2, %edi \n\t"
-		"movl %ds, $es \n\t"
-		"shrl $2, %ecx \n\t"
-		"andl $0xFFFFFFFC, %esi \n\t"
-		"andl $0xFFFFFFFC, %edi \n\t"
+		"movl %0, %%ecx \n\t"
+		"movl %1, %%esi \n\t"
+		"movl %2, %%edi \n\t"
+		"movl %%ds, %%es \n\t"
+		"shrl $2, %%ecx \n\t"
+		"andl $0xFFFFFFFC, %%esi \n\t"
+		"andl $0xFFFFFFFC, %%edi \n\t"
 		"rep movsl   \n\t" : : "r"(count), "r"(old_address), "r"(new_address));
 }
 
