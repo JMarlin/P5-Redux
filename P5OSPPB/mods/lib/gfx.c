@@ -127,7 +127,7 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     //cmd_printDecimal(bufsz >> 12);
     //cmd_prints(" pages of shared memory...");
     
-    if(!(return_bmp = (bitmap*)getSharedPages(bufsz >> 12)))
+    if(!(return_bmp = (bitmap*)getSharedPages((bufsz >> 12) + 1)))
         return (bitmap*)0;
     
     //cmd_prints("Done (");
