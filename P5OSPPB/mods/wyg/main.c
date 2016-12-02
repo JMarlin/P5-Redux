@@ -318,17 +318,9 @@ void drawBmpRect(window* win, Rect* r) {
 
     for(y = r->top; y <= r->bottom && y < root_window->h; y++) {
 
-        for(x = r->left; x <= r->right && x < root_window->w; x++) {
-
-            //printDecimal(x);
-            //prints(",");
-            //printDecimal(y);
-            //prints(",");
-            //printDecimal(back_buffer->width);
-            //prints("\n");
-            tmp = win->context->data[((y - win->y) * win->w) + (x - win->x)];
-            back_buffer->data[(y * back_buffer->width) + x] = tmp;
-        }
+        memcpy(&win->context->data[((y - win->y) * win->w) + (r->left - win->x)], 
+               &back_buffer->data[(y * back_buffer->width)],
+               back_buffer->width);
     }
 
     //draw_time += getElapsedMs() - draw_ta; 

@@ -148,6 +148,20 @@ void free(void* address) {
 	to_delete->next->prev = to_delete->prev;
 }
 
+void* memcpy(void* old_address, void* new_address, int count) {
+
+    //NOTE: Current form assumes a transfer of longs on long 
+	//boundaries, needs to be updated to conform to start and
+	//count
+
+	__asm__ volatile ( 
+		"movl %ds, $es"
+		"shrl $2, %0 \n\t"
+		"andl $0xFFFFFFFC, %1 \n\t"
+		"andl $0xFFFFFFFC, %2 \n\t"
+		"rep movsl   \n\t" : : "c"(count), "si"(old_address), "di"(new_address));
+}
+
 void* realloc(void* old_address, unsigned int byte_count) {
 	
 	int i;
