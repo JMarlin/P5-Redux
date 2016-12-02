@@ -280,7 +280,7 @@ void* allocate_shared_pages(unsigned int count) {
         return (void*)temp_pages;
 
     prints("[asps: ");
-    printHexDword(temp_page);
+    printHexDword(temp_pages);
     prints("]\n");
 
     //Identity map the pages, global use, and mark them in use
