@@ -148,7 +148,7 @@ void free(void* address) {
 	to_delete->next->prev = to_delete->prev;
 }
 
-void* memcpy(void* old_address, void* new_address, int count) {
+void* memcpy(void* old_address, void* new_address, unsigned long count) {
 
     //NOTE: Current form assumes a transfer of longs on long 
 	//boundaries, needs to be updated to conform to start and
