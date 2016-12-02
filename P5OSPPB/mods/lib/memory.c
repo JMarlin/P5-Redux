@@ -159,7 +159,7 @@ void* memcpy(void* old_address, void* new_address, int count) {
 		"movl %%ecx, %%esi \n\t"
 		"movl %2, %%ecx \n\t"
 		"movl %%ecx, %%edi \n\t"
-		"movl %0, %ecx \n\t"
+		"movl %0, %%ecx \n\t"
 		"movl %%ds, %%es \n\t"
 		"shrl $2, %%ecx \n\t"
 		"andl $0xFFFFFFFC, %%esi \n\t"
