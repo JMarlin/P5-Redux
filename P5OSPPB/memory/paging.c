@@ -279,6 +279,10 @@ void* allocate_shared_pages(unsigned int count) {
     if(!temp_pages)
         return (void*)temp_pages;
 
+    prints("[asps: ");
+    printHexDword(temp_page);
+    prints("]\n");
+
     //Identity map the pages, global use, and mark them in use
     for(i = temp_pages; i < temp_pages + count; i++) 
         pageTable[i] |= 0x800;
@@ -295,6 +299,10 @@ void* allocate_shared_page(void) {
 
     if(!temp_page)
         return (void*)temp_page;
+
+    prints("[asp: ");
+    printHexDword(temp_page);
+    prints("]\n");
 
     //Identity map the pages, global use, and mark them in use
     pageTable[temp_page] |= 0x800;
