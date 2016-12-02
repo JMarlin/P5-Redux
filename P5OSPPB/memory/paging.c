@@ -315,7 +315,7 @@ int append_page(pageRange* pr_base) {
         return (total_count + pr_current->count) << 12;
     }
 
-    offset =  pr_base->base_page + pr_base->count;
+    offset =  pr_current->base_page + pr_current->count;
 
     //The physical page immediately following the last
     //allocated page is free, so we can go ahead and
@@ -366,8 +366,6 @@ int append_page(pageRange* pr_base) {
     //prints("[kernel] Marking new page allocated\n");
     //Otherwise, we were able to successfully find a free page, so we
     //store its page number and mark it allocated
-    if((temp_page = find_free_page()) < 1)
-        return 0;
 
     pr_current = pr_current->next;
     pr_current->next = (pageRange*)0;
