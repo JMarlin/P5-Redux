@@ -155,11 +155,14 @@ void* memcpy(void* old_address, void* new_address, int count) {
 	//count
 
 	__asm__ ( 
-		"movl %ds, $es"
-		"shrl $2, %0 \n\t"
-		"andl $0xFFFFFFFC, %1 \n\t"
-		"andl $0xFFFFFFFC, %2 \n\t"
-		"rep movsl   \n\t" : : "c"(count), "si"(old_address), "di"(new_address));
+		"movl %0, %ecx \n\t"
+		"movl %1, %esi \n\t"
+		"movl %2, %edi \n\t"
+		"movl %ds, $es \n\t"
+		"shrl $2, %ecx \n\t"
+		"andl $0xFFFFFFFC, %esi \n\t"
+		"andl $0xFFFFFFFC, %edi \n\t"
+		"rep movsl   \n\t" : : "r"(count), "r"(old_address), "r"(new_address));
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
