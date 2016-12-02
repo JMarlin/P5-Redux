@@ -320,7 +320,7 @@ void drawBmpRect(window* win, Rect* r) {
 
         memcpy(&win->context->data[((y - win->y) * win->w) + (r->left - win->x)], 
                &back_buffer->data[(y * back_buffer->width)],
-               back_buffer->width);
+               back_buffer->width * 4);
     }
 
     //draw_time += getElapsedMs() - draw_ta; 
