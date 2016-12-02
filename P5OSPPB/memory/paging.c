@@ -204,6 +204,36 @@ unsigned int find_free_page() {
 }
 
 //Find the next availible set of contiguous pages of the required count
+//This version finds free pages from the END of memory as a quick and dirty
+//fix for 
+unsigned int find_free_pages_backwards(unsigned int count) {
+
+    unsigned int start_page = (unsigned int)((maxRAM >> 12) - 1);
+    unsigned int base_page = start_page;
+    unsigned int i, j;
+
+    for(i = start_page; i > 0xB00; i--) {
+
+        //Check to make sure the page is not already alocated and/or special
+        if(!(pageTable[i] & 0xC00)) {
+            
+            base_page = i;
+               
+            for(j = i; j > ((i - count) - 1); j--) {
+                
+                if((pageTable[j] & 0xC00) || j == 0xB00) 
+                    break;
+            }
+            
+            if(j == (i - count) - 1)
+                return base_page;   
+        }
+    }
+
+    return 0;
+}
+
+//Find the next availible set of contiguous pages of the required count
 unsigned int find_free_pages(unsigned int count) {
 
     unsigned long maxPages = maxRAM >> 12;
@@ -244,7 +274,7 @@ unsigned int find_free_pages(unsigned int count) {
 void* allocate_shared_pages(unsigned int count) {
 
     int i;
-    unsigned int temp_pages = find_free_pages(count);
+    unsigned int temp_pages = find_free_pages_backwards(count);
 
     if(!temp_pages)
         return (void*)temp_pages;
@@ -261,7 +291,7 @@ void* allocate_shared_pages(unsigned int count) {
 
 void* allocate_shared_page(void) {
 
-    unsigned int temp_page = find_free_page();
+    unsigned int temp_page = find_free_page_backwards();
 
     if(!temp_page)
         return (void*)temp_page;
