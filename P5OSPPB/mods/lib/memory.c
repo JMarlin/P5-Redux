@@ -163,7 +163,7 @@ void* memcpy(void* old_address, void* new_address, int count) {
 		"shrl $2, %%ecx \n\t"
 		"andl $0xFFFFFFFC, %%esi \n\t"
 		"andl $0xFFFFFFFC, %%edi \n\t"
-		"rep movsl   \n\t" : : "r"(count), "r"(old_address), "r"(new_address));
+		"rep movsl   \n\t" : : "r"(count), "r"(old_address), "r"(new_address) : "%esi", "%edi", "%es", "%ecx");
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
