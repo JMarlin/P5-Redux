@@ -154,7 +154,7 @@ void* memcpy(void* old_address, void* new_address, int count) {
 	//boundaries, needs to be updated to conform to start and
 	//count
 
-	__asm__ volatile ( 
+	__asm__ ( 
 		"movl %ds, $es"
 		"shrl $2, %0 \n\t"
 		"andl $0xFFFFFFFC, %1 \n\t"
