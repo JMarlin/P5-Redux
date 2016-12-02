@@ -279,9 +279,9 @@ void* allocate_shared_pages(unsigned int count) {
     if(!temp_pages)
         return (void*)temp_pages;
 
-    prints("[asps: ");
-    printHexDword(temp_pages);
-    prints("]\n");
+//    prints("[asps: ");
+//    printHexDword(temp_pages);
+//    prints("]\n");
 
     //Identity map the pages, global use, and mark them in use
     for(i = temp_pages; i < temp_pages + count; i++) 
@@ -300,9 +300,9 @@ void* allocate_shared_page(void) {
     if(!temp_page)
         return (void*)temp_page;
 
-    prints("[asp: ");
-    printHexDword(temp_page);
-    prints("]\n");
+//    prints("[asp: ");
+//    printHexDword(temp_page);
+//    prints("]\n");
 
     //Identity map the pages, global use, and mark them in use
     pageTable[temp_page] |= 0x800;
@@ -343,13 +343,13 @@ int append_page(pageRange* pr_base) {
         pr_current->count++;
         pr_current->base_page = temp_page;
         pageTable[temp_page] |= 0x00000800;
-        prints("[ap:CRE | ");
-        printHexDword(pr_current);
-        prints(" @ ");
-        printHexDword(pr_current->base_page * 0x1000);
-        prints("-");
-        printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
-        prints("]\n");
+//      prints("[ap:CRE | ");
+//      printHexDword(pr_current);
+//      prints(" @ ");
+//      printHexDword(pr_current->base_page * 0x1000);
+//      prints("-");
+//      printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
+//      prints("]\n");
         return (total_count + pr_current->count) << 12;
     }
 
@@ -370,13 +370,13 @@ int append_page(pageRange* pr_base) {
         //claiming this page
         pr_current->count++;
         pageTable[offset] |= 0x00000800;
-        prints("[ap:EXT | ");
-        printHexDword(pr_current);
-        prints(" @ ");
-        printHexDword(pr_current->base_page * 0x1000);
-        prints("-");
-        printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
-        prints("]\n");
+//      prints("[ap:EXT | ");
+//      printHexDword(pr_current);
+//      prints(" @ ");
+//      printHexDword(pr_current->base_page * 0x1000);
+//      prints("-");
+//      printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
+//      prints("]\n");
         return (total_count + pr_current->count) << 12;
     }
 
@@ -411,13 +411,13 @@ int append_page(pageRange* pr_base) {
     pr_current->base_page = temp_page;
     pageTable[temp_page] |= 0x00000800;
     //prints("[kernel] Returning appended page\n");
-    prints("[ap:APP | ");
-    printHexDword(pr_current);
-    prints(" @ ");
-    printHexDword(pr_current->base_page * 0x1000);
-    prints("-");
-    printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
-    prints("]\n");
+//  prints("[ap:APP | ");
+//  printHexDword(pr_current);
+//  prints(" @ ");
+//  printHexDword(pr_current->base_page * 0x1000);
+//  prints("-");
+//  printHexDword(((pr_current->base_page + pr_current->count) * 0x1000) - 1);
+//  prints("]\n");
     return (total_count + pr_current->count) << 12;
 }
 

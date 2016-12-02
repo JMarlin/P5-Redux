@@ -318,7 +318,7 @@ void drawBmpRect(window* win, Rect* r) {
 
     for(y = r->top; y <= r->bottom && y < root_window->h; y++) {
 
-        for(x = r->left; x < r->right && x < root_window->w; x++) {
+        for(x = r->left; x <= r->right && x < root_window->w; x++) {
 
             //printDecimal(x);
             //prints(",");
