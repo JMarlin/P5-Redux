@@ -10,6 +10,12 @@ typedef struct memblock {
 
 memblock* root_block = (memblock*)0;
 
+extern unsigned int _mc_src;
+extern unsigned int _mc_dst;
+extern unsigned int _mc_cnt;
+
+extern void _asm_memcpy(void);
+
 void (*log_start)(void) = 0;
 void (*log_end)(void) = 0;
 
@@ -154,17 +160,10 @@ void* memcpy(void* old_address, void* new_address, unsigned long count) {
 	//boundaries, needs to be updated to conform to start and
 	//count
 
-	__asm__ __volatile__ ( 
-		"movl %1, %%ecx \n\t"
-		"movl %%ecx, %%esi \n\t"
-		"movl %2, %%ecx \n\t"
-		"movl %%ecx, %%edi \n\t"
-		"movl %0, %%ecx \n\t"
-		"movl %%ds, %%es \n\t"
-		"shrl $2, %%ecx \n\t"
-		"andl $0xFFFFFFFC, %%esi \n\t"
-		"andl $0xFFFFFFFC, %%edi \n\t"
-		"rep movsl   \n\t" : : "r"(count), "r"(old_address), "r"(new_address) : "%esi", "%edi", "%ecx");
+	_mc_src = (unsigned int)old_address;
+	_mc_dst = (unsigned int)new_address;
+	_mc_cnt = (unsigned int)count;
+    _asm_memcpy();
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
