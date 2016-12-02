@@ -219,14 +219,14 @@ unsigned int find_free_pages_backwards(unsigned int count) {
             
             base_page = i;
                
-            for(j = i; j > ((i - count) - 1); j--) {
+            for(j = i; j > ((i - count) + 1); j--) {
                 
                 if((pageTable[j] & 0xC00) || j == 0xB00) 
                     break;
             }
             
-            if(j == (i - count) - 1)
-                return base_page;   
+            if(j == ((i - count) + 1))
+                return j + 1;   
         }
     }
 
