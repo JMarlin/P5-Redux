@@ -291,7 +291,7 @@ void* allocate_shared_pages(unsigned int count) {
 
 void* allocate_shared_page(void) {
 
-    unsigned int temp_page = find_free_page_backwards();
+    unsigned int temp_page = find_free_pages_backwards(1);
 
     if(!temp_page)
         return (void*)temp_page;
