@@ -546,10 +546,10 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
 
     if(curMode.bpp == 32 && is_linear) {
 
-        for(yo = (bmp->top < 0 ? 0 : bmp->top); yo <= bmp->height && yo < curMode.height; yo++) {
+        for(yo = (bmp->top < 0 ? 0 : bmp->top); yo <= bmp->height && yo < curMode.Yres; yo++) {
 
             memcpy(&bmp->data[(yo * bmp->width) + bmp->left],
-                   &v[((yo + y) * curMode.width) + x],
+                   &v[((yo + y) * curMode.Xres) + x],
                    (bmp->right - bmp->left + 1) * 4);
         }
     } else {
