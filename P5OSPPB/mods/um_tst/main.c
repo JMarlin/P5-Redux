@@ -254,6 +254,8 @@ void main(void) {
 
     prints("\nUSR.MOD started.\n");
 
+    while(1);
+
     if(!initWYG()) {
         
         prints("usr.mod could not init WYG.");
