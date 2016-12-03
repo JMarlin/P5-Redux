@@ -221,13 +221,15 @@ void main(void) {
 
     back_buf = newBitmap(mode->width, mode->height);
 
+    
+
     //Would realistically be on a vsync interrupt
     if(!startThread())
         screenThread();
 
     //Fill this in with the info particular to your project
     Context* context = Context_new(0, 0, 0);
-    context->buffer = (unsigned long*)back_buf;
+    context->buffer = (unsigned long*)back_buf->data;
     context->width = mode->width;
     context->height = mode->height;
 
@@ -252,8 +254,6 @@ void main(void) {
 
     //Initial draw
     Window_paint((Window*)desktop, (List*)0, 1);
-
-    while(1);
 
     while(1) {
 
