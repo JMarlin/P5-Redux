@@ -1,6 +1,7 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
 #include "../include/gfx.h"
+#include "../include/memory.h"
 #include "font.h" //Should eventually make this into a binary font file loadable via the filesystem
 
 void getModes(void);
@@ -543,16 +544,27 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
     //then we should use some inline assembly to do a faster REP MOVSD directly 
     //to video RAM. Should significantly improve refresh time
 
-    for(yo = bmp->top; yo <= bmp->bottom; yo++) {
+    if(curMode.bpp == 32 && is_linear) {
 
-        for(xo = bmp->left; xo <= bmp->right; xo++) {
- 
-            color = bmp->data[yo * bmp->width + xo];
+        for(yo = (bmp->top < 0 ? 0 : bmp->top); yo <= bmp-> && yo < curMode.height; yo++) {
 
-            if(bmp->mask_color && bmp->mask_color == color)
-                continue; 
- 
-            plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
+            memcpy(&bmp->data[(yo * bmp->width) + bmp->left],
+                   &v[((yo + y) * curMode.width) + x],
+                   (bmp->right - bmp->left + 1) * 4);
+        }
+    } else {
+
+        for(yo = bmp->top; yo <= bmp->bottom; yo++) {
+
+            for(xo = bmp->left; xo <= bmp->right; xo++) {
+    
+                color = bmp->data[yo * bmp->width + xo];
+
+                if(bmp->mask_color && bmp->mask_color == color)
+                    continue; 
+    
+                plotPixel(x + xo, y + yo, bmp->data[yo * bmp->width + xo]);
+            }
         }
     }
 }
