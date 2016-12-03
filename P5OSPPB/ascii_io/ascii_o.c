@@ -1,6 +1,8 @@
 #include "ascii_o.h"
 #include "../core/util.h"
 #include "serial.h"
+#include "../process/process.h"
+#include "../core/syscall.h"
 
 #ifdef KPRINTS_ON
 #define LINECOUNT 24

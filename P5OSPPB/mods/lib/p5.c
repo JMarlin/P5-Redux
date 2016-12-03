@@ -165,9 +165,9 @@ unsigned int startV86(unsigned char* path) {
     return temp_msg.payload;
 }
 
-int startThread(void* entry_point) {
+int startThread() {
     
-    postMessage(0, KS_START_THREAD, (unsigned int)entry_point);
+    postMessage(0, KS_START_THREAD, 0);
     getMessageFrom(&temp_msg, 0, KS_START_THREAD);
     
     return temp_msg.payload;

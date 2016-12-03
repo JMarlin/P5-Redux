@@ -57,5 +57,7 @@ unsigned int getStringLength(unsigned int src);
 void getString(unsigned int src, unsigned char* outstring, unsigned int count);
 void installExceptionHandler(void* handler);
 unsigned int getElapsedMs(void);
+unsigned int sleep(unsigned int ms);
+int startThread(void);
 
 #endif //P5_H

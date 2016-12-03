@@ -3,6 +3,7 @@
 #include "process.h"
 #include "../ascii_io/ascii_o.h"
 #include "../ascii_io/ascii_i.h"
+#include "../ascii_io/keyboard.h"
 #include "../core/syscall.h"
 #include "../core/util.h"
 #include "../core/expt.h"
@@ -1425,7 +1426,7 @@ unsigned int exec_process(unsigned char* path, char isSuper) {
     return proc->id;
 }
 
-process* makeThread(process* parent, void* entry_point) {
+process* makeThread(process* parent) {
     
     int i;
     process* ret_proc;

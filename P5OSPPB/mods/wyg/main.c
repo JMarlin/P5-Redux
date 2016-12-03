@@ -295,6 +295,7 @@ void drawBmpRect(window* win, Rect* r) {
 
     int x, y;
     unsigned int tmp;
+    int width = (r->right - r->left) + 1;
 
 #ifdef RECT_TEST 
   
@@ -320,7 +321,7 @@ void drawBmpRect(window* win, Rect* r) {
 
         memcpy(&win->context->data[((y - win->y) * win->w) + (r->left - win->x)], 
                &back_buffer->data[(y * back_buffer->width) + (r->left)],
-               (win->w > back_buffer->width ? back_buffer->width : win->w) * 4);
+               (width > back_buffer->width ? back_buffer->width : width) * 4);
     }
 
     //draw_time += getElapsedMs() - draw_ta; 

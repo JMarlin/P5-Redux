@@ -787,12 +787,12 @@ void mouseMessageThread() {
 	//terminate();
 }
 
-inline int mouse_has_data() {
+int mouse_has_data() {
 
     return (inb(KBC_SREG) & 1) == 1;
 }
 
-inline void mouse_wait(unsigned char a_type) //unsigned char
+void mouse_wait(unsigned char a_type) //unsigned char
 {
   unsigned int _time_out=100000; //unsigned int
   if(a_type==0)
@@ -819,7 +819,7 @@ inline void mouse_wait(unsigned char a_type) //unsigned char
   }
 }
 
-inline void mouse_write(unsigned char a_write) //unsigned char
+void mouse_write(unsigned char a_write) //unsigned char
 {
   //Wait to be able to send a command
   mouse_wait(1);

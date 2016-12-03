@@ -106,8 +106,9 @@ int request_new_page(process* proc);
 void next_process();
 void prep_next_process();
 void returnToProcess(process* proc);
-process* makeThread(process* parent, void* entry_point);
+process* makeThread(process* parent);
 void force_into_exception(process* proc);
+void resetProcessCounter(void);
 
 extern void _switchToKernel(void);
 extern void _returnToProc(void);

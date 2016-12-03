@@ -32,6 +32,7 @@ unsigned int createWindow(unsigned short width, unsigned short height, unsigned 
 struct bitmap* getWindowContext(unsigned int handle);
 void moveHandle(unsigned int handle, unsigned short x, unsigned short y);
 void installWindow(unsigned int child_handle, unsigned int parent_handle);
+void moveWindow(unsigned int handle, unsigned short x, unsigned short y);
 void showWindow(unsigned int handle);
 void hideWindow(unsigned int handle);
 void repaintWindow(unsigned int handle);

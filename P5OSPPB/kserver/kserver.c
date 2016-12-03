@@ -93,7 +93,7 @@ void post_to_kern(unsigned int source, unsigned int command, unsigned int payloa
             if(i == 256)
                 return;
             
-            new_proc = makeThread(&procTable[i], (void*)payload);
+            new_proc = makeThread(&procTable[i]);
             passMessage(0, source, KS_START_THREAD, (unsigned int)new_proc);
             
             //If process creation was successful, also message the client
