@@ -72,6 +72,9 @@ bitmap* old_mouse_bkg;
 short mouse_x;
 short mouse_y;
 unsigned char mouse_buffer_ok = 0;
+unsigned int alloc_ta, alloc_time;
+unsigned int draw_ta, draw_time;
+bitmap* back_buffer;
 
 /*!!!!!!!!!! DEBUG SHIT !!!!!!!!!
 unsigned char cmd_x;
@@ -290,6 +293,10 @@ void scans(int c, char* b) {
 //#define RECT_TEST 1
 void drawBmpRect(window* win, Rect* r) {
 
+    int x, y;
+    unsigned int tmp;
+    int width = (r->right - r->left) + 1;
+
 #ifdef RECT_TEST 
   
     setColor(RGB(0, 255, 0));
@@ -297,6 +304,8 @@ void drawBmpRect(window* win, Rect* r) {
     drawRect(r->right - r->left, r->bottom - r->top);
     
 #else     
+
+    //draw_ta = getElapsedMs();
  
     //Adjust the rectangle coordinate from global space to window space 
     win->context->top = r->top - win->y;
@@ -305,8 +314,18 @@ void drawBmpRect(window* win, Rect* r) {
     win->context->right = r->right - win->x;   
     
     //Do the blit
-    setCursor(win->x, win->y);
-    drawBitmap(win->context);
+    //setCursor(win->x, win->y);
+    //drawBitmap(win->context);
+
+    for(y = r->top; y <= r->bottom && y < root_window->h; y++) {
+
+        memcpy(&win->context->data[((y - win->y) * win->w) + (r->left - win->x)], 
+               &back_buffer->data[(y * back_buffer->width) + (r->left)],
+               (width > back_buffer->width ? back_buffer->width : width) * 4);
+    }
+
+    //draw_time += getElapsedMs() - draw_ta; 
+
 #endif //RECT_TEST
 }
 
@@ -1599,6 +1618,50 @@ CD, CD, CD, CD, CD, CD, CA, CB, CA, CD, CD,
 CD, CD, CD, CD, CD, CD, CD, CA, CA, CD, CD 
 };
 
+void malloc_start(void) {
+
+    alloc_ta = getElapsedMs();
+}
+
+void malloc_end(void) {
+
+    alloc_time += getElapsedMs() - alloc_ta;
+}
+
+void screenThread() {
+
+    while(1) {
+
+/*
+        if(back_buffer == 0xB1C000) {
+ 
+            setCursor(0, 0);
+            setColor(RGB(255, 0, 0));
+            drawStr("BAD POINTER");
+            prints("BAD POINTER");
+            while(1);
+        }
+*/
+        setCursor(0, 0);
+        drawBitmap(back_buffer);
+        sleep(20);
+    }
+}
+
+void statusThread() {
+
+    while(1) {
+
+        draw_time = 0;
+        alloc_time = 0;
+        sleep(5000);
+        printDecimal(alloc_time);
+        prints("a/");
+        printDecimal(draw_time);
+        prints("d/5000ms\n");
+    }
+}
+
 #ifdef HARNESS_TEST
 void WYG_main(void) {
 #else 
@@ -1617,6 +1680,12 @@ void main(void) {
 
 #ifndef HARNESS_TEST
 
+/*
+    enable_debug(malloc_start, malloc_end);
+
+    if(!startThread())
+        statusThread();
+*/
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
@@ -1694,6 +1763,12 @@ void main(void) {
         terminate();
     }
     
+    back_buffer = newBitmap(mode->width, mode->height);
+
+    //Would realistically be on a vsync interrupt
+    if(!startThread())
+        screenThread();
+
 	//cmd_init(mode->width, mode->height);
 	
     if(!(window_list = List_new())) {
