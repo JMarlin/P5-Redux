@@ -7,7 +7,7 @@ Window* WYG_textbox_constructor(unsigned int flags);
 
 //Global data for window creation purposes
 const unsigned char widget_class_count = 3;
-const (Window* (*widget_class_constructor)(unsigned int))[] = {
+const Window* (*widget_class_constructor)(unsigned int)) = {
     WYG_window_constructor,
     WYG_button_constructor,
     WYG_textbox_constructor
@@ -248,8 +248,6 @@ void WYG_destroy_window(Desktop* desktop, unsigned int window_id) {
 
 //Return a packed version of WYG's window border widths
 unsigned int WYG_get_frame_dims() {
-
-    top left bottom right
 
     return ((WIN_TITLEHEIGHT & 0xFF) << 24) | ((WIN_BORDERWIDTH & 0xFF) << 16) |
            ((WIN_BORDERWIDTH & 0xFF) << 8) | (WIN_BORDERWIDTH & 0xFF);
