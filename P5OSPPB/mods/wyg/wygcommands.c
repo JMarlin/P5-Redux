@@ -148,7 +148,7 @@ void WYG_install_window(Desktop* desktop, unsigned int child_id, unsigned int pa
     Window* parent;
 
     //Try to find the windows in the window tree of the passed desktop
-    window = WYG_get_window_from_id((Window*)desktop, child_id);
+    child = WYG_get_window_from_id((Window*)desktop, child_id);
     parent = WYG_get_window_from_id((Window*)desktop, parent_id);
 
     //If we couldn't find the windows, fail
