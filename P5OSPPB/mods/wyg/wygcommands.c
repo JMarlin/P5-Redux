@@ -7,7 +7,7 @@ Window* WYG_textbox_constructor(unsigned int flags);
 
 //Global data for window creation purposes
 const unsigned char widget_class_count = 3;
-const Window* (*widget_class_constructor)(unsigned int) widget_class_constructors[] = {
+const (Window* (*widget_class_constructor)(unsigned int))[] = {
     WYG_window_constructor,
     WYG_button_constructor,
     WYG_textbox_constructor
@@ -59,7 +59,7 @@ unsigned int WYG_create_window(Desktop* desktop, unsigned int flags) {
         return 0;
 
     //Pass the flags, without the type portion, to the constructor of the specified type
-    window = widget_class_constructors[widget_type](flags & 0xFFFFFF);
+    window = widget_class_constructor[widget_type](flags & 0xFFFFFF);
 
     //If the constructor failed, return a failure
     if(!window)
@@ -78,7 +78,7 @@ unsigned int WYG_get_window_context_id(Desktop* desktop, unsigned int window_id)
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -97,7 +97,7 @@ unsigned int WYG_get_window_dimensions(Desktop* desktop, unsigned int window_id)
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -113,7 +113,7 @@ unsigned int WYG_get_window_location(Desktop* desktop, unsigned int window_id) {
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -129,7 +129,7 @@ void WYG_move_window(Desktop* desktop, unsigned int window_id, unsigned int posi
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -147,8 +147,8 @@ void WYG_install_window(Desktop* desktop, unsigned int child_id, unsigned int pa
     Window* parent;
 
     //Try to find the windows in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, child_id);
-    parent = WYG_get_window_from_id(desktop, parent_id);
+    window = WYG_get_window_from_id((Window*)desktop, child_id);
+    parent = WYG_get_window_from_id((Window*)desktop, parent_id);
 
     //If we couldn't find the windows, fail
     if(!child || !parent)
@@ -168,7 +168,7 @@ void WYG_show_window(Desktop* desktop, unsigned int window_id) {
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -184,7 +184,7 @@ void WYG_raise_window(Desktop* desktop, unsigned int window_id) {
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -202,7 +202,7 @@ void WYG_invalidate_window(Desktop* desktop, unsigned int window_id) {
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -220,7 +220,7 @@ void WYG_set_window_title(Desktop* desktop, unsigned int window_id, char* new_ti
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -236,7 +236,7 @@ void WYG_destroy_window(Desktop* desktop, unsigned int window_id) {
     Window* window;
 
     //Try to find the window in the window tree of the passed desktop
-    window = WYG_get_window_from_id(desktop, window_id);
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
 
     //If we couldn't find the window, fail
     if(!window)
@@ -253,4 +253,20 @@ unsigned int WYG_get_frame_dims() {
 
     return ((WIN_TITLEHEIGHT & 0xFF) << 24) | ((WIN_BORDERWIDTH & 0xFF) << 16) |
            ((WIN_BORDERWIDTH & 0xFF) << 8) | (WIN_BORDERWIDTH & 0xFF);
+}
+
+//Class constructors
+Window *WYG_window_constructor(unsigned int flags) {
+
+    return (Window*)0;
+}
+
+Window *WYG_button_constructor(unsigned int flags) {
+
+    return (Window*)0;
+}
+    
+Window *WYG_textbox_constructor(unsigned int flags) {
+
+    return (Window*)0;
 }
