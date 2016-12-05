@@ -228,6 +228,9 @@ void main(void) {
     mouse_x = desktop->window.width / 2 - 1;
     mouse_y = desktop->window.height / 2 - 1;
 
+    //Do an initial desktop paint
+    Window_paint((Window*)desktop, (List*)0, 1);
+
     //Main message loop
     while(1) {
 
