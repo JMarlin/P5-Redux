@@ -850,7 +850,28 @@ void Window_insert_child(Window* window, Window* child) {
     child->parent = window;
     List_add(window->children, (Object*)child);   
     Window_update_context(child, window->context);
-    Window_raise(child, 1);
+    //Window_raise(child, 1); //Don't necessarily want to show the child
+                              //as soon as it's installed
+}
+
+void Window_remove_child(Window* window, Window* child) {
+
+    int i;
+
+    //Find the child's location in the parent list
+    for(i = 0; i < window->children->count; i++)
+        if(child == (Window*)List_get_at(window->children, i))
+            break;
+    
+    //If it wasn't found, exit early
+    if(i == window->children->count)
+        return;
+
+    //Disassociate the child and parent
+    Window_hide(child);
+    List_remove_at(window->children, i);
+    child->parent = (Window*)0;
+    Window_update_context(child, (Context*)0);   
 }
 
 //A method to automatically create a new window in the provided parent window

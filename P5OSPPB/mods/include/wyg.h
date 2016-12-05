@@ -25,6 +25,10 @@
 #define WIN_VISIBLE 4
 #define WIN_NODRAG 8
 
+#define WIDGET_TYPE_WINDOW  0
+#define WIDGET_TYPE_BUTTON  1
+#define WIDGET_TYPE_TEXTBOX 2
+
 struct bitmap;
 
 unsigned int initWYG(void);

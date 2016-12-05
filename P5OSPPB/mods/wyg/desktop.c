@@ -83,6 +83,11 @@ void Desktop_paint_handler(Window* desktop_window) {
                       0, desktop_window->height - 12, 0xFFFFFFFF);
 }
 
+Window* Desktop_park_window(Desktop* desktop, Window* window) {
+
+
+}
+
 //Our overload of the Window_process_mouse function used to capture the screen mouse position 
 void Desktop_process_mouse(Desktop* desktop, uint16_t mouse_x,
                            uint16_t mouse_y, uint8_t mouse_buttons) {

@@ -2,6 +2,7 @@
 #include "desktop.h"
 #include "button.h"
 #include "inttypes.h"
+#include "wygcommands.h"
 #include "../include/p5.h"
 #include "../include/registrar.h"
 #include "../include/gfx.h"
@@ -120,16 +121,6 @@ void screenThread() {
 
     while(1) {
 
-/*
-        if(back_buffer == 0xB1C000) {
- 
-            setCursor(0, 0);
-            setColor(RGB(255, 0, 0));
-            drawStr("BAD POINTER");
-            prints("BAD POINTER");
-            while(1);
-        }
-*/
         setCursor(0, 0);
         drawBitmap(back_buf);
         sleep(20);
@@ -214,15 +205,12 @@ void main(void) {
         postMessage(parent_pid, 0, 0); //Tell the parent we're done registering
         terminate();
     }
-    
-	//cmd_init(mode->width, mode->height);
-	    
+    	    
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
+    //Create backbuffer
     back_buf = newBitmap(mode->width, mode->height);
-
     
-
     //Would realistically be on a vsync interrupt
     if(!startThread())
         screenThread();
@@ -240,94 +228,78 @@ void main(void) {
     mouse_x = desktop->window.width / 2 - 1;
     mouse_y = desktop->window.height / 2 - 1;
 
-    //Sprinkle it with windows 
-    Window_create_window((Window*)desktop, 10, 10, 300, 200, 0);
-    Window* window = Window_create_window((Window*)desktop, 100, 150, 400, 400, 0);
-    Window_create_window((Window*)desktop, 200, 100, 200, 600, 0);
-    
-    //Create and install the button
-    Button* button = Button_new(307, 357, 80, 30);
-    Window_insert_child(window, (Window*)button);
-
-    Button* button2 = Button_new(307, 267, 80, 30);
-    Window_insert_child(window, (Window*)button2);
-
-    //Initial draw
-    Window_paint((Window*)desktop, (List*)0, 1);
-
+    //Main message loop
     while(1) {
 
-        //prints("[WYG] Waiting for message...");
         getMessage(&temp_msg);
-        //prints("got message ");
-         //printDecimal(temp_msg.command);
-        ////pchar('\n');
 
         src_pid = temp_msg.source;
 
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
-			    //cmd_prints("Request to create a new window");
-                postMessage(src_pid, WYG_CREATE_WINDOW, 0);
+                postMessage(src_pid, WYG_CREATE_WINDOW,
+                            WYG_create_window(desktop, temp_msg.payload));
             break;
             
             case WYG_GET_CONTEXT:
-                postMessage(src_pid, WYG_GET_CONTEXT, 0);
+                postMessage(src_pid, WYG_GET_CONTEXT,
+                            WYG_get_window_context_id(desktop, temp_msg.payload));
             break;
             
             case WYG_GET_DIMS:
-                //temp_window = getWindowByHandle(temp_msg.payload);
-                postMessage(src_pid, WYG_GET_DIMS, 0);
+                postMessage(src_pid, WYG_GET_DIMS,
+                            WYG_get_window_dimensions(desktop, temp_msg.payload));
             break;
             
             case WYG_GET_LOCATION:
-                //temp_window = getWindowByHandle(temp_msg.payload);
-                postMessage(src_pid, WYG_GET_LOCATION, 0);
+                postMessage(src_pid, WYG_GET_LOCATION, 
+                            WYG_get_window_location(desktop, temp_msg.payload));
             break;
             
             case WYG_MOVE_WINDOW:
-                //current_handle = temp_msg.payload;
+                current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
-                //moveHandle(current_handle, (temp_msg.payload & 0xFFFF0000) >> 16, temp_msg.payload & 0xFFFF);
+                WYG_move_window(desktop, current_handle, temp_msg.payload);
             break;
 
             case WYG_INSTALL_WINDOW:
-                //current_handle = temp_msg.payload;
+                current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);
-                //installWindow(current_handle, temp_msg.payload);
+                WYG_install_window(desktop, current_handle, temp_msg.payload);
             break;
 
             case WYG_SHOW_WINDOW:
-                //markHandleVisible(temp_msg.payload, 1);
+                WYG_show_window(desktop, temp_msg.payload);
             break;
             
             case WYG_RAISE_WINDOW:
-                //raiseHandle(temp_msg.payload);
+                WYG_raise_window(desktop, temp_msg.payload);
             break;
 
             case WYG_REPAINT_WINDOW:
-                //drawHandle(temp_msg.payload);
+                WYG_invalidate_window(desktop, temp_msg.payload);
                 postMessage(src_pid, WYG_REPAINT_WINDOW, 1);
             break;
 
             case WYG_SET_TITLE:
-                //current_handle = temp_msg.payload;
+                current_handle = temp_msg.payload;
                 postMessage(src_pid, WYG_SET_TITLE, 1);
                 strlen = getStringLength(src_pid);
-                instr = (unsigned char*)malloc(strlen);
+                instr = (char*)malloc(strlen);
                 getString(src_pid, instr, strlen);
+                WYG_set_window_title(desktop, current_handle, instr);
                 free((void*)instr);
-                //setWindowTitle(current_handle, instr);
             break;
             
             case WYG_DESTROY:
-                //destroyHandle(temp_msg.payload);
+                WYG_destroy_window(desktop, temp_msg.payload);
                 postMessage(src_pid, WYG_DESTROY, 1);
             break;
             
             case WYG_GET_FRAME_DIMS:
-                postMessage(src_pid, WYG_GET_FRAME_DIMS, 0);
+                postMessage(src_pid, WYG_GET_FRAME_DIMS,
+                            WYG_get_frame_dims());
             break;
 
             case MOUSE_SEND_UPDATE:
