@@ -16,20 +16,20 @@ unsigned int initWYG(void) {
     return wyg_pid != 0;
 }
 
-unsigned int createWindow(unsigned short width, unsigned short height, unsigned char flags) {
+unsigned int createWindow(unsigned int flags) {
 	
-	postMessage(wyg_pid, WYG_CREATE_WINDOW, ((((unsigned int)width) & 0xFFF ) << 20)  | ((((unsigned int)height) & 0xFFF ) << 8) | (((unsigned int)flags) & 0xFF));
+	postMessage(wyg_pid, WYG_CREATE_WINDOW, flags);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_CREATE_WINDOW);
 	
 	return temp_msg.payload;
 }
 
-struct bitmap* getWindowContext(unsigned int handle) {
+unsigned int getWindowContext(unsigned int handle) {
 	
 	postMessage(wyg_pid, WYG_GET_CONTEXT, handle);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_GET_CONTEXT);
 	
-	return (bitmap*)temp_msg.payload;
+	return temp_msg.payload;
 }
 
 void moveWindow(unsigned int handle, unsigned short x, unsigned short y) {
@@ -100,4 +100,10 @@ void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom
 	(*left) = (unsigned char)((temp_msg.payload >> 16) & 0xFF);
 	(*bottom) = (unsigned char)((temp_msg.payload >> 8) & 0xFF);
 	(*right) = (unsigned char)(temp_msg.payload & 0xFF);
+}
+
+void resizeWindow(unsigned int handle, unsigned short w, unsigned short h) {
+	
+	postMessage(wyg_pid, WYG_RESIZE_WINDOW, handle);
+	postMessage(wyg_pid, WYG_POINT, (((unsigned int)w & 0xFFFF) << 16) | ((unsigned int)h & 0xFFFF));
 }

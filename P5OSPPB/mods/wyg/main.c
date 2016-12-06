@@ -266,6 +266,12 @@ void main(void) {
                 WYG_move_window(desktop, current_handle, temp_msg.payload);
             break;
 
+            case WYG_RESIZE_WINDOW:
+                current_handle = temp_msg.payload;
+                getMessageFrom(&temp_msg, src_pid, WYG_POINT);
+                WYG_resize_window(desktop, current_handle, temp_msg.payload);
+            break;
+
             case WYG_INSTALL_WINDOW:
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);

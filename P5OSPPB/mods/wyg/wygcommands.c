@@ -140,6 +140,22 @@ void WYG_move_window(Desktop* desktop, unsigned int window_id, unsigned int posi
     Window_move(window, (position_data >> 16) & 0xFFFF, position_data & 0xFFFF);
 }
 
+//Find the specified window and update its width and height as given in the packed uint32
+void WYG_resize_window(Desktop* desktop, unsigned int window_id, unsigned int size_data) {
+
+    Window* window;
+
+    //Try to find the window in the window tree of the passed desktop
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
+
+    //If we couldn't find the window, fail
+    if(!window)
+        return;
+
+    //Otherwise, move the window
+    Window_resize(window, (position_data >> 16) & 0xFFFF, position_data & 0xFFFF);
+}
+
 //Find the specified window, remove it from its parent if it has one set, then find the 
 //specified parent window and install it into that new parent 
 void WYG_install_window(Desktop* desktop, unsigned int child_id, unsigned int parent_id) {
@@ -257,7 +273,7 @@ unsigned int WYG_get_frame_dims() {
 //Class constructors
 Window *WYG_window_constructor(unsigned int flags) {
 
-    return (Window*)0;
+    return Window_new(0, 0, 300, 300, (uint16_t)(flags & 0xFFFF), (Context*)0);
 }
 
 Window *WYG_button_constructor(unsigned int flags) {

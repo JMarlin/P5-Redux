@@ -17,17 +17,20 @@
 #define WYG_GET_LOCATION   (WYG_MSG_CLASS | 12)
 #define WYG_DESTROY        (WYG_MSG_CLASS | 13)
 #define WYG_GET_FRAME_DIMS (WYG_MSG_CLASS | 14)
+#define WYG_RESIZE_WINDOW  (WYG_MSG_CLASS | 15)
 
 #define ROOT_WINDOW 1
 
-#define WIN_UNDECORATED 1
-#define WIN_FIXEDSIZE 2
-#define WIN_VISIBLE 4
-#define WIN_NODRAG 8
+//Widget type declarations
+#define WIDGET_TYPE_WINDOW  0x00000000 
+#define WIDGET_TYPE_BUTTON  0x01000000
+#define WIDGET_TYPE_TEXTBOX 0x02000000
 
-#define WIDGET_TYPE_WINDOW  0
-#define WIDGET_TYPE_BUTTON  1
-#define WIDGET_TYPE_TEXTBOX 2
+//Some flags to define our window behavior
+#define WIN_NODECORATION 0x1
+#define WIN_NORAISE 0x2
+#define WIN_BODYDRAG 0x4
+#define WIN_HIDDEN 0x8
 
 struct bitmap;
 

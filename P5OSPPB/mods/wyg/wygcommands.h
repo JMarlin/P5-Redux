@@ -8,6 +8,7 @@ unsigned int WYG_get_window_context_id(Desktop* desktop, unsigned int window_id)
 unsigned int WYG_get_window_dimensions(Desktop* desktop, unsigned int window_id);
 unsigned int WYG_get_window_location(Desktop* desktop, unsigned int window_id);
 void WYG_move_window(Desktop* desktop, unsigned int window_id, unsigned int position_data);
+void WYG_resize_window(Desktop* desktop, unsigned int window_id, unsigned int size_data);
 void WYG_install_window(Desktop* desktop, unsigned int child_id, unsigned int parent_id);
 void WYG_show_window(Desktop* desktop, unsigned int window_id);
 void WYG_raise_window(Desktop* desktop, unsigned int window_id);

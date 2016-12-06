@@ -153,7 +153,7 @@ void moveChild() {
 }
 
 void makeChild() {
-    
+    /*
     bitmap* ctx_b;
     int x, y;
     unsigned int tile_width = 4;
@@ -198,6 +198,7 @@ void makeChild() {
     
     //Make them visible
     showWindow(window_b);
+    */
 }
 
 void closeChild() {
@@ -225,7 +226,8 @@ void makeWindows() {
     
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
-    window_a = createWindow(w - 100, h - 100, WIN_FIXEDSIZE);
+    window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
+    resizeWindow(window_a, w - 100, h - 100);
     
     //Set up their titles
     setTitle(window_a, "PTerm");
@@ -240,28 +242,28 @@ void makeWindows() {
     showWindow(window_a);
     
     //Set up the console commands
-    cmd_init(window_a);
+    //cmd_init(window_a);
     
     while(1) {
 
-        cmd_prints("::");
-        cmd_scans(50, inbuf);
-        parse(inbuf);
+    //    cmd_prints("::");
+    //    cmd_scans(50, inbuf);
+    //    parse(inbuf);
     }
 }
 
 void main(void) {
 
     prints("\nUSR.MOD started.\n");
-
-    while(1);
-
+    
     if(!initWYG()) {
         
         prints("usr.mod could not init WYG.");
         while(1); //Hang 
     }
-  
+
+    makeWindows() 
+
     if(!initKey()) {
         
         prints("usr.mod could not init Key.");
@@ -504,6 +506,7 @@ void cmd_scans(int c, char* b) {
 
 void cmd_init(unsigned int win) {
 
+/*
     cmd_window = win;
     cmd_bmp = getWindowContext(cmd_window);
     cmd_x = 0;
@@ -514,6 +517,7 @@ void cmd_init(unsigned int win) {
     cmd_max_chars = (cmd_width/8) - 1;
     cmd_max_lines = (cmd_height/12) - 1;
     cmd_clear();
+*/
 }
 
 /*
