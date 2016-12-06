@@ -20,6 +20,10 @@ Window* WYG_get_window_from_id(Window* parent, unsigned int window_id) {
     int i;
     Window* current_child;
     
+    //Could just be the passed parent
+    if(parent->id == window_id)
+        return parent;
+
     //Search for the child among the parent window's children
     for(i = 0; i < parent->children->count; i++) {
 

@@ -226,11 +226,6 @@ void makeWindows() {
     
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
-    prints("[w: ");
-    printDecimal(w);
-    prints(", h: ");
-    printDecimal(h);
-    prints("]\n");
     window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
     resizeWindow(window_a, w - 100, h - 100);
     
