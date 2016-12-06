@@ -227,7 +227,7 @@ void makeWindows() {
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
     window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
-    resizeWindow(window_a, 800, 600);
+    resizeWindow(window_a, w - 100, h - 100);
     
     //Set up their titles
     setTitle(window_a, "PTerm");
