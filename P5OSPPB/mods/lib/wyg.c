@@ -107,3 +107,11 @@ void resizeWindow(unsigned int handle, unsigned short w, unsigned short h) {
 	postMessage(wyg_pid, WYG_RESIZE_WINDOW, handle);
 	postMessage(wyg_pid, WYG_POINT, (((unsigned int)w & 0xFFFF) << 16) | ((unsigned int)h & 0xFFFF));
 }
+
+void drawString(unsigned int handle, unsigned short x, unsigned short y, char* c) {
+
+	postMessage(wyg_pid, WYG_DRAW_STRING, handle);
+	postMessage(wyg_pid, WYG_POINT, (((unsigned int)x & 0xFFFF) << 16) | ((unsigned int)y & 0xFFFF));
+    getMessageFrom(&temp_msg, wyg_pid, WYG_DRAW_STRING);
+	sendString(c, wyg_pid);
+}

@@ -51,7 +51,7 @@ Window* WYG_get_window_from_id(Window* parent, unsigned int window_id) {
 
 //Generate a new window and temporarily install it into the passed desktop, 
 //returning the ID of the new window 
-unsigned int WYG_create_window(Desktop* desktop, unsigned int flags) {
+unsigned int WYG_create_window(Desktop* desktop, unsigned int flags, unsigned int pid) {
 
     Window* window; 
     unsigned char widget_type;
@@ -72,6 +72,7 @@ unsigned int WYG_create_window(Desktop* desktop, unsigned int flags) {
 
     //Otherwise, temporarily stash the new window in the passed desktop and hand back 
     //the new window id
+    window->pid = pid;
     Window_insert_child((Window*)desktop, window);
 
     return window->id;
@@ -272,6 +273,23 @@ unsigned int WYG_get_frame_dims() {
 
     return ((WIN_TITLEHEIGHT & 0xFF) << 24) | ((WIN_BORDERWIDTH & 0xFF) << 16) |
            ((WIN_BORDERWIDTH & 0xFF) << 8) | (WIN_BORDERWIDTH & 0xFF);
+}
+
+void WYG_draw_string(Desktop* desktop, unsigned int window_id, 
+                     unsigned int position_data, char* c) {
+
+    Window* window;
+
+    //Try to find the window in the window tree of the passed desktop
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
+
+    //If we couldn't find the window, fail
+    if(!window)
+        return;
+
+    //Do some simple text drawing (to be improved in the future)
+    Context_draw_text(window->context, (position_data >> 16) & 0xFFFF,
+                      position_data & 0xFFFF, c, RGB(0, 0, 0));
 }
 
 //Class constructors

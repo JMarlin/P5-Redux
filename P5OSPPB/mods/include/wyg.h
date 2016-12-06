@@ -18,6 +18,11 @@
 #define WYG_DESTROY        (WYG_MSG_CLASS | 13)
 #define WYG_GET_FRAME_DIMS (WYG_MSG_CLASS | 14)
 #define WYG_RESIZE_WINDOW  (WYG_MSG_CLASS | 15)
+#define WYG_DRAW_STRING    (WYG_MSG_CLASS | 16)
+#define WYG_EVENT          (WYG_MSG_CLASS | 17)
+
+//Wyg event codes to be passed to the client
+#define WYG_EVENT_REPAINT  0
 
 #define ROOT_WINDOW 1
 
@@ -49,5 +54,6 @@ void destroyWindow(unsigned int handle);
 void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom, unsigned char* right);
 void resizeWindow(unsigned int handle, unsigned short w, unsigned short h);
 void updateMouse(short off_x, short off_y);
+void drawString(unsigned int handle, unsigned short x, unsigned short y, char* c);
 
 #endif //WYG_H

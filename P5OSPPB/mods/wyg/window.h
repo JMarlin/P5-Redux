@@ -67,6 +67,7 @@ typedef struct Window_struct {
     WindowMouseclickHandler mouseclick_function;
     WindowMoveHandler move_function;
     char* title;
+    unsigned int pid;
 } Window;
 
 //Methods

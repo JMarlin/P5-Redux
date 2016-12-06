@@ -1,5 +1,6 @@
 #include "inttypes.h"
 #include "../include/memory.h"
+#include "../include/wyg.h"
 #include "window.h"
 #include "styleutils.h"
 
@@ -103,6 +104,7 @@ int Window_init(Window* window, int16_t x, int16_t y, uint16_t width,
     window->active_child = (Window*)0;
     window->over_child = (Window*)0;
     window->title = (char*)0;
+    window->pid = 0;
 
     return 1;
 }
@@ -463,12 +465,37 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
     //of the window's drawable area, and call the window's final paint function 
     window->context->translate_x = screen_x;
     window->context->translate_y = screen_y;
-    window->paint_function(window);
+    
+    //TODO: Add a message interface for requesting subscription to paint 
+    //and other events. If the external process requests a subscription
+    //to painting, that means that it is taking over all repaint duties
+    //and so, if that subscription flag is set for the current window, we
+    //should skip any draw code in this function and instead send the event 
+    //message to the owning process. This should actually probably be done
+    //in the Window_paint method so that subscription to painting will 
+    //override any and all painting functions that a particular widget class 
+    //may have replaced this default function with 
+    //In lieu of that, for now we're just going to always ship off that message 
 
-    //Now that we're done drawing this window, we can clear the changes we made to the context
-    Context_clear_clip_rects(window->context);
-    window->context->translate_x = 0;
-    window->context->translate_y = 0;
+    //Should check for both PID and subscription flag in the future
+    if(window->pid) {
+
+        postMessage(window->pid, WYG_EVENT, WYG_EVENT_REPAINT);
+
+        //We need another message method that allows the client to tell us that a 
+        //draw is complete and therefore to clear the translation and clipping, but
+        //for now we're just going to be lazy (which will lead to weird results)
+    } else {
+
+        //Do an internal repaint
+        window->paint_function(window);
+
+        //If we did an internal repaint, we're not waiting on anything so we can clear everything right away
+        //Now that we're done drawing this window, we can clear the changes we made to the context
+        Context_clear_clip_rects(window->context);
+        window->context->translate_x = 0;
+        window->context->translate_y = 0;
+    }
     
     //Even though we're no longer having all mouse events cause a redraw from the desktop
     //down, we still need to call paint on our children in the case that we were called with

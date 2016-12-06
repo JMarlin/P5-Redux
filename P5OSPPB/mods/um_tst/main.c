@@ -223,7 +223,8 @@ void crash() {
 void makeWindows() {
     
     unsigned short w, h;
-    
+    message temp_msg;
+
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
     window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
@@ -246,6 +247,11 @@ void makeWindows() {
     
     while(1) {
 
+        getMessage(&temp_msg);
+
+        if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT)
+            drawString(unsigned int handle, unsigned short x, unsigned short y, char* c)
+            
     //    cmd_prints("::");
     //    cmd_scans(50, inbuf);
     //    parse(inbuf);

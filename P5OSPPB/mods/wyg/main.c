@@ -134,6 +134,7 @@ void main(void) {
     screen_mode* mode;
     unsigned short num;
     unsigned int current_handle;
+    unsigned int current_data;
     int i;
     unsigned int src_pid;
     unsigned char* instr;
@@ -242,7 +243,7 @@ void main(void) {
 
             case WYG_CREATE_WINDOW:
                 postMessage(src_pid, WYG_CREATE_WINDOW,
-                            WYG_create_window(desktop, temp_msg.payload));
+                            WYG_create_window(desktop, temp_msg.payload, src_pid));
             break;
             
             case WYG_GET_CONTEXT:
@@ -309,6 +310,18 @@ void main(void) {
             case WYG_GET_FRAME_DIMS:
                 postMessage(src_pid, WYG_GET_FRAME_DIMS,
                             WYG_get_frame_dims());
+            break;
+
+            case WYG_DRAW_STRING:
+                current_handle = temp_msg.payload;
+                getMessageFrom(&temp_msg, src_pid, WYG_POINT);
+                current_data = temp_msg.payload;
+                postMessage(src_pid, WYG_DRAW_STRING, 1);
+                strlen = getStringLength(src_pid);
+                instr = (char*)malloc(strlen);
+                getString(src_pid, instr, strlen);
+                WYG_draw_string(desktop, current_handle, current_data, instr);
+                free((void*)instr);
             break;
 
             case MOUSE_SEND_UPDATE:
