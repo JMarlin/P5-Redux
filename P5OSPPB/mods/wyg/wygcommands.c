@@ -288,8 +288,8 @@ void WYG_draw_string(Desktop* desktop, unsigned int window_id,
         return;
 
     //Do some simple text drawing (to be improved in the future)
-    Context_draw_text(window->context, (position_data >> 16) & 0xFFFF,
-                      position_data & 0xFFFF, c, RGB(0, 0, 0));
+    Context_draw_text(window->context, c, (position_data >> 16) & 0xFFFF,
+                      position_data & 0xFFFF, RGB(0, 0, 0));
 }
 
 //Class constructors

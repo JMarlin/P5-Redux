@@ -250,8 +250,8 @@ void makeWindows() {
         getMessage(&temp_msg);
 
         if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT)
-            drawString(unsigned int handle, unsigned short x, unsigned short y, char* c)
-            
+            drawString(window_a, 10, 10, "Just a test string. \nLine break?");
+
     //    cmd_prints("::");
     //    cmd_scans(50, inbuf);
     //    parse(inbuf);
@@ -373,7 +373,7 @@ void drawCharacterBold(bitmap* b, char c, int x, int y, unsigned int color) {
     drawCharacter(b, c, x+1, y+1, color);
 }
 
-
+/*
 void drawString(bitmap* b, char* str, int x, int y, unsigned int color) {
 
     int i;
@@ -381,6 +381,7 @@ void drawString(bitmap* b, char* str, int x, int y, unsigned int color) {
     for(i = 0; str[i]; i++) 
         drawCharacter(b, str[i], x+(i*8), y, color);
 }
+*/
 
 void cmd_getCursor(unsigned char *x, unsigned char *y) {
 
