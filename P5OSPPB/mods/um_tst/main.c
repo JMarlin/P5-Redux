@@ -262,7 +262,7 @@ void main(void) {
         while(1); //Hang 
     }
 
-    makeWindows() 
+    makeWindows();
 
     if(!initKey()) {
         

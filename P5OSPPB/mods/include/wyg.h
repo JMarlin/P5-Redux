@@ -32,11 +32,9 @@
 #define WIN_BODYDRAG 0x4
 #define WIN_HIDDEN 0x8
 
-struct bitmap;
-
 unsigned int initWYG(void);
-unsigned int createWindow(unsigned short width, unsigned short height, unsigned char flags);
-struct bitmap* getWindowContext(unsigned int handle);
+unsigned int createWindow(unsigned int flags);
+unsigned int getWindowContext(unsigned int handle);
 void moveHandle(unsigned int handle, unsigned short x, unsigned short y);
 void installWindow(unsigned int child_handle, unsigned int parent_handle);
 void moveWindow(unsigned int handle, unsigned short x, unsigned short y);
@@ -49,6 +47,7 @@ void setTitle(unsigned int handle, unsigned char* string);
 void getWindowLocation(unsigned int handle, unsigned short* x, unsigned short* y);
 void destroyWindow(unsigned int handle);
 void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom, unsigned char* right);
+void resizeWindow(unsigned int handle, unsigned short w, unsigned short h);
 void updateMouse(short off_x, short off_y);
 
 #endif //WYG_H

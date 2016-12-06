@@ -153,7 +153,7 @@ void WYG_resize_window(Desktop* desktop, unsigned int window_id, unsigned int si
         return;
 
     //Otherwise, move the window
-    Window_resize(window, (position_data >> 16) & 0xFFFF, position_data & 0xFFFF);
+    Window_resize(window, (size_data >> 16) & 0xFFFF, size_data & 0xFFFF);
 }
 
 //Find the specified window, remove it from its parent if it has one set, then find the 
