@@ -43,6 +43,7 @@ void enable_debug(void (*cb_a)(void), void (*cb_b)(void)) {
 
     log_start = cb_a;
     log_end = cb_b;
+	prints("[Debug enabled]\n");
 }
 
 //We store memblocks linked in order of ascending address, 
