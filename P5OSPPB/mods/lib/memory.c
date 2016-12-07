@@ -24,10 +24,10 @@ void print_malloc_list() {
     memblock* current_block;
 
 	current_block = root_block;
-	
+	prints("----\n");
+
 	while(current_block) {
 	
-	    prints("----\n");
 		printHexDword((unsigned int)current_block);
 		prints(") ");
 		printHexDword((unsigned int)current_block->base);
