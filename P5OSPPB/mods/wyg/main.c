@@ -129,10 +129,12 @@ void screenThread() {
 
 void mdebug_start() {
 
+    prints("[start]\n");
 }
 
 void mdebug_end() {
 
+    prints("[end]\n");
     print_malloc_list();
 }
 
@@ -148,9 +150,6 @@ void main(void) {
     unsigned int src_pid;
     unsigned char* instr;
     unsigned int strlen;
-
-    //Start malloc debugging
-    enable_debug(mdebug_start, mdebug_end);
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -220,6 +219,9 @@ void main(void) {
     }
     	    
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+
+    //Start malloc debugging
+    enable_debug(mdebug_start, mdebug_end);
 
     //Create backbuffer
     back_buf = newBitmap(mode->width, mode->height);
