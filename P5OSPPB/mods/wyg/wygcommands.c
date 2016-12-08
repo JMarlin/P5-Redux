@@ -292,6 +292,23 @@ void WYG_draw_string(Desktop* desktop, unsigned int window_id,
                       position_data & 0xFFFF, RGB(0, 0, 0));
 }
 
+void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
+
+    Window* window;
+
+    //Try to find the window in the window tree of the passed desktop
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
+
+    //If we couldn't find the window, fail
+    if(!window)
+        return;
+
+    //Do the context resets that would normally be done by WYG if it were drawing directly
+    Context_clear_clip_rects(window->context);
+    window->context->translate_x = 0;
+    window->context->translate_y = 0;
+}
+
 //Class constructors
 Window *WYG_window_constructor(unsigned int flags) {
 

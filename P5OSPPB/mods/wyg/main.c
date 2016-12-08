@@ -338,6 +338,10 @@ void main(void) {
                 free((void*)instr);
             break;
 
+            case WYG_PAINT_DONE:
+                WYG_finish_window_draw(desktop, temp_msg.payload);
+            break;
+
             case MOUSE_SEND_UPDATE:
                 moveMouse(temp_msg.payload);
             break;

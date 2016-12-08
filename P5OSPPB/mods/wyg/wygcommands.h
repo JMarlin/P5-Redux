@@ -18,5 +18,6 @@ void WYG_destroy_window(Desktop* desktop, unsigned int window_id);
 unsigned int WYG_get_frame_dims();
 void WYG_draw_string(Desktop* desktop, unsigned int window_id, 
                      unsigned int position_data, char* c);
+void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id);                     
 
 #endif //WYGCOMMANDS_H

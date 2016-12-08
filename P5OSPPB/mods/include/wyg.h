@@ -20,6 +20,7 @@
 #define WYG_RESIZE_WINDOW  (WYG_MSG_CLASS | 15)
 #define WYG_DRAW_STRING    (WYG_MSG_CLASS | 16)
 #define WYG_EVENT          (WYG_MSG_CLASS | 17)
+#define WYG_PAINT_DONE     (WYG_MSG_CLASS | 18)
 
 //Wyg event codes to be passed to the client
 #define WYG_EVENT_REPAINT  0
