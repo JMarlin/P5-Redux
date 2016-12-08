@@ -221,7 +221,7 @@ void main(void) {
     postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
     //Start malloc debugging
-    enable_debug(mdebug_start, mdebug_end);
+    //enable_debug(mdebug_start, mdebug_end);
 
     //Create backbuffer
     back_buf = newBitmap(mode->width, mode->height);
