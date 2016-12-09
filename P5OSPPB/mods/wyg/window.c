@@ -199,10 +199,15 @@ void Window_draw_border(Window* window) {
     if(window->title) {
         pchar('\'');
         prints(window->title);
-        prints("\'\n");
+        prints("\' ");
     } else {
-        prints("[no title]\n");
+        prints("[no title] ");
     }        
+    prints(" @ ");
+    printDecimal(window->context->translate_x);
+    prints(", ");
+    printDecimal(window->context->translate_y);
+    prints("\n");
     //TESTING
 
     //Outer border
