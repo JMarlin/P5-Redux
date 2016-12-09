@@ -412,6 +412,20 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
     Window* current_child;
     Rect* temp_rect;
 
+    //TESTING determine recursion level and print paint message
+    Window* temp_parent;
+    for(temp_parent = window->parent; temp_parent; temp_parent = temp_parent->parent)
+        pchar(' ');
+    prints("Painting window ");
+    if(window->title) {
+        pchar('\'');
+        prints(window->title);
+        prints("\'\n");
+    } else {
+        prints("[no title]\n");
+    }        
+    //TESTING
+
     //Can't paint without a context
     if(!window->context || (window->flags & WIN_HIDDEN))
         return;
@@ -501,10 +515,7 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
     //down, we still need to call paint on our children in the case that we were called with
     //a dirty region list since each window needs to be responsible for recursively checking
     //if its children were dirtied 
-    if(!paint_children)
-        return;
-
-    for(i = 0; i < window->children->count; i++) {
+    if(paint_children) for(i = 0; i < window->children->count; i++) {
 
         current_child = (Window*)List_get_at(window->children, i);
 
@@ -534,6 +545,12 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
         //Otherwise, recursively request the child to redraw its dirty areas
         Window_paint(current_child, dirty_regions, 1);
     }
+
+    //TESTING
+    for(temp_parent = window->parent; temp_parent; temp_parent = temp_parent->parent)
+        pchar(' ');
+    prints("done\n");
+    //TESTING
 }
 
 //This is the default paint method for a new window
