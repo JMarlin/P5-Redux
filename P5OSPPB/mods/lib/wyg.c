@@ -121,7 +121,7 @@ void drawRectangle(unsigned int handle, unsigned short x, unsigned short y,
 
     postMessage(wyg_pid, WYG_DRAW_RECT, handle);
 	postMessage(wyg_pid, WYG_POINT, (((unsigned int)x & 0xFFFF) << 16) | ((unsigned int)y & 0xFFFF));
-    postMessage(wyg_pid, WYG_DIMS, (((unsigned int)w & 0xFFFF) << 16) | ((unsigned int)h & 0xFFFF))
+    postMessage(wyg_pid, WYG_DIMS, (((unsigned int)w & 0xFFFF) << 16) | ((unsigned int)h & 0xFFFF));
 	postMessage(wyg_pid, WYG_COLOR, color);
 	getMessageFrom(&temp_msg, wyg_pid, WYG_DRAW_RECT);
 }
