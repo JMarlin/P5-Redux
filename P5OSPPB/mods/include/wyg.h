@@ -21,6 +21,9 @@
 #define WYG_DRAW_STRING    (WYG_MSG_CLASS | 16)
 #define WYG_EVENT          (WYG_MSG_CLASS | 17)
 #define WYG_PAINT_DONE     (WYG_MSG_CLASS | 18)
+#define WYG_DRAW_RECT      (WYG_MSG_CLASS | 19)
+#define WYG_DIMS           (WYG_MSG_CLASS | 20)
+#define WYG_COLOR          (WYG_MSG_CLASS | 21)
 
 //Wyg event codes to be passed to the client
 #define WYG_EVENT_REPAINT  0
@@ -56,5 +59,7 @@ void getFrameDims(unsigned char* top, unsigned char* left, unsigned char* bottom
 void resizeWindow(unsigned int handle, unsigned short w, unsigned short h);
 void updateMouse(short off_x, short off_y);
 void drawString(unsigned int handle, unsigned short x, unsigned short y, char* c);
+void drawRectangle(unsigned int handle, unsigned short x, unsigned short y,
+                   unsigned short w, unsigned short h, unsigned int color);
 
 #endif //WYG_H

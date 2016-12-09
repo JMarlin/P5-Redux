@@ -146,6 +146,9 @@ void main(void) {
     unsigned short num;
     unsigned int current_handle;
     unsigned int current_data;
+    unsigned int point_data;
+    unsigned int color_data;
+    unsigned int dim_data;
     int i;
     unsigned int src_pid;
     unsigned char* instr;
@@ -336,6 +339,17 @@ void main(void) {
                 getString(src_pid, instr, strlen);
                 WYG_draw_string(desktop, current_handle, current_data, instr);
                 free((void*)instr);
+            break;
+
+            case WYG_DRAW_RECT:
+                current_handle = temp_msg.payload;
+                getMessageFrom(&temp_msg, src_pid, WYG_POINT);
+                point_data = temp_msg.payload;
+                getMessageFrom(&temp_msg, src_pid, WYG_DIMS);
+                dim_data = temp_msg.payload;
+                getMessageFrom(&temp_msg, src_pid, WYG_COLOR);
+                WYG_draw_rectangle(desktop, current_handle, point_data, dim_data, temp_msg.payload);
+                postMessage(src_pid, WYG_DRAW_RECT, 1);
             break;
 
             case WYG_PAINT_DONE:

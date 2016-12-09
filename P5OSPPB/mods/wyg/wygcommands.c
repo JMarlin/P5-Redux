@@ -292,6 +292,23 @@ void WYG_draw_string(Desktop* desktop, unsigned int window_id,
                       position_data & 0xFFFF, RGB(0, 0, 0));
 }
 
+void WYG_draw_rectangle(Desktop* desktop, unsigned int window_id,
+                        unsigned int point_data, unsigned int dim_data, unsigned int color) {
+    
+    Window* window;
+
+    //Try to find the window in the window tree of the passed desktop
+    window = WYG_get_window_from_id((Window*)desktop, window_id);
+
+    //If we couldn't find the window, fail
+    if(!window)
+        return;
+
+    //Do a simple rectangle
+    Context_fill_rect(window->context, (point_data >> 16) & 0xFFFF, point_data & 0xFFFF,
+                      (dim_data >> 16) & 0xFFFF, dim_data & 0xFFFF, color);
+}
+
 void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
 
     Window* window;
