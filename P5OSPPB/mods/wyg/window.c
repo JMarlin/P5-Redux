@@ -194,21 +194,12 @@ void Window_draw_border(Window* window) {
     int screen_x = Window_screen_x(window);
     int screen_y = Window_screen_y(window);
     
-    //TESTING
-    prints("Drawing border for window ");
-    if(window->title) {
-        pchar('\'');
-        prints(window->title);
-        prints("\' ");
-    } else {
-        prints("[no title] ");
-    }        
-    prints(" @ ");
-    printDecimal(window->context->translate_x);
-    prints(", ");
-    printDecimal(window->context->translate_y);
-    prints("\n");
-    //TESTING
+    //Temp reset of context translation
+    int old_tx = window->context->translate_x;
+    int old_ty = window->context->translate_y;
+
+    window->context->translate_x = 0;
+    window->context->translate_y = 0;
 
     //Outer border
     draw_panel(window->context, screen_x, screen_y, window->width,
@@ -264,6 +255,9 @@ void Window_draw_border(Window* window) {
                           window->parent->active_child == window ? 
                               WIN_TEXTCOLOR : WIN_TEXTCOLOR_INACTIVE);
 
+    //Restore old context translation
+    window->context->translate_x = old_tx;
+    window->context->translate_y = old_ty;
 }
 
 //Apply clipping for window bounds without subtracting child window rects
@@ -428,20 +422,6 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
     Window* current_child;
     Rect* temp_rect;
 
-    //TESTING determine recursion level and print paint message
-    Window* temp_parent;
-    for(temp_parent = window->parent; temp_parent; temp_parent = temp_parent->parent)
-        pchar(' ');
-    prints("Painting window ");
-    if(window->title) {
-        pchar('\'');
-        prints(window->title);
-        prints("\'\n");
-    } else {
-        prints("[no title]\n");
-    }        
-    //TESTING
-
     //Can't paint without a context
     if(!window->context || (window->flags & WIN_HIDDEN))
         return;
@@ -561,12 +541,6 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
         //Otherwise, recursively request the child to redraw its dirty areas
         Window_paint(current_child, dirty_regions, 1);
     }
-
-    //TESTING
-    for(temp_parent = window->parent; temp_parent; temp_parent = temp_parent->parent)
-        pchar(' ');
-    prints("done\n");
-    //TESTING
 }
 
 //This is the default paint method for a new window
