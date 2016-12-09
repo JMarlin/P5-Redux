@@ -330,23 +330,23 @@ void main(void) {
             break;
 
             case WYG_DRAW_STRING:
-                prints("start draw string...");
+                //prints("start draw string...");
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
-                prints("got string position...");
+                //prints("got string position...");
                 current_data = temp_msg.payload;
                 postMessage(src_pid, WYG_DRAW_STRING, 1);
-                prints("sent confirm message...");
+                //prints("sent confirm message...");
                 strlen = getStringLength(src_pid);
-                prints("got string length...");
+                //prints("got string length...");
                 instr = (char*)malloc(strlen); //Probably needs to be strlen +1? Could be overwriting the head of the next malloc block
-                prints("allocated string buffer...");
+                //prints("allocated string buffer...");
                 getString(src_pid, instr, strlen); 
-                prints("received string data...");
+                //prints("received string data...");
                 WYG_draw_string(desktop, current_handle, current_data, instr);
-                prints("drew string to screen...");
+                //prints("drew string to screen...");
                 free((void*)instr);
-                prints("done");
+                //prints("done");
             break;
 
             case WYG_DRAW_RECT:
