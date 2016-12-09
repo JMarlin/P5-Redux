@@ -194,6 +194,17 @@ void Window_draw_border(Window* window) {
     int screen_x = Window_screen_x(window);
     int screen_y = Window_screen_y(window);
     
+    //TESTING
+    prints("Drawing border for window ");
+    if(window->title) {
+        pchar('\'');
+        prints(window->title);
+        prints("\'\n");
+    } else {
+        prints("[no title]\n");
+    }        
+    //TESTING
+
     //Outer border
     draw_panel(window->context, screen_x, screen_y, window->width,
                window->height, WIN_BGCOLOR, 1, 0);
