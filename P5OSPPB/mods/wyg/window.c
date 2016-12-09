@@ -428,6 +428,10 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
 
     //Skip painting if we're still waiting on the client to finish 
     //asynchronously redrawing itself from an earlier paint call
+    //NOTE: At the moment, if the client window fails to send a redraw
+    //message any window decoration will also fail to draw. We could
+    //be a bit more judicious about what code we omit when waiting for 
+    //a repaint so that border drawing still happens
     if(!(window->pid && (window->flags & WIN_CLIENT_WAIT))) {
         
         //Start by limiting painting to the window's visible area

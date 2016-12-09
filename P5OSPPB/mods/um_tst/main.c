@@ -251,8 +251,8 @@ void makeWindows() {
 
         if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT) {
 
-            //drawString(window_a, 10, 10, "Just a test string. \nLine break?");
-            //postMessage(temp_msg.source, WYG_PAINT_DONE, window_a);
+            drawString(window_a, 10, 10, "Just a test string. \nLine break?");
+            postMessage(temp_msg.source, WYG_PAINT_DONE, window_a);
         }
 
     //    cmd_prints("::");
