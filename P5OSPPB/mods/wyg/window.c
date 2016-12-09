@@ -426,85 +426,89 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
     if(!window->context || (window->flags & WIN_HIDDEN))
         return;
 
-    //Start by limiting painting to the window's visible area
-    Window_apply_bound_clipping(window, window->context, 0, dirty_regions);
+    //Skip painting if we're still waiting on the client to finish 
+    //asynchronously redrawing itself from an earlier paint call
+    if(!(window->pid && (window->flags & WIN_CLIENT_WAIT))) {
+        
+        //Start by limiting painting to the window's visible area
+        Window_apply_bound_clipping(window, window->context, 0, dirty_regions);
 
-    //Set the context translation
-    screen_x = Window_screen_x(window);
-    screen_y = Window_screen_y(window);
+        //Set the context translation
+        screen_x = Window_screen_x(window);
+        screen_y = Window_screen_y(window);
 
-    //If we have window decorations turned on, draw them and then further
-    //limit the clipping area to the inner drawable area of the window 
-    if(!(window->flags & WIN_NODECORATION)) {
+        //If we have window decorations turned on, draw them and then further
+        //limit the clipping area to the inner drawable area of the window 
+        if(!(window->flags & WIN_NODECORATION)) {
 
-        //Draw border
-        Window_draw_border(window);
+            //Draw border
+            Window_draw_border(window);
 
-        //Limit client drawable area 
-        screen_x += WIN_BORDERWIDTH;
-        screen_y += WIN_TITLEHEIGHT;
-        temp_rect = Rect_new(screen_y, screen_x,
-                             screen_y + window->height - WIN_TITLEHEIGHT - WIN_BORDERWIDTH - 1, 
-                             screen_x + window->width - (2*WIN_BORDERWIDTH) - 1);
-        Context_intersect_clip_rect(window->context, temp_rect);
-    }
+            //Limit client drawable area 
+            screen_x += WIN_BORDERWIDTH;
+            screen_y += WIN_TITLEHEIGHT;
+            temp_rect = Rect_new(screen_y, screen_x,
+                                screen_y + window->height - WIN_TITLEHEIGHT - WIN_BORDERWIDTH - 1, 
+                                screen_x + window->width - (2*WIN_BORDERWIDTH) - 1);
+            Context_intersect_clip_rect(window->context, temp_rect);
+        }
 
-    //Then subtract the screen rectangles of any children 
-    //NOTE: We don't do this in Window_apply_bound_clipping because, due to 
-    //its recursive nature, it would cause the screen rectangles of all of 
-    //our parent's children to be subtracted from the clipping area -- which
-    //would eliminate this window. 
-    for(i = 0; i < window->children->count; i++) {
+        //Then subtract the screen rectangles of any children 
+        //NOTE: We don't do this in Window_apply_bound_clipping because, due to 
+        //its recursive nature, it would cause the screen rectangles of all of 
+        //our parent's children to be subtracted from the clipping area -- which
+        //would eliminate this window. 
+        for(i = 0; i < window->children->count; i++) {
 
-        current_child = (Window*)List_get_at(window->children, i);
+            current_child = (Window*)List_get_at(window->children, i);
 
-        if(current_child->flags & WIN_HIDDEN)
-            continue;
+            if(current_child->flags & WIN_HIDDEN)
+                continue;
 
-        child_screen_x = Window_screen_x(current_child);
-        child_screen_y = Window_screen_y(current_child);
+            child_screen_x = Window_screen_x(current_child);
+            child_screen_y = Window_screen_y(current_child);
 
-        temp_rect = Rect_new(child_screen_y, child_screen_x,
-                             child_screen_y + current_child->height - 1,
-                             child_screen_x + current_child->width - 1);
-        Context_subtract_clip_rect(window->context, temp_rect);
-        Object_delete((Object*)temp_rect);
-    }
+            temp_rect = Rect_new(child_screen_y, child_screen_x,
+                                child_screen_y + current_child->height - 1,
+                                child_screen_x + current_child->width - 1);
+            Context_subtract_clip_rect(window->context, temp_rect);
+            Object_delete((Object*)temp_rect);
+        }
 
-    //Finally, with all the clipping set up, we can set the context's 0,0 to the top-left corner
-    //of the window's drawable area, and call the window's final paint function 
-    window->context->translate_x = screen_x;
-    window->context->translate_y = screen_y;
-    
-    //TODO: Add a message interface for requesting subscription to paint 
-    //and other events. If the external process requests a subscription
-    //to painting, that means that it is taking over all repaint duties
-    //and so, if that subscription flag is set for the current window, we
-    //should skip any draw code in this function and instead send the event 
-    //message to the owning process. This should actually probably be done
-    //in the Window_paint method so that subscription to painting will 
-    //override any and all painting functions that a particular widget class 
-    //may have replaced this default function with 
-    //In lieu of that, for now we're just going to always ship off that message 
+        //Finally, with all the clipping set up, we can set the context's 0,0 to the top-left corner
+        //of the window's drawable area, and call the window's final paint function 
+        window->context->translate_x = screen_x;
+        window->context->translate_y = screen_y;
+        
+        //TODO: Add a message interface for requesting subscription to paint 
+        //and other events. If the external process requests a subscription
+        //to painting, that means that it is taking over all repaint duties
+        //and so, if that subscription flag is set for the current window, we
+        //should skip any draw code in this function and instead send the event 
+        //message to the owning process. This should actually probably be done
+        //in the Window_paint method so that subscription to painting will 
+        //override any and all painting functions that a particular widget class 
+        //may have replaced this default function with 
+        //In lieu of that, for now we're just going to always ship off that message 
 
-    //Should check for both PID and subscription flag in the future
-    if(window->pid) {
+        //Should check for both PID and subscription flag in the future
+        if(window->pid) {
 
-        postMessage(window->pid, WYG_EVENT, WYG_EVENT_REPAINT);
+            //Mark that we're waiting on the client to redraw the window 
+            //and then actually request the owning process to do so
+            window->flags |= WIN_CLIENT_WAIT;
+            postMessage(window->pid, WYG_EVENT, WYG_EVENT_REPAINT);
+        } else {
 
-        //We need another message method that allows the client to tell us that a 
-        //draw is complete and therefore to clear the translation and clipping, but
-        //for now we're just going to be lazy (which will lead to weird results)
-    } else {
+            //Do an internal repaint
+            window->paint_function(window);
 
-        //Do an internal repaint
-        window->paint_function(window);
-
-        //If we did an internal repaint, we're not waiting on anything so we can clear everything right away
-        //Now that we're done drawing this window, we can clear the changes we made to the context
-        Context_clear_clip_rects(window->context);
-        window->context->translate_x = 0;
-        window->context->translate_y = 0;
+            //If we did an internal repaint, we're not waiting on anything so we can clear everything right away
+            //Now that we're done drawing this window, we can clear the changes we made to the context
+            Context_clear_clip_rects(window->context);
+            window->context->translate_x = 0;
+            window->context->translate_y = 0;
+        }
     }
     
     //Even though we're no longer having all mouse events cause a redraw from the desktop

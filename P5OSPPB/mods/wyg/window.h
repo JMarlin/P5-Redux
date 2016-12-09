@@ -26,6 +26,7 @@ extern "C" {
 #define WIN_NORAISE 0x2
 #define WIN_BODYDRAG 0x4
 #define WIN_HIDDEN 0x8
+#define WIN_CLIENT_WAIT 0x8000
 
 //Forward struct declaration for function type declarations
 struct Window_struct;

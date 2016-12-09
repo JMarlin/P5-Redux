@@ -307,6 +307,10 @@ void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
     Context_clear_clip_rects(window->context);
     window->context->translate_x = 0;
     window->context->translate_y = 0;
+
+    //Finally, clear the waiting on client flag bit so that the window will receive 
+    //any future paint events
+    window->flags &= ~WIN_CLIENT_WAIT;
 }
 
 //Class constructors
