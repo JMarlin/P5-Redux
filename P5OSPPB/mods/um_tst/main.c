@@ -254,8 +254,8 @@ void makeWindows() {
 
         if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT) {
 
-            //drawString(window_a, 10, 10, "Just a test string. \nLine break?");
-            drawRectangle(window_a, 0, 0, w - 99 - l - r, h - 99 - t - b, RGB(0, 0, 0)); //WYG METHOD
+            drawRectangle(window_a, 0, 0, w - 99 - l - r, h - 99 - t - b, RGB(200, 230, 255)); //WYG METHOD
+            drawString(window_a, 10, 10, "Just a test string.");
             postMessage(temp_msg.source, WYG_PAINT_DONE, window_a);
         }
 
