@@ -223,13 +223,16 @@ void crash() {
 void makeWindows() {
     
     unsigned short w, h;
+    unsigned char t, l, b, r;
     message temp_msg;
 
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
     window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
     resizeWindow(window_a, w - 100, h - 100);
-    
+
+    getFrameDims(&t, &l, &b, &r);
+
     //Set up their titles
     setTitle(window_a, "PTerm");
     
@@ -252,7 +255,7 @@ void makeWindows() {
         if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT) {
 
             //drawString(window_a, 10, 10, "Just a test string. \nLine break?");
-            drawRectangle(window_a, 10, 10, 100, 100, RGB(255, 255, 0)); //WYG METHOD
+            drawRectangle(window_a, 0, 0, w - 99 - l - r, h - 99 - t - b, RGB(0, 0, 0)); //WYG METHOD
             postMessage(temp_msg.source, WYG_PAINT_DONE, window_a);
         }
 
