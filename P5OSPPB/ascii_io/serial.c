@@ -33,3 +33,13 @@ void serPutch(unsigned char c) {
         outb(0x3f8, c);
     }
 }
+
+int serReceived() {
+    
+    return inb(0x3f8 + 5) & 1;
+}
+
+char serGetch() {
+
+    return inb(0x3f8);
+}

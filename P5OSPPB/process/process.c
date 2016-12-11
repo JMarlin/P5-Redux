@@ -95,7 +95,7 @@ void kernelDebugWithProc(process* dbg_proc) {
     prints("\n");
     
     keyboard_init();
-    setupKeyTable();
+    setupKeyTable_set1();
     
     unsigned char* bp = (unsigned char*)0xB01000;
     

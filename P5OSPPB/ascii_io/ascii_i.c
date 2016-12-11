@@ -2,6 +2,7 @@
 #include "ascii_o.h"
 #include "keyboard.h"
 #include "../core/util.h"
+#include "serial.h"
 
 
 unsigned char keyTable[132] = "";
@@ -153,20 +154,25 @@ unsigned char getch(void) {
     unsigned char tempData = '\0';
 
     //Don't block if there's nothing in the buffer
-    if(!(keyboard_getStatus() & SR_OBSTAT))
-        return 0;
+    if((keyboard_getStatus() & SR_OBSTAT)) {
 
-    tempData = inb(KBC_DREG);
+        tempData = inb(KBC_DREG);
 
-    if(tempData == 0xF0) {
-        keyboard_getData();
-        return 0;
+        if(tempData == 0xF0) {
+            keyboard_getData();
+            return 0;
+        }
+
+        if(tempData < 132) {
+            return keyTable[tempData];
+        } else {
+            return 0;
+        }
     }
 
-    if(tempData < 132) {
-        return keyTable[tempData];
-    } else {
-        return 0;
+    if(serReceived()) {
+
+        return serGetch();
     }
 
     //This should make realines cycle forever waiting for input
