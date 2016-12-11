@@ -94,7 +94,7 @@ void (*tm_cb)(void);
 void textModeFinish(unsigned int a, unsigned int b, unsigned int c) {
     
     keyboard_init();
-    setupKeyTable();
+    setupKeyTable_set1();
     tm_cb();
 }
 
