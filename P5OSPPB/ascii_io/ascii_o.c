@@ -1,8 +1,10 @@
 #include "ascii_o.h"
+#include "ascii_i.h"
 #include "../core/util.h"
 #include "serial.h"
 #include "../process/process.h"
 #include "../core/syscall.h"
+#include "keyboard.h"
 
 #ifdef KPRINTS_ON
 #define LINECOUNT 24
@@ -91,6 +93,8 @@ void (*tm_cb)(void);
 
 void textModeFinish(unsigned int a, unsigned int b, unsigned int c) {
     
+    keyboard_init();
+    setupKeyTable();
     tm_cb();
 }
 
