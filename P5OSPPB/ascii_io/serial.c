@@ -22,5 +22,14 @@ int txReady() {
 void serPutch(unsigned char c) {
 
     while(!txReady());
-    outb(0x3f8, c);
+
+    if(c == '\n') {
+
+        outb(0x3f8, 0xA);
+        while(!txReady());
+        outb(0x3f8, 0xD);
+    } else {
+        
+        outb(0x3f8, c);
+    }
 }
