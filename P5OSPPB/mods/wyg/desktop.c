@@ -102,6 +102,7 @@ void Desktop_process_mouse(Desktop* desktop, uint16_t mouse_x,
 
     //Window painting now happens inside of the window raise and move operations
     
+    /*
     //Exit early if the mouse is turned off
     if(!desktop->mouse_shown)
         return;
@@ -127,7 +128,7 @@ void Desktop_process_mouse(Desktop* desktop, uint16_t mouse_x,
     //Clean up mouse dirty list
     List_remove_at(dirty_list, 0);
     free(dirty_list);
-    free(mouse_rect);
+    free(mouse_rect); */
 
     //Update mouse position
     desktop->mouse_x = mouse_x;

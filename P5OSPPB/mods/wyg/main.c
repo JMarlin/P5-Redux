@@ -117,7 +117,42 @@ void showModes(void) {
         pchar('\n');
     }
 }
+/*
+extern uint32_t mouse_img[];
+uint32_t *fbuf;
 
+//Do the raw blit of the mouse image onto the screen
+void blit_mouse() {
+
+    int x, y;
+    int mouse_y = desktop->mouse_y;
+    int mouse_x = desktop->mouse_x;
+
+    //No more hacky mouse, instead we're going to rather inefficiently 
+    //copy the pixels from our mouse image into the framebuffer
+    for(y = 0; y < MOUSE_HEIGHT; y++) {
+
+        //Make sure we don't draw off the bottom of the screen
+        if((y + mouse_y) >= desktop->window.context->height)
+            break;
+
+        for(x = 0; x < MOUSE_WIDTH; x++) {
+
+            //Make sure we don't draw off the right side of the screen
+            if((x + mouse_x) >= desktop->window.context->width)
+                break;
+ 
+            //Don't place a pixel if it's transparent (still going off of ABGR here,
+            //change to suit your palette)
+            if(mouse_img[y * MOUSE_WIDTH + x] & 0xFF000000)
+                fbuf[(y + mouse_y)
+                     * desktop->window.context->width 
+                     + (x + mouse_x)
+                    ] = mouse_img[y * MOUSE_WIDTH + x];
+        }
+    }
+}
+*/
 void screenThread() {
 
     while(1) {
@@ -126,6 +161,7 @@ void screenThread() {
         
             setCursor(0, 0);
             drawBitmap(back_buf);
+            //blit_mouse();
             screen_dirty = 0;
         }
 
@@ -242,6 +278,7 @@ void main(void) {
     //enable_debug(mdebug_start, mdebug_end);
 
     //Create backbuffer
+    //fbuf = (uint32_t*)getFramebuffer();
     back_buf = newBitmap(mode->width, mode->height);
     
     //Would realistically be on a vsync interrupt
