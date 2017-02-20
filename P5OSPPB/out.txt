@@ -1,0 +1,67 @@
+building usr.mod
+off
+Executing P5 build #1212
+Starting core build...
+Starting memory build...
+Starting obj build...
+Starting ascii_io build...
+Starting process build...
+Starting kserver build...
+Starting fat12 build...
+Starting block build...
+Starting fs build...
+Starting timer build...
+Linking binary
+p5kern.bin finished
+--------------------------------------------------------------------------------
+P5OSR0ppb compilation finished.
+Please consult README.TXT for information on using the two binaries which you
+just created.
+--------------------------------------------------------------------------------
+on
+9 files
+-------------
+offset 0x9e
+length 0x10e
+strlen 0x8
+name test.txt
+-------------
+offset 0x1ac
+length 0x4090
+strlen 0x7
+name usr.mod
+-------------
+offset 0x423c
+length 0x1240
+strlen 0x8
+name init.mod
+-------------
+offset 0x547c
+length 0x13e0
+strlen 0xd
+name registrar.mod
+-------------
+offset 0x685c
+length 0x1058
+strlen 0x8
+name idle.mod
+-------------
+offset 0x78b4
+length 0x105
+strlen 0x7
+name v86.mod
+-------------
+offset 0x79b9
+length 0x3254
+strlen 0x8
+name vesa.mod
+-------------
+offset 0xac0d
+length 0x2fd0
+strlen 0x7
+name ps2.mod
+-------------
+offset 0xdbdd
+length 0x88fc
+strlen 0x7
+name wyg.mod

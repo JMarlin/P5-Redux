@@ -107,6 +107,7 @@ void Window_delete_function(Object* window_object);
 void Window_resize(Window* window, int w, int h);
 void print_window(Window* window);
 void Window_remove_child(Window* window, Window* child);
+void Window_finish_draw(Window* window);
 
 #ifdef __cplusplus
 }

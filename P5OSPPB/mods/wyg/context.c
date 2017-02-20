@@ -34,14 +34,29 @@ Context* Context_new(uint16_t width, uint16_t height, uint32_t* buffer) {
     context->height = height; 
     context->buffer = buffer;
     context->clipping_on = 0;
+    context->finalize_handler = (ContextFinalizeHandler)0;
 
     return context;
+}
+
+void Context_set_finalize(Context* context, ContextFinalizeHandler handler) {
+
+    context->finalize_handler = handler;
+}
+
+void Context_finalize_draw(Context* context) {
+
+    if(context->finalize_handler)
+        context->finalize_handler();
 }
 
 //Clone from another context
 Context* Context_new_from(Context* source_context) {
 
-    return Context_new(source_context->width, source_context->height, source_context->buffer);
+    Context* new_ctx = Context_new(source_context->width, source_context->height, source_context->buffer);
+    new_ctx->finalize_handler = source_context->finalize_handler;
+
+    return new_ctx;
 }
 
 void Context_delete_function(Object* context_object) {

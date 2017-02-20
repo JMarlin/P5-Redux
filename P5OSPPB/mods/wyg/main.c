@@ -18,6 +18,7 @@ short mouse_y;
 message temp_msg;
 unsigned char inbuf[12];
 bitmap* back_buf;
+int screen_dirty = 0;
 
 //Our desktop object needs to be sharable by our main function
 //as well as our mouse event callback
@@ -121,10 +122,24 @@ void screenThread() {
 
     while(1) {
 
-        setCursor(0, 0);
-        drawBitmap(back_buf);
+        if(screen_dirty) {
+        
+            setCursor(0, 0);
+            drawBitmap(back_buf);
+            screen_dirty = 0;
+        }
+
         sleep(20);
     }
+}
+
+void refresh_screen() {
+
+    Desktop_blit_mouse(desktop);
+    screen_dirty = 1;
+    //setCursor(0, 0);
+    //drawBitmap(back_buf);
+    //sleep(20);
 }
 
 void mdebug_start() {
@@ -238,6 +253,7 @@ void main(void) {
     context->buffer = (unsigned long*)back_buf->data;
     context->width = mode->width;
     context->height = mode->height;
+    Context_set_finalize(context, refresh_screen);
 
     //Create the desktop 
     desktop = Desktop_new(context);

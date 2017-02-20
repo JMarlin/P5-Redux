@@ -320,10 +320,7 @@ void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
     if(!window)
         return;
 
-    //Do the context resets that would normally be done by WYG if it were drawing directly
-    Context_clear_clip_rects(window->context);
-    window->context->translate_x = 0;
-    window->context->translate_y = 0;
+    Window_finish_draw(window);
 
     //Finally, clear the waiting on client flag bit so that the window will receive 
     //any future paint events

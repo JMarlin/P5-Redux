@@ -133,6 +133,16 @@ void Desktop_process_mouse(Desktop* desktop, uint16_t mouse_x,
     desktop->mouse_x = mouse_x;
     desktop->mouse_y = mouse_y;
 
+    //Desktop_blit_mouse(desktop);
+}
+
+//Do the raw blit of the mouse image onto the screen
+void Desktop_blit_mouse(Desktop* desktop) {
+
+    int x, y;
+    int mouse_y = desktop->mouse_y;
+    int mouse_x = desktop->mouse_x;
+
     //No more hacky mouse, instead we're going to rather inefficiently 
     //copy the pixels from our mouse image into the framebuffer
     for(y = 0; y < MOUSE_HEIGHT; y++) {

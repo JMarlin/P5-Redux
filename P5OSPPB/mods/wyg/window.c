@@ -415,6 +415,15 @@ void Window_invalidate(Window* window, int top, int left, int bottom, int right)
     Object_delete((Object*)dirty_regions);
 }
 
+void Window_finish_draw(Window* window) {
+
+    Context_clear_clip_rects(window->context);
+    window->context->translate_x = 0;
+    window->context->translate_y = 0;
+
+    Context_finalize_draw(window->context);
+}
+
 //Another override-redirect function
 void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
 
@@ -506,12 +515,7 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
 
             //Do an internal repaint
             window->paint_function(window);
-
-            //If we did an internal repaint, we're not waiting on anything so we can clear everything right away
-            //Now that we're done drawing this window, we can clear the changes we made to the context
-            Context_clear_clip_rects(window->context);
-            window->context->translate_x = 0;
-            window->context->translate_y = 0;
+            Window_finish_draw(window);
         }
     }
     

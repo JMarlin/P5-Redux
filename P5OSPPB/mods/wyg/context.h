@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 struct Context_struct;
+typedef void (*ContextFinalizeHandler)(void);
 
 #include "../include/gfx.h"
 #include "inttypes.h"
@@ -26,6 +27,7 @@ typedef struct Context_struct {
     int translate_y;
     List* clip_rects;
     uint8_t clipping_on;
+    ContextFinalizeHandler finalize_handler;
 } Context;
 
 //Methods
@@ -45,6 +47,8 @@ void Context_subtract_clip_rect(Context* context, Rect* subtracted_rect);
 void Context_add_clip_rect(Context* context, Rect* rect);
 void Context_clear_clip_rects(Context* context);
 void Context_draw_text(Context* context, char* string, int x, int y, uint32_t color);
+void Context_set_finalize(Context* context, ContextFinalizeHandler handler);
+void Context_finalize_draw(Context* context);
 
 #ifdef __cplusplus
 }
