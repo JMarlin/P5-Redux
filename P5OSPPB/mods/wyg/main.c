@@ -194,7 +194,7 @@ void screenThread() {
             draw_halt++;
             setCursor(0, 0);
             drawBitmap(back_buf);
-            blit_mouse();
+            blit_mouse(mouse_x, mouse_y);
             screen_dirty = 0;
             draw_halt--;
         }
