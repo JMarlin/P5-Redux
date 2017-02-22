@@ -76,7 +76,7 @@ int Desktop_init(Desktop* desktop, Context* context) {
 void Desktop_paint_handler(Window* desktop_window) {
   
     //Fill the desktop
-    Context_fill_rect(desktop_window->context, 0, 0, desktop_window->context->width, desktop_window->context->height, RGB(11, 162, 193));
+    Context_fill_rect(desktop_window->context, 0, 0, desktop_window->context->width, desktop_window->context->height, RGB(255, 0, 0)); //RGB(11, 162, 193));
 
     //Draw some test text
     Context_draw_text(desktop_window->context, "Windowing Systems by Example",
