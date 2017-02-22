@@ -311,11 +311,12 @@ void main(void) {
     //Start malloc debugging
     //enable_debug(mdebug_start, mdebug_end);
 
-    //DEBUG
-    BRK();
-
     //Create backbuffer
     fbuf = (uint32_t*)getFramebuffer();
+    
+    //DEBUG
+    BRK();
+    
     back_buf = newBitmap(mode->width, mode->height);
     
     //Would realistically be on a vsync interrupt
