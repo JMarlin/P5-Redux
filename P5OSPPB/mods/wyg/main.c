@@ -18,11 +18,46 @@ short mouse_y;
 message temp_msg;
 unsigned char inbuf[12];
 bitmap* back_buf;
+int draw_halt = 0;
 int screen_dirty = 0;
 
 //Our desktop object needs to be sharable by our main function
 //as well as our mouse event callback
 Desktop* desktop;
+extern uint32_t mouse_img[];
+uint32_t *fbuf;
+
+//Do the raw blit of the mouse image onto the screen
+void blit_mouse() {
+
+    int x, y;
+    int mouse_y = desktop->mouse_y;
+    int mouse_x = desktop->mouse_x;
+
+    //No more hacky mouse, instead we're going to rather inefficiently 
+    //copy the pixels from our mouse image into the framebuffer
+    for(y = 0; y < MOUSE_HEIGHT; y++) {
+
+        //Make sure we don't draw off the bottom of the screen
+        if((y + mouse_y) >= desktop->window.context->height)
+            break;
+
+        for(x = 0; x < MOUSE_WIDTH; x++) {
+
+            //Make sure we don't draw off the right side of the screen
+            if((x + mouse_x) >= desktop->window.context->width)
+                break;
+ 
+            //Don't place a pixel if it's transparent (still going off of ABGR here,
+            //change to suit your palette)
+            if(mouse_img[y * MOUSE_WIDTH + x] & 0xFF000000)
+                fbuf[(y + mouse_y)
+                     * desktop->window.context->width 
+                     + (x + mouse_x)
+                    ] = mouse_img[y * MOUSE_WIDTH + x];
+        }
+    }
+}
 
 //The callback that our mouse device will trigger on mouse updates
 void moveMouse(unsigned long packed_data) {
@@ -55,6 +90,29 @@ void moveMouse(unsigned long packed_data) {
     
     if(mouse_y > desktop->window.height - MOUSE_HEIGHT)
         mouse_y = desktop->window.height - MOUSE_HEIGHT;
+
+    //redraw the mouse if it moved
+    if(x_off != 0 || y_off != 0) {
+
+        //Wait for the screen thread to be done drawing
+        while(draw_halt);
+
+        //Erase the mouse from its previous location
+        draw_halt++;
+        setCursor(0, 0);
+        back_buf->top = mouse_y;
+        back_buf->bottom = mouse_y + MOUSE_HEIGHT - 1;
+        back_buf->left = mouse_x;
+        back_buf->right = mouse_x + MOUSE_WIDTH - 1;
+        drawBitmap(back_buf);
+        //Draw mouse at new location
+        blit_mouse(); 
+        //Reset bitmap draw region
+        back_buf->top = back_buf->left = 0;
+        back_buf->right = back_buf->width - 1;
+        back_buf->bottom = back_buf->height - 1;
+        draw_halt--;
+    }
 
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
@@ -117,52 +175,19 @@ void showModes(void) {
         pchar('\n');
     }
 }
-/*
-extern uint32_t mouse_img[];
-uint32_t *fbuf;
 
-//Do the raw blit of the mouse image onto the screen
-void blit_mouse() {
-
-    int x, y;
-    int mouse_y = desktop->mouse_y;
-    int mouse_x = desktop->mouse_x;
-
-    //No more hacky mouse, instead we're going to rather inefficiently 
-    //copy the pixels from our mouse image into the framebuffer
-    for(y = 0; y < MOUSE_HEIGHT; y++) {
-
-        //Make sure we don't draw off the bottom of the screen
-        if((y + mouse_y) >= desktop->window.context->height)
-            break;
-
-        for(x = 0; x < MOUSE_WIDTH; x++) {
-
-            //Make sure we don't draw off the right side of the screen
-            if((x + mouse_x) >= desktop->window.context->width)
-                break;
- 
-            //Don't place a pixel if it's transparent (still going off of ABGR here,
-            //change to suit your palette)
-            if(mouse_img[y * MOUSE_WIDTH + x] & 0xFF000000)
-                fbuf[(y + mouse_y)
-                     * desktop->window.context->width 
-                     + (x + mouse_x)
-                    ] = mouse_img[y * MOUSE_WIDTH + x];
-        }
-    }
-}
-*/
 void screenThread() {
 
     while(1) {
 
-        if(screen_dirty) {
-        
+        if(screen_dirty && !draw_halt) {
+            
+            draw_halt++;
             setCursor(0, 0);
             drawBitmap(back_buf);
-            //blit_mouse();
+            blit_mouse();
             screen_dirty = 0;
+            draw_halt--;
         }
 
         sleep(20);
@@ -171,7 +196,7 @@ void screenThread() {
 
 void refresh_screen() {
 
-    Desktop_blit_mouse(desktop);
+    //Desktop_blit_mouse(desktop);
     screen_dirty = 1;
     //setCursor(0, 0);
     //drawBitmap(back_buf);
@@ -278,7 +303,7 @@ void main(void) {
     //enable_debug(mdebug_start, mdebug_end);
 
     //Create backbuffer
-    //fbuf = (uint32_t*)getFramebuffer();
+    fbuf = (uint32_t*)getFramebuffer();
     back_buf = newBitmap(mode->width, mode->height);
     
     //Would realistically be on a vsync interrupt
