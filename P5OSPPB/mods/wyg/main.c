@@ -69,28 +69,6 @@ void moveMouse(unsigned long packed_data) {
     x_off = (short)((unsigned char)(packed_data & 0xFF));
     y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
 
-    if(packed_data & 0x100)
-        mouse_x -= x_off;
-    else
-        mouse_x += x_off;
-
-    if(packed_data & 0x20000)    
-        mouse_y += y_off;
-    else
-        mouse_y -= y_off;
-
-    if(mouse_x < 0)
-        mouse_x = 0;
-
-    if(mouse_x > desktop->window.width - MOUSE_WIDTH)
-        mouse_x = desktop->window.width - MOUSE_WIDTH;
-
-    if(mouse_y < 0)
-        mouse_y = 0;
-    
-    if(mouse_y > desktop->window.height - MOUSE_HEIGHT)
-        mouse_y = desktop->window.height - MOUSE_HEIGHT;
-
     //redraw the mouse if it moved
     if(x_off != 0 || y_off != 0) {
 
@@ -113,6 +91,28 @@ void moveMouse(unsigned long packed_data) {
         back_buf->bottom = back_buf->height - 1;
         draw_halt--;
     }
+
+    if(packed_data & 0x100)
+        mouse_x -= x_off;
+    else
+        mouse_x += x_off;
+
+    if(packed_data & 0x20000)    
+        mouse_y += y_off;
+    else
+        mouse_y -= y_off;
+
+    if(mouse_x < 0)
+        mouse_x = 0;
+
+    if(mouse_x > desktop->window.width - MOUSE_WIDTH)
+        mouse_x = desktop->window.width - MOUSE_WIDTH;
+
+    if(mouse_y < 0)
+        mouse_y = 0;
+    
+    if(mouse_y > desktop->window.height - MOUSE_HEIGHT)
+        mouse_y = desktop->window.height - MOUSE_HEIGHT;
 
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
