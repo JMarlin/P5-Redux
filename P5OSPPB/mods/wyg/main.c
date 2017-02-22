@@ -239,9 +239,6 @@ void main(void) {
     unsigned char* instr;
     unsigned int strlen;
 
-    //DEBUG
-    BRK();
-
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
@@ -313,6 +310,9 @@ void main(void) {
 
     //Start malloc debugging
     //enable_debug(mdebug_start, mdebug_end);
+
+    //DEBUG
+    BRK();
 
     //Create backbuffer
     fbuf = (uint32_t*)getFramebuffer();
