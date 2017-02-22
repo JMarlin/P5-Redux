@@ -316,7 +316,7 @@ void main(void) {
     back_buf = newBitmap(mode->width, mode->height);
     
     //DEBUG
-    BRK();
+    BRK(); //TESTED: Up to this point, the gfx.c code memory is still good/has yet to be mystery clobbered
 
     //Would realistically be on a vsync interrupt
     if(!startThread())
