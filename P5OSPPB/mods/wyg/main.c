@@ -77,14 +77,13 @@ void moveMouse(unsigned long packed_data) {
 
         //Erase the mouse from its previous location
         draw_halt++;
-        //setCursor(0, 0);
-        //back_buf->top = mouse_y;
-        //back_buf->bottom = mouse_y + MOUSE_HEIGHT - 1;
-        //back_buf->left = mouse_x;
-        //back_buf->right = mouse_x + MOUSE_WIDTH - 1;
-        //drawBitmap(back_buf);
-        //Draw mouse at new location
-        blit_mouse(); 
+        setCursor(0, 0);
+        back_buf->top = mouse_y;
+        back_buf->bottom = mouse_y + MOUSE_HEIGHT - 1;
+        back_buf->left = mouse_x;
+        back_buf->right = mouse_x + MOUSE_WIDTH - 1;
+        drawBitmap(back_buf);
+         
         //Reset bitmap draw region
         back_buf->top = back_buf->left = 0;
         back_buf->right = back_buf->width - 1;
@@ -113,6 +112,16 @@ void moveMouse(unsigned long packed_data) {
     
     if(mouse_y > desktop->window.height - MOUSE_HEIGHT)
         mouse_y = desktop->window.height - MOUSE_HEIGHT;
+
+    //Draw the mouse at the new location
+    if(x_off != 0 || y_off != 0) {
+
+        while(draw_halt);
+
+        draw_halt++;
+        blit_mouse();
+        draw_halt--;
+    }
 
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
