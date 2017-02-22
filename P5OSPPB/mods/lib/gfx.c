@@ -179,6 +179,9 @@ void freeBitmap(bitmap* bmp) {
 
 void drawBitmap(bitmap* bmp) {
     
+    //Fo' debug
+    ((unsigned int*)0xB01000) = (unsigned int)bmp; 
+
     postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
     getMessageFrom(&temp_msg, gfx_pid, GFX_DRAWBMP);
 }
