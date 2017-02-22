@@ -312,13 +312,12 @@ void main(void) {
     //enable_debug(mdebug_start, mdebug_end);
 
     //Create backbuffer
-    fbuf = (uint32_t*)getFramebuffer();
+    fbuf = (uint32_t*)getFramebuffer();    
+    back_buf = newBitmap(mode->width, mode->height);
     
     //DEBUG
     BRK();
-    
-    back_buf = newBitmap(mode->width, mode->height);
-    
+
     //Would realistically be on a vsync interrupt
     if(!startThread())
         screenThread();
