@@ -3,6 +3,7 @@
 
 #include "kscommands.h"
 
+#define BRK() ((int*)0x0)[0] = 0
 #define MSG_STRLEN 34
 #define MSG_STRCHUNK 35 
 

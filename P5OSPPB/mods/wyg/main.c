@@ -239,6 +239,9 @@ void main(void) {
     unsigned char* instr;
     unsigned int strlen;
 
+    //DEBUG
+    BRK();
+
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
