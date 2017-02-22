@@ -549,7 +549,7 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
         for(yo = (bmp->top < 0 ? 0 : bmp->top); yo <= bmp->height && yo < curMode.Yres; yo++) {
 
             memcpy(&bmp->data[(yo * bmp->width) + bmp->left],
-                   &v[((yo + y) * curMode.Xres) + x],
+                   &v[((yo + y) * curMode.Xres) + x + bmp->left],
                    (bmp->right - bmp->left + 1) * 4);
         }
     } else {
