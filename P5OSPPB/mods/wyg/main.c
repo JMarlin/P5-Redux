@@ -28,32 +28,32 @@ extern uint32_t mouse_img[];
 uint32_t *fbuf;
 
 //Do the raw blit of the mouse image onto the screen
-void blit_mouse() {
+void blit_mouse(int mx, int my) {
 
     int x, y;
-    int mouse_y = desktop->mouse_y;
-    int mouse_x = desktop->mouse_x;
+    //int mouse_y = desktop->mouse_y;
+    //int mouse_x = desktop->mouse_x;
 
     //No more hacky mouse, instead we're going to rather inefficiently 
     //copy the pixels from our mouse image into the framebuffer
     for(y = 0; y < MOUSE_HEIGHT; y++) {
 
         //Make sure we don't draw off the bottom of the screen
-        if((y + mouse_y) >= desktop->window.context->height)
+        if((y + my) >= desktop->window.context->height)
             break;
 
         for(x = 0; x < MOUSE_WIDTH; x++) {
 
             //Make sure we don't draw off the right side of the screen
-            if((x + mouse_x) >= desktop->window.context->width)
+            if((x + mx) >= desktop->window.context->width)
                 break;
  
             //Don't place a pixel if it's transparent (still going off of ABGR here,
             //change to suit your palette)
             if(mouse_img[y * MOUSE_WIDTH + x] & 0xFF000000)
-                fbuf[(y + mouse_y)
+                fbuf[(y + my)
                      * desktop->window.context->width 
-                     + (x + mouse_x)
+                     + (x + mx)
                     ] = mouse_img[y * MOUSE_WIDTH + x];
         }
     }
@@ -119,7 +119,7 @@ void moveMouse(unsigned long packed_data) {
         while(draw_halt);
 
         draw_halt++;
-        blit_mouse();
+        blit_mouse(mouse_x, mouse_y);
         draw_halt--;
     }
 
