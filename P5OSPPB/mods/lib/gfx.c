@@ -157,6 +157,10 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     for(i = 0; i < bmp_size; i++) {
 
         ((unsigned int*)0xB00000)[3] = i;
+        
+        if(i == bmp_size)
+            break;
+        
         return_bmp->data[i] = 0;
     }
 
