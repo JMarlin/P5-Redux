@@ -113,12 +113,17 @@ void drawStr(char* str) {
 }
 
 bitmap* newBitmap(unsigned int width, unsigned int height) {
-    
+
     unsigned int bmp_size = width * height;
     unsigned int bufsz = (bmp_size *  sizeof(unsigned int)) + sizeof(bitmap);
     bitmap* return_bmp;
     unsigned int i;
     
+//Fo' debug
+    ((unsigned int*)0xB00000)[0] = width;
+    ((unsigned int*)0xB00000)[1] = height;
+    ((unsigned int*)0xB00000)[0] = bmp_size;
+
     //Ceil bufsz to the next page
     bufsz = ((bufsz / 0x1000) * 0x1000) + ((bufsz % 0x1000) ? 0x1000 : 0);
     
