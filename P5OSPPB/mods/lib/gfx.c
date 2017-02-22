@@ -122,7 +122,7 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
 //Fo' debug
     ((unsigned int*)0xB00000)[0] = width;
     ((unsigned int*)0xB00000)[1] = height;
-    ((unsigned int*)0xB00000)[0] = bmp_size;
+    ((unsigned int*)0xB00000)[2] = bmp_size;
 
     //Ceil bufsz to the next page
     bufsz = ((bufsz / 0x1000) * 0x1000) + ((bufsz % 0x1000) ? 0x1000 : 0);
@@ -154,6 +154,7 @@ bitmap* newBitmap(unsigned int width, unsigned int height) {
     return_bmp->data = (unsigned int*)((unsigned char*)return_bmp + sizeof(bitmap));
     
     //Clear the bitmap
+    ((unsigned int*)0xB00000)[3] = bmp_size;
     for(i = 0; i < bmp_size; i++)
         return_bmp->data[i] = 0;
 
