@@ -5,6 +5,7 @@
 
 
 //================| Context Class Implementation |================//
+unsigned int* test_array = (unsigned int*)0xB01000;
 
 //Constructor for our context
 Context* Context_new(uint16_t width, uint16_t height, uint32_t* buffer) {
