@@ -27,6 +27,16 @@ Desktop* desktop;
 extern uint32_t mouse_img[];
 uint32_t *fbuf;
 
+void drawStri(char* s, int x, int y) {
+
+    while(*s) {
+
+        setCursor(x, y);
+        drawChar(*(s++);
+        x += 8;
+    }
+}
+
 //Do the raw blit of the mouse image onto the screen
 void blit_mouse(int mx, int my) {
 
@@ -317,8 +327,7 @@ void main(void) {
     
     //DEBUG
     setColor(RGB(255, 0, 0));
-    setCursor(0, 0);
-    drawStr("About to start the drawing thread...");
+    drawStri("About to start the drawing thread...", 0, 0);
     scans(10, inbuf);
 
     //Would realistically be on a vsync interrupt
@@ -326,8 +335,7 @@ void main(void) {
         screenThread();
 
     //DEBUG
-    setCursor(0, 14);
-    drawStr("About to create the context...");
+    drawStri("About to create the context...", 0, 14);
     scans(10, inbuf);
 
     //Fill this in with the info particular to your project
@@ -338,8 +346,7 @@ void main(void) {
     Context_set_finalize(context, refresh_screen);
 
     //DEBUG
-    setCursor(0, 28);
-    drawStr("About to create the desktop...");
+    drawStri("About to create the desktop...", 0, 28);
     scans(10, inbuf);
 
     //Create the desktop 
@@ -350,16 +357,14 @@ void main(void) {
     mouse_y = desktop->window.height / 2 - 1;
 
     //DEBUG
-    setCursor(0, 42);
-    drawStr("About to do initial paint...");
+    drawStri("About to do initial paint...", 0, 42);
     scans(10, inbuf);
 
     //Do an initial desktop paint
     Window_paint((Window*)desktop, (List*)0, 1);
 
     //DEBUG
-    setCursor(0, 56);
-    drawStr("About to enter message loop...");
+    drawStri("About to enter message loop...", 0, 56);
     scans(10, inbuf);
 
     //Main message loop
