@@ -32,7 +32,7 @@ void drawStri(char* s, int x, int y) {
     while(*s) {
 
         setCursor(x, y);
-        drawChar(*(s++);
+        drawChar(*(s++));
         x += 8;
     }
 }
