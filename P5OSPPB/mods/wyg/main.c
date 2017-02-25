@@ -316,11 +316,19 @@ void main(void) {
     back_buf = newBitmap(mode->width, mode->height);
     
     //DEBUG
-    BRK(); //TESTED: Up to this point, the gfx.c code memory is still good/has yet to be mystery clobbered
+    setColor(RGB(255, 0, 0));
+    setCursor(0, 0);
+    drawStr("About to start the drawing thread...");
+    scans(10, inbuf);
 
     //Would realistically be on a vsync interrupt
     if(!startThread())
         screenThread();
+
+    //DEBUG
+    setCursor(0, 14);
+    drawStr("About to create the context...");
+    scans(10, inbuf);
 
     //Fill this in with the info particular to your project
     Context* context = Context_new(0, 0, 0);
@@ -329,6 +337,11 @@ void main(void) {
     context->height = mode->height;
     Context_set_finalize(context, refresh_screen);
 
+    //DEBUG
+    setCursor(0, 28);
+    drawStr("About to create the desktop...");
+    scans(10, inbuf);
+
     //Create the desktop 
     desktop = Desktop_new(context);
 
@@ -336,8 +349,18 @@ void main(void) {
     mouse_x = desktop->window.width / 2 - 1;
     mouse_y = desktop->window.height / 2 - 1;
 
+    //DEBUG
+    setCursor(0, 42);
+    drawStr("About to do initial paint...");
+    scans(10, inbuf);
+
     //Do an initial desktop paint
     Window_paint((Window*)desktop, (List*)0, 1);
+
+    //DEBUG
+    setCursor(0, 56);
+    drawStr("About to enter message loop...");
+    scans(10, inbuf);
 
     //Main message loop
     while(1) {
