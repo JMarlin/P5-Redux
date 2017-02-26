@@ -363,7 +363,6 @@ void main(void) {
     //DEBUG
     drawStri("About to do initial paint...", 0, 42);
     scans(10, inbuf);
-    BRK();
 
     //Do an initial desktop paint
     Window_paint((Window*)desktop, (List*)0, 1);
