@@ -333,6 +333,17 @@ void main(void) {
         while(1);
     }
 
+    //DEBUG print back_buf address
+    for(i = 0; i < 8; i++) {
+
+        unsigned char digit = (((unsigned int)back_buf) >> (4 * i)) & 0xF;
+        setCursor(8*i, 0);
+
+        if(digit < 10)
+            drawChar(digit + '0');
+        else
+            drawChar((digit - 10) + 'A');
+    }
     
     //DEBUG
     drawStri("About to start the drawing thread...", 0, 0);
