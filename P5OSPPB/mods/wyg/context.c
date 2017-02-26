@@ -5,7 +5,6 @@
 
 
 //================| Context Class Implementation |================//
-unsigned int* test_array = (unsigned int*)0xB01000;
 
 //Constructor for our context
 Context* Context_new(uint16_t width, uint16_t height, uint32_t* buffer) {
@@ -73,11 +72,7 @@ void Context_delete_function(Object* context_object) {
 
 void Context_clipped_rect(Context* context, int x, int y, unsigned int width,
                           unsigned int height, Rect* clip_area, uint32_t color) {
-
-    //DEBUG -- be double-sure that we're getting an untainted chunk of memory 
-    //that nothing in our application or the OS should be fucking with
-    unsigned int* dbg_mem = (unsigned int*)malloc(64);
-    test_array[0] = (unsigned int)dbg_mem;
+    
     int i;
     for(i = 0; i < 64; i++)
         dbg_mem[i] = 0xFFFFFFFF;
@@ -104,15 +99,6 @@ void Context_clipped_rect(Context* context, int x, int y, unsigned int width,
 
     if(max_y > clip_area->bottom + 1)
         max_y = clip_area->bottom + 1;
-
-    //DEBUG
-    dbg_mem[0] = (unsigned int)context;
-    ((int*)dbg_mem)[1] = x;
-    ((int*)dbg_mem)[2] = (unsigned int)y;
-    dbg_mem[3] = width;
-    dbg_mem[4] = height;
-    dbg_mem[5] = (unsigned int)clip_area;
-    dbg_mem[6] = color;
 
     //Draw the rectangle into the framebuffer line-by line
     //(bonus points if you write an assembly routine to do it faster)

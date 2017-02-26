@@ -248,6 +248,7 @@ void main(void) {
     unsigned int src_pid;
     unsigned char* instr;
     unsigned int strlen;
+    unsigned int* test_array = (unsigned int*)0xB01000;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -351,6 +352,9 @@ void main(void) {
 
     //Create the desktop 
     desktop = Desktop_new(context);
+
+    //DEBUG get a pointer to the desktop for crash debugging (see what has a good buffer and what doesn't)
+    test_array[0] = (unsigned int)desktop;
 
     //Set up the initial mouse position
     mouse_x = desktop->window.width / 2 - 1;
