@@ -344,6 +344,7 @@ void main(void) {
         else
             drawChar((digit - 10) + 'A');
     }
+    scans(10, inbuf);
     
     //DEBUG
     drawStri("About to start the drawing thread...", 0, 0);
