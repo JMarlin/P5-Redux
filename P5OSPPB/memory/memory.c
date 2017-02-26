@@ -304,9 +304,14 @@ void finish_mem_config() {
 
     maxRAM = (unsigned int)(biggest_end & 0xFFFFFFFF);
 
-    //We expect a minimum of 32M ram
-    if(maxRAM < 0x1FFFFFF)
+    //DEBUG Limiting this for real system testing where our memory alloation is getting furbared
+    //We define a maximum of 32M ram 
+    if(maxRAM > 0x1FFFFFF)
         maxRAM = 0x1FFFFFF;
+    
+    //We expect a minimum of 32M ram
+    //if(maxRAM < 0x1FFFFFF)
+        //maxRAM = 0x1FFFFFF;
 
     //Reset the state changes made by creating all of those v86 procs
     //prints("Resetting process management\n");

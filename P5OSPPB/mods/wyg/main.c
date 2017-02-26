@@ -336,7 +336,7 @@ void main(void) {
     //DEBUG print back_buf address
     for(i = 0; i < 8; i++) {
 
-        unsigned char digit = (((unsigned int)back_buf) >> (4 * i)) & 0xF;
+        unsigned char digit = (((unsigned int)back_buf) >> (4 * (8 - i))) & 0xF;
         setCursor(8*i, 0);
 
         if(digit < 10)
