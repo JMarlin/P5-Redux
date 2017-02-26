@@ -72,10 +72,6 @@ void Context_delete_function(Object* context_object) {
 
 void Context_clipped_rect(Context* context, int x, int y, unsigned int width,
                           unsigned int height, Rect* clip_area, uint32_t color) {
-    
-    int i;
-    for(i = 0; i < 64; i++)
-        dbg_mem[i] = 0xFFFFFFFF;
 
     int cur_x;
     int max_x = x + width;
