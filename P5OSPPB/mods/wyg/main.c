@@ -325,9 +325,16 @@ void main(void) {
     //Create backbuffer
     fbuf = (uint32_t*)getFramebuffer();    
     back_buf = newBitmap(mode->width, mode->height);
+    setColor(RGB(255, 0, 0));
+
+    if(!back_buf) {
+    
+        drawStri("Failed to allocate back_buf", 0, 0);
+        while(1);
+    }
+
     
     //DEBUG
-    setColor(RGB(255, 0, 0));
     drawStri("About to start the drawing thread...", 0, 0);
     scans(10, inbuf);
 
