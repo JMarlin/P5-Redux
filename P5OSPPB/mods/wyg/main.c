@@ -484,9 +484,8 @@ void main(void) {
                 //prints("allocated string buffer...");
                 getString(src_pid, instr, strlen); 
                 //prints("received string data...");
-                WYG_draw_string(desktop, current_handle, current_data, instr);
+                WYG_draw_string(desktop, current_handle, current_data, instr); //String freed after draw
                 //prints("drew string to screen...");
-                free((void*)instr);
                 //prints("done");
             break;
 

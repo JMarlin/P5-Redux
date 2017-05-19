@@ -104,6 +104,7 @@ int Window_init(Window* window, int16_t x, int16_t y, uint16_t width,
     window->active_child = (Window*)0;
     window->over_child = (Window*)0;
     window->title = (char*)0;
+    window->command_queue = (CommandQueue*)0;
     window->pid = 0;
 
     return 1;

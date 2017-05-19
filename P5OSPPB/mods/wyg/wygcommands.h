@@ -3,6 +3,9 @@
 
 #include "desktop.h"
 
+#define WYG_CMD_STRING 1
+#define WYG_CMD_RECT 2
+
 unsigned int WYG_create_window(Desktop* desktop, unsigned int flags, unsigned int pid);
 unsigned int WYG_get_window_context_id(Desktop* desktop, unsigned int window_id);
 unsigned int WYG_get_window_dimensions(Desktop* desktop, unsigned int window_id);

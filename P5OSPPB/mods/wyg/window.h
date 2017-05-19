@@ -8,6 +8,7 @@ extern "C" {
 #include "context.h"
 #include "inttypes.h"
 #include "object.h"
+#include "commandqueue.h"
 
 //================| Window Class Declaration |================//
 
@@ -67,6 +68,7 @@ typedef struct Window_struct {
     WindowMousemoveHandler mousemove_function;
     WindowMouseclickHandler mouseclick_function;
     WindowMoveHandler move_function;
+    CommandQueue* command_queue;
     char* title;
     unsigned int pid;
 } Window;

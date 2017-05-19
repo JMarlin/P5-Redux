@@ -279,6 +279,7 @@ void WYG_draw_string(Desktop* desktop, unsigned int window_id,
                      unsigned int position_data, char* c) {
 
     Window* window;
+    Command* command;
 
     //Try to find the window in the window tree of the passed desktop
     window = WYG_get_window_from_id((Window*)desktop, window_id);
@@ -287,15 +288,25 @@ void WYG_draw_string(Desktop* desktop, unsigned int window_id,
     if(!window)
         return;
 
-    //Do some simple text drawing (to be improved in the future)
-    Context_draw_text(window->context, c, (position_data >> 16) & 0xFFFF,
-                      position_data & 0xFFFF, RGB(0, 0, 0));
+    if(!window->command_queue)
+        if(!(window->command_queue = CommandQueue_new()))
+            return;
+
+    if(!(command = Command_new(WYG_CMD_STRING, 3)))
+        return;
+
+    command->param[0] = (unsigned int)c;
+    command->param[1] = (unsigned int)((position_data >> 16) & 0xFFFF);
+    command->param[2] = (unsigned int)(position_data & 0xFFFF);
+
+    CommandQueue_insert(window->command_queue, command);
 }
 
 void WYG_draw_rectangle(Desktop* desktop, unsigned int window_id,
                         unsigned int point_data, unsigned int dim_data, unsigned int color) {
     
     Window* window;
+    Command* command;
 
     //Try to find the window in the window tree of the passed desktop
     window = WYG_get_window_from_id((Window*)desktop, window_id);
@@ -304,14 +315,26 @@ void WYG_draw_rectangle(Desktop* desktop, unsigned int window_id,
     if(!window)
         return;
 
-    //Do a simple rectangle
-    Context_fill_rect(window->context, (point_data >> 16) & 0xFFFF, point_data & 0xFFFF,
-                      (dim_data >> 16) & 0xFFFF, dim_data & 0xFFFF, color);
+    if(!window->command_queue)
+        if(!(window->command_queue = CommandQueue_new()))
+            return;
+
+    if(!(command = Command_new(WYG_CMD_RECT, 5)))
+        return;
+
+    command->param[0] = (unsigned int)((point_data >> 16) & 0xFFFF);
+    command->param[1] = (unsigned int)(point_data & 0xFFFF);
+    command->param[2] = (unsigned int)((dim_data >> 16) & 0xFFFF);
+    command->param[3] = (unsigned int)(dim_data & 0xFFFF);
+    command->param[4] = color;
+
+    CommandQueue_insert(window->command_queue, command);    
 }
 
 void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
 
     Window* window;
+    Command* command;
 
     //Try to find the window in the window tree of the passed desktop
     window = WYG_get_window_from_id((Window*)desktop, window_id);
@@ -319,6 +342,32 @@ void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
     //If we couldn't find the window, fail
     if(!window)
         return;
+
+    //Empty the draw command queue
+    if(window->command_queue)
+        while(command = CommandQueue_pull(window->command_queue)) {
+
+            switch(command->command) {
+
+                case WYG_CMD_STRING:
+                    //Do some simple text drawing (to be improved in the future)
+                    Context_draw_text(window->context, (char*)command->param[0],
+                                      command->param[1], command->param[2], RGB(0, 0, 0));
+                    free((char*)command->param[0]);
+                break;
+
+                case WYG_CMD_RECT:
+                    //Do a simple rectangle
+                    Context_fill_rect(window->context, command->param[0], command->param[1],
+                                      command->param[2], command->param[3], command->param[4]);
+                break;
+
+                default:
+                break;
+            }
+
+            Command_delete(command);
+        }
 
     Window_finish_draw(window);
 
