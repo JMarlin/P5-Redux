@@ -513,7 +513,7 @@ void Window_paint(Window* window, List* dirty_regions, uint8_t paint_children) {
             //and then actually request the owning process to do so
             window->flags |= WIN_CLIENT_WAIT;
             window->flags &= ~WIN_DIRTY;
-            WYG_increment_waiting();
+            //WYG_increment_waiting();
             postMessage(window->pid, WYG_EVENT, WYG_EVENT_REPAINT | (window->id & 0xFFFF));
         } else {
 

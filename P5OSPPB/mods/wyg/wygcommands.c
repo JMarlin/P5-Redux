@@ -395,7 +395,7 @@ void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
     //Finally, clear the waiting on client flag bit so that the window will receive 
     //any future paint events
     window->flags &= ~WIN_CLIENT_WAIT;
-    WYG_decrement_waiting();
+    //WYG_decrement_waiting();
 
     //If we were marked dirty, it means something happened to us while we were drawing ourselves
     //and we need to fix it already
