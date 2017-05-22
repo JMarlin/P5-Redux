@@ -73,7 +73,6 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     }
 }
 
-
 //Find the first item in the message queue list of the process with
 //id procid, place its contents into the passed message structure
 //and finally release the message and shift the list by one
@@ -96,11 +95,11 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         msgBuf->payload = proc->root_msg->payload;
         msgBuf->next = (message*)0;
 
-        //Free the memory it was using
-        kfree((void*)(proc->root_msg));
-
         //Snip out the matched entry
         proc->root_msg = proc->root_msg->next;
+
+        //Free the memory it was using
+        kfree((void*)(proc->root_msg));
 
         return 1;
     }
@@ -142,4 +141,25 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
     kfree((void*)(cur_msg));
 
     return 1;
+}
+
+//Look through the process's message queue and return true if there are any messages in it
+//which have the specified sender PID and/or command 
+int findMessage(struct process* proc, unsigned int send_pid, unsigned int command) {
+
+    message* cur_msg = proc->root_msg;
+
+    while(cur_msg) {
+
+        //Match the source or the command
+        if((send_pid == 0xFFFFFFFF || send_pid == cur_msg->source) &&
+           (command == 0xFFFFFFFF || command == cur_msg->command)) {
+
+               return 1;
+        }
+
+        cur_msg = cur_msg->next;
+    }
+
+    return 0;
 }

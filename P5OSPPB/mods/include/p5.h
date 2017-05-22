@@ -22,8 +22,10 @@ extern unsigned int _retval;
 extern void _asm_get_msg(void);
 extern void _asm_send_msg(void);
 extern void _asm_get_msg_from(void);
+extern void _asm_message_exists(void);
 
 int getMessage(message* msg);
+int messageExists(unsigned int source, unsigned int command);
 int getMessageFrom(message* msg, unsigned int source, unsigned int command);
 void postMessage(unsigned int dest, unsigned int command, unsigned int payload);
 unsigned int getCurrentPid(void);

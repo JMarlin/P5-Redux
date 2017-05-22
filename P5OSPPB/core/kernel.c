@@ -38,8 +38,7 @@ int main(void) {
     prints("Done.\nSetting up the GDT...");
     initGdt();
     prints("Done.\nSetting up keyboard...");
-    keyboard_init();
-    setupKeyTable_set1();
+    
     pchar('\n');
     prints("\nInitializing process mgmt...");
     startProcessManagement();

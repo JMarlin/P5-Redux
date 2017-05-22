@@ -21,6 +21,9 @@ bitmap* back_buf;
 int draw_halt = 0;
 int screen_dirty = 0;
 
+unsigned int mouse_count = 0;
+unsigned int mouse_queue[100] = {0};
+
 //Our desktop object needs to be sharable by our main function
 //as well as our mouse event callback
 Desktop* desktop;
@@ -69,47 +72,47 @@ void blit_mouse(int mx, int my) {
     }
 }
 
+void unpackMouse(unsigned long packed_data, short* x_off, short* y_off, unsigned char* buttons) {
+
+    *buttons = (unsigned char)((packed_data >> 24) & 0xFF);
+    *x_off = (short)((unsigned char)(packed_data & 0xFF));
+    *y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
+
+    if(packed_data & 0x100)
+        *x_off = -*x_off;
+
+    if(!(packed_data & 0x20000))    
+        *y_off = -*y_off;
+}
+
 //The callback that our mouse device will trigger on mouse updates
-void moveMouse(unsigned long packed_data) {
-
-    short x_off, y_off;
-    unsigned char buttons;
-
-    buttons = (unsigned char)((packed_data >> 24) & 0xFF);
-    x_off = (short)((unsigned char)(packed_data & 0xFF));
-    y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
+void moveMouse(short x_off, short y_off, unsigned char buttons) {
 
     //redraw the mouse if it moved
     if(x_off != 0 || y_off != 0) {
 
         //Wait for the screen thread to be done drawing
-        while(draw_halt);
+        //while(draw_halt);
 
         //Erase the mouse from its previous location
-        draw_halt++;
-        setCursor(0, 0);
+        //draw_halt++;
+        setCursor(mouse_x, mouse_y);
         back_buf->top = mouse_y;
         back_buf->bottom = mouse_y + MOUSE_HEIGHT - 1;
         back_buf->left = mouse_x;
         back_buf->right = mouse_x + MOUSE_WIDTH - 1;
         drawBitmap(back_buf);
+        //setCursor(0, 0);
          
         //Reset bitmap draw region
         back_buf->top = back_buf->left = 0;
         back_buf->right = back_buf->width - 1;
         back_buf->bottom = back_buf->height - 1;
-        draw_halt--;
+        //draw_halt--;
     }
 
-    if(packed_data & 0x100)
-        mouse_x -= x_off;
-    else
-        mouse_x += x_off;
-
-    if(packed_data & 0x20000)    
-        mouse_y += y_off;
-    else
-        mouse_y -= y_off;
+    mouse_x += x_off;   
+    mouse_y += y_off;
 
     if(mouse_x < 0)
         mouse_x = 0;
@@ -126,11 +129,11 @@ void moveMouse(unsigned long packed_data) {
     //Draw the mouse at the new location
     if(x_off != 0 || y_off != 0) {
 
-        while(draw_halt);
+        //while(draw_halt);
 
-        draw_halt++;
+        //draw_halt++;
         blit_mouse(mouse_x, mouse_y);
-        draw_halt--;
+        //draw_halt--;
     }
 
     Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
@@ -216,9 +219,10 @@ void screenThread() {
 void refresh_screen() {
 
     //Desktop_blit_mouse(desktop);
-    screen_dirty = 1;
-    //setCursor(0, 0);
-    //drawBitmap(back_buf);
+    //screen_dirty = 1;
+    setCursor(0, 0);
+    drawBitmap(back_buf);
+    blit_mouse(mouse_x, mouse_y);
     //sleep(20);
 }
 
@@ -249,6 +253,9 @@ void main(void) {
     unsigned char* instr;
     unsigned int strlen;
     unsigned int* test_array = (unsigned int*)0xB01000;
+    int last_was_mouse = 0;
+    short x_off, y_off;
+    unsigned char buttons;
 
     //Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -334,6 +341,7 @@ void main(void) {
     }
 
     //DEBUG print back_buf address
+    /*
     for(i = 0; i < 8; i++) {
 
         unsigned char digit = (((unsigned int)back_buf) >> (4 * (8 - i))) & 0xF;
@@ -345,18 +353,23 @@ void main(void) {
             drawChar((digit - 10) + 'A');
     }
     scans(10, inbuf);
-    
+    */
+
     //DEBUG
+    /*
     drawStri("About to start the drawing thread...", 0, 0);
     scans(10, inbuf);
+    */
 
     //Would realistically be on a vsync interrupt
-    if(!startThread())
-        screenThread();
+    //if(!startThread())
+        //screenThread();
 
     //DEBUG
+    /*
     drawStri("About to create the context...", 0, 14);
     scans(10, inbuf);
+    */
 
     //Fill this in with the info particular to your project
     Context* context = Context_new(0, 0, 0);
@@ -366,8 +379,10 @@ void main(void) {
     Context_set_finalize(context, refresh_screen);
 
     //DEBUG
+    /*
     drawStri("About to create the desktop...", 0, 28);
     scans(10, inbuf);
+    */
 
     //Create the desktop 
     desktop = Desktop_new(context);
@@ -380,18 +395,41 @@ void main(void) {
     mouse_y = desktop->window.height / 2 - 1;
 
     //DEBUG
+    /*
     drawStri("About to do initial paint...", 0, 42);
     scans(10, inbuf);
+    */
 
     //Do an initial desktop paint
     Window_paint((Window*)desktop, (List*)0, 1);
 
     //DEBUG
+    /*
     drawStri("About to enter message loop...", 0, 56);
     scans(10, inbuf);
+    */
 
     //Main message loop
     while(1) {
+
+        //Flush the mouse queue 
+        //We should make this a ring buffer in the future 
+        //and allow for the possibility that items in the 
+        //mouse queue may cause us to fall back into 'waiting for client mode'
+        //and therefore out of this flush loop
+        /*
+        if(!WYG_waiting_for_clients() && !!mouse_count) {
+            int i;
+
+            for(i = 0; i < mouse_count; i++) {
+
+                unpackMouse(mouse_queue[i], &x_off, &y_off, &buttons);
+                moveMouse(x_off, y_off, buttons);
+            }
+
+            mouse_count = 0;
+        }
+        */
 
         getMessage(&temp_msg);
 
@@ -400,57 +438,68 @@ void main(void) {
         switch(temp_msg.command) {
 
             case WYG_CREATE_WINDOW:
+                last_was_mouse = 0;
                 postMessage(src_pid, WYG_CREATE_WINDOW,
                             WYG_create_window(desktop, temp_msg.payload, src_pid));
             break;
             
             case WYG_GET_CONTEXT:
+                last_was_mouse = 0;
                 postMessage(src_pid, WYG_GET_CONTEXT,
                             WYG_get_window_context_id(desktop, temp_msg.payload));
             break;
             
             case WYG_GET_DIMS:
+                last_was_mouse = 0;
                 postMessage(src_pid, WYG_GET_DIMS,
                             WYG_get_window_dimensions(desktop, temp_msg.payload));
             break;
             
             case WYG_GET_LOCATION:
+                last_was_mouse = 0;
                 postMessage(src_pid, WYG_GET_LOCATION, 
                             WYG_get_window_location(desktop, temp_msg.payload));
             break;
             
             case WYG_MOVE_WINDOW:
+                last_was_mouse = 0;
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 WYG_move_window(desktop, current_handle, temp_msg.payload);
             break;
 
             case WYG_RESIZE_WINDOW:
+                last_was_mouse = 0;
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 WYG_resize_window(desktop, current_handle, temp_msg.payload);
             break;
 
             case WYG_INSTALL_WINDOW:
+                last_was_mouse = 0;
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_WHANDLE);
                 WYG_install_window(desktop, current_handle, temp_msg.payload);
             break;
 
             case WYG_SHOW_WINDOW:
+                last_was_mouse = 0;
                 WYG_show_window(desktop, temp_msg.payload);
             break;
             
             case WYG_RAISE_WINDOW:
+                last_was_mouse = 0;
                 WYG_raise_window(desktop, temp_msg.payload);
             break;
 
             case WYG_REPAINT_WINDOW:
+                last_was_mouse = 0;
                 WYG_invalidate_window(desktop, temp_msg.payload);
                 postMessage(src_pid, WYG_REPAINT_WINDOW, 1);
             break;
 
             case WYG_SET_TITLE:
+                last_was_mouse = 0;
                 current_handle = temp_msg.payload;
                 postMessage(src_pid, WYG_SET_TITLE, 1);
                 strlen = getStringLength(src_pid);
@@ -461,16 +510,19 @@ void main(void) {
             break;
             
             case WYG_DESTROY:
+                last_was_mouse = 0;
                 WYG_destroy_window(desktop, temp_msg.payload);
                 postMessage(src_pid, WYG_DESTROY, 1);
             break;
             
             case WYG_GET_FRAME_DIMS:
+                last_was_mouse = 0;
                 postMessage(src_pid, WYG_GET_FRAME_DIMS,
                             WYG_get_frame_dims());
             break;
 
             case WYG_DRAW_STRING:
+                last_was_mouse = 0;
                 //prints("start draw string...");
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
@@ -490,6 +542,7 @@ void main(void) {
             break;
 
             case WYG_DRAW_RECT:
+                last_was_mouse = 0;
                 current_handle = temp_msg.payload;
                 getMessageFrom(&temp_msg, src_pid, WYG_POINT);
                 point_data = temp_msg.payload;
@@ -501,11 +554,38 @@ void main(void) {
             break;
 
             case WYG_PAINT_DONE:
+                last_was_mouse = 0;
                 WYG_finish_window_draw(desktop, temp_msg.payload);
             break;
 
             case MOUSE_SEND_UPDATE:
-                moveMouse(temp_msg.payload);
+                
+                /*
+                if(last_was_mouse && WYG_waiting_for_clients()) {
+
+                    //If the queue fills up, we just start throwing things into space
+                    if(mouse_count < 100)
+                        mouse_queue[mouse_count++] = temp_msg.payload;
+                } else {
+
+                    last_was_mouse = 1;
+
+                    if(mouse_count)
+                        unpackMouse(mouse_queue[mouse_count--], &x_off, &y_off, &buttons);
+                    else 
+                        unpackMouse(temp_msg.payload, &x_off, &y_off, &buttons);
+
+                    moveMouse(x_off, y_off, buttons);
+                }
+                */
+
+                //testing THIS IS COMPLETELY AND OBVIOUSLY WRONG
+                if(!WYG_waiting_for_clients()) {
+
+                    unpackMouse(temp_msg.payload, &x_off, &y_off, &buttons);
+
+                    moveMouse(x_off, y_off, buttons);
+                }
             break;
 
             default:

@@ -546,14 +546,15 @@ void VdrawBitmap(int x, int y, bitmap* bmp) {
 
     if(curMode.bpp == 32 && is_linear) {
 
-        for(yo = (bmp->top < 0 ? 0 : bmp->top); yo <= bmp->bottom && yo <= bmp->height && yo < curMode.Yres; yo++) {
+        for(yo = 0; yo <= (bmp->bottom - bmp->top) && yo < (bmp->height - bmp->top) && yo < (curMode.Yres - y); yo++) {
 
-            memcpy(&bmp->data[(yo * bmp->width) + bmp->left],
-                   &v[((yo + y) * curMode.Xres) + x + bmp->left],
+            memcpy(&bmp->data[((yo + bmp->top) * bmp->width) + bmp->left],
+                   &v[((yo + y) * curMode.Xres) + x],
                    (bmp->right - bmp->left + 1) * 4);
         }
     } else {
 
+        //This needs to be corrected so that the bitmap portion is drawn at the cursor location as in the above 32-bit code
         for(yo = bmp->top; yo <= bmp->bottom; yo++) {
 
             for(xo = bmp->left; xo <= bmp->right; xo++) {

@@ -121,9 +121,7 @@ void init_memory(void (*cb)(void)) {
     usrCode[43] = 0xFF; // -\_jmp 0x0000 (loop)
 
     v86_pid = exec_loaded_v86(100);
-
-    //prints("\nStarted memory init.\n");
-    get_next_memzone(0, 0, 0);
+    enterProc(v86_pid);
 }
 
 
@@ -139,43 +137,36 @@ void get_next_memzone(unsigned int ebx, unsigned int ecx, unsigned int edx) {
     //We'll use this to figure out if we're done or not
     static char in_list = 0;
 
-    //If we're in the list, we have a valid entry and should store it
-    if(in_list) {
+    if(ecx != 0x534D4150) {
 
-        if(ecx != 0x534D4150) {
+        //prints("\nwrong ECX value: 0x");
+        //printHexDword(ecx);
+        //prints("\n");
+        finish_mem_config();
+    }
 
-            finish_mem_config();
-        }
+    m_map[mmap_index].base = memz_buf->base;
+    m_map[mmap_index].length = memz_buf->length;
+    m_map[mmap_index].type = memz_buf->type;
+    mmap_index++;
 
-        m_map[mmap_index].base = memz_buf->base;
-        m_map[mmap_index].length = memz_buf->length;
-        m_map[mmap_index].type = memz_buf->type;
-        mmap_index++;
+    //Exit early so we don't overflow the array
+    if(mmap_index == MAX_MMAPS) {
 
-        //Exit early so we don't overflow the array
-        if(mmap_index == MAX_MMAPS) {
-
-            finish_mem_config();
-        }
+        finish_mem_config();
     }
 
     //We're either at the beginning of the list or the end
     if(!ebx) {
 
-        if(in_list) {
-
             finish_mem_config();
-        } else {
-
-            in_list = 1;
-        }
     }
 
     //Update the code to insert the updated ebx value
-    usrCode[9] = (unsigned char)((ebx >> 24) & 0xFF); //  |
-    usrCode[10] = (unsigned char)((ebx >> 16) & 0xFF); // |
-    usrCode[11] = (unsigned char)((ebx >> 8) & 0xFF);  // |
-    usrCode[12] = (unsigned char)(ebx & 0xFF);         //-\_mov ebx, <the actual ebx arg>
+    usrCode[12] = (unsigned char)((ebx >> 24) & 0xFF); //  |
+    usrCode[11] = (unsigned char)((ebx >> 16) & 0xFF); // |
+    usrCode[10] = (unsigned char)((ebx >> 8) & 0xFF);  // |
+    usrCode[9] = (unsigned char)(ebx & 0xFF);         //-\_mov ebx, <the actual ebx arg>
 
     enterProc(v86_pid); //Re-enter the process
 }
@@ -221,13 +212,13 @@ void finish_mem_config() {
 
         end = m_map[i].base + m_map[i].length;
 
-        DEBUG("0x");
-        DEBUG_HD((unsigned int)((m_map[i].base & 0xFFFFFFFF00000000) >> 32));
-        DEBUG_HD((unsigned int)(m_map[i].base & 0xFFFFFFFF));
-        DEBUG(" to 0x");
-        DEBUG_HD((unsigned int)((end & 0xFFFFFFFF00000000) >> 32));
-        DEBUG_HD((unsigned int)(end & 0xFFFFFFFF));
-        DEBUG(" is ");
+        //prints("0x");
+        //printHexDword((unsigned int)((m_map[i].base & 0xFFFFFFFF00000000) >> 32));
+        //printHexDword((unsigned int)(m_map[i].base & 0xFFFFFFFF));
+        //prints(" to 0x");
+        //printHexDword((unsigned int)((end & 0xFFFFFFFF00000000) >> 32));
+        //printHexDword((unsigned int)(end & 0xFFFFFFFF));
+        //prints(" is ");
 
         //Use this to find the top of usable memory
         if(end > biggest_end)
@@ -236,7 +227,7 @@ void finish_mem_config() {
         switch(m_map[i].type) {
 
             case 1:
-                DEBUG("free space\n");
+                //prints("free space\n");
 
                 //Make sure that this is not marked special and that it is not
                 //allocated (unless it falls within the pre-allocated kernel
@@ -249,7 +240,7 @@ void finish_mem_config() {
             break;
 
             case 3:
-                DEBUG("ACPI reclaimable\n");
+                //prints("ACPI reclaimable\n");
 
                 //Mark it special, but we will make sure, if and when we
                 //implement ACPI, to unmark this range once we've used the
@@ -262,7 +253,7 @@ void finish_mem_config() {
             break;
 
             case 4:
-                DEBUG("ACPI NVS\n");
+                //prints("ACPI NVS\n");
 
                 //Mark it special, make sure that it never gets unmarked because
                 //this cannot be written to
@@ -274,7 +265,7 @@ void finish_mem_config() {
             break;
 
             case 5:
-                DEBUG("bad memory\n");
+                //prints("bad memory\n");
 
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(
@@ -285,7 +276,7 @@ void finish_mem_config() {
             break;
 
             default:
-                DEBUG("reserved\n");
+                //prints("reserved\n");
 
                 //Mark it special and make sure it's never unmarked
                 mark_pages_status(

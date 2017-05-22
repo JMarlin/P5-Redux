@@ -14,6 +14,27 @@ const widget_constructor widget_class_constructor[] = {
     WYG_textbox_constructor
 };
 
+unsigned int clients_waiting = 0;
+
+void WYG_increment_waiting() {
+
+    clients_waiting++;
+}
+
+void WYG_decrement_waiting() {
+
+    clients_waiting--;
+}
+
+int WYG_waiting_for_clients() {
+
+    //DEBUG
+    if(clients_waiting != 0)
+        prints("CLIENT WAITING!\n");
+
+    return clients_waiting != 0; 
+}
+
 //Get a pointer to the window with the specified ID
 Window* WYG_get_window_from_id(Window* parent, unsigned int window_id) {
 
@@ -374,6 +395,12 @@ void WYG_finish_window_draw(Desktop* desktop, unsigned int window_id) {
     //Finally, clear the waiting on client flag bit so that the window will receive 
     //any future paint events
     window->flags &= ~WIN_CLIENT_WAIT;
+    WYG_decrement_waiting();
+
+    //If we were marked dirty, it means something happened to us while we were drawing ourselves
+    //and we need to fix it already
+    if(window->flags & WIN_DIRTY)
+         Window_paint(window, (List*)0, 1); //This needs to be much more intelligent. We need to be able to queue repaint requests like we queue draw commands
 }
 
 //Class constructors
