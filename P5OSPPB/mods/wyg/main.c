@@ -434,6 +434,13 @@ void main(void) {
 
         getMessage(&temp_msg);
 
+        //DEBUG 
+        prints("From: 0x");
+        printHexDword(temp_msg.source);
+        prints(" command: 0x");
+        printHexDword(temp_msg.command);
+        prints("\n");
+
         src_pid = temp_msg.source;
 
         switch(temp_msg.command) {
