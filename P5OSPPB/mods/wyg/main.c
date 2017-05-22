@@ -43,6 +43,8 @@ void drawStri(char* s, int x, int y) {
 //Do the raw blit of the mouse image onto the screen
 void blit_mouse(int mx, int my) {
 
+    prints("Trace: blit_mouse()\n");
+
     int x, y;
     //int mouse_y = desktop->mouse_y;
     //int mouse_x = desktop->mouse_x;
@@ -74,6 +76,8 @@ void blit_mouse(int mx, int my) {
 
 void unpackMouse(unsigned long packed_data, short* x_off, short* y_off, unsigned char* buttons) {
 
+    prints("Trace: unpackMouse()\n");
+
     *buttons = (unsigned char)((packed_data >> 24) & 0xFF);
     *x_off = (short)((unsigned char)(packed_data & 0xFF));
     *y_off = (short)((unsigned char)((packed_data >> 9) & 0xFF));
@@ -87,6 +91,8 @@ void unpackMouse(unsigned long packed_data, short* x_off, short* y_off, unsigned
 
 //The callback that our mouse device will trigger on mouse updates
 void moveMouse(short x_off, short y_off, unsigned char buttons) {
+
+    prints("Trace: moveMouse()\n");
 
     //redraw the mouse if it moved
     if(x_off != 0 || y_off != 0) {
@@ -567,7 +573,7 @@ void main(void) {
             break;
 
             case MOUSE_SEND_UPDATE:
-                
+                prints("Trace: MOUSE_SEND_UPDATE\n");
                 /*
                 if(last_was_mouse && WYG_waiting_for_clients()) {
 

@@ -74,6 +74,7 @@ void setColor(unsigned int color) {
 
 void setCursor(unsigned short x, unsigned short y) {
 
+    prints("Trace: setCursor()\n");
     postMessage(gfx_pid, GFX_SETCURSOR, ((unsigned int)x << 16) | (unsigned int)y);
 }
 
@@ -174,8 +175,7 @@ void freeBitmap(bitmap* bmp) {
 
 void drawBitmap(bitmap* bmp) {
     
-    //Fo' debug
-    ((unsigned int*)0xB01000)[0] = (unsigned int)bmp; 
+    prints("Trace: drawBitmap()\n");
 
     postMessage(gfx_pid, GFX_DRAWBMP, (unsigned int)bmp);
     getMessageFrom(&temp_msg, gfx_pid, GFX_DRAWBMP);
