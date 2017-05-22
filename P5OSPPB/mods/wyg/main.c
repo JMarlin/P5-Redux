@@ -580,12 +580,12 @@ void main(void) {
                 */
 
                 //testing THIS IS COMPLETELY AND OBVIOUSLY WRONG
-                if(!WYG_waiting_for_clients()) {
+                //if(!WYG_waiting_for_clients()) {
 
                     unpackMouse(temp_msg.payload, &x_off, &y_off, &buttons);
 
                     moveMouse(x_off, y_off, buttons);
-                }
+                //}
             break;
 
             default:
