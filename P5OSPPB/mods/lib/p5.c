@@ -33,6 +33,15 @@ int getMessageFrom(message* msg, unsigned int source, unsigned int command) {
     return 1;
 }
 
+int messageExists(unsigned int source, unsigned int command) {
+
+    _dest = source;
+    _command = command;
+
+    _asm_message_exists();
+
+    return _retval;
+}
 
 void postMessage(unsigned int ldest, unsigned int lcommand, unsigned int lpayload)  {
 

@@ -26,7 +26,7 @@
 #define WYG_COLOR          (WYG_MSG_CLASS | 21)
 
 //Wyg event codes to be passed to the client
-#define WYG_EVENT_REPAINT  0
+#define WYG_EVENT_REPAINT  0x00010000
 
 #define ROOT_WINDOW 1
 
@@ -42,6 +42,7 @@
 #define WIN_HIDDEN 0x8
 
 unsigned int initWYG(void);
+unsigned int WYG_pid(void);
 unsigned int createWindow(unsigned int flags);
 unsigned int getWindowContext(unsigned int handle);
 void moveHandle(unsigned int handle, unsigned short x, unsigned short y);

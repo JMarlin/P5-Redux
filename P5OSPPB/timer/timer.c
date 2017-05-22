@@ -126,6 +126,7 @@ process* c_timer_handler() {
 
         tick_count = 0;
         needs_swap = 1;
+        //prints("tick\n") //DEBUG REMOVE
     }
 
     //Check to see if there are any timers that need handling

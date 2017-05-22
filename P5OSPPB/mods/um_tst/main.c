@@ -220,15 +220,21 @@ void crash() {
     ((unsigned char*)0x100000)[0] = 0xFF;
 }
 
-void makeWindows() {
-    
+void winThreadA() {
+
     unsigned short w, h;
     unsigned char t, l, b, r;
+    unsigned int wyg_pid;
     message temp_msg;
+
+    wyg_pid = WYG_pid();
 
     //Make two windows
     getWindowDimensions(ROOT_WINDOW, &w, &h); 
     window_a = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
+    prints("\n WinA: ");
+    printHexDword(window_a);
+    prints("\n");
     resizeWindow(window_a, w - 100, h - 100);
 
     getFrameDims(&t, &l, &b, &r);
@@ -245,24 +251,61 @@ void makeWindows() {
     //Make them visible
     showWindow(window_a);
     
-    //Set up the console commands
-    //cmd_init(window_a);
-    
     while(1) {
 
-        getMessage(&temp_msg);
+        getMessageFrom(&temp_msg, wyg_pid, WYG_EVENT);
 
-        if(temp_msg.command == WYG_EVENT && temp_msg.payload == WYG_EVENT_REPAINT) {
+        if(temp_msg.payload == WYG_EVENT_REPAINT | (window_a & 0xFFFF)) {
 
             drawRectangle(window_a, 0, 0, w - 99 - l - r, h - 99 - t - b, RGB(200, 230, 255)); //WYG METHOD
             drawString(window_a, 10, 10, "Just a test string.");
             postMessage(temp_msg.source, WYG_PAINT_DONE, window_a);
         }
-
-    //    cmd_prints("::");
-    //    cmd_scans(50, inbuf);
-    //    parse(inbuf);
     }
+}
+
+void winThreadB() {
+
+    unsigned int wyg_pid;
+    message temp_msg;
+
+    wyg_pid = WYG_pid();
+
+    window_b = createWindow(WIDGET_TYPE_WINDOW | WIN_HIDDEN);
+    prints("\n WinB: ");
+    printHexDword(window_b);
+    prints("\n");
+    resizeWindow(window_b, 300, 200);
+    
+    //Install them into the root window
+    installWindow(window_b, ROOT_WINDOW);
+        
+    //Make them prettily cascade
+    moveWindow(window_b, 0, 0);
+    
+    //Make them visible
+    showWindow(window_b);
+    
+    while(1) {
+
+        getMessageFrom(&temp_msg, wyg_pid, WYG_EVENT);
+
+        if(temp_msg.payload == WYG_EVENT_REPAINT | (window_b & 0xFFFF)) {
+
+            drawRectangle(window_b, 0, 0, 300, 200, RGB(255, 255, 255)); //WYG METHOD
+            postMessage(temp_msg.source, WYG_PAINT_DONE, window_b);
+        }
+    }
+}
+
+void makeWindows() {
+    
+    //if(!startThread())
+        //winThreadA();
+
+    //while(!window_b);
+
+    winThreadB();
 }
 
 void main(void) {

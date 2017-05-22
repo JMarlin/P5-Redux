@@ -13,5 +13,6 @@ typedef struct message {
 
 void passMessage(unsigned int source, unsigned int dest, unsigned int command, unsigned int payload);
 int getMessage(struct process* proc, message* msgBuf, unsigned int pid_from, unsigned int command);
+int findMessage(struct process* proc, unsigned int send_pid, unsigned int command);
 
 #endif //MESSAGE_H

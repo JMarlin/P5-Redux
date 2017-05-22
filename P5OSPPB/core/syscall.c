@@ -76,6 +76,11 @@ void syscall_exec(void) {
             }
         break;
 
+        //Process look for message
+        case 3:
+            p->ctx.eax = findMessage(p, p->ctx.ecx, p->ctx.edx);
+        break;
+
         default:
         break;
     }

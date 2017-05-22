@@ -46,3 +46,15 @@ _asm_get_msg_from:
     mov %edx, _payload
     popa
     ret
+
+.globl _asm_message_exists
+_asm_message_exists:
+    pusha
+    mov $0x3, %eax
+    mov $0xFFFFFFFF, %ebx
+    mov _dest, %ecx
+    mov _command, %edx
+    int $0xFF
+    mov %eax, _retval
+    popa
+    ret

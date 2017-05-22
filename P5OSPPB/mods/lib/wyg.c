@@ -16,6 +16,11 @@ unsigned int initWYG(void) {
     return wyg_pid != 0;
 }
 
+unsigned int WYG_pid() {
+
+	return wyg_pid;
+}
+
 unsigned int createWindow(unsigned int flags) {
 	
 	postMessage(wyg_pid, WYG_CREATE_WINDOW, flags);
