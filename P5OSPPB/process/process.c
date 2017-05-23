@@ -105,7 +105,7 @@ void kernelDebugWithProc(process* dbg_proc) {
         printHexDword((unsigned int)bp);
         prints(">");
         scans(48, inbuf);
-                
+
         if(inbuf[0] == 'N') {
             
             prints(p->name);
@@ -113,7 +113,7 @@ void kernelDebugWithProc(process* dbg_proc) {
             continue;
         }
         
-        if(inbuf[0] == 'M' || inbuf[0] == 'T') {
+        if(inbuf[0] == 'M' || inbuf[0] == 'T' || inbuf[0] == 'Q') {
             
             unsigned char i;
             
@@ -156,7 +156,9 @@ void kernelDebugWithProc(process* dbg_proc) {
                 prints("Mapped page range for procTable[");
                 printHexByte(i);
                 prints("]\n");
-            } else {
+            } 
+            
+            if(inbuf[0] == 'T') {
 
                 pageRange *current_range;
                 unsigned int current_base;
@@ -185,6 +187,33 @@ void kernelDebugWithProc(process* dbg_proc) {
                     current_range = current_range->next;
                 }
             }
+
+            if(inbuf[0] == 'Q') {
+            
+                unsigned char j = 0;
+                message* cur_msg = procTable[i].root_msg;
+                    
+                prints("Incoming message queue for '");
+                if(procTable[i].name)
+                    prints(procTable[i].name);
+                else if(procTable[i].flags & PF_V86)
+                    prints("anon_v86");
+                prints("':\n--------------------------------------\n");
+
+                while(cur_msg) {
+
+                    printHexByte(j++);
+                    prints(") s:");
+                    printHexDword(cur_msg->source);
+                    prints(" c:");
+                    printHexDword(cur_msg->command);
+                    prints(" p:");
+                    printHexDword(cur_msg->payload);
+                    prints("\n");
+
+                    cur_msg = cur_msg->next;
+                }    
+            } 
                 
             continue;
         }

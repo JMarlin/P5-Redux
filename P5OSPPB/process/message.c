@@ -4,6 +4,8 @@
 #include "message.h"
 #include "../ascii_io/ascii_o.h"
 
+//#define LOG_MESSAGES 
+
 //Append a message with the given params to the end of the destination
 //process's message queue
 void passMessage(unsigned int source, unsigned int dest, unsigned int command, unsigned int payload) {
@@ -13,6 +15,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     message* new_message;
     message* cur_message;
 
+#ifdef LOG_MESSAGES
     //DEBUG message logging
     klog("[Post] From: 0x");
     klogHexDword(source);
@@ -23,6 +26,7 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
     klog(" Payload: 0x");
     klogHexDword(payload);
     klog("\n");
+#endif
 
     //In the messaging scheme, process zero is the kernel
     //This will be used for starting new processes and other
@@ -107,6 +111,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         msgBuf->next = (message*)0;
 
         //DEBUG message logging
+#ifdef LOG_MESSAGES
         klog("[RecvImm] By: 0x");
         klogHexDword(proc->id);
         klog(" From: 0x");
@@ -116,6 +121,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         klog(" Payload: 0x");
         klogHexDword(msgBuf->payload);
         klog("\n");
+#endif
 
         //Snip out the matched entry
         proc->root_msg = proc->root_msg->next;
@@ -145,8 +151,9 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
 
     //Didn't find any matches!
     if(!cur_msg) {
-    
+   
         //DEBUG message logging
+#ifdef LOG_MESSAGES        
         klog("[WaitFor] Proc: 0x");
         klogHexDword(proc->id);
         klog(" Waiting On: 0x");
@@ -154,6 +161,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         klog(" Command: 0x");
         klogHexDword(command);
         klog("\n");
+#endif
 
         return 0;
     }
@@ -171,6 +179,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
     msgBuf->next = (message*)0;
 
     //DEBUG message logging
+#ifdef LOG_MESSAGES    
     klog("[RecvSch] By: 0x");
     klogHexDword(proc->id);
     klog(" From: 0x");
@@ -180,6 +189,7 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
     klog(" Payload: 0x");
     klogHexDword(msgBuf->payload);
     klog("\n");
+#endif
 
     //Free the memory it was using
     kfree((void*)(cur_msg));
