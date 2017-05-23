@@ -75,6 +75,7 @@ void setColor(unsigned int color) {
 void setCursor(unsigned short x, unsigned short y) {
 
     postMessage(gfx_pid, GFX_SETCURSOR, ((unsigned int)x << 16) | (unsigned int)y);
+    getMessageFrom(&temp_msg, gfx_pid, GFX_SETCURSOR);
 }
 
 void setPixel() {

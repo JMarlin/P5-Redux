@@ -198,6 +198,7 @@ void main(void) {
             case GFX_SETCURSOR:
                 pen_x = (unsigned short)((temp_msg.payload & 0xFFFF0000) >> 16);
                 pen_y = (unsigned short)(temp_msg.payload & 0xFFFF);
+                postMessage(oldsrc, GFX_SETCURSOR, 1);
             break;
 
             case GFX_SETPIXEL:
