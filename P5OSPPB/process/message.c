@@ -4,7 +4,7 @@
 #include "message.h"
 #include "../ascii_io/ascii_o.h"
 
-//#define LOG_MESSAGES 
+#define LOG_MESSAGES 
 
 //Append a message with the given params to the end of the destination
 //process's message queue
@@ -17,15 +17,17 @@ void passMessage(unsigned int source, unsigned int dest, unsigned int command, u
 
 #ifdef LOG_MESSAGES
     //DEBUG message logging
-    klog("[Post] From: 0x");
-    klogHexDword(source);
-    klog(" To: 0x");
-    klogHexDword(dest);
-    klog(" Command: 0x");
-    klogHexDword(command);
-    klog(" Payload: 0x");
-    klogHexDword(payload);
-    klog("\n");
+    if(source != 0 && dest != 0) {
+        klog("[Post] From: 0x");
+        klogHexDword(source);
+        klog(" To: 0x");
+        klogHexDword(dest);
+        klog(" Command: 0x");
+        klogHexDword(command);
+        klog(" Payload: 0x");
+        klogHexDword(payload);
+        klog("\n");
+    }
 #endif
 
     //In the messaging scheme, process zero is the kernel
@@ -98,8 +100,23 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
     message *prev_msg, *cur_msg;
 
     //No messages
-    if(!proc->root_msg)
+    if(!proc->root_msg) {
+
+        //DEBUG message logging
+#ifdef LOG_MESSAGES        
+        if(pid_from != 0) {
+            klog("[WaitFor] Proc: 0x");
+            klogHexDword(proc->id);
+            klog(" Waiting On: 0x");
+            klogHexDword(pid_from);
+            klog(" Command: 0x");
+            klogHexDword(command);
+            klog("\n");
+        }
+#endif
+
         return 0;
+    }
 
     //Exit early if we're not hunting for a specific message
     if(pid_from == 0xFFFFFFFF && command == 0xFFFFFFFF) {
@@ -112,15 +129,17 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
 
         //DEBUG message logging
 #ifdef LOG_MESSAGES
-        klog("[RecvImm] By: 0x");
-        klogHexDword(proc->id);
-        klog(" From: 0x");
-        klogHexDword(msgBuf->source);
-        klog(" Command: 0x");
-        klogHexDword(msgBuf->command);
-        klog(" Payload: 0x");
-        klogHexDword(msgBuf->payload);
-        klog("\n");
+        if(msgBuf->source != 0) {
+            klog("[RecvImm] By: 0x");
+            klogHexDword(proc->id);
+            klog(" From: 0x");
+            klogHexDword(msgBuf->source);
+            klog(" Command: 0x");
+            klogHexDword(msgBuf->command);
+            klog(" Payload: 0x");
+            klogHexDword(msgBuf->payload);
+            klog("\n");
+        }
 #endif
 
         //Snip out the matched entry
@@ -154,13 +173,15 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
    
         //DEBUG message logging
 #ifdef LOG_MESSAGES        
-        klog("[WaitFor] Proc: 0x");
-        klogHexDword(proc->id);
-        klog(" Waiting On: 0x");
-        klogHexDword(pid_from);
-        klog(" Command: 0x");
-        klogHexDword(command);
-        klog("\n");
+        if(pid_from != 0) {
+            klog("[WaitFor] Proc: 0x");
+            klogHexDword(proc->id);
+            klog(" Waiting On: 0x");
+            klogHexDword(pid_from);
+            klog(" Command: 0x");
+            klogHexDword(command);
+            klog("\n");
+        }
 #endif
 
         return 0;
@@ -180,15 +201,17 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
 
     //DEBUG message logging
 #ifdef LOG_MESSAGES    
-    klog("[RecvSch] By: 0x");
-    klogHexDword(proc->id);
-    klog(" From: 0x");
-    klogHexDword(msgBuf->source);
-    klog(" Command: 0x");
-    klogHexDword(msgBuf->command);
-    klog(" Payload: 0x");
-    klogHexDword(msgBuf->payload);
-    klog("\n");
+    if(msgBuf->source != 0) {
+        klog("[RecvSch] By: 0x");
+        klogHexDword(proc->id);
+        klog(" From: 0x");
+        klogHexDword(msgBuf->source);
+        klog(" Command: 0x");
+        klogHexDword(msgBuf->command);
+        klog(" Payload: 0x");
+        klogHexDword(msgBuf->payload);
+        klog("\n");
+    }
 #endif
 
     //Free the memory it was using

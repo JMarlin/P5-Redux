@@ -2,7 +2,6 @@
 
 message temp_msg;
 
-
 int getMessage(message* msg) {
 
     _asm_get_msg();

@@ -226,6 +226,9 @@ void klogHexDword(unsigned int dword) {
 
 void pchar(char _inin) {
 
+    //DEBUG
+    serPutch(_inin);
+    
     if(_inin != '\n'){
 
         //Insert the character
