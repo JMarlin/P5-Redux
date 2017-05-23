@@ -61,10 +61,9 @@ void entry_debug(void) {
     scans(5, fake);
 }
 
-void kernelDebugWithProc(process* dbg_proc) {
+void printProcessState(process* dbg_proc) {
 
     unsigned char* current_pc;
-    process* ex_proc;
 
     if(dbg_proc->flags & PF_V86)
         current_pc = (char*)(((((unsigned int)dbg_proc->ctx.cs)&0xFFFF) << 4) + (((unsigned int)dbg_proc->ctx.eip) &0xFFFF));
@@ -93,7 +92,14 @@ void kernelDebugWithProc(process* dbg_proc) {
     prints(", 0x"); printHexByte(current_pc[3]);
     prints(", 0x"); printHexByte(current_pc[4]);
     prints("\n");
+}
+
+void kernelDebugWithProc(process* dbg_proc) {
+
+    process* ex_proc;
     
+    printProcessState(dbg_proc);
+
     keyboard_init();
     setupKeyTable();
     
@@ -218,6 +224,12 @@ void kernelDebugWithProc(process* dbg_proc) {
             continue;
         }
         
+        if(inbuf[0] == 'S') {
+
+            printProcessState(p);
+            continue;
+        }
+
         if(inbuf[0] == 'L') {
             
             unsigned int i;
