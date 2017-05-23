@@ -1142,7 +1142,7 @@ process* newProcess(char* name) {
     } else {
 
         if(proc->flags & PF_V86)
-            klog("[anon v86]")
+            klog("[anon v86]");
     }
     klog("' is PID 0x");
     klogHexDword(proc->id);
@@ -1561,7 +1561,7 @@ process* makeThread(process* parent) {
     } else {
 
         if(ret_proc->flags & PF_V86)
-            klog("[anon v86]")
+            klog("[anon v86]");
     }
     klog("' is PID 0x");
     klogHexDword(ret_proc->id);
