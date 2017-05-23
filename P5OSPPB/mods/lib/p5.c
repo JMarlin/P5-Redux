@@ -107,18 +107,25 @@ unsigned int getProcessCPUUsage(unsigned int pid) {
 unsigned int registerIRQ(unsigned int irq_number) {
 
     //Post a request to register the IRQ
-    postMessage(0, KS_REG_IRQ_1 + (irq_number - 1), 0);
+    //postMessage(0, KS_REG_IRQ_1 + (irq_number - 1), 0);
 
     //Wait for the reply from the kernel
-    getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + irq_number - 1);
+    //getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + irq_number - 1);
 
     //Tell the requester whether or not the registration succeeded
-    return temp_msg.payload;
+    return 1; //temp_msg.payload;
 }
 
 //Sleep the process until the kernel passes it an interrupt message
 void waitForIRQ(unsigned int irq_number) {
 
+    //Post a request to register the IRQ
+    postMessage(0, KS_REG_IRQ_1 + (irq_number - 1), 0);
+
+    //Get 'OK registered' message from kernel
+    getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + irq_number - 1);
+
+    //Wait for interrupt message from kernel
     getMessageFrom(&temp_msg, 0, KS_REG_IRQ_1 + (irq_number - 1));
 }
 

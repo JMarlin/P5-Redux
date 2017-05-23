@@ -48,6 +48,8 @@ handler irq_handler[15] = {
     &irq_handler_15
 };
 
+int irq_working[15] = {0};
+
 void send_pic_eoi(unsigned char irq) {
 	
 	if(irq > 7)
@@ -85,6 +87,25 @@ unsigned int irq_register(unsigned int irq_number, process *requesting_proc) {
     return 1;
 }
 
+unsigned int irq_deregister(unsigned int irq_number) {
+
+    //Return failure if a nonsense IRQ was requested
+    if(irq_number > 15)
+        return 0;
+
+    //unmap the process
+    irq_process[irq_number - 1] = 0;
+
+    //Remove the interrupt handler
+    blankInterrupt(irq_number + 0xE0);
+
+    //Close the associated PIC channel
+    disable_irq(irq_number);
+
+    //For now, we can't really fail so we just return OK
+    return 1;
+}
+
 //This is the magic sauce which forces a message back to the registered proc
 process* irq_handle(unsigned char irq_number) {
 
@@ -107,7 +128,11 @@ process* irq_handle(unsigned char irq_number) {
     //Tell the PIC we're ready to accept further interrupts on this channel
     send_pic_eoi(irq_number);
 
-    return irq_process[irq_number - 1];
+    //Unregister the process so that the client won't get another interrupt until it asks for it
+    process* ret_proc = irq_process[irq_number - 1];
+    irq_deregister(irq_number);   
+
+    return ret_proc;
 }
 
 void enable_irq(unsigned char channel) {

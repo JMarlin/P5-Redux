@@ -4,7 +4,7 @@
 #include "message.h"
 #include "../ascii_io/ascii_o.h"
 
-#define LOG_MESSAGES 
+//#define LOG_MESSAGES 
 
 //Append a message with the given params to the end of the destination
 //process's message queue
