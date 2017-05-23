@@ -697,6 +697,11 @@ void keyIRQThread() {
                                 caps = !caps;
                             break;
                             
+                            //DEBUG pressing F12 should cause a panic for testing
+                            case KCTRL_F12:
+                                asm volatile ("mov $0xFFFF, %ax \n\t mov %ax, %cs \n\t");
+                            break;
+
                             default: 
                             break;
                         }
