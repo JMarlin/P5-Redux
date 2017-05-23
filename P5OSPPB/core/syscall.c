@@ -47,7 +47,7 @@ void syscall_exec(void) {
         break;
 
         //Process post message
-        case 1:
+        case 1:            
             passMessage(p->id, p->ctx.ebx, p->ctx.ecx, p->ctx.edx);
         break;
 

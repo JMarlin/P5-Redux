@@ -193,9 +193,39 @@ void scrollScreen() {
     return;
 }
 
+void klog(char* _str) {
+
+    int index = 0;
+
+    while(_str[index] != 0) {
+
+        serPutch(_str[index] );
+        index++;
+    }    
+}
+
+void klogHexByte(unsigned char byte) {
+
+    serPutch(digitToHex((byte & 0xF0)>>4));
+    serPutch(digitToHex(byte & 0xF));
+}
+
+
+void klogHexWord(unsigned short wd) {
+
+    klogHexByte((unsigned char)((wd & 0xFF00)>>8));
+    klogHexByte((unsigned char)(wd & 0xFF));
+}
+
+
+void klogHexDword(unsigned int dword) {
+
+    klogHexWord((unsigned short)((dword & 0xFFFF0000)>>16));
+    klogHexWord((unsigned short)(dword & 0xFFFF));
+}
+
 void pchar(char _inin) {
 
-    serPutch(_inin);
     if(_inin != '\n'){
 
         //Insert the character

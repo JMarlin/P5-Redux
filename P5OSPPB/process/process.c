@@ -1134,6 +1134,20 @@ process* newProcess(char* name) {
     proc->id = nextProc++;
     proc->oid = proc->id;
 
+    //DEBUG PID logging
+    klog("[New process '");
+    if(proc->name) {
+        
+        klog(proc->name);
+    } else {
+
+        if(proc->flags & PF_V86)
+            klog("[anon v86]")
+    }
+    klog("' is PID 0x");
+    klogHexDword(proc->id);
+    klog("]\n");
+
     return proc;
 }
 
@@ -1521,9 +1535,6 @@ process* makeThread(process* parent) {
     //Mark the cloned stack page in-use
     pageTable[ret_proc->root_page->base_page] |= 0x00000800;
     ret_proc->root_page->next = parent->root_page->next;
-    prints("New thread next ptr = ");
-    printHexDword(ret_proc->root_page->next);
-    pchar('\n');
 
     //Copy the old stack into the new stack to preserve sanity
     stack = (unsigned char*)0xB00000;
@@ -1542,5 +1553,19 @@ process* makeThread(process* parent) {
     apply_page_range(parent->base, parent->root_page, parent->flags & PF_SUPER);
     kfree((void*)tmp_stack);
  
+    //DEBUG PID logging
+    klog("[New thread '");
+    if(ret_proc->name) {
+        
+        klog(ret_proc->name);
+    } else {
+
+        if(ret_proc->flags & PF_V86)
+            klog("[anon v86]")
+    }
+    klog("' is PID 0x");
+    klogHexDword(ret_proc->id);
+    klog("]\n");
+
     return ret_proc;
 }
