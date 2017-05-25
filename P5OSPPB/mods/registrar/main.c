@@ -59,6 +59,9 @@ void printTable() {
 
 void main(void) {
 
+    //DEBUG TRIGGER
+    *((unsigned int*)0x10000) = 0x0;
+
     message temp_msg;
     int i;
 
