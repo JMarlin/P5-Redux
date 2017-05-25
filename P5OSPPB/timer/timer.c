@@ -227,7 +227,9 @@ void init_timer() {
         event_timer[i].p = (process*)0;
 
     init_pic();
-    init_time_chip(1000); //We use this initial low speed for MIPS calc //UPDATE: As of now, we're just doing it because we want a steady ~1ms timebase for timer functions
+    //DEBUG dropping timer speed for bochs
+    init_time_chip(10000); //Remove
+    //init_time_chip(1000); //We use this initial low speed for MIPS calc //UPDATE: As of now, we're just doing it because we want a steady ~1ms timebase for timer functions
     installInterrupt(TIMER_INT_NUM, &_handle_timerInt, 3);
     installInterrupt(0xE7, &_spurious_handler, 3);
 }
