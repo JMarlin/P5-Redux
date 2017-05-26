@@ -9,6 +9,7 @@ _mc_cnt: .int 0x0
 .globl _asm_memcpy
 _asm_memcpy:
     pusha
+    cld
     mov %ds, %ax
     mov %ax, %es
     mov _mc_src, %ecx
