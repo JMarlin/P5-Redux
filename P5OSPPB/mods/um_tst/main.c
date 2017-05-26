@@ -300,10 +300,10 @@ void winThreadB() {
 
 void makeWindows() {
     
-    //if(!startThread())
-        //winThreadA();
+    if(!startThread())
+        winThreadA();
 
-    //while(!window_b);
+    while(!window_a);
 
     winThreadB();
 }
