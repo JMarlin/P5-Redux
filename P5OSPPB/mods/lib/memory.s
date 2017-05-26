@@ -9,6 +9,23 @@ _mc_cnt: .int 0x0
 .globl _asm_memcpy
 _asm_memcpy:
     pusha
+    mov %ds, %ax
+    mov %ax, %es
+    mov _mc_src, %ecx
+    and $0xFFFFFFFC, %ecx
+    mov %ecx, %esi
+    mov _mc_dst, %ecx
+    and $0xFFFFFFFC, %ecx
+    mov %ecx, %edi
+    mov _mc_cnt, %ecx
+    shr $2, %ecx 
+    rep movsl
+    popa
+    ret
+
+.globl _asm_memcpy_rev
+_asm_memcpy_rev:
+    pusha
     std
     mov %ds, %ax
     mov %ax, %es

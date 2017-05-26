@@ -63,12 +63,20 @@ void Context_internal_blit(Context* context, int x1, int y1, int w, int h, int x
     //We're assuming 32-bit pixels here 
     int xo, yo;
 
-    for(yo = 0; yo <= h && yo < (context->height - y2); yo++) {
+    if(y2 < y1)
+        for(yo = 0; yo <= h && yo < (context->height - y2); yo++) {
 
-        memcpy(&context->buffer[((yo + y1) * context->width) + x1],
-               &context->buffer[((yo + y2) * context->width) + x2],
-                w * 4);
-    }
+            memcpy(&context->buffer[((yo + y1) * context->width) + x1],
+                &context->buffer[((yo + y2) * context->width) + x2],
+                    w * 4);
+        }
+    else
+        for(yo = h - 1; yo >= 0; yo--) {
+
+            memcpy(&context->buffer[((yo + y1) * context->width) + x1],
+                &context->buffer[((yo + y2) * context->width) + x2],
+                    w * 4);
+        }
 }
 
 void Context_set_finalize(Context* context, ContextFinalizeHandler handler) {

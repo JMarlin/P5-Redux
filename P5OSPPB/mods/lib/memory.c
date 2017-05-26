@@ -177,10 +177,19 @@ void* memcpy(void* old_address, void* new_address, unsigned long count) {
 	//boundaries, needs to be updated to conform to start and
 	//count
 
-	_mc_src = (unsigned int)old_address + count - 1;
-	_mc_dst = (unsigned int)new_address + count - 1;
-	_mc_cnt = (unsigned int)count;
-    _asm_memcpy();
+	if(old_address < new_address) {
+
+		_mc_src = (unsigned int)old_address + count - 1;
+		_mc_dst = (unsigned int)new_address + count - 1;
+		_mc_cnt = (unsigned int)count;
+		_asm_memcpy_rev();
+	} else {
+
+		_mc_src = (unsigned int)old_address;
+		_mc_dst = (unsigned int)new_address;
+		_mc_cnt = (unsigned int)count;
+		_asm_memcpy();
+	}
 }
 
 void* realloc(void* old_address, unsigned int byte_count) {
