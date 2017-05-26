@@ -47,6 +47,19 @@ void Context_internal_blit(Context* context, int x1, int y1, int w, int h, int x
     //int rightmost_end = rightmost_start + w;
     //int line_length = rightmost_end > context->width ? ;
 
+    printHexDword(x1);
+    prints(", ");
+    printHexDword(y1);
+    prints(", ");
+    printHexDword(w);
+    prints(", ");
+    printHexDword(h);
+    prints(", ");
+    printHexDword(x2);
+    prints(", ");
+    printHexDword(y2);
+    prints("\n");
+
     //We're assuming 32-bit pixels here 
     int xo, yo;
 
