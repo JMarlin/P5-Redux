@@ -49,6 +49,7 @@ void Context_clear_clip_rects(Context* context);
 void Context_draw_text(Context* context, char* string, int x, int y, uint32_t color);
 void Context_set_finalize(Context* context, ContextFinalizeHandler handler);
 void Context_finalize_draw(Context* context);
+void Context_internal_blit(Context* context, int x1, int y1, int w, int h, int x2, int y2);
 
 #ifdef __cplusplus
 }

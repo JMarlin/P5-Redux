@@ -39,6 +39,25 @@ Context* Context_new(uint16_t width, uint16_t height, uint32_t* buffer) {
     return context;
 }
 
+void Context_internal_blit(Context* context, int x1, int y1, int w, int h, int x2, int y2) {
+
+    //TODO: figure out all relevant math to make sure things don't 
+    //explode if portions of the source or dest aren't offscreen
+    //int rightmost_start = x1 > x2 ? x1 : x2;
+    //int rightmost_end = rightmost_start + w;
+    //int line_length = rightmost_end > context->width ? ;
+
+    //We're assuming 32-bit pixels here 
+    int xo, yo;
+
+    for(yo = 0; yo <= h && yo < (context->height - y2); yo++) {
+
+        memcpy(&context->buffer[((yo + y1) * context->width) + x1],
+               &context->buffer[((yo + y2) * context->width) + x2],
+                w * 4);
+    }
+}
+
 void Context_set_finalize(Context* context, ContextFinalizeHandler handler) {
 
     context->finalize_handler = handler;

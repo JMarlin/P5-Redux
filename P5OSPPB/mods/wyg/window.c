@@ -709,30 +709,43 @@ void Window_move_function(Window* window, int new_x, int new_y) {
     int i;
     int old_x = window->x;
     int old_y = window->y;
+    int old_scrnx = Window_screen_x(window);
+    int old_scrny = Window_screen_y(window);
+    int dx = new_x - old_x;
+    int dy = new_y - old_y;
     Rect new_window_rect;
     List *replacement_list, *dirty_list, *dirty_windows;
 
     //To make life a little bit easier, we'll make the not-unreasonable 
     //rule that if a window is moved, it must become the top-most window
-    Window_raise(window, 0); //Raise it, but don't repaint it yet
+    //Check first to see if it's top, raise and request a repaint if not
+    if(window->parent && ((Window*)List_get_at(window->parent->children, 0) != window)) 
+        Window_raise(window, 1);
+
+    //Instead of asking the window to redraw itself in its entirety when 
+    //it probably hasn't even been changed, we're just going to blit it
+    //to its new location
+    if(window->context) {
+
+        //TODO: This blitting needs to be clipped to the parent
+        Context_internal_blit(window->context,
+                              old_scrnx, 
+                              old_scrny,
+                              window->width,
+                              window->height,
+                              old_scrnx + dx,
+                              old_scrny + dy);
+    }
 
     //We'll hijack our dirty rect collection from our existing clipping operations
     //So, first we'll get the visible regions of the original window position
     Window_apply_bound_clipping(window, window->context, 0, (List*)0);
 
-    //Temporarily update the window position
-    window->x = new_x;
-    window->y = new_y;
-
     //Calculate the new bounds
-    new_window_rect.top = Window_screen_y(window);
-    new_window_rect.left = Window_screen_x(window);
+    new_window_rect.top = old_scrnx + dx;
+    new_window_rect.left = old_scrnx + dy;
     new_window_rect.bottom = new_window_rect.top + window->height - 1;
     new_window_rect.right = new_window_rect.left + window->width - 1;
-
-    //Reset the window position
-    window->x = old_x;
-    window->y = old_y;
 
     //Now, we'll get the *actual* dirty area by subtracting the new location of
     //the window 
@@ -770,9 +783,11 @@ void Window_move_function(Window* window, int new_x, int new_y) {
     Object_delete((Object*)dirty_list);
     Object_delete((Object*)dirty_windows);
 
+    //Since we're going to simply blit the window from one place to
+    //another now at the very start, there's no need to do the below
     //With the dirtied siblings redrawn, we can do the final update of 
     //the window location and paint it at that new position
-    Window_paint(window, (List*)0, 1);
+    //Window_paint(window, (List*)0, 1);
 }
 
 //Interface between windowing system and mouse device
