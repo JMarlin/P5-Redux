@@ -136,8 +136,7 @@ void moveMouse(short x_off, short y_off, unsigned char buttons) {
         //draw_halt--;
     }
 
-    //DEBUG -- Testing to see if this is where our slowdown is happening
-    //Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
+    Desktop_process_mouse(desktop, (unsigned short)mouse_x, (unsigned short)mouse_y, buttons);
 }
 
 void scans(int c, char* b) {
