@@ -142,11 +142,13 @@ int getMessage(process* proc, message* msgBuf, unsigned int pid_from, unsigned i
         }
 #endif
 
+        message* old_root = proc->root_msg;
+
         //Snip out the matched entry
         proc->root_msg = proc->root_msg->next;
 
         //Free the memory it was using
-        kfree((void*)(proc->root_msg));
+        kfree((void*)old_root);
 
         return 1;
     }
