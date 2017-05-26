@@ -50,7 +50,7 @@ void Context_internal_blit(Context* context, int x1, int y1, int w, int h, int x
     //We're assuming 32-bit pixels here 
     int xo, yo;
 
-    if(y2 > y1)
+    if(y2 < y1)
         for(yo = 0; yo <= h && yo < (context->height - y2); yo++) {
 
             memcpy(&context->buffer[((yo + y1) * context->width) + x1],
