@@ -26,7 +26,10 @@ void main(void) {
     prints("[init] Starting ps2 server...\n");
     startAndWait(":ps2.mod");
 
-// HANGING TO TEST THE PS2 SERVICE
+    //Start FDC server
+    prints("[init] Starting FDC server...\n");
+    startAndWait(":fdc.mod");
+
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");

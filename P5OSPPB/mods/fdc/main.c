@@ -111,7 +111,14 @@ void main(void) {
     //and provide high-level file IO services based on 
     //the currently loaded block device and filesystem
     //servers
-    prints("[FDC] Beginning FDC service init...");
+    prints("[FDC] Beginning FDC service init...\n");
+    prints("[FDC] Registering as a block device driver...");
+    
+    if(!registerAsBlockDriver())
+        prints("Success\n");
+    else
+        prints("Failed\n");
+
 
     //For now we're going to hang the system for testing
     //postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
