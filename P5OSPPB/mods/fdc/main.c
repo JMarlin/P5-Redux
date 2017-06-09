@@ -114,11 +114,10 @@ void main(void) {
     prints("[FDC] Beginning FDC service init...\n");
     prints("[FDC] Registering as a block device driver...");
     
-    if(!registerAsBlockDriver())
+    if(registerAsBlockDriver())
         prints("Success\n");
     else
         prints("Failed\n");
-
 
     //For now we're going to hang the system for testing
     //postMessage(parent_pid, 0, 1); //Tell the parent we're done registering

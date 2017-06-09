@@ -26,6 +26,10 @@ void main(void) {
     prints("[init] Starting ps2 server...\n");
     startAndWait(":ps2.mod");
 
+    //Start VFS server
+    prints("[init] Starting VFS server...\n");
+    startAndWaitUsr(":vfs.mod"); //VFS should not ever have to touch actual hardware itself
+
     //Start FDC server
     prints("[init] Starting FDC server...\n");
     startAndWait(":fdc.mod");

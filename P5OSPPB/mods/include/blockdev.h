@@ -1,13 +1,6 @@
 #ifndef BLOCKDEV_H
 #define BLOCKDEV_H
 
-//In the VFS, we'll keep a list of device structs. 
-//The device struct will associate the system-wide 
-//device ID with a block driver PID, the block device 
-//number in that device driver, a pointer to the
-//transfer buffer and other elements allowing access 
-//of the device 
-
 #define BLOCKDEV_MSG_CLASS ((unsigned int)0x00800000)
 
 #define BLOCKDEV_ENUMERATE       (BLOCKDEV_MSG_CLASS | 0x1)

@@ -26,4 +26,6 @@ cd ../uart
 ./build.sh
 cd ../fdc
 ./build.sh
+cd ../vfs
+./build.sh
 cd ..
