@@ -9,7 +9,7 @@ int registerAsBlockDriver() {
 
     //Find the VFS server
 	postMessage(REGISTRAR_PID, REG_LOOKUP, SVC_VFS);
-    getMessageFrom(&temp_msg, REGISTRAR_PID, REG_LOOKUP);
+    getMessageFrom(&temp_msg, REGISTRAR_PID, REG_PID);
     vfs_pid = temp_msg.payload;
 
     if(!vfs_pid)
