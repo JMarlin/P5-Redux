@@ -97,7 +97,7 @@ int registerNewBlockDriver(unsigned int driver_pid) {
     if(!block_pid_list)
         new_list = (unsigned int*)malloc(sizeof(unsigned int)*(block_driver_count + 1));
     else
-        new_list = (Volume**)realloc(block_pid_list, sizeof(unsigned int)*(block_driver_count + 1));
+        new_list = (unsigned int*)realloc(block_pid_list, sizeof(unsigned int)*(block_driver_count + 1));
 
     if(!new_list)
         return 0;
