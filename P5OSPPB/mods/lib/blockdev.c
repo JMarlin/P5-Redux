@@ -3,6 +3,7 @@
 #include "../include/blockdev.h"
 
 unsigned int vfs_pid;
+message temp_msg;
 
 int registerAsBlockDriver() {
 
