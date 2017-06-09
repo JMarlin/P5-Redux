@@ -10,14 +10,6 @@
 //transfer buffer and other elements allowing access 
 //of the device 
 
-//Global volume list
-unsigned int volume_count = 0;
-Volume** volume_list = 0;
-
-//Global registered block driver list
-unsigned int block_driver_count = 0;
-unsigned int* block_pid_list = 0;
-
 //Structs for storing mounted filesystems
 typedef struct Volume_struct {
     unsigned int volume_id;
@@ -26,6 +18,14 @@ typedef struct Volume_struct {
     void* block_buffer;
     unsigned int fs_driver_pid;
 } Volume;
+
+//Global volume list
+unsigned int volume_count = 0;
+Volume** volume_list = 0;
+
+//Global registered block driver list
+unsigned int block_driver_count = 0;
+unsigned int* block_pid_list = 0;
 
 Volume* Volume_new() {
 
