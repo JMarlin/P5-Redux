@@ -24,4 +24,6 @@ cd ../ps2
 ./build.sh
 cd ../uart
 ./build.sh
+cd ../fdc
+./build.sh
 cd ..

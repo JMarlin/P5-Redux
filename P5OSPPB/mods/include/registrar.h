@@ -10,6 +10,8 @@
 #define SVC_WYG 3
 #define SVC_KEY 4
 #define SVC_MOUSE 5
+#define SVC_BLOCKDEV 6
+#define SVC_VFS 7
 
 #define REG_REGISTER   (REGISTRAR_MSG_CLASS | 1)
 #define REG_LOOKUP     (REGISTRAR_MSG_CLASS | 2)

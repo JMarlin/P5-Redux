@@ -1,6 +1,6 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
-#include "../include/fdc.h"
+#include "../include/blockdev.h"
 
 //FDC Registers
 #define STAT_REG_A         0x3F0 //RO
@@ -97,8 +97,6 @@ void main(void) {
     getMessage(&temp_msg);
     parent_pid = temp_msg.source;
 
-    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
-
     //For now, we want to manually and in a very dirty way
     //set up the DMA for a transfer, set up the FDC,
     //fire off a read command, wait for the IRQ, check 
@@ -113,8 +111,11 @@ void main(void) {
     //and provide high-level file IO services based on 
     //the currently loaded block device and filesystem
     //servers
+    prints("[FDC] Beginning FDC service init...");
 
-    //With all of the threads started, the original core thread can exit
+    //For now we're going to hang the system for testing
+    //postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+
 	while(1);
     //terminate();
 }
