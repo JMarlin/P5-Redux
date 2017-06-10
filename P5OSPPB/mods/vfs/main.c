@@ -111,6 +111,11 @@ int registerNewBlockDriver(unsigned int driver_pid) {
 void main(void) {
 
     message temp_msg;
+    unsigned int parent_pid;
+
+	//Get the 'here's my pid' message from init
+    getMessage(&temp_msg);
+    parent_pid = temp_msg.source;
 
     prints("[VFS] Starting VFS process...\n");
 
