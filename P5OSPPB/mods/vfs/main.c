@@ -142,8 +142,8 @@ void main(void) {
 
             case VFS_REGISTER_BLOCK:
                 //DEBUG 
-                prints("\n[VFS] registering new block device server at 0x");
-                printHexDword(temp_msg.payload);
+                prints("\n[VFS] registering new block device server at PID 0x");
+                printHexDword(temp_msg.source);
                 prints("...");
                 
                 if(registerNewBlockDriver(temp_msg.payload)) {
