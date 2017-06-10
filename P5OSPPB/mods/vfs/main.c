@@ -119,7 +119,19 @@ void main(void) {
 
     prints("[VFS] Starting VFS process...\n");
 
-    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+    prints("[VFS] Registering as VFS service with the registrar...");
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
+    getMessage(&temp_msg);
+
+    if(!temp_msg.payload) {
+
+        prints("Failed\n");
+        postMessage(parent_pid, 0, 0); //Tell the parent we're failed
+        while(1); //Hang the service (would be a terminate once we have that working properly)
+    } 
+
+    prints("Success\n");
+    postMessage(parent_pid, 0, 1); //Tell the parent we started up OK
 
     //Enter the message loop
     while(1) {
