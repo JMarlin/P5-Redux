@@ -120,7 +120,7 @@ void main(void) {
     prints("[VFS] Starting VFS process...\n");
 
     prints("[VFS] Registering as VFS service with the registrar...");
-    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_GFX);
+    postMessage(REGISTRAR_PID, REG_REGISTER, SVC_VFS);
     getMessage(&temp_msg);
 
     if(!temp_msg.payload) {
