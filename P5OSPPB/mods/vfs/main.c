@@ -150,6 +150,7 @@ void main(void) {
                 if(registerNewBlockDriver(temp_msg.source)) {
 
                     prints("Success\n"); //DEBUG
+                    postMessage(temp_msg.source, VFS_REGISTER_BLOCK, 1);
 
                     //DEBUG read and display the data read from the first block
                     enumerateDevices(block_pid_list[block_driver_count - 1]);
@@ -159,7 +160,6 @@ void main(void) {
                     prints(disk_buffer);
                     prints("\n");                    
 
-                    postMessage(temp_msg.source, VFS_REGISTER_BLOCK, 1);
                 } else {
 
                     prints("Failure\n"); //DEBUG
