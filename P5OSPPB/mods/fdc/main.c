@@ -203,7 +203,12 @@ void main(void) {
                 }
 
                 //Finally, dump the data to the shared buffer
-                memcpy((void*)fake_block, shared_buffer, 512);
+                //memcpy((void*)fake_block, shared_buffer, 512);
+                //Check to see if our memcpy is screwy
+                int i;
+                unsigned char* dest = (unsigned char*)shared_buffer;
+                for(i = 0; i < 512; i++)
+                    dest[i] = fake_block[i];
 
                 postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 1);
             break;
