@@ -34,6 +34,8 @@ void main(void) {
     prints("[init] Starting FDC server...\n");
     startAndWait(":fdc.mod");
 
+while(1); //DEBUG TESTING
+
     //Start WYG server
     prints("[init] Starting WYG server...\n");
     startAndWaitUsr(":wyg.mod");
