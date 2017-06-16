@@ -1,6 +1,7 @@
 #include "../include/p5.h"
 #include "../include/registrar.h"
 #include "../include/blockdev.h"
+#include "../include/memory.h"
 
 //FDC Registers
 #define STAT_REG_A         0x3F0 //RO
@@ -88,10 +89,14 @@ unsigned short inw(unsigned short _port) {
 //      very much memory yet, but ISA DMA transfers can ONLY target
 //      the first 16MB of RAM.
 
+//This is our fake ramdisk block for testing
+unsigned char fake_block[512] = "success\0";
+
 void main(void) {
 	
 	message temp_msg;
 	unsigned int parent_pid;
+    void* shared_buffer;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -119,9 +124,120 @@ void main(void) {
     else
         prints("Failed\n");
 
-    //For now we're going to hang the system for testing
-    //postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
+    postMessage(parent_pid, 0, 1); //Tell the parent we're done registering
 
-	while(1);
+    //Enter message loop
+    //For now, we're operating simply as a dumb test to make sure
+    //our driver/fs/vfs system works
+	while(1) {
+
+        getMessage(&temp_msg);
+
+        switch(temp_msg.command) {
+
+            case BLOCKDEV_ENUMERATE:
+                //For now, we just have a single device
+                postMessage(temp_msg.source, BLOCKDEV_ENUMERATE, 1);
+            break;
+
+            case BLOCKDEV_GET_BLOCK_SIZE:
+                //We'll do 512-byte blocks
+                if(temp_msg.payload == 1)
+                    postMessage(temp_msg.source, BLOCKDEV_GET_BLOCK_SIZE, 512);
+                else
+                    postMessage(temp_msg.source, BLOCKDEV_GET_BLOCK_SIZE, 0);
+            break;
+            
+            case BLOCKDEV_GET_BLOCK_COUNT:
+                //Our pretend device is only 1 block long
+                if(temp_msg.payload == 1)
+                    postMessage(temp_msg.source, BLOCKDEV_GET_BLOCK_COUNT, 1);
+                else
+                    postMessage(temp_msg.source, BLOCKDEV_GET_BLOCK_COUNT, 0);
+            break;
+            
+            case BLOCKDEV_INIT_DEVICE:
+                //To init the device we need to create a shared memory area
+
+                if(temp_msg.payload != 1) {
+
+                    postMessage(temp_msg.source, BLOCKDEV_INIT_DEVICE, 0);
+                    break;
+                }
+                
+                //Our shared area is 8x bigger than a block, but that's fine for now.
+                //Might make sense in the future to be smart and read more than one
+                //block at a time to maximize the utility of our memory alloation
+                shared_buffer = getSharedPages(1);
+
+                //This will automatically return a null result if the allocation failed
+                postMessage(temp_msg.source, BLOCKDEV_INIT_DEVICE, (unsigned int)shared_buffer);
+            break;
+            
+            case BLOCKDEV_CLOSE_DEVICE:
+                //We would want to free our shared memory area here, but to my knowledge
+                //the kernel isn't capable of that yet
+                if(temp_msg.payload == 1 && !!shared_buffer) //Can't close if it was never init'd
+                    postMessage(temp_msg.source, BLOCKDEV_CLOSE_DEVICE, 1);
+                else
+                    postMessage(temp_msg.source, BLOCKDEV_CLOSE_DEVICE, 0);
+            break;
+            
+            case BLOCKDEV_INIT_READ:
+
+                if(temp_msg.payload == 1 && !!shared_buffer) {
+
+                    postMessage(temp_msg.source, BLOCKDEV_INIT_READ, 1);                    
+                } else {
+
+                    postMessage(temp_msg.source, BLOCKDEV_INIT_READ, 0);
+                    break;
+                }
+
+                getMessageFrom(&temp_msg, temp_msg.source, BLOCKDEV_READ_LBA);
+
+                if(temp_msg.payload != 0) { //Our testing device is only one block
+
+                    postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 0);
+                    break;
+                }
+
+                //Finally, dump the data to the shared buffer
+                memcpy((void*)fake_block, shared_buffer, 512);
+
+                postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 1);
+            break;
+                        
+            case BLOCKDEV_INIT_WRITE:
+
+                if(temp_msg.payload == 1 && !!shared_buffer) {
+
+                    postMessage(temp_msg.source, BLOCKDEV_INIT_WRITE, 1);                    
+                } else {
+
+                    postMessage(temp_msg.source, BLOCKDEV_INIT_WRITE, 0);
+                    break;
+                }
+
+                getMessageFrom(&temp_msg, temp_msg.source, BLOCKDEV_WRITE_LBA);
+
+                if(temp_msg.payload != 0) { //Our testing device is only one block
+
+                    postMessage(temp_msg.source, BLOCKDEV_WRITE_LBA, 0);
+                    break;
+                }
+
+                //Finally, dump the data from the shared buffer back to our private buffer
+                memcpy(shared_buffer, (void*)fake_block, 512);
+
+                postMessage(temp_msg.source, BLOCKDEV_WRITE_LBA, 1);
+            break;
+            
+            default:
+                //Should probably log an unhandled message or something
+            break;
+        }
+    }
+
     //terminate();
 }

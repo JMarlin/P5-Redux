@@ -110,6 +110,7 @@ int registerNewBlockDriver(unsigned int driver_pid) {
 
 void main(void) {
 
+    unsigned char* disk_buffer;
     message temp_msg;
     unsigned int parent_pid;
 
@@ -146,9 +147,18 @@ void main(void) {
                 printHexDword(temp_msg.source);
                 prints("...");
                 
-                if(registerNewBlockDriver(temp_msg.payload)) {
+                if(registerNewBlockDriver(temp_msg.source)) {
 
                     prints("Success\n"); //DEBUG
+
+                    //DEBUG read and display the data read from the first block
+                    enumerateDevices(block_pid_list[block_driver_count - 1]);
+                    disk_buffer = (unsigned char*)initBlockDevice(block_pid_list[block_driver_count - 1], 1);
+                    initBlockRead(block_pid_list[block_driver_count - 1], 1, 0);
+                    prints("String at beginning of block zero: ");
+                    prints(disk_buffer);
+                    prints("\n");                    
+
                     postMessage(temp_msg.source, VFS_REGISTER_BLOCK, 1);
                 } else {
 
