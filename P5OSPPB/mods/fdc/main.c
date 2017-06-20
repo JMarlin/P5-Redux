@@ -231,6 +231,10 @@ void main(void) {
                 for(i = 0; i < 512; i++)
                     dest[i] = fake_block[i];
 
+                dest[0] = 'H';
+                dest[1] = 'M';
+                dest[2] = 0;
+
                 postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 1);
             break;
                         
