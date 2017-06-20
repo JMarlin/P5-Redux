@@ -198,6 +198,8 @@ void main(void) {
             
             case BLOCKDEV_INIT_READ:
 
+prints("Starting read sequence\n");
+
                 if(temp_msg.payload == 1 && !!shared_buffer) {
 
                     postMessage(temp_msg.source, BLOCKDEV_INIT_READ, 1);                    
@@ -207,6 +209,8 @@ void main(void) {
                     break;
                 }
 
+prints("Incoming request OK, waiting for LBA\n");
+
                 getMessageFrom(&temp_msg, temp_msg.source, BLOCKDEV_READ_LBA);
 
                 if(temp_msg.payload != 0) { //Our testing device is only one block
@@ -214,6 +218,8 @@ void main(void) {
                     postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 0);
                     break;
                 }
+
+prints("Starting read sequence\n");
 
                 //Finally, dump the data to the shared buffer
                 //memcpy((void*)fake_block, shared_buffer, 512);
@@ -234,6 +240,8 @@ void main(void) {
                 dest[0] = 'H';
                 dest[1] = 'M';
                 dest[2] = 0;
+
+prints("Done, returning success to caller\n");
 
                 postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 1);
             break;
