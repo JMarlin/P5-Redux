@@ -220,6 +220,14 @@ void main(void) {
                 //Check to see if our memcpy is screwy
                 int i;
                 unsigned char* dest = (unsigned char*)shared_buffer;
+
+                dest[0] = 0x00;
+                if(dest[0] != 0x00)
+                    prints("FAILED CHANGING MEMORY (a)\n");
+                dest[0] = 0xFF;
+                if(dest[0] != 0xFF)
+                    prints("FAILED CHANGING MEMORY (b)\n");
+
                 for(i = 0; i < 512; i++)
                     dest[i] = fake_block[i];
 
