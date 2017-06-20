@@ -70,7 +70,7 @@ int initBlockRead(unsigned int driver_pid, unsigned int devnum, unsigned int lba
     if(!temp_msg.payload)
         return 0;
 
-    postMessage(driver_pid, BLOCKDEV_READ_LBA, devnum);
+    postMessage(driver_pid, BLOCKDEV_READ_LBA, lba);
     getMessageFrom(&temp_msg, driver_pid, BLOCKDEV_READ_LBA);
 
     return temp_msg.payload;

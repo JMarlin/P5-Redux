@@ -90,7 +90,7 @@ unsigned short inw(unsigned short _port) {
 //      the first 16MB of RAM.
 
 //This is our fake ramdisk block for testing
-unsigned char fake_block[512] = {0};
+unsigned char fake_block[512] = "Test data!\n\0";
 
 void main(void) {
 	
@@ -166,22 +166,10 @@ void main(void) {
                     break;
                 }
 
-                //Init the fake block data
-                fake_block[0] = 't';
-                fake_block[1] = 'e';
-                fake_block[2] = 's';
-                fake_block[3] = 't';
-                fake_block[4] = 0;
-                
                 //Our shared area is 8x bigger than a block, but that's fine for now.
                 //Might make sense in the future to be smart and read more than one
                 //block at a time to maximize the utility of our memory alloation
                 shared_buffer = getSharedPages(1);
-
-                //DEBUG
-                prints("[FDC] Creating shared page at 0x");
-                printHexDword((unsigned int)shared_buffer);
-                prints("\n");
 
                 //This will automatically return a null result if the allocation failed
                 postMessage(temp_msg.source, BLOCKDEV_INIT_DEVICE, (unsigned int)shared_buffer);
@@ -198,8 +186,6 @@ void main(void) {
             
             case BLOCKDEV_INIT_READ:
 
-prints("Starting read sequence\n");
-
                 if(temp_msg.payload == 1 && !!shared_buffer) {
 
                     postMessage(temp_msg.source, BLOCKDEV_INIT_READ, 1);                    
@@ -209,8 +195,6 @@ prints("Starting read sequence\n");
                     break;
                 }
 
-prints("Incoming request OK, waiting for LBA\n");
-
                 getMessageFrom(&temp_msg, temp_msg.source, BLOCKDEV_READ_LBA);
 
                 if(temp_msg.payload != 0) { //Our testing device is only one block
@@ -219,29 +203,8 @@ prints("Incoming request OK, waiting for LBA\n");
                     break;
                 }
 
-prints("Starting read sequence\n");
-
                 //Finally, dump the data to the shared buffer
-                //memcpy((void*)fake_block, shared_buffer, 512);
-                //Check to see if our memcpy is screwy
-                int i;
-                unsigned char* dest = (unsigned char*)shared_buffer;
-
-                dest[0] = 0x00;
-                if(dest[0] != 0x00)
-                    prints("FAILED CHANGING MEMORY (a)\n");
-                dest[0] = 0xFF;
-                if(dest[0] != 0xFF)
-                    prints("FAILED CHANGING MEMORY (b)\n");
-
-                for(i = 0; i < 512; i++)
-                    dest[i] = fake_block[i];
-
-                dest[0] = 'H';
-                dest[1] = 'M';
-                dest[2] = 0;
-
-prints("Done, returning success to caller\n");
+                memcpy((void*)fake_block, shared_buffer, 512);
 
                 postMessage(temp_msg.source, BLOCKDEV_READ_LBA, 1);
             break;
