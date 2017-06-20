@@ -155,6 +155,9 @@ void main(void) {
                     //DEBUG read and display the data read from the first block
                     enumerateDevices(block_pid_list[block_driver_count - 1]);
                     disk_buffer = (unsigned char*)initBlockDevice(block_pid_list[block_driver_count - 1], 1);
+                    prints("[VFS] Received shared page at 0x");
+                    printHexDword((unsigned int)disk_buffer);
+                    prints("\n");
                     initBlockRead(block_pid_list[block_driver_count - 1], 1, 0);
                     prints("String at beginning of block zero: ");
                     prints(disk_buffer);

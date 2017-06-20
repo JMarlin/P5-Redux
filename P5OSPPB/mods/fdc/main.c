@@ -90,7 +90,7 @@ unsigned short inw(unsigned short _port) {
 //      the first 16MB of RAM.
 
 //This is our fake ramdisk block for testing
-unsigned char fake_block[512] = "success\0";
+unsigned char fake_block[512] = {0};
 
 void main(void) {
 	
@@ -159,16 +159,29 @@ void main(void) {
             case BLOCKDEV_INIT_DEVICE:
                 //To init the device we need to create a shared memory area
 
+                //We only have one 'device'
                 if(temp_msg.payload != 1) {
 
                     postMessage(temp_msg.source, BLOCKDEV_INIT_DEVICE, 0);
                     break;
                 }
+
+                //Init the fake block data
+                fake_block[0] = 't';
+                fake_block[1] = 'e';
+                fake_block[2] = 's';
+                fake_block[3] = 't';
+                fake_block[4] = 0;
                 
                 //Our shared area is 8x bigger than a block, but that's fine for now.
                 //Might make sense in the future to be smart and read more than one
                 //block at a time to maximize the utility of our memory alloation
                 shared_buffer = getSharedPages(1);
+
+                //DEBUG
+                prints("[FDC] Creating shared page at 0x");
+                printHexDword((unsigned int)shared_buffer);
+                prints("\n");
 
                 //This will automatically return a null result if the allocation failed
                 postMessage(temp_msg.source, BLOCKDEV_INIT_DEVICE, (unsigned int)shared_buffer);
