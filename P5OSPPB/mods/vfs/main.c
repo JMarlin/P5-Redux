@@ -2,6 +2,7 @@
 #include "../include/memory.h"
 #include "../include/registrar.h"
 #include "../include/blockdev.h"
+#include "../include/fs.h"
 
 //In the VFS, we'll keep a list of device structs. 
 //The device struct will associate the system-wide 
@@ -10,8 +11,11 @@
 //transfer buffer and other elements allowing access 
 //of the device 
 
+#define VOLUME_MOUNTED 0x01
+
 //Structs for storing mounted filesystems
 typedef struct Volume_struct {
+    unsigned int flags;
     unsigned int volume_id;
     unsigned int block_driver_pid;
     unsigned int block_device_number;
@@ -26,6 +30,10 @@ Volume** volume_list = 0;
 //Global registered block driver list
 unsigned int block_driver_count = 0;
 unsigned int* block_pid_list = 0;
+
+//Global registered file system driver list
+unsigned int fs_driver_count = 0;
+unsigned int* fs_pid_list = 0;
 
 Volume* Volume_new() {
 
@@ -108,6 +116,79 @@ int registerNewBlockDriver(unsigned int driver_pid) {
     return 1;
 }
 
+int registerNewFSDriver(unsigned int driver_pid) {
+
+    unsigned int* new_list;
+
+    if(!fs_pid_list)
+        new_list = (unsigned int*)malloc(sizeof(unsigned int)*(fs_driver_count + 1));
+    else
+        new_list = (unsigned int*)realloc(fs_pid_list, sizeof(unsigned int)*(fs_driver_count + 1));
+
+    if(!new_list)
+        return 0;
+
+    fs_pid_list = new_list;
+    fs_pid_list[fs_driver_count++] = driver_pid;
+
+    return 1;
+}
+
+int Volume_mount(Volume* volume) {
+
+    int i;
+
+    if(volume->flags & VOLUME_MOUNTED)
+        return 1; //No need to mount again 
+
+    for(i = 0; i <  fs_driver_count; i++)
+        if(initFSDevice(fs_pid_list[i], volume->block_driver_pid, volume->block_device_number, volume->volume_id)) {
+
+            volume->flags |= VOLUME_MOUNTED;
+            volume->fs_driver_pid = fs_pid_list[i];
+
+            return 1;
+        }
+
+    return 0;
+}
+
+void mountScan() {
+
+    int i;
+
+    for(i = 0; i < volume_count; i++)
+        if(!(volume_list[i]->flags & VOLUME_MOUNTED))
+            Volume_mount(volume_list[i]);
+}
+
+Volume* Volume_fromDevice(unsigned int driver_pid, unsigned int device_number) {
+
+    Volume* volume = 0;
+    void* new_buffer = initBlockDevice(driver_pid, device_number);
+
+    if(!new_buffer)
+        return volume;
+
+    if(!(volume = Volume_new())) {
+
+        //Again, keep in mind that this is async
+        closeBlockDevice(driver_pid, device_number);
+
+        return volume;
+    }
+
+    volume->flags = 0;
+    volume->block_driver_pid = driver_pid;
+    volume->block_device_number = device_number;
+    volume->block_buffer = new_buffer;
+
+    //This may or may not succeed, but for the purposes of this function we don't really care
+    Volume_mount(volume);
+
+    return volume;
+}
+
 void main(void) {
 
     unsigned char* disk_buffer;
@@ -152,21 +233,47 @@ void main(void) {
                     prints("Success\n"); //DEBUG
                     postMessage(temp_msg.source, VFS_REGISTER_BLOCK, 1);
 
-                    //DEBUG read and display the data read from the first block
-                    enumerateDevices(block_pid_list[block_driver_count - 1]);
-                    disk_buffer = (unsigned char*)initBlockDevice(block_pid_list[block_driver_count - 1], 1);
-                    prints("[VFS] Received shared page at 0x");
-                    printHexDword((unsigned int)disk_buffer);
-                    prints("\n");
-                    initBlockRead(block_pid_list[block_driver_count - 1], 1, 0);
-                    prints("String at beginning of block zero: ");
-                    prints(disk_buffer);
-                    prints("\n");                    
+                    //If we succeed here, we should request the number of 
+                    //devices, then initialize each device in turn and 
+                    //attempt to mount it with each registered FS driver
+                    //either stopping when a successful mount occurs or,
+                    //should we hit the end of the list without a good
+                    //mount, creating a volume for the drive with a 
+                    //zero fs driver PID and a cleared mount flag to 
+                    //indicate an undetectable volume 
+                    int i, 
+                        devices = enumerateDevices(block_pid_list[block_driver_count - 1]);
+                    
+                    for(i = 0; i < devices; i++) //Note: device numbers are 1-indexed
+                        Volume_fromDevice(block_pid_list[block_driver_count - 1], i + 1);
 
                 } else {
 
                     prints("Failure\n"); //DEBUG
                     postMessage(temp_msg.source, VFS_REGISTER_BLOCK, 0);
+                }
+            break;
+
+            case VFS_REGISTER_FS:
+                //DEBUG 
+                prints("\n[VFS] registering new filesystem server at PID 0x");
+                printHexDword(temp_msg.source);
+                prints("...");
+                
+                if(registerNewFSDriver(temp_msg.source)) {
+
+                    prints("Success\n"); //DEBUG
+                    postMessage(temp_msg.source, VFS_REGISTER_FS, 1);
+
+                    //If we succeed here, we should iterate through the list of
+                    //volumes and, should we find an entry that lacks a mounted
+                    //flag or an FS PID, attempt to mount the volume with the 
+                    //newly registered FS driver
+                    mountScan();
+                } else {
+
+                    prints("Failure\n"); //DEBUG
+                    postMessage(temp_msg.source, VFS_REGISTER_FS, 0);
                 }
             break;
 

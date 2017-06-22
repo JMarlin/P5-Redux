@@ -1,6 +1,8 @@
 #ifndef BLOCKDEV_H
 #define BLOCKDEV_H
 
+#include "vfs.h"
+
 #define BLOCKDEV_MSG_CLASS ((unsigned int)0x00800000)
 
 #define BLOCKDEV_ENUMERATE       (BLOCKDEV_MSG_CLASS | 0x1)
@@ -12,12 +14,6 @@
 #define BLOCKDEV_READ_LBA        (BLOCKDEV_MSG_CLASS | 0x7)
 #define BLOCKDEV_INIT_WRITE      (BLOCKDEV_MSG_CLASS | 0x8)
 #define BLOCKDEV_WRITE_LBA       (BLOCKDEV_MSG_CLASS | 0x9)
-
-//MOVE TO A VFS INTERFACE LIBRARY
-#define VFS_MSG_CLASS ((unsigned int)0x00900000)
-
-//MOVE TO A VFS INTERFACE LIBRARY
-#define VFS_REGISTER_BLOCK (VFS_MSG_CLASS | 0x1)
 
 //This is the interface by which the FS driver and VFS will query the block devs
 //Ask the driver to scan for devices and return the count 

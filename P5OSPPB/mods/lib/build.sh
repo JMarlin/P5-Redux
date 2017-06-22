@@ -8,5 +8,6 @@ gcc -c -o key.o key.c -nostdlib -nostdinc -ffreestanding -m32 -g
 gcc -c -o mouse.o mouse.c -nostdlib -nostdinc -ffreestanding -m32 -g
 gcc -c -o blockdev.o blockdev.c -nostdlib -nostdinc -ffreestanding -m32 -g
 gcc -c -o wyg.o wyg.c -nostdlib -nostdinc -ffreestanding -m32 -g
+gcc -c -o fs.o fs.c -nostdlib -nostdinc -ffreestanding -m32 -g
 as -o p5s.o p5.s --32 -g
 as -o memorys.o memory.s --32 -g
