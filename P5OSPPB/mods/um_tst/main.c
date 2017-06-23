@@ -331,13 +331,13 @@ void main(void) {
     }
 
     makeWindows();
-
+*/
     if(!initKey()) {
         
         prints("usr.mod could not init Key.");
         while(1); //Hang
     }
-*/    
+
     /*
 	while(1) {
 		
@@ -354,12 +354,21 @@ void main(void) {
 
     unsigned int vfs_pid = getVFSPID();
 
-    prints("\nLooking for :user.mod ");
+    while(1) {
 
-    if(FSPathExists(vfs_pid, 0, ":usr.mod"))
-        prints("Exists");
-    else
-        prints("Not Found");
+        prints("> ");
+        
+        scans(50, inbuf);
+
+        prints("\nLooking for ");
+        prints(inbuf);
+        prints("...");
+
+        if(FSPathExists(vfs_pid, 0, ":usr.mod"))
+            prints("Exists\n");
+        else
+            prints("Not Found\n");
+    }
 
     while(1);
 }
