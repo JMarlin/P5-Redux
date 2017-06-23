@@ -28,17 +28,15 @@ void main(void) {
 
     //Start VFS server
     prints("[init] Starting VFS server...\n");
-    startAndWaitUsr(":vfs.mod"); //VFS should not ever have to touch actual hardware itself
+    startAndWait(":vfs.mod"); //VFS needs ring 0 access to read the kernel ramdisk
 
     //Start FDC server
     prints("[init] Starting FDC server...\n");
     startAndWait(":fdc.mod");
 
-while(1); //DEBUG TESTING
-
     //Start WYG server
-    prints("[init] Starting WYG server...\n");
-    startAndWaitUsr(":wyg.mod");
+//    prints("[init] Starting WYG server...\n");
+//    startAndWaitUsr(":wyg.mod");
     
     //Start UART handler
 //    prints("[init] Starting UART server...\n");

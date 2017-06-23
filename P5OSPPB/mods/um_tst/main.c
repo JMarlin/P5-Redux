@@ -4,6 +4,8 @@
 #include "../include/wyg.h"
 #include "../vesa/font.h"
 #include "../include/key.h"
+#include "../include/fs.h"
+#include "../include/registrar.h"
 
 #define CMD_COUNT 9
 
@@ -65,6 +67,15 @@ sys_command cmdFunc[CMD_COUNT] = {
 };
 
 char inbuf[50];
+
+unsigned int getVFSPID() {
+
+    message temp_msg;
+
+    postMessage(REGISTRAR_PID, REG_LOOKUP, SVC_VFS);
+    getMessageFrom(&temp_msg, REGISTRAR_PID, REG_PID);
+    return temp_msg.payload;
+}
 
 void scans(int c, char* b) {
 
@@ -311,7 +322,8 @@ void makeWindows() {
 void main(void) {
 
     prints("\nUSR.MOD started.\n");
-    
+
+ /*   
     if(!initWYG()) {
         
         prints("usr.mod could not init WYG.");
@@ -325,7 +337,7 @@ void main(void) {
         prints("usr.mod could not init Key.");
         while(1); //Hang
     }
-    
+*/    
     /*
 	while(1) {
 		
@@ -333,11 +345,23 @@ void main(void) {
 		scans(50, inbuf);
 	}
 	*/
-    
+ /*   
 	//Get the frame dimensions
     getFrameDims(&frame_top, &frame_left, &frame_bottom, &frame_right);
     
     makeWindows();
+*/
+
+    unsigned int vfs_pid = getVFSPID();
+
+    prints("\nLooking for :user.mod ");
+
+    if(FSPathExists(vfs_pid, 0, ":usr.mod"))
+        prints("Exists");
+    else
+        prints("Not Found");
+
+    while(1);
 }
 
 void usrClear(void) {

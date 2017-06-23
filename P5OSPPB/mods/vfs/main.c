@@ -189,11 +189,122 @@ Volume* Volume_fromDevice(unsigned int driver_pid, unsigned int device_number) {
     return volume;
 }
 
+unsigned int pathCmp(char* path, char* cmp) {
+
+    while(*cmp)
+        if(*(path++) != *(cmp++))
+            return 0;
+
+    return 1;
+}
+
+char* krd_base = 0;
+unsigned int krd_size = 0;
+char temp_buf[256] = {0};
+
+void krd_init() {
+
+    krd_size = *((unsigned int*)0x100005);
+    krd_base = (unsigned char*)0x100005 + krd_size;
+}
+
+unsigned int krd_getFileCount() {
+
+    return *((unsigned int*)krd_base);
+}
+
+void krd_getNthFilename(int index, char* outbuf, char* out_len) {
+
+    char* entry_base = krd_base + 4;
+    unsigned char len;
+    int i;
+
+    if(index >= krd_getFileCount()) {
+
+        outbuf[0] = 0;
+        *out_len = 0;
+        return;
+    }
+
+    for(i = 0; i <= index; i++) {
+
+        entry_base += 8;
+        len = *((unsigned char*)(entry_base++));
+        
+        if(i < index)
+            entry_base += len;
+    }
+
+    *out_len = len;
+
+    for(i = 0; i < len; i++)
+        outbuf[i] = *(entry_base++);
+
+    outbuf[i] = 0;
+}
+
+unsigned int vfs_pathExists(unsigned int volume_id, char* path) {
+
+    unsigned int vol_num;
+    int file_count, i;
+    char len;
+    Volume* target_volume;
+
+    //Check for root delimiter, return fail if it's not there
+    if(*(path++) != ':')
+        return 0;
+
+    //Compare next segment to registered volume names. If there's a match and
+    //    another segment following, forward to the volume's FS driver. 
+    //    Otherwise, return success
+    //Later, we'll get volume names from the FS drivers themselves. But for 
+    //now, to start simply, the volumes are simply 0-9
+    if(pathCmp(path, "vol_")) {
+
+        path += 4;
+        vol_num = (unsigned int)(*(path++) - '0');
+
+        if((vol_num < 10) &&
+           (target_volume = getVolumeById(vol_num))) {
+
+            if(*path == ':')
+                return FSPathExists(target_volume->fs_driver_pid, target_volume->volume_id, path);
+            
+            if(*path == 0)
+                return 1;
+            else
+                return 0;
+        }
+
+        //If we had a bad volume number or volume doesn't exist, we need to rewind
+        path -= 5;        
+    }
+
+    //Use kernelfs functions to compare the segment to the list of ramdisk
+    //    files. If no match, return fail. If match, return fail if not at 
+    //    end of path. Otherwise return success.
+    file_count = krd_getFileCount();
+
+    for(i = 0; i < file_count; i++) {
+
+        krd_getNthFilename(i, temp_buf, &len);
+        
+        if(pathCmp(path, temp_buf) && (*(path + len) == 0))
+            return 1;
+    }
+
+    return 0;
+}
+
 void main(void) {
 
     unsigned char* disk_buffer;
     message temp_msg;
     unsigned int parent_pid;
+    unsigned int call_client_pid;  
+    unsigned int call_volume_id;
+    unsigned int call_path_string_length; 
+    char* call_path_string;
 
 	//Get the 'here's my pid' message from init
     getMessage(&temp_msg);
@@ -214,6 +325,9 @@ void main(void) {
 
     prints("Success\n");
     postMessage(parent_pid, 0, 1); //Tell the parent we started up OK
+
+    //Set up the references to the kernel ramdisk
+    krd_init();
 
     //Enter the message loop
     while(1) {
@@ -275,6 +389,16 @@ void main(void) {
                     prints("Failure\n"); //DEBUG
                     postMessage(temp_msg.source, VFS_REGISTER_FS, 0);
                 }
+            break;
+
+            case FS_PATH_EXISTS:
+                 call_client_pid = temp_msg.source;
+                 call_volume_id = temp_msg.payload;
+                 call_path_string_length = getStringLength(call_client_pid); 
+                 call_path_string = (char*)malloc(call_path_string_length);
+                 getString(call_client_pid, call_path_string, call_path_string_length);
+                 postMessage(call_client_pid, FS_PATH_EXISTS, vfs_pathExists(call_volume_id, call_path_string));
+                 free(call_path_string);
             break;
 
             default:
