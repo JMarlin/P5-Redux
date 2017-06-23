@@ -11,8 +11,8 @@ void main(void) {
     startSuperProc(":idle.mod");
 
     //Start up all of the initial-boot servers
-    prints("[init] Starting VESA server...\n");
-    startAndWait(":vesa.mod");
+//    prints("[init] Starting VESA server...\n");
+//    startAndWait(":vesa.mod");
 
     //Start PCI server
     //prints("[init] Starting pci server...\n");
