@@ -243,7 +243,7 @@ void krd_getNthFilename(int index, char* outbuf, char* out_len) {
     outbuf[i] = 0;
 }
 
-unsigned int vfs_pathExists(unsigned int volume_id, char* path) {
+unsigned int vfs_pathExists(char* path) {
 
     unsigned int vol_num;
     int file_count, i;
@@ -253,6 +253,10 @@ unsigned int vfs_pathExists(unsigned int volume_id, char* path) {
     //Check for root delimiter, return fail if it's not there
     if(*(path++) != ':')
         return 0;
+
+    //The root directory always exists
+    if(*path == 0)
+        return 1;
 
     //Compare next segment to registered volume names. If there's a match and
     //    another segment following, forward to the volume's FS driver. 
@@ -265,7 +269,8 @@ unsigned int vfs_pathExists(unsigned int volume_id, char* path) {
         vol_num = (unsigned int)(*(path++) - '0');
 
         if((vol_num < 10) &&
-           (target_volume = getVolumeById(vol_num))) {
+           (target_volume = getVolumeById(vol_num)) &&
+           (target_volume->flags & VOLUME_MOUNTED)) {
 
             if(*path == ':')
                 return FSPathExists(target_volume->fs_driver_pid, target_volume->volume_id, path);
@@ -296,6 +301,141 @@ unsigned int vfs_pathExists(unsigned int volume_id, char* path) {
     return 0;
 }
 
+unsigned int vfs_mountedVolumeCount() {
+
+    int i;
+    unsigned int sum = 0;
+
+    //This would go faster if we just updated a number
+    //whenever mounting or unmounting a volume
+    for(i = 0; i < volume_count; i++)
+        if(volume_list[i]->flags & VOLUME_MOUNTED) sum++;
+
+    return sum;
+}
+
+unsigned int vfs_fileCount(char* path) {
+
+    unsigned int vol_num;
+    Volume* target_volume;
+
+    //Check for root delimiter, return fail if it's not there
+    if(*(path++) != ':')
+        return 0;
+
+    //If we're just querying the root path, just return the number of files
+    //in the kernel ramdisk plus the number of registered volumes
+    if(*path == 0)
+        return krd_getFileCount() + vfs_mountedVolumeCount();
+
+    //Compare next segment to registered volume names. If there's a match and
+    //    another segment following, forward to the volume's FS driver. 
+    //    Otherwise, return success
+    //Later, we'll get volume names from the FS drivers themselves. But for 
+    //now, to start simply, the volumes are simply 0-9
+    if(pathCmp(path, "vol_")) {
+
+        path += 4;
+        vol_num = (unsigned int)(*(path++) - '0');
+
+        if((vol_num < 10) &&
+           (target_volume = getVolumeById(vol_num)) &&
+           (target_volume->flags & VOLUME_MOUNTED)) {
+
+            if(*path == ':')
+                return FSGetFileCount(target_volume->fs_driver_pid, target_volume->volume_id, path);
+            else
+                return 0;
+        }    
+    }
+
+    return 0;
+}
+
+void vfs_getNthFileInfo(char* path, unsigned int index, FileInfo* file_info) {
+
+    unsigned int vol_num, i, vol_idx;
+    char len;
+    Volume* target_volume;
+
+    file_info->filename = 0;
+    file_info->filetype = 0;
+
+    //Check for root delimiter, return fail if it's not there
+    if(*(path++) != ':')
+        return;
+
+    //Listing will go volumes followed by ramdisk files
+    //If the index is in the volume range, we return the generated
+    //volume name and the 'folder' file type. Otherwise, we return
+    //the ramdisk filename and the 'file' file type 
+    if(*path == 0) {
+
+        if(index < vfs_mountedVolumeCount()) {
+
+            //Get indexth mounted volume
+            vol_idx = 0;
+
+            for(i = 0; i < volume_count; i++)
+                if(volume_list[i]->flags & VOLUME_MOUNTED) {
+
+                    vol_idx++;
+                    if(vol_idx == index)
+                        break;
+                }
+
+            //TODO: Catch the above loop not actually finding a mounted volume
+
+            //Again, this is one of those spots where, in the future, 
+            //we would be deferring to the filesystem driver to give us
+            //the volume name
+            file_info->filename = (char*)malloc(6);
+            file_info->filename[0] = 'v';
+            file_info->filename[1] = 'o';
+            file_info->filename[2] = 'l';
+            file_info->filename[3] = '_';
+            file_info->filename[4] = (char)(volume_list[i]->volume_id & 0xFF) + '0';
+            file_info->filename[5] = 0;
+            file_info->filetype = 2;
+        } else if(index < (vfs_mountedVolumeCount() + krd_getFileCount())) {
+
+            krd_getNthFilename(index - vfs_mountedVolumeCount(), temp_buf, &len);
+
+            file_info->filename = (char*)malloc(len + 1);
+
+            for(i = 0; i < len; i++)
+                file_info->filename[i] = temp_buf[i];
+
+            file_info->filename[i] = 0;
+            file_info->filetype = 1;
+        }
+
+        return; //Bad index
+    }
+
+    //Compare next segment to registered volume names. If there's a match and
+    //    another segment following, forward to the volume's FS driver. 
+    //    Otherwise, return success
+    //Later, we'll get volume names from the FS drivers themselves. But for 
+    //now, to start simply, the volumes are simply 0-9
+    if(pathCmp(path, "vol_")) {
+
+        path += 4;
+        vol_num = (unsigned int)(*(path++) - '0');
+
+        if((vol_num < 10) &&
+           (target_volume = getVolumeById(vol_num)) &&
+           (target_volume->flags & VOLUME_MOUNTED)) {
+
+            if(*path == ':') 
+                FSGetNthFile(target_volume->fs_driver_pid, target_volume->volume_id, path, index, file_info);
+
+            if(*path == 0) 
+                FSGetNthFile(target_volume->fs_driver_pid, target_volume->volume_id, ":", index, file_info);
+        }    
+    }
+}
+
 void main(void) {
 
     unsigned char* disk_buffer;
@@ -304,6 +444,8 @@ void main(void) {
     unsigned int call_client_pid;  
     unsigned int call_volume_id;
     unsigned int call_path_string_length; 
+    unsigned int call_index;
+    FileInfo file_info;
     char* call_path_string;
 
 	//Get the 'here's my pid' message from init
@@ -397,8 +539,33 @@ void main(void) {
                  call_path_string_length = getStringLength(call_client_pid); 
                  call_path_string = (char*)malloc(call_path_string_length);
                  getString(call_client_pid, call_path_string, call_path_string_length);
-                 postMessage(call_client_pid, FS_PATH_EXISTS, vfs_pathExists(call_volume_id, call_path_string));
+                 postMessage(call_client_pid, FS_PATH_EXISTS, vfs_pathExists(call_path_string));
                  free(call_path_string);
+            break;
+
+            case FS_GET_FILE_COUNT:
+                call_client_pid = temp_msg.source;
+                call_volume_id = temp_msg.payload;
+                call_path_string_length = getStringLength(call_client_pid); 
+                call_path_string = (char*)malloc(call_path_string_length);
+                getString(call_client_pid, call_path_string, call_path_string_length);
+                postMessage(call_client_pid, FS_GET_FILE_COUNT, vfs_fileCount(call_path_string));
+                free(call_path_string);
+            break;
+
+            case FS_GET_NTH_FILE:
+                call_client_pid = temp_msg.source;
+                call_volume_id = temp_msg.payload;
+                getMessageFrom(&temp_msg, call_client_pid, FS_GET_NTH_FILE_IDX);
+                call_index = temp_msg.payload;
+                call_path_string_length = getStringLength(call_client_pid); 
+                call_path_string = (char*)malloc(call_path_string_length);
+                getString(call_client_pid, call_path_string, call_path_string_length);
+                vfs_getNthFileInfo(call_path_string, call_index, &file_info);
+                postMessage(call_client_pid, FS_GET_NTH_FILE_TYPE, file_info.filetype);
+                sendString(file_info.filename, call_client_pid);
+                free(file_info.filename);
+                free(call_path_string);
             break;
 
             default:

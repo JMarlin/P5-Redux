@@ -632,7 +632,8 @@ void detectScancodeSet() {
 //and put it into the keyboard ring buffer
 void keyIRQThread() {
 	
-	unsigned char shift_count = 0;
+	unsigned char lshift = 0;
+    unsigned char rshift = 0;
     unsigned char caps = 0;
     unsigned char was_break = 0;
     keyInfo* temp_key;
@@ -666,8 +667,11 @@ void keyIRQThread() {
                         switch(temp_key->value) {
                             
                             case KCTRL_LSHIFT:
+                                lshift = 0;
+                            break; 
+
                             case KCTRL_RSHIFT:
-                                shift_count--;
+                                rshift = 0;
                             break;
                             
                             default: 
@@ -678,7 +682,7 @@ void keyIRQThread() {
                     
                     if(temp_key->type == KEY_TYPE_CHAR) {
                     
-                        if(shift_count)
+                        if(lshift || rshift)
                             buffer_insert(temp_key->shifted);
                         else if(caps)
                             buffer_insert(capitalize(temp_key->value));
@@ -689,8 +693,11 @@ void keyIRQThread() {
                         switch(temp_key->value) {
                             
                             case KCTRL_LSHIFT:
+                                lshift = 1;
+                            break; 
+                            
                             case KCTRL_RSHIFT:
-                                shift_count++;
+                                rshift = 1;
                             break;
                             
                             case KCTRL_CAPS:

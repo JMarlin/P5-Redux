@@ -321,6 +321,9 @@ void makeWindows() {
 
 void main(void) {
 
+    unsigned int file_count, i;
+    FileInfo file_info;
+
     prints("\nUSR.MOD started.\n");
 
  /*   
@@ -360,14 +363,48 @@ void main(void) {
         
         scans(50, inbuf);
 
-        prints("\nLooking for ");
-        prints(inbuf);
-        prints("...");
+        if(inbuf[0] == 'L' && inbuf[1] == ' ') {
 
-        if(FSPathExists(vfs_pid, 0, ":usr.mod"))
-            prints("Exists\n");
-        else
-            prints("Not Found\n");
+            prints("Listing ");
+            prints(inbuf + 2);
+            prints("\n");
+
+            if(!FSPathExists(vfs_pid, 0, inbuf + 2)) {
+
+                prints("No such directory\n");
+                continue;
+            }
+
+            file_count = FSGetFileCount(vfs_pid, 0, inbuf + 2);
+
+            for(i = 0; i < file_count; i++) {
+
+                FSGetNthFile(vfs_pid, 0, inbuf + 2, i, &file_info);
+                
+                if(file_info.filetype == 0) {
+                
+                    prints("BAD INDEX\n");
+                    break;
+                }
+
+                prints(file_info.filename);
+
+                if(file_info.filetype == 2)
+                    prints("    <DIR>");
+
+                prints("\n");
+                free(file_info.filename);
+            }
+        }
+
+        if(inbuf[0] == 'C' && inbuf[1] == ' ') {
+
+            prints("Number of files and dirs in ");
+            prints(inbuf + 2);
+            prints(" is ");
+            printDecimal(FSGetFileCount(vfs_pid, 0, inbuf + 2));
+            prints("\n");
+        }
     }
 
     while(1);
