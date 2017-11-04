@@ -6,6 +6,7 @@
 #include "../include/key.h"
 #include "../include/fs.h"
 #include "../include/registrar.h"
+#include "../include/memory.h"
 
 #define CMD_COUNT 9
 

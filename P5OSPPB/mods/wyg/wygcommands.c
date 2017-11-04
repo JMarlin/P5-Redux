@@ -1,4 +1,5 @@
 #include "wygcommands.h"
+#include "../include/p5.h"
 
 //Forward declaration of widget class constructors
 Window* WYG_window_constructor(unsigned int flags);

@@ -15,6 +15,7 @@ extern unsigned int _mc_dst;
 extern unsigned int _mc_cnt;
 
 extern void _asm_memcpy(void);
+extern void _asm_memcpy_rev(void);
 
 void (*log_start)(void) = 0;
 void (*log_end)(void) = 0;

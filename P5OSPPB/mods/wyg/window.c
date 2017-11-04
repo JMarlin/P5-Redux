@@ -1,6 +1,7 @@
 #include "inttypes.h"
 #include "../include/memory.h"
 #include "../include/wyg.h"
+#include "../include/p5.h"
 #include "window.h"
 #include "styleutils.h"
 #include "wygcommands.h"
