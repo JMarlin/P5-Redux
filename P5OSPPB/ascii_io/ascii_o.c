@@ -130,7 +130,7 @@ void initScreen() {
 
     int i;
 
-    initSerial();
+    initSerial(SERIAL_DEFAULT_BASE);
     screenBase = (char*)0xB8000;
     setCursor(0, 0);
     
