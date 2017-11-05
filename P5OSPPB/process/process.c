@@ -931,7 +931,7 @@ void kernelEntry(void) {
                     if(panic_count) {
                     
                         prints("\nDOUBLE PANIC!\n");
-                        while(1);
+                        //while(1);
                     }
                     
                     panic_count++;
