@@ -930,7 +930,7 @@ void kernelEntry(void) {
 					
                     if(panic_count) {
                     
-                        prints("\nDOUBLE PANIC!\n");
+                        prints("\nDOUBLE PANIC A!\n");
                         //while(1);
                     }
                     
@@ -1038,8 +1038,8 @@ void kernelEntry(void) {
 				
                 if(panic_count) {
                     
-                    prints("\nDOUBLE PANIC!\n");
-                    while(1);
+                    prints("\nDOUBLE PANIC B!\n");
+                    //while(1);
                 }
                 
                 panic_count++;
