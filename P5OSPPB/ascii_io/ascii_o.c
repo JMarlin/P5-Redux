@@ -14,6 +14,7 @@ int kcursor = 0;
 #define LINECOUNT 25
 #endif
 
+int serial_enabled = 0;
 char* screenBase = 0;
 int cursor_x = 0, cursor_y = 0;
 char color_code = 0x07;
@@ -126,11 +127,15 @@ void enterTextMode(void (*cb)(void)) {
 
 
 
-void initScreen() {
+void initScreen(int enable_serial) {
 
     int i;
 
-    initSerial(SERIAL_DEFAULT_BASE);
+    serial_enabled = enable_serial;
+
+    if(enable_serial) 
+        initSerial(SERIAL_DEFAULT_BASE);
+
     screenBase = (char*)0xB8000;
     setCursor(0, 0);
     
@@ -227,7 +232,8 @@ void klogHexDword(unsigned int dword) {
 void pchar(char _inin) {
 
     //DEBUG
-    serPutch(_inin);
+    if(serial_enabled)
+        serPutch(_inin);
     
     if(_inin != '\n'){
 

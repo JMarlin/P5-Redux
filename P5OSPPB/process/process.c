@@ -953,6 +953,7 @@ void kernelEntry(void) {
 					disable_irq(5);
 					disable_irq(6);
 					disable_irq(7); //We would do all of them, but right now this only supports the first PIC
+                    prints("Entering text mode for debug...");
 					enterTextMode(&doKernelPanic);
 				}
             }

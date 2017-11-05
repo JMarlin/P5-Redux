@@ -6,9 +6,11 @@ void startAndWaitUsr(char* file);
 //Update this in the future to read the boot module names from a text file
 void main(void) {
 
+    prints("Init.mod loaded. Hanging.");
+
     //Start the idle process
-    prints("[init] Starting idle process...\n");
-    startSuperProc(":idle.mod");
+    //prints("[init] Starting idle process...\n");
+    //startSuperProc(":idle.mod");
 
     //Start up all of the initial-boot servers
 //    prints("[init] Starting VESA server...\n");
@@ -23,16 +25,16 @@ void main(void) {
 //    startAndWait(":uhci.mod");
     
     //Start key server
-    prints("[init] Starting ps2 server...\n");
-    startAndWait(":ps2.mod");
+    //prints("[init] Starting ps2 server...\n");
+    //startAndWait(":ps2.mod");
 
     //Start VFS server
-    prints("[init] Starting VFS server...\n");
-    startAndWait(":vfs.mod"); //VFS needs ring 0 access to read the kernel ramdisk
+    //prints("[init] Starting VFS server...\n");
+    //startAndWait(":vfs.mod"); //VFS needs ring 0 access to read the kernel ramdisk
 
     //Start FDC server
-    prints("[init] Starting FDC server...\n");
-    startAndWait(":fdc.mod");
+    //prints("[init] Starting FDC server...\n");
+    //startAndWait(":fdc.mod");
 
     //Start WYG server
 //    prints("[init] Starting WYG server...\n");
@@ -43,8 +45,8 @@ void main(void) {
 //    startAndWait(":uart.mod");
 
     //Finally, start up the user 'login' process
-    prints("[init] Servers ready. Starting user process.\n");
-    startProc(":usr.mod");
+    //prints("[init] Servers ready. Starting user process.\n");
+    //startProc(":usr.mod");
     
     while(1);
     //terminate();

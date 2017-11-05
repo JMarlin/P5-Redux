@@ -15,7 +15,7 @@ void klogHexWord(unsigned short wd);
 void klogHexDword(unsigned int dword);
 void pchar(char _inin);
 void prints(char* _str);
-void initScreen();
+void initScreen(int enable_serial);
 void setCursor(int x, int y);
 void setColor(char newCode);
 void clear(void);

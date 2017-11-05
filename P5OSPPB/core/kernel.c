@@ -30,7 +30,7 @@ int main(void) {
     __asm__ ("cli");
 
     setColor(0x1F);
-    initScreen();
+    initScreen(1);
     clear();
     prints("Setting up interrupt table...");
     initIDT();
