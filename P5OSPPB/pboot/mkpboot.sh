@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #NOTE Currently does not support images over 32MB (would require conditionally
 #writing to the extended size area at the end of the BPB)
@@ -7,6 +7,9 @@
 
 #Supress output
 #exec > /dev/null 2>&1
+
+rm *.bin
+rm *.img*
 
 #The success message which will be placed into the SUCCESS.TXT
 MESSAGE="This is a fresh PBoot boot image. To make this a functional P5OS boot volume, place a valid P5 kernel image into the root of this image with the filename 'P5KERN.BIN'"
